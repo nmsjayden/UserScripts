@@ -11,6 +11,7 @@
 // @updateURL    https://raw.githubusercontent.com/nmsjayden/UserScripts/main/AutoLuarmor.js
 // @grant        none
 // @run-at       document-start
+// support       https://discord.gg/VhG4TJD5QY
 // ==/UserScript==
 
 (function() {
