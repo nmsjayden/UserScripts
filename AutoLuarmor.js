@@ -7,8 +7,8 @@
 // @author       Aro
 // @match        https://ads.luarmor.net/get_key?*
 // @match        https://ads.luarmor.net/blacklisted
-// @downloadURL  https://raw.githubusercontent.com/nmsjayden/UserScripts/main/AutoLuarmor.js
-// @updateURL    https://raw.githubusercontent.com/nmsjayden/UserScripts/main/AutoLuarmor.js
+// @downloadURL  https://raw.githubusercontent.com/nmsjayden/UserScripts/refs/heads/main/AutoLuarmor.js
+// @updateURL    https://raw.githubusercontent.com/nmsjayden/UserScripts/refs/heads/main/AutoLuarmor.js
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @run-at       document-start
