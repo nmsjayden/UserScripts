@@ -1,20 +1,21 @@
 // ==UserScript==
-// @name         Auto Luarmor V2 
+// @name         Auto Luarmor V2
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      4.7.0
+// @version      4.7.6
 // @description  Auto Luarmor — early ad bypass, themes, sizes, multi-key, key management, API bypass
 // @author       Aro
 // @match        https://ads.luarmor.net/get_key?*
 // @match        https://ads.luarmor.net/blacklisted
 // @downloadURL  https://raw.githubusercontent.com/nmsjayden/UserScripts/main/AutoLuarmor.js
 // @updateURL    https://raw.githubusercontent.com/nmsjayden/UserScripts/main/AutoLuarmor.js
-// @grant        none
+// @grant        GM_getValue
+// @grant        GM_setValue
 // @run-at       document-start
-// support       https://discord.gg/VhG4TJD5QY
+// @supportURL   https://discord.gg/VhG4TJD5QY
 // ==/UserScript==
 
-(function() {
+(function () {
     "use strict";
 
     // ─────────────────────────────────────────────
@@ -22,13 +23,75 @@
     // ─────────────────────────────────────────────
 
     (() => {
-        ["GM_info", "GM_getValue", "GM_setValue", "GM_xmlhttpRequest"].forEach(k => {
+        ["GM_info", "GM_getValue", "GM_setValue", "GM_xmlhttpRequest", "GM_addStyle", "GM_deleteValue", "GM_listValues", "GM_getResourceText", "GM_getResourceURL", "GM_openInTab", "GM_registerMenuCommand", "GM_setClipboard", "GM_xmlhttpRequest", "unsafeWindow"].forEach(k => {
             try {
-                if(window[k]) Object.defineProperty(window, k, {
-                    get: () => undefined
+                Object.defineProperty(window, k, {
+                    get: () => undefined,
+                    configurable: false,
+                    enumerable: false
                 });
             } catch (_) {}
         });
+
+        try {
+            Object.defineProperty(navigator, 'webdriver', {
+                get: () => undefined,
+                configurable: false
+            });
+        } catch (_) {}
+
+        try {
+            Object.defineProperty(navigator, 'plugins', {
+                get: () => {
+                    const fakes = ["Chrome PDF Plugin", "Chrome PDF Viewer", "Native Client"];
+                    return Object.assign(fakes.map(name => ({
+                        name,
+                        filename: name.toLowerCase().replace(/ /g, '_') + '.so',
+                        description: ''
+                    })), {
+                        length: fakes.length,
+                        item: i => fakes[i],
+                        namedItem: n => fakes.find(f => f.name === n) ?? null,
+                        refresh: () => {}
+                    });
+                },
+                configurable: false
+            });
+        } catch (_) {}
+
+        try {
+            const _origFetch = window.fetch.bind(window);
+            window.fetch = function (input, init = {}) {
+                if(init.headers) {
+                    const cleaned = {};
+                    for(const [k, v] of Object.entries(init.headers)) {
+                        if(!k.toLowerCase().startsWith('x-tm') && !k.toLowerCase().startsWith('tamper')) {
+                            cleaned[k] = v;
+                        }
+                    }
+                    init.headers = cleaned;
+                }
+                return _origFetch(input, init);
+            };
+            Object.defineProperty(window.fetch, 'name', {
+                value: 'fetch'
+            });
+            Object.defineProperty(window.fetch, 'length', {
+                value: 1
+            });
+        } catch (_) {}
+
+        try {
+            const _dbg = console.debug.bind(console);
+            const _log = console.log.bind(console);
+            console.debug = (...a) => {
+                if(!String(a[0]).startsWith('[ALv4')) _dbg(...a);
+            };
+            console.log = (...a) => {
+                if(!String(a[0]).startsWith('[ALv4')) _log(...a);
+            };
+        } catch (_) {}
+
     })();
 
     // ─────────────────────────────────────────────
@@ -63,48 +126,197 @@
     const POPUP_BLACKLIST = ["oundhertobeconsist.org"];
 
     const FakeWindow = (() => {
-        let closed = false,
-            href = "about:blank";
-        return {
-            get closed() {
-                return closed;
-            },
-            set closed(v) {
-                closed = v;
-            },
-            blur() {
-                return false;
-            },
-            focus() {
-                return false;
-            },
-            close() {
-                closed = true;
-                return true;
-            },
-            get location() {
-                return {
-                    href
-                };
-            },
-            set location(v) {
-                href = v.href || v;
-            },
-            document: {
-                write() {},
-                close() {},
-                body: {}
-            },
-            opener: window,
-            name: "",
-            status: "",
+        let closed = false;
+        let href = "about:blank";
+        let name = "";
+        let status = "";
+
+        const realProto = Object.getPrototypeOf(window);
+
+        const fake = Object.create(realProto);
+
+        /* ======================
+           Helper: clone descriptor
+        ======================= */
+        const mirrorProp = (target, source, key) => {
+            const desc = Object.getOwnPropertyDescriptor(source, key);
+            if(desc) Object.defineProperty(target, key, desc);
         };
+
+        /* ======================
+           Location (minimal but realistic)
+        ======================= */
+        const fakeLocation = Object.create(Location.prototype);
+
+        Object.defineProperties(fakeLocation, {
+            href: {
+                get() {
+                    return href;
+                },
+                set(v) {
+                    href = String(v);
+                },
+                enumerable: true
+            },
+            assign: {
+                value: function (url) {
+                    href = String(url);
+                },
+            },
+            replace: {
+                value: function (url) {
+                    href = String(url);
+                },
+            },
+            reload: {
+                value: function () {},
+            },
+            toString: {
+                value: function () {
+                    return href;
+                }
+            }
+        });
+
+        /* ======================
+           Core Window Props
+        ======================= */
+        Object.defineProperties(fake, {
+
+            closed: {
+                get() {
+                    return closed;
+                }
+            },
+
+            name: {
+                get() {
+                    return name;
+                },
+                set(v) {
+                    name = String(v);
+                }
+            },
+
+            status: {
+                get() {
+                    return status;
+                },
+                set(v) {
+                    status = String(v);
+                }
+            },
+
+            location: {
+                get() {
+                    return fakeLocation;
+                },
+                set(v) {
+                    href = String(v);
+                }
+            },
+
+            document: {
+                value: document
+            },
+
+            navigator: {
+                value: navigator
+            },
+
+            screen: {
+                value: screen
+            },
+
+            history: {
+                value: history
+            },
+
+            innerWidth: {
+                get: () => window.innerWidth
+            },
+            innerHeight: {
+                get: () => window.innerHeight
+            },
+            outerWidth: {
+                get: () => window.outerWidth
+            },
+            outerHeight: {
+                get: () => window.outerHeight
+            },
+            devicePixelRatio: {
+                get: () => window.devicePixelRatio
+            },
+
+            self: {
+                get() {
+                    return fake;
+                }
+            },
+
+            window: {
+                get() {
+                    return fake;
+                }
+            },
+
+            top: {
+                get() {
+                    return fake;
+                }
+            },
+
+            parent: {
+                get() {
+                    return fake;
+                }
+            },
+
+            opener: {
+                value: null
+            }
+
+        });
+
+        /* ======================
+           Native-looking close()
+        ======================= */
+        Object.defineProperty(fake, "close", {
+            value: function close() {
+                closed = true;
+            }
+        });
+
+        /* ======================
+           Delegate timers properly
+        ======================= */
+        [
+            "setTimeout",
+            "clearTimeout",
+            "setInterval",
+            "clearInterval",
+            "requestAnimationFrame",
+            "cancelAnimationFrame"
+        ].forEach(fn => {
+            Object.defineProperty(fake, fn, {
+                value: window[fn].bind(window)
+            });
+        });
+
+        /* ======================
+           Make it pass brand checks
+        ======================= */
+        Object.defineProperty(fake, Symbol.toStringTag, {
+            value: "Window"
+        });
+
+        return fake;
     })();
 
     const SCRIPT_BLOCKED_DOMAINS = [
         "doubleclick.net", "googlesyndication.com", "adservice.google.com", "cloudfront.net",
         "popads.net", "popcash.net", "trafficjunky.net", "adnxs.com", "adsrvr.org",
-        "rubiconproject.com", "openx.net", "pubmatic.com", "adf.ly", "linkvertise.com",
+        "rubiconproject.com", "openx.net", "pubmatic.com", "adf.ly",
     ];
 
     function getPopupHostname(url) {
@@ -119,7 +331,8 @@
         return list.some(d => hostname === d || hostname.endsWith("." + d));
     }
 
-    const origWindowOpen = window.open.bind(window);
+    const _pageWindow = (typeof unsafeWindow !== "undefined") ? unsafeWindow : window;
+    const origWindowOpen = _pageWindow.open.bind(_pageWindow);
     let popupMode = "none",
         scriptRemovalObserver = null,
         scriptRemovalInstalled = false;
@@ -127,7 +340,7 @@
     function installPopupWhitelist() {
         if(popupMode === "whitelist") return;
         popupMode = "whitelist";
-        window.open = function(url, target, features) {
+        _pageWindow.open = function (url, target, features) {
             const host = getPopupHostname(url || "");
             if(hostMatchesList(host, POPUP_WHITELIST)) return origWindowOpen(url, target, features);
             return FakeWindow;
@@ -137,7 +350,7 @@
     function installPopupBlacklist() {
         if(popupMode === "blacklist") return;
         popupMode = "blacklist";
-        window.open = function(url, target, features) {
+        _pageWindow.open = function (url, target, features) {
             const host = getPopupHostname(url || "");
             if(hostMatchesList(host, POPUP_BLACKLIST)) return FakeWindow;
             return origWindowOpen(url, target, features);
@@ -147,7 +360,7 @@
     function uninstallPopupOverride() {
         if(popupMode === "none") return;
         popupMode = "none";
-        window.open = origWindowOpen;
+        _pageWindow.open = origWindowOpen;
     }
 
     function isBlockedScriptSrc(src) {
@@ -183,7 +396,7 @@
         scriptRemovalInstalled = true;
 
         const origCreate = document.createElement.bind(document);
-        document.createElement = function(tagName, options) {
+        document.createElement = function (tagName, options) {
             const elem = origCreate(tagName, options);
             if(tagName.toLowerCase() === "script") {
                 let _src = "";
@@ -272,7 +485,7 @@
 
     function peekBypassMethod() {
         try {
-            const v = localStorage.getItem("_alv3g_bypassMethod");
+            const v = GM_getValue("_alv3g_bypassMethod", null);
             return v ? JSON.parse(v) : "none";
         } catch (_) {
             return "none";
@@ -308,10 +521,13 @@
     // STORAGE
     // ─────────────────────────────────────────────
 
+    const _KP = btoa("alv3g").replace(/=/g, ''); // global prefix
+    const _KPL = btoa("alv3_" + KS_ID).replace(/=/g, '').slice(0, 10); // per-keysystem prefix
+
     const store = {
         getG: (k, d = null) => {
             try {
-                const v = localStorage.getItem("_alv3g_" + k);
+                const v = GM_getValue(_KP + "_" + k, null);
                 return v === null ? d : JSON.parse(v);
             } catch {
                 return d;
@@ -319,12 +535,12 @@
         },
         setG: (k, v) => {
             try {
-                localStorage.setItem("_alv3g_" + k, JSON.stringify(v));
+                GM_setValue(_KP + "_" + k, JSON.stringify(v));
             } catch {}
         },
         get: (k, d = null) => {
             try {
-                const v = localStorage.getItem(`_alv3_${KS_ID}_${k}`);
+                const v = GM_getValue(`${_KPL}_${k}`, null);
                 return v === null ? d : JSON.parse(v);
             } catch {
                 return d;
@@ -332,7 +548,7 @@
         },
         set: (k, v) => {
             try {
-                localStorage.setItem(`_alv3_${KS_ID}_${k}`, JSON.stringify(v));
+                GM_setValue(`${_KPL}_${k}`, JSON.stringify(v));
             } catch {}
         },
     };
@@ -810,37 +1026,38 @@
         uninstallScriptRemoval();
         const banner = $("bypassBanner");
         switch(method) {
-            case "dom":
-                if(banner) {
-                    banner.textContent = "⚡ DOM Nuke active";
-                    banner.style.display = "";
-                }
-                if(!bypassDone) performDomNuke(delayMs);
-                break;
-            case "script":
-                installScriptRemoval();
-                if(banner) {
-                    banner.textContent = "🛡 Script Removal active";
-                    banner.style.display = "";
-                }
-                break;
-            case "whitelist":
-                installPopupWhitelist();
-                if(banner) {
-                    banner.textContent = "✅ Popup Whitelist active";
-                    banner.style.display = "";
-                }
-                break;
-            case "blacklist":
-                installPopupBlacklist();
-                if(banner) {
-                    banner.textContent = "🚫 Popup Blacklist active";
-                    banner.style.display = "";
-                }
-                break;
-            default:
-                if(banner) banner.style.display = "none";
-                break;
+        case "dom":
+            if(banner) {
+                banner.textContent = "⚡ DOM Nuke active";
+                banner.style.display = "";
+            }
+            if(!bypassDone) performDomNuke(delayMs);
+            break;
+        case "script":
+            installScriptRemoval();
+            if(banner) {
+                banner.textContent = "🛡 Script Removal active";
+                banner.style.display = "";
+            }
+            break;
+        case "whitelist":
+            installPopupWhitelist();
+            if(banner) {
+                banner.textContent = "✅ Popup Whitelist active";
+                banner.style.display = "";
+            }
+            break;
+        case "blacklist":
+            installPopupBlacklist();
+            if(banner) {
+                banner.textContent = "🚫 Popup Blacklist active";
+                banner.style.display = "";
+            }
+            break;
+        default:
+            if(banner) banner.style.display = "none";
+            setDot("ok");
+            break;
         }
     }
 
@@ -854,15 +1071,20 @@
      */
     function captureNextPopupUrl() {
         return new Promise(resolve => {
-            window.focus(); // ensure tab is active before the click triggers window.open
-            const prev = window.open;
+            const target = (typeof unsafeWindow !== "undefined") ? unsafeWindow : window;
+            target.focus();
+            const prev = target.open;
             const timeout = setTimeout(() => {
-                window.open = prev;
+                try {
+                    target.open = prev;
+                } catch (_) {}
                 resolve(null);
             }, 5000);
-            window.open = function(url, target, features) {
+            target.open = function (url, t, features) {
                 clearTimeout(timeout);
-                window.open = prev;
+                try {
+                    target.open = prev;
+                } catch (_) {}
                 console.debug("[ALv4 API Bypass] Captured popup URL:", url);
                 resolve(typeof url === "string" && url.trim() ? url : null);
                 return FakeWindow;
@@ -877,7 +1099,7 @@
 
     async function callBypassApi(url, apiKey) {
         try {
-            const apiUrl = `${API_BYPASS_ENDPOINT}?apikey=${encodeURIComponent(apiKey)}&url=${encodeURIComponent(url)}`;
+            const apiUrl = `${API_BYPASS_ENDPOINT}?apikey=${encodeURIComponent(apiKey)}&url=${encodeURIComponent(url)}&refresh=true`;
             log("API bypass: calling API…");
             const resp = await fetch(apiUrl);
             if(!resp.ok) throw new Error(`HTTP ${resp.status}`);
@@ -930,6 +1152,7 @@
             return "no_key";
         }
 
+        setDot("bypass");
         setAction("API bypass: capturing ad URL…");
         log("API bypass: intercepting window.open");
 
@@ -946,12 +1169,13 @@
             if(opts.apiFallback) {
                 log("API bypass: falling back to normal click");
                 tryGrabAdTab();
-                window.open = origWindowOpen;
+                _pageWindow.open = origWindowOpen;
                 await humanClick(btn);
             } else {
                 clickedStepsThisLoad.delete(step);
                 lastClickedStep = step - 1;
             }
+            setDot("ok");
             return "no_url";
         }
 
@@ -965,6 +1189,7 @@
                 log("API bypass: paused during delay — aborting");
                 clickedStepsThisLoad.delete(step);
                 lastClickedStep = step - 1;
+                setDot("ok");
                 return "paused";
             }
         }
@@ -972,11 +1197,42 @@
         const bypassedUrl = await runApiBypassFlow(capturedUrl);
 
         if(bypassedUrl) {
-            setAction("API bypass: redirecting…");
-            log("API bypass: navigating to bypassed URL");
-            window.focus(); // focus before redirect so location.href takes effect reliably
-            await sleep(300);
-            location.href = bypassedUrl;
+            setAction("API bypass: opening bypass in background tab…");
+            log("API bypass: opening ad URL then redirecting to bypass");
+
+            // Open the original ad URL first (satisfies the ad impression check)
+            const adTab = origWindowOpen(capturedUrl, "_blank");
+
+            await sleep(humanDelay(1200, 300, 800, 2000));
+
+            // Redirect that tab to the bypassed URL
+            if(adTab && !adTab.closed) {
+                try {
+                    adTab.location.href = bypassedUrl;
+                } catch (_) {
+                    // cross-origin block — try replace instead
+                    try {
+                        adTab.location.replace(bypassedUrl);
+                    } catch (_) {}
+                }
+            }
+
+            setAction("API bypass: waiting for tab to process…");
+            log("API bypass: redirected ad tab to bypass URL, waiting 5s…");
+
+            // Wait 5 seconds then close the tab and reload this page
+            await sleep(5000);
+
+            if(adTab && !adTab.closed) {
+                try {
+                    adTab.close();
+                } catch (_) {}
+            }
+
+            log("API bypass: ad tab closed — reloading page");
+            setAction("API bypass: reloading…");
+            await sleep(humanDelay(400, 100, 200, 700));
+            location.reload();
             return "redirected";
         }
 
@@ -985,7 +1241,7 @@
             log("API bypass: all retries failed — falling back to normal click");
             setAction("API bypass failed — falling back…");
             tryGrabAdTab();
-            window.open = origWindowOpen;
+            _pageWindow.open = origWindowOpen;
             await humanClick(btn);
         } else {
             log("API bypass: all retries failed — marking error");
@@ -996,6 +1252,7 @@
             clickedStepsThisLoad.delete(step);
             lastClickedStep = step - 1;
         }
+        setDot("ok");
         return "failed";
     }
 
@@ -1005,7 +1262,9 @@
 
     const PANEL_MARGIN = 10;
     const host = document.createElement("div");
-    host.id = "_ext_" + Math.random().toString(36).slice(2, 8);
+    host.id = "ext_" + btoa(Math.random().toString()).replace(/[^a-zA-Z]/g, '').slice(0, 7).toLowerCase();
+    host.dataset.component = "ui";
+    host.dataset.v = Math.floor(Math.random() * 99999);
     host.style.cssText = "position:fixed;z-index:2147483647;pointer-events:none;";
 
     function attachHost() {
@@ -1073,13 +1332,52 @@
 
       .dot{width:6px;height:6px;border-radius:50%;background:${t.accent};box-shadow:0 0 5px ${t.accent};transition:background .3s,box-shadow .3s;flex-shrink:0}
 
+#dotWrap{
+  width:${Math.round(22*F)}px;
+  height:${Math.round(22*F)}px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+}
       .dot.paused{background:${t.warn};box-shadow:0 0 5px ${t.warn}}
 
       .dot.error{background:${t.err};box-shadow:0 0 5px ${t.err}}
 
+       .dot.bypass{background:#a78bfa;box-shadow:0 0 5px #a78bfa}
+
       .hdr-btn{width:${Math.round(16*F)}px;height:${Math.round(16*F)}px;border-radius:3px;background:${t.hdrBtn};border:1px solid ${t.hdrBtnBorder};color:${t.textDim};font-size:${Math.round(9*F)}px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s;flex-shrink:0;pointer-events:all;font-family:'JetBrains Mono',monospace;line-height:1;}
 
       .hdr-btn:hover{background:${t.bg3};color:${t.textMid}}
+
+.discord-btn{
+  width:${Math.round(22*F)}px;
+  height:${Math.round(22*F)}px;
+  border-radius:4px;
+  background:${t.hdrBtn};
+  border:1px solid ${t.hdrBtnBorder};
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:background .15s,border-color .15s;
+  flex-shrink:0;
+  pointer-events:all;
+  text-decoration:none;
+}
+.discord-btn:hover{
+  background:#5865f2;
+  border-color:#7289da;
+}
+.discord-btn svg{
+  width:${Math.round(13*F)}px;
+  height:${Math.round(13*F)}px;
+  fill:${t.textDim};
+  transition:fill .15s;
+}
+.discord-btn:hover svg{
+  fill:#ffffff;
+}
 
       #bypassBanner{display:none;background:${t.accentDim};border-bottom:1px solid ${t.accentBorder};padding:3px 10px;font-size:${Math.round(8*F)}px;color:${t.accent};text-align:center;flex-shrink:0;}
 
@@ -1317,10 +1615,15 @@ input[type="text"]::placeholder{
         <span id="hubName">—</span>
         <span id="ksTag">${KS_ID}</span>
       </div>
-      <div id="hdr-right">
-        <span class="dot" id="dot"></span>
-        <button class="hdr-btn" id="minBtn" title="Minimize">—</button>
-      </div>
+<div id="hdr-right">
+  <a class="discord-btn" id="discordBtn" href="https://discord.gg/VhG4TJD5QY" target="_blank" rel="noopener noreferrer" title="Support Discord">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.043.033.057a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.030zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+    </svg>
+  </a>
+  <div id="dotWrap"><span class="dot" id="dot"></span></div>
+  <button class="hdr-btn" id="minBtn" title="Minimize">—</button>
+</div>
     </div>
     <div id="body">
       <div class="row"><span class="lbl">Status</span><span class="val dim" id="actVal">Starting…</span></div>
@@ -1381,12 +1684,12 @@ input[type="text"]::placeholder{
         <div class="opt-row">
           <div class="opt-lbl"><label for="o_clickMethod">Click method</label>${nfo("API: intercepts window.open(), calls trw.lat bypass API, redirects here — no popup opens.\nNormal: standard click.")}</div>
           <select id="o_clickMethod">
-            <option value="api">API (default)</option>
+            <option value="api">API (unfinished)</option>
             <option value="normal">Normal</option>
           </select>
         </div>
         <div id="apiKeyRow" class="opt-row">
-          <div class="opt-lbl"><label for="o_apiKey">API Key</label>${nfo("Required for API bypass mode. Stored locally.")}</div>
+          <div class="opt-lbl"><label for="o_apiKey">API Key</label>${nfo("Required for API bypass mode. Stored locally. (join discord for key)")}</div>
           <input type="password" id="o_apiKey" placeholder="TRW_...">
         </div>
         <div id="apiFallbackRow" class="opt-row">
@@ -1543,7 +1846,7 @@ input[type="text"]::placeholder{
         closeAdTab: store.get("closeAdTab", false),
         bypassMethod: store.getG("bypassMethod", "none"),
         bypassDelay: store.get("bypassDelay", 0),
-        clickMethod: store.getG("clickMethod", "api"),
+        clickMethod: store.getG("clickMethod", "normal"),
         apiFallback: store.getG("apiFallback", false),
         apiBypassDelay: store.getG("apiBypassDelay", 13000),
         multiKey: store.get("multiKey", false),
@@ -1794,6 +2097,40 @@ input[type="text"]::placeholder{
             $("klArrow").textContent = klOpen ? "▲" : "▼";
         };
 
+        // Delegated click handler for key selection — survives re-renders
+        const keyList = $("keyList");
+        if(keyList) keyList.addEventListener("click", e => {
+            // Don't fire when clicking copy button
+            if(e.target.classList.contains("ki-copy")) return;
+
+            const row = e.target.closest(".key-item");
+            if(!row) return;
+
+            const isMulti = opts.multiKey && multiKeySupported !== false && maxKeysAllowed !== 1;
+            if(isMulti || keySlots.length <= 1) return;
+
+            const keyVal = row.querySelector(".ki-val")?.title;
+            if(!keyVal) return;
+
+            const idx = keySlots.findIndex(s => s.key === keyVal);
+            selectedKey = (selectedKey === keyVal) ? null : keyVal;
+            store.set("selectedKey", selectedKey ?? "");
+
+            if(selectedKey) {
+                currentKeyText = selectedKey;
+                log(`Now managing: ${selectedKey.slice(0,8)}…`);
+                setAction(`Focused on key ${idx + 1}`);
+                if(phase !== "idle" && phase !== "keymgmt") {
+                    phase = "keymgmt";
+                    managingKeys = true;
+                    schedule(500);
+                }
+            } else {
+                log("Key selection cleared — resuming normal order");
+            }
+            renderKeyList();
+        });
+
         const minBtn = $("minBtn");
         if(minBtn) minBtn.onclick = e => {
             e.stopPropagation();
@@ -1830,6 +2167,7 @@ input[type="text"]::placeholder{
         opts.addOrder = $("o_addOrder").value;
 
         store.set("autoCopy", opts.autoCopy);
+        store.set("selectedKey", selectedKey ?? "");
         store.set("reloadOnResume", opts.reloadOnResume);
         store.set("clickDelay", opts.clickDelay);
         store.set("closeAdTab", opts.closeAdTab);
@@ -1852,7 +2190,8 @@ input[type="text"]::placeholder{
             hookAudioResume();
         }
         if(!opts.audioKeepalive && prevAudio) stopAudioKeepalive();
-
+        if(opts.multiKey) selectedKey = null;
+        store.set("selectedKey", selectedKey ?? "");
         buildStyles(opts.theme, opts.uiSize);
         styleTooltip();
         const cw = store.getG("panelCustomW", null);
@@ -2102,27 +2441,29 @@ input[type="text"]::placeholder{
     // ─────────────────────────────────────────────
 
     async function humanClick(el) {
-
         if(!el) return false;
-
         const rect = el.getBoundingClientRect();
-
         if(!rect.width || !rect.height) return false;
-
         const padX = rect.width * 0.2,
             padY = rect.height * 0.2;
-
         const bx = rect.left + padX + Math.random() * (rect.width - padX * 2);
-
         const by = rect.top + padY + Math.random() * (rect.height - padY * 2);
-
         const jx = () => bx + (Math.random() - 0.5) * 2,
             jy = () => by + (Math.random() - 0.5) * 2;
-
+        const safeView = (() => {
+            try {
+                new UIEvent("test", {
+                    view: window
+                });
+                return window;
+            } catch (_) {
+                return null;
+            }
+        })();
         const mk = (cx, cy, x = {}) => ({
             bubbles: true,
             cancelable: true,
-            view: window,
+            view: safeView,
             clientX: cx,
             clientY: cy,
             screenX: cx + window.screenX,
@@ -2133,89 +2474,67 @@ input[type="text"]::placeholder{
             button: x.button ?? 0,
             ...x
         });
-
         el.dispatchEvent(new PointerEvent("pointerover", mk(jx(), jy(), {
             buttons: 0
         })));
-
         el.dispatchEvent(new MouseEvent("mouseover", mk(jx(), jy(), {
             buttons: 0
         })));
-
         await sleep(humanDelay(40, 20, 15, 120));
-
         el.dispatchEvent(new PointerEvent("pointermove", mk(jx(), jy(), {
             buttons: 0
         })));
-
         el.dispatchEvent(new MouseEvent("mousemove", mk(jx(), jy(), {
             buttons: 0
         })));
-
         await sleep(humanDelay(30, 15, 10, 80));
-
         el.dispatchEvent(new PointerEvent("pointerenter", mk(jx(), jy(), {
             buttons: 0
         })));
-
         el.dispatchEvent(new MouseEvent("mouseenter", mk(jx(), jy(), {
             buttons: 0
         })));
-
         await sleep(humanDelay(60, 30, 20, 200));
-
         try {
             el.focus({
                 preventScroll: true
             });
         } catch (_) {}
-
         await sleep(humanDelay(50, 25, 10, 150));
-
         el.dispatchEvent(new PointerEvent("pointerdown", mk(jx(), jy(), {
             buttons: 1,
             button: 0
         })));
-
         el.dispatchEvent(new MouseEvent("mousedown", mk(jx(), jy(), {
             buttons: 1,
             button: 0
         })));
-
         await sleep(humanDelay(80, 35, 30, 250));
-
         el.dispatchEvent(new PointerEvent("pointerup", mk(jx(), jy(), {
             buttons: 0,
             button: 0
         })));
-
         el.dispatchEvent(new MouseEvent("mouseup", mk(jx(), jy(), {
             buttons: 0,
             button: 0
         })));
-
         await sleep(humanDelay(20, 10, 5, 60));
-
         el.dispatchEvent(new MouseEvent("click", mk(jx(), jy(), {
             buttons: 0,
             button: 0
         })));
-
         await sleep(humanDelay(100, 50, 40, 300));
-
         el.dispatchEvent(new MouseEvent("mousemove", mk(jx() + (Math.random() - 0.5) * 20, jy() + (Math.random() - 0.5) * 20, {
             buttons: 0
         })));
-
         return true;
-
     }
-
     // ─────────────────────────────────────────────
     // STATE
     // ─────────────────────────────────────────────
 
     let paused = store.getG("pausedState", false);
+    let selectedKey = (store.get("selectedKey", null) || "").trim() || null;
     let logLines = [],
         logOpen = false,
         optOpen = false,
@@ -2242,7 +2561,7 @@ input[type="text"]::placeholder{
     }
 
     function setDot(s) {
-        const c = "dot" + (s === "paused" ? " paused" : s === "error" ? " error" : "");
+        const c = "dot" + (s === "paused" ? " paused" : s === "error" ? " error" : s === "bypass" ? " bypass" : "");
         const d = $("dot"),
             pd = $("pillDot");
         if(d) d.className = c;
@@ -2317,6 +2636,7 @@ input[type="text"]::placeholder{
 
     function ensureKeySlot(k) {
         if(!k || k.length < 4) return false;
+        k = k.trim();
         if(keySlots.find(s => s.key === k)) return false;
         keySlots.push({
             key: k,
@@ -2376,7 +2696,12 @@ input[type="text"]::placeholder{
     }
 
     function getNextKeyForAddTime() {
-        // Include all non-waiting slots — renewKey() handles expired and active alike
+        // If user has manually selected a key (single-key mode, multiple keys), lock to it
+        if(selectedKey) {
+            const slot = keySlots.find(s => s.key === selectedKey);
+            if(slot && slot.status !== "waiting") return selectedKey;
+        }
+
         let candidates = keySlots.filter(s => s.status !== "waiting");
         if(candidates.length === 0) return null;
 
@@ -2404,36 +2729,85 @@ input[type="text"]::placeholder{
 
     function renderKeyList() {
         const list = $("keyList"),
-            cntEl = $("keyCnt");
+            cntEl = $("keyCnt"),
+            klHdr = $("keyListHdr");
         if(!list || !cntEl) return;
         const total = keySlots.length,
-            pageKeyCount = countPageKeys(),
-            effectiveCount = Math.max(total, pageKeyCount);
+            pageKeyCount = countPageKeys();
+        const effectiveCount = Math.max(total, pageKeyCount);
+        const isMulti = opts.multiKey && multiKeySupported !== false && maxKeysAllowed !== 1;
+        const showSelectHint = !isMulti && total >= 1;
+
+        // Inject/update the hint line in the header
+        let hint = shadow.getElementById("klHint");
+        if(showSelectHint) {
+            if(!hint) {
+                hint = document.createElement("div");
+                hint.id = "klHint";
+                hint.style.cssText = "font-size:0.75em;opacity:0.5;padding:2px 7px 3px;text-align:center;pointer-events:none;";
+                // Insert after keyListHdr
+                const wrap = $("keyListWrap");
+                if(wrap && klHdr) wrap.insertBefore(hint, klHdr.nextSibling);
+            }
+            hint.textContent = selectedKey ? `Managing: ${selectedKey.slice(0,8)}…` : (total > 1 ? "Click a key to manage" : "");
+        } else {
+            if(hint) hint.remove();
+            if(selectedKey && isMulti) selectedKey = null;
+        }
+
         if(total === 0) {
             list.innerHTML = `<div class="kl-empty">No keys yet</div>`;
             cntEl.classList.add("hidden");
             return;
         }
-        const isMulti = opts.multiKey && multiKeySupported !== false && maxKeysAllowed !== 1;
+
         cntEl.textContent = isMulti ? `${effectiveCount}/${opts.keyTarget}` : `${total}/${total}`;
         cntEl.classList.remove("hidden");
         list.innerHTML = "";
+
+        const t = THEMES[opts.theme] || THEMES.void;
+
         keySlots.forEach((slot, i) => {
             const row = document.createElement("div");
             row.className = "key-item";
-            const bc = slot.status === "expired" ? "expired" : slot.status === "done" ? "done" : slot.status === "managed" ? "managed" : slot.status === "active" ? "active" : "waiting";
-            const bt = slot.status === "expired" ? "expired" : slot.status === "done" ? "done" : slot.status === "managed" ? "mgmt" : slot.status === "active" ? "active" : "queue";
+
+            const isSelected = showSelectHint && selectedKey === slot.key;
+            if(isSelected) {
+                row.style.cssText = `background:${t.accentDim};border-left:2px solid ${t.accent};cursor:pointer;`;
+            } else if(showSelectHint) {
+                row.style.cssText = `cursor:pointer;transition:background .15s;`;
+                row.onmouseenter = () => row.style.background = t.bg3;
+                row.onmouseleave = () => row.style.background = "";
+            }
+
+            const bc = slot.status === "expired" ? "expired" :
+                slot.status === "done" ? "done" :
+                slot.status === "managed" ? "managed" :
+                slot.status === "active" ? "active" :
+                "waiting";
+            const bt = slot.status === "expired" ? "expired" :
+                slot.status === "done" ? "done" :
+                slot.status === "managed" ? "mgmt" :
+                slot.status === "active" ? "active" :
+                "queue";
+
             let tTxt = "—",
                 tCls = "ki-timer dim";
             if(slot.timerSecs !== null) {
                 tTxt = fmtHMS(slot.timerSecs);
                 tCls = "ki-timer" + (slot.timerSecs > 3600 ? "" : slot.timerSecs > 600 ? " yellow" : " red");
             }
-            row.innerHTML = `<span class="ki-num">${i+1}.</span><span class="ki-val" title="${slot.key}">${slot.key}</span><span class="${tCls}" id="kitimer_${i}">${tTxt}</span><span class="ki-badge ${bc}">${bt}</span><span class="ki-copy" data-key="${slot.key}" title="Copy">⎘</span>`;
+
+            const selIndicator = isSelected ? `<span style="color:${t.accent};font-size:0.8em;flex-shrink:0" title="Selected">●</span>` : `<span style="width:0.8em;flex-shrink:0"></span>`;
+
+            row.innerHTML = `${selIndicator}<span class="ki-num">${i+1}.</span><span class="ki-val" title="${slot.key}">${slot.key}</span><span class="${tCls}" id="kitimer_${i}">${tTxt}</span><span class="ki-badge ${bc}">${bt}</span><span class="ki-copy" data-key="${slot.key}" title="Copy">⎘</span>`;
+
+
             row.querySelector(".ki-copy").addEventListener("click", e => {
                 const k = e.target.dataset.key;
                 if(k && navigator.clipboard?.writeText) navigator.clipboard.writeText(k).catch(() => {});
             });
+
             list.appendChild(row);
         });
     }
@@ -2645,15 +3019,15 @@ input[type="text"]::placeholder{
     function tryGrabAdTab() {
         if(!opts.closeAdTab) return;
         if(popupMode !== "none") return;
-        const orig = window.open;
-        window.open = function(...args) {
-            const tab = orig.apply(window, args);
+        const orig = _pageWindow.open;
+        _pageWindow.open = function (...args) {
+            const tab = orig.apply(_pageWindow, args);
             if(tab) adTabRef = tab;
-            window.open = orig;
+            _pageWindow.open = orig;
             return tab;
         };
         setTimeout(() => {
-            window.open = orig;
+            _pageWindow.open = orig;
         }, 2000);
     }
 
@@ -2859,6 +3233,20 @@ input[type="text"]::placeholder{
         }
 
         syncFromPage();
+        // If no keys exist at all, click "Get a new key" automatically
+        if(keySlots.length === 0 && phase === "idle") {
+            const newBtn = qid("newkeybtn");
+            if(canClick(newBtn)) {
+                log("No keys found — clicking 'Get a new key'");
+                setAction("No keys — creating first key…");
+                await humanClick(newBtn);
+                schedule(humanDelay(2000, 500, 1200, 4000));
+            } else {
+                setAction("Waiting for 'Get a new key' button…");
+                schedule(800);
+            }
+            return;
+        }
 
         const prog = getProgress(),
             btn = qid("nextbtn"),
@@ -3043,9 +3431,7 @@ input[type="text"]::placeholder{
             hookAudioResume();
         }
 
-        if(opts.clickMethod !== "api") {
-            applyBypassMethod(opts.bypassMethod, opts.bypassDelay);
-        }
+        applyBypassMethod(opts.bypassMethod, opts.bypassDelay);
 
         updateApiBypassUI();
 
@@ -3053,6 +3439,20 @@ input[type="text"]::placeholder{
         startTimerTick();
         syncFromPage();
         renderKeyList();
+        if(selectedKey) {
+            let attempts = 0;
+            const validateInterval = setInterval(() => {
+                if(keySlots.find(s => s.key === selectedKey)) {
+                    renderKeyList();
+                    clearInterval(validateInterval);
+                } else if(++attempts >= 20) {
+                    selectedKey = null;
+                    store.set("selectedKey", "");
+                    renderKeyList();
+                    clearInterval(validateInterval);
+                }
+            }, 500);
+        }
         setDot(paused ? "paused" : "ok");
 
         if(paused) {
