@@ -5,7 +5,7 @@
     "link-hub.net": { "status": "down", "note": "Fixing issues in bypass" },
     "work.ink": { "status": "wip", "note": "In progress" },
     "link-target.net": { "status": "wip", "note": "Unchecked" },
-    "lootlabs.gg": { "status": "wip", "note": "Unchecked" }
-    "loot-link.com": { "status": "down", "note": "Please manually do loot link."
+    "lootlabs.gg": { "status": "wip", "note": "Unchecked" },
+    "loot-link.com": { "status": "down", "note": "Please manually do loot link." }
   }
 }
