@@ -1,9 +1,11 @@
-Recommended to use TamperMonkey or ViolentMonkey for these scripts.
+Recommended to use TamperMonkey or Violentmonkey for these scripts.
 
 ## Disclaimer
 
-These scripts are usually made by AI as I am still learning and currently in school. I encourage experienced developers to improve or remake them into something better.
+I’m still learning and currently in school, so many of these scripts are AI. Tho I do review and test it myself before releasing to make sure everything works properly and I dont release straight slop.
 
-Although these scripts are AI-assisted, I do my best to keep them reliable, maintain them actively, and reduce bugs as much as possible.
+I also actively maintain the projects.
 
-If you have any questions or concerns, please open an Issue. Otherwise, enjoy!
+If you’re more experienced and want to improve or rewrite something I highly encourage it as I look up to those who can code.
+
+If you run into issues or have suggestions, feel free to open an Issue. Otherwise, enjoy!
