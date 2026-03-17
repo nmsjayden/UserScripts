@@ -2,10 +2,10 @@
   "updated": "2025-03-04",
   "services": {
     "linkvertise.com": { "status": "up", "note": "link hub and inkvertise are not the same but are very similar." },
-    "link-hub.net": { "status": "down", "note": "Fixing issues in bypass" },
+    "link-hub.net": { "status": "up", "note": "Fixed" },
     "work.ink": { "status": "wip", "note": "In progress" },
-    "link-target.net": { "status": "wip", "note": "Unchecked" },
+    "link-target.net": { "status": "up", "note": "Fixed" },
     "lootlabs.gg": { "status": "wip", "note": "Unchecked" },
-    "loot-link.com": { "status": "down", "note": "Please manually do loot link." }
+    "loot-link.com": { "status": "down", "note": "Please manually do loot link while the api improves." }
   }
 }
