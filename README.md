@@ -9,3 +9,7 @@ I also actively maintain the projects.
 If you’re more experienced and want to improve or rewrite something I highly encourage it as I look up to those who can code.
 
 If you run into issues or have suggestions, feel free to open an Issue. Otherwise, enjoy!
+
+
+
+- Sorry AutoLuarmor is obfuscated, im just trying to not get people detected. (if yu request i will give deob)
