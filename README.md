@@ -12,4 +12,4 @@ If you run into issues or have suggestions, feel free to open an Issue. Otherwis
 
 
 
-- Sorry AutoLuarmor is obfuscated, im just trying to not get people detected. (if yu request i will give deob)
+- Sorry AutoLuarmor is obfuscated, im just trying to not get people detected. (if you request i will give deob)
