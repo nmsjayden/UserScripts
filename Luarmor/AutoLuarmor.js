@@ -1,23 +1,23 @@
 // ==UserScript==
 // @name         Auto Luarmor V2
 // @namespace    http://tampermonkey.net/
-// @license      MIT
-// @version      5.2.4
 // @description  Auto Luarmor — early ad bypass, themes, sizes, multi-key, key management, API bypass
+// @version      5.2.5
+// @license      MIT
 // @author       Aro
 // @match        https://ads.luarmor.net/get_key?*
 // @match        https://ads.luarmor.net/blacklisted
 // @match        https://*/cdn-cgi/rum
-// @downloadURL  https://raw.githubusercontent.com/nmsjayden/UserScripts/refs/heads/main/Luarmor/AutoLuarmor.js
-// @updateURL    https://raw.githubusercontent.com/nmsjayden/UserScripts/refs/heads/main/Luarmor/AutoLuarmor.js
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @grant        GM_deleteValue
 // @grant        GM_listValues
 // @grant        GM_xmlhttpRequest
-// @connect      trw.lat
 // @grant        unsafeWindow
+// @connect      trw.lat
 // @run-at       document-start
+// @downloadURL  https://raw.githubusercontent.com/nmsjayden/UserScripts/refs/heads/main/Luarmor/AutoLuarmor.js
+// @updateURL    https://raw.githubusercontent.com/nmsjayden/UserScripts/refs/heads/main/Luarmor/AutoLuarmor.js
 // @supportURL   https://discord.gg/VhG4TJD5QY
 // ==/UserScript==
 
