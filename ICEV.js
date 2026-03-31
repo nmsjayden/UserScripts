@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CEV Auto-Fill v6
 // @namespace    http://tampermonkey.net/
-// @version      6.9
+// @version      7.2
 // @description  CEV auto-filler — GM storage, shadow DOM, answers preview, silent highlight, bypass button
 // @author       You
 // @match        https://login.icevonline.com/mycourses/*/lesson/*
@@ -17,6 +17,7 @@
 // @run-at       document-idle
 // ==/UserScript==
 
+
 (function () {
   "use strict";
 
@@ -27,11 +28,31 @@
   }
   if (window.self !== window.top) return;
 
-  const VERSION = GM_info?.script?.version ?? "6.9";
+  const VERSION = GM_info?.script?.version ?? "7.2";
   const DISCORD = "@nmsjayden";
-  const WAIT_MS = 300, TIMEOUT = 25_000, POST_LOAD = 1200;
+  const WAIT_MS = 500, TIMEOUT = 25_000, POST_LOAD = 1200;
 
   let _allDone = false, _miniDragged = false, _shadowRoot = null, _lastDiagnostic = "";
+const cleanSpaces = s =>
+  (s ?? "")
+    .replace(/\u00A0/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+const stripLabel = s =>
+  cleanSpaces(s).replace(/^[^:=]{1,20}\s*[:=]\s*/, "");
+
+const mathLite = s =>
+  stripLabel(s)
+    .replace(/[×✕✖⋅•*]/g, "x")
+    .replace(/[−–—]/g, "-");
+
+const looseEq = (a,b) => mathLite(a) === mathLite(b);
+
+const looseEndsWith = (a,b) => {
+  const A = mathLite(a), B = mathLite(b);
+  return A.endsWith(B) || B.endsWith(A);
+};
 
   // ── Storage ──────────────────────────────────────────────────────────
   const K = {
@@ -59,6 +80,8 @@
   const isGradeTarget   = () => getSettings().gradeTarget === true;
   const getGradeMin     = () => Math.max(0, Math.min(100, getSettings().gradeMin ?? 70));
   const getGradeMax     = () => Math.max(0, Math.min(100, getSettings().gradeMax ?? 90));
+  const isAutoRetry     = () => getSettings().autoRetry !== false;
+  const getMaxRetries   = () => Math.max(1, Math.min(10, getSettings().maxRetries ?? 3));
   // Pick a fresh random int within [min,max]; if equal, return that value
   const rollGradeTarget = () => { const mn=getGradeMin(), mx=getGradeMax(); return mn>=mx ? mx : Math.floor(Math.random()*(mx-mn+1))+mn; };
 
@@ -71,7 +94,7 @@
   const dequeue      = () => { const q = getQueue(); const i = q.shift(); setQueue(q); return i; };
   const clearQueue   = () => setQueue([]);
 
-  if (!getJ(K.SETTINGS)) saveSettings({ auto: false, skipParsePrompt: false, skipFillPrompt: false, autoFirstRun: true, silentHighlight: false });
+  if (!getJ(K.SETTINGS)) saveSettings({ auto: false, skipParsePrompt: false, skipFillPrompt: false, autoFirstRun: true, silentHighlight: false, autoRetry: true, maxRetries: 3 });
 
   // ── One-time localStorage → GM migration ──────────────────────────────
   (() => {
@@ -101,11 +124,45 @@
   const wait       = ms => new Promise(r => setTimeout(r, ms));
   const $all       = (s, r = document) => r ? Array.from(r.querySelectorAll(s)) : [];
   const $one       = (s, r = document) => r?.querySelector(s) ?? null;
-  const trim       = v  => {
-    if (!v) return "";
-    const s = typeof v === "object" && v.textContent != null ? v.textContent : String(v);
-    return s.replace(/\s+/g, " ").trim();
-  };
+const trim = v => {
+  if (!v) return "";
+
+  const s =
+    typeof v === "object" && v.textContent != null
+      ? v.textContent
+      : String(v);
+
+  return s
+    .replace(/\u00A0/g, " ")          // nbsp → space
+    .replace(/[\u200B-\u200D\uFEFF]/g,"") // zero-width chars
+    .replace(/\s+/g, " ")
+    .trim();
+};
+  // Like trim() but for answer-list <li> elements: removes the index badge first so
+  // "1" + "3 + 4 = 7" doesn't collapse into "13 + 4 = 7".
+const trimLi = li => {
+  if (!li) return "";
+
+  const c = li.cloneNode(true);
+
+  // remove index badge so "1" + "text" doesn't merge
+  c.querySelector(".lrn_responseIndex")?.remove();
+
+  // remove accessibility / hidden UI junk
+  c.querySelectorAll(
+    ".visually-hidden," +
+    "[aria-hidden='true']," +
+    "canvas,svg," +
+    ".lrn-circle," +
+    "span[class*='score']"
+  ).forEach(e => e.remove());
+
+  return c.textContent
+    .replace(/\u00A0/g, " ")
+    .replace(/[\u200B-\u200D\uFEFF]/g,"")
+    .replace(/\s+/g, " ")
+    .trim();
+};
   const isVisible  = el => {
     if (!el) return false;
     const s = getComputedStyle(el), r = el.getBoundingClientRect();
@@ -127,9 +184,9 @@
   });
 
   // Strip iCEV's blank-index prefix artifact (e.g. "1structuring" → "structuring")
-  // ONLY strips a single digit immediately followed by a lowercase letter — never strips
-  // real numeric answers like "350 B.C.", "1455", etc.
-  const stripAnswerPrefix = s => typeof s === "string" ? s.replace(/^\d(?=[a-z])/i, "") : s;
+  // Only strips a leading digit when followed by a plain letter (a-zA-Z) — not before
+  // digits, whitespace, punctuation, math symbols, $, (, %, /, ., etc.
+  const stripAnswerPrefix = s => typeof s === "string" ? s.replace(/^\d(?=[a-zA-Z])/, "") : s;
 
   const STATUS_LABELS = { unseen:"Not seen", running:"In progress", answers_saved:"Answers saved", answers_partial:"Partial answers", filled:"Filled ✓", error:"Error", unsafe:"Unsafe (1 attempt)", ext_attempted:"Already attempted" };
   const STATUS_CLASSES = { running:"running", answers_saved:"saved", answers_partial:"partial", filled:"filled", error:"error", unsafe:"unsafe", ext_attempted:"ext_attempted" };
@@ -452,6 +509,9 @@
             <button class="gbtn" id="resetbtn">↺ Reset lesson</button>
             <button class="gbtn" id="clearqbtn">✕ Clear queue</button>
           </div>
+          <div class="dr" style="margin-top:6px">
+            <button class="gbtn blue" id="clearblanks">⌫ Clear all blanks</button>
+          </div>
         </div>
         <div class="pane" id="pane-answers"><div id="answers-content"><div class="ano-answers">Navigate to an assessment to see answers.</div></div></div>
         <div class="pane" id="pane-settings">
@@ -462,9 +522,11 @@
               ["skipfillprompt","skipFillPrompt",     isSkipFillPrompt(), "Skip fill prompt",   "Don't ask when a fill answer fails on lesson page"],
               ["autofirst",     "autoFirstRun",       isAutoFirstRun(),   "Auto first run",     "Auto-navigate and submit unseen assessments"],
               ["silenthl",      "silentHighlight",    isSilentHL(),       "Silent highlight",   "Mark correct answers without auto-filling"],
+              ["autoretry",     "autoRetry",          isAutoRetry(),      "Auto retry on short fill", "Clear blanks & re-fill in-place without reloading"],
             ].map(([id,,checked,lbl,dsc]) =>
               `<div class="setrow"><div><div class="setlbl">${lbl}</div><div class="setdsc">${dsc}</div></div><label class="tgl"><input type="checkbox" id="${id}" ${checked?"checked":""}><div class="ttr"><div class="tth"></div></div></label></div>`
             ).join("")}
+            <div class="setrow" id="maxretriesrow" style="${isAutoRetry()?"":"display:none"}"><div><div class="setlbl">Max retries</div><div class="setdsc">How many times to retry before prompting</div></div><input id="maxretriesinp" type="number" min="1" max="10" value="${getMaxRetries()}" style="width:52px;padding:4px 6px;border-radius:6px;border:1px solid #e5e7eb;font-size:12px;text-align:center;font-family:inherit;outline:none"></div>
           </div>
           <div class="card">
             <div class="ct">Grade Target</div>
@@ -551,6 +613,16 @@
       if (e.target.checked) { applySilentHL(); startHLObserver(); }
       else { clearSilentHL(); stopHLObserver(); }
     });
+    _shadowRoot.getElementById("autoretry").addEventListener("change", e => {
+      saveSettings({ autoRetry: e.target.checked });
+      const row = _shadowRoot.getElementById("maxretriesrow");
+      if (row) row.style.display = e.target.checked ? "" : "none";
+    });
+    _shadowRoot.getElementById("maxretriesinp").addEventListener("change", e => {
+      const v = Math.max(1, Math.min(10, parseInt(e.target.value, 10) || 3));
+      e.target.value = v;
+      saveSettings({ maxRetries: v });
+    });
 
     // Grade target toggle + dual-thumb range slider
     const gradeRow   = _shadowRoot.getElementById("graderow");
@@ -602,6 +674,11 @@
       refreshPanelStatus(); refreshPredictedGrade(); Toast.warn(`Reset ${id}`);
     });
     _shadowRoot.getElementById("clearqbtn").addEventListener("click", () => { clearQueue(); clearPending(); refreshPanelStatus(); Toast.warn("Queue cleared"); });
+    _shadowRoot.getElementById("clearblanks").addEventListener("click", async () => {
+      Toast.info("Clearing all pages…", 3000);
+      await clearAllBlanks();
+      Toast.warn("All blanks cleared");
+    });
     _shadowRoot.getElementById("clrlogs").addEventListener("click",   () => { setJ(K.LOGS,[]); refreshLogs(); });
     _shadowRoot.getElementById("lgsearch").addEventListener("input",  () => refreshLogs());
     _shadowRoot.getElementById("exportbtn").addEventListener("click", () => {
@@ -616,6 +693,86 @@
       GM_listValues().forEach(k => GM_deleteValue(k));
       Toast.warn("All data wiped. Reload to reinitialize.");
     });
+  }
+
+  // ── Clear All Blanks ──────────────────────────────────────────────────
+  function clearAllBlanks() {
+    // Reset all dropdown selects to blank/first option
+    $all("select").forEach(sel => {
+      if (sel.selectedIndex > 0) { sel.selectedIndex = 0; fireEvents(sel, "change", "input"); }
+    });
+    // Clear text inputs and textareas
+    $all("input[type=text], textarea").forEach(inp => {
+      if (inp.value) { inp.value = ""; fireEvents(inp, "input", "change"); }
+    });
+    // Uncheck any selected radio buttons
+    $all("input[type=radio]:checked").forEach(inp => {
+      inp.checked = false; fireEvents(inp, "change");
+    });
+    // Unpress token highlights
+    $all(".lrn_token[aria-pressed='true']").forEach(t => t.click());
+
+    // ── Drag-and-drop clearing ──────────────────────────────────────────
+    // iCEV's drag-drop is a two-step interaction:
+    //   Step 1: click the placed draggable → sets aria-pressed="true" (selects it)
+    //   Step 2: click the lrn_possibilityList → returns it to the pool
+    //
+    // Background page items (lrn_invisible / aria-hidden) can't be clicked via
+    // the normal event path, so we clear those by directly removing the placed
+    // element and reinserting it into the possibility list container.
+    //
+    // We scan ALL learnosity-item containers, not just the visible one.
+
+    $all(".learnosity-item, .lrn_widget[id]").forEach(container => {
+      // Find every drop zone in this widget/page
+      const dropzones = $all(".lrn_response_container.lrn_dropzone, .lrn_assoc_col2.lrn_dragdrop", container);
+      const pool = $one(".lrn_possibilityList", container);
+
+      dropzones.forEach(dz => {
+        // Snapshot children — DOM mutates as we move elements
+        const placed = Array.from(dz.querySelectorAll(".lrn_btn_drag, .lrn_draggable"))
+          .filter(el => !el.closest(".lrn_possibilityList"));
+        if (!placed.length) return;
+
+        const isHidden = dz.classList.contains("lrn_invisible") ||
+                         dz.getAttribute("aria-hidden") === "true" ||
+                         container.classList.contains("lrn_invisible");
+
+        placed.forEach(drag => {
+          if (isHidden || !pool) {
+            // Background page or no pool ref: move the element directly
+            // Reset its aria/state attrs to match the pool's resting state
+            drag.setAttribute("aria-pressed", "false");
+            drag.classList.remove("lrn_active", "lrn_selected", "lrn-dragdrop-selected");
+            if (pool) {
+              pool.appendChild(drag);
+            } else {
+              // No pool visible — just reset the drop zone empty marker
+              dz.classList.add("lrn-dragdrop-empty");
+              try { drag.remove(); } catch {}
+            }
+            fireEvents(dz, "change", "input");
+          } else {
+            // Visible page: use iCEV's two-step click protocol
+            // Step 1: click the draggable to select it (aria-pressed → true)
+            drag.click();
+            // Step 2: click the pool to return it
+            if (pool) pool.click();
+          }
+        });
+      });
+    });
+
+    // Order widgets: select each placed item then click ← arrow to send back
+    $all(".lrn_target .lrn_draggable, .lrn_sortlist_target .lrn_draggable").forEach(item => {
+      try {
+        item.click();
+        const arrowLeft = item.closest(".lrn_widget")?.querySelector(".lrn_arrow_left");
+        if (arrowLeft) arrowLeft.click();
+      } catch {}
+    });
+
+    logInfo("All blanks cleared");
   }
 
   // ── Answers Pane ──────────────────────────────────────────────────────
@@ -649,10 +806,17 @@
       blocks.push(renderEntry(k, q, num));
     });
 
-    // Legacy: qaMap.imageCloze stored by URL
+    // Legacy: qaMap.imageCloze stored by URL — only render URLs not already covered by a
+    // main qaMap entry with type "imagecloze" (avoid double-counting each imagecloze question)
+    const renderedImageClozeAnswers = new Set(
+      Object.values(qaMap)
+        .filter(q => q?.type === "imagecloze")
+        .map(q => JSON.stringify(q.answers))
+    );
     if (qaMap.imageCloze && typeof qaMap.imageCloze === "object" && !qaMap.imageCloze.type) {
       Object.entries(qaMap.imageCloze).forEach(([url, q]) => {
         if (!q?.answers) return;
+        if (renderedImageClozeAnswers.has(JSON.stringify(q.answers))) return; // already shown above
         num++; blocks.push(renderEntry(url, q, num));
       });
     }
@@ -701,7 +865,7 @@
           if (w) {
             $all("li.lrn-mcq-option",w).forEach(li => {
               const t = trim($one(".lrn_contentWrapper",li)||$one(".lrn-possible-answer",li)||li);
-              inner += `<div class="aopt${t===q.answer?" correct":""}"><div class="aopt-radio"></div><span>${t}</span></div>`;
+              inner += `<div class="aopt${mathLite(t)===mathLite(q.answer)?" correct":""}"><div class="aopt-radio"></div><span>${t}</span></div>`;
             });
           } else {
             inner = `<div class="aopt correct"><div class="aopt-radio"></div><span>${q.answer}</span></div>`;
@@ -837,6 +1001,12 @@
         if (qaMap[stimulus] !== undefined && stimToId[stimulus] === w.id) q = qaMap[stimulus];
         else if (qaMap[w.id] !== undefined) q = qaMap[w.id];
         else if (qaMap[stimulus] !== undefined && stimToId[stimulus] === undefined) q = qaMap[stimulus];
+        // Normalized fallback
+        if (!q) {
+          const normStim = cleanSpaces(stimulus);
+          const matchKey = Object.keys(qaMap).find(k => k !== "imageCloze" && cleanSpaces(k) === normStim);
+          if (matchKey) q = qaMap[matchKey];
+        }
       } else {
         // No stimulus — try widget id directly (assoc widgets often have no stimulus_content)
         if (qaMap[w.id] !== undefined) q = qaMap[w.id];
@@ -861,20 +1031,20 @@
       switch (q.type) {
         case "choice":
           $all("li.lrn-mcq-option",w).forEach(li => {
-            if (trim($one(".lrn_contentWrapper",li)||$one(".lrn-possible-answer",li)||li) === q.answer)
+            if (mathLite(trim($one(".lrn_contentWrapper",li)||$one(".lrn-possible-answer",li)||li)) === mathLite(q.answer))
               li.classList.add("cev-hl-choice");
           }); break;
 
         case "token":
           $all(".lrn_token",w).forEach(t => {
-            if (q.answers.includes(trim($one("span",t)||t))) t.classList.add("cev-hl-token");
+            if (q.answers.some(a => mathLite(a) === mathLite(trim($one("span",t)||t)))) t.classList.add("cev-hl-token");
           }); break;
 
         case "matrix":
           $all("tr.lrn_stem",w).forEach(row => {
             const stmt = trim($one("th .lrn-stem-text,th .lrn_stem_label,th",row)), ans = q.answers[stmt]; if (!ans) return;
             $all("td.lrn_option,td[role='radio']",row).forEach(td => {
-              if (trim($one("label .lrn_option_text,label",td)) === ans) td.classList.add("cev-hl-matrix");
+              if (mathLite(trim($one("label .lrn_option_text,label",td))) === mathLite(ans)) td.classList.add("cev-hl-matrix");
             });
           }); break;
 
@@ -889,9 +1059,9 @@
 
         case "cloze": {
           // Highlight source draggables that are used
-          const usedAnswers = new Set(Object.values(q.answers));
+          const usedAnswers = new Set(Object.values(q.answers).map(a => mathLite(a)));
           $all(".lrn_btn_drag,.lrn_draggable",w).forEach(el => {
-            const t = trim($one(".lrn_item",el)||el);
+            const t = mathLite(trim($one(".lrn_item",el)||el));
             if (usedAnswers.has(t)) el.classList.add("cev-hl-order");
           });
           // For each drop zone, outline it and inject a visible block label below it
@@ -914,9 +1084,10 @@
 
             // Search the whole document for the pool draggable matching this answer
             // iCEV often puts the possibility list outside the widget element entirely
+            const normAnswer = mathLite(answer);
             const poolEl = $all(".lrn_btn_drag,.lrn_draggable")
               .filter(el => !el._cevTargetZone && !el.closest(".lrn_response_container,.lrn_dropzone"))
-              .find(el => trim($one(".lrn_item",el)||el) === answer);
+              .find(el => mathLite(trim($one(".lrn_item",el)||el)) === normAnswer);
             if (poolEl) {
               poolEl._cevTargetZone = dz;
               poolEl.classList.add("cev-assoc-src");
@@ -927,7 +1098,7 @@
               const syncWrong = () => {
                 const placed = $one(".lrn_btn_drag,.lrn_draggable", dz);
                 if (placed) {
-                  const correct = trim($one(".lrn_item",placed)||placed) === dz.dataset.cevCorrect;
+                  const correct = mathLite(trim($one(".lrn_item",placed)||placed)) === mathLite(dz.dataset.cevCorrect);
                   placed.classList.toggle("cev-wrong-item", !correct);
                 }
               };
@@ -1004,8 +1175,8 @@
           // Append numbered badge inline after each source item's label text
           $all(".lrn_source .lrn_draggable,.lrn_possibilityList .lrn_btn_drag",w).forEach(el => {
             const labelEl = $one(".lrn_item",el) || el;
-            const t = trim(labelEl);
-            const pos = q.items.indexOf(t); if (pos === -1) return;
+            const t = mathLite(trim(labelEl));
+            const pos = q.items.findIndex(item => mathLite(item) === t); if (pos === -1) return;
             el.classList.add("cev-hl-order");
             if (!el.querySelector(".cev-order-badge")) {
               const badge = document.createElement("span");
@@ -1074,7 +1245,7 @@
 
     // Don't draw if the correct item is already correctly placed
     const placed = $one(".lrn_btn_drag,.lrn_draggable", dz);
-    if (placed && trim($one(".lrn_item",placed)||placed) === dz.dataset.cevCorrect) return;
+    if (placed && mathLite(trim($one(".lrn_item",placed)||placed)) === mathLite(dz.dataset.cevCorrect)) return;
 
     const sr = srcEl.getBoundingClientRect();
     const dr = dz.getBoundingClientRect();
@@ -1269,28 +1440,75 @@
     if ($all(".lrn_widget[id]").length > 0) { logWarn("waitForSummary: fallback"); await wait(POST_LOAD); return true; }
     logError("Timeout: summary"); return false;
   }
-  async function waitForLesson() {
-    const deadline = Date.now()+TIMEOUT;
-    while (Date.now()<deadline) {
-      if ($all(".lrn_widget[id]").some(w => w.children.length > 0)) { await wait(POST_LOAD); return true; }
-      if ($one(".lrn-assess-content,.lrn_assess,.items-grid,.test-content-wrapper")) { await wait(POST_LOAD); return true; }
-      const rw = $one(".lrn_response_wrapper");
-      if (rw && isVisible(rw) && rw.children.length > 0) { await wait(POST_LOAD); return true; }
-      // LDS player shell — questions lazy-load inside this root, treat it as ready
-      if ($one(".lds-root") && isVisible($one(".lds-root"))) { await wait(POST_LOAD); return true; }
-      await wait(WAIT_MS);
-    }
-    if ($all(".lrn_widget[id]").length > 0) { logWarn("waitForLesson: fallback"); await wait(POST_LOAD); return true; }
-    logError("Timeout: assessment"); return false;
-  }
-  const waitForFinishBtn = () => waitFor("button.test-dialog-save-submit,button.lrn_btn_blue.test-submit,button.test-submit", el => isVisible(el), "Finish button");
+async function waitForLesson() {
+  const deadline = Date.now() + TIMEOUT;
 
-  function setSelectValue(sel, rawText) {
-    const text = stripAnswerPrefix(rawText);
-    const opt = Array.from(sel.options).find(o => o.textContent.trim() === text);
-    if (!opt) { logWarn(`Option not found: "${text}" (raw: "${rawText}")`); return false; }
-    sel.value = opt.value; fireEvents(sel,"change","input"); return true;
+  while (Date.now() < deadline) {
+    // Check for general lesson widgets/content
+    if ($all(".lrn_widget[id]").some(w => w.children.length > 0)) { await wait(POST_LOAD); return true; }
+    if ($one(".lrn-assess-content,.lrn_assess,.items-grid,.test-content-wrapper")) { await wait(POST_LOAD); return true; }
+    if ($one(".lds-root") && isVisible($one(".lds-root"))) { await wait(POST_LOAD); return true; }
+
+    // Count cloze response wrappers
+    const responseWrappers = $all(".lrn_response_wrapper");
+    const totalQuestionsEl = $one("#lrn_accessible_items_count");
+    let expectedQuestions = 0;
+    if (totalQuestionsEl) {
+      const match = totalQuestionsEl.textContent.match(/(\d+)\s+of\s+\d+/);
+      if (match) expectedQuestions = parseInt(match[2], 10);
+    }
+
+    if (responseWrappers.length > 0 && responseWrappers.length === expectedQuestions) {
+      await wait(POST_LOAD);
+      return true;
+    }
+
+    await wait(WAIT_MS);
+  }  // end while
+
+  // fallback if any widgets exist but timed out
+  if ($all(".lrn_widget[id]").length > 0) {
+    logWarn("waitForLesson: fallback");
+    await wait(POST_LOAD);
+    return true;
   }
+
+  logError("Timeout: assessment");
+  return false;
+}
+
+function setSelectValue(sel, rawText) {
+  const opts = Array.from(sel.options);
+  const optText = o => o.textContent.trim();
+
+  // exact
+  let opt = opts.find(o => optText(o) === rawText);
+
+  // strip label
+  if (!opt) {
+    const stripped = stripLabel(rawText);
+    opt = opts.find(o => optText(o) === stripped);
+  }
+
+  // loose equality
+  if (!opt) {
+    opt = opts.find(o => looseEq(optText(o), rawText));
+  }
+
+  // suffix rescue
+  if (!opt) {
+    opt = opts.find(o => looseEndsWith(optText(o), rawText));
+  }
+
+  if (!opt) {
+    logWarn(`Option not found: "${rawText}"`);
+    return false;
+  }
+
+  sel.value = opt.value;
+  fireEvents(sel,"change","input");
+  return true;
+}
 
   function navigateToCourses() {
     const cid=getCID(), ln=getLNum()??location.pathname.match(/\/lessons\/(\d+)/)?.[1];
@@ -1331,7 +1549,7 @@
     if (!btn) { logError("Finish button missing"); return; }
     btn.click(); Toast.ok("Submitted! Waiting for results…",5000); logInfo("Submitted");
     const id = getLID(); if (id) { setStatus(id,"filled"); refreshPanelStatus(); }
-    if (isAutoOn()) setTimeout(() => advanceQueue(), 3000);
+    // advanceQueue is called by the summary page handler to avoid double-advancing the queue
   }
 
   // ── Parse prompt ───────────────────────────────────────────────────────
@@ -1452,7 +1670,9 @@
       if (!stimulus) { logWarn(`parse: could not get stimulus for widget ${w.id} (classes: ${[...w.classList].join(" ")})`); return; }
       const cls = w.classList;
       const origStimulus = stimulus; // save before potential dedup rewrite
-      if (qaMap[stimulus] !== undefined) stimulus = w.id||stimulus; // deduplicate collision
+      // Deduplicate: if this stimulus text is already used AND mapped to a different widget,
+      // fall back to the widget ID as the key so the second question isn't silently overwritten.
+      if (qaMap[stimulus] !== undefined && stimToId[stimulus] !== w.id) stimulus = w.id||stimulus;
       stimToId[stimulus] = w.id;
 
       if (cls.contains("lrn_mcq")) {
@@ -1477,7 +1697,7 @@
         $all(".lrn_correctAnswerList li",w).forEach(li => {
           const idxEl=$one(".lrn_responseIndex",li);
           const idx=idxEl?parseInt(trim(idxEl),10)-1:Object.keys(byIdx).length;
-          const val=trim($one(".lrn_responseText",li)||li);
+          const val=trim($one(".lrn_responseText",li))||trimLi(li);
           if (val && !byIdx[idx]) byIdx[idx]=val;
         });
         $all(".lrn_combobox.lrn_correct,.lrn_combobox.lrn_valid",w).forEach(c => {
@@ -1491,7 +1711,28 @@
           const chosen=Array.from(sel.options).find(o=>o.selected&&o.value); if (chosen) byIdx[idx]=trim(chosen);
         });
         if (Object.keys(byIdx).length) {
-          const answers=Object.keys(byIdx).map(Number).sort((a,b)=>a-b).map(i=>stripAnswerPrefix(byIdx[i])).filter(Boolean);
+          // Cap byIdx entries to the actual number of blank selects in this widget.
+          // iCEV sometimes lists ALL answer choices in correctAnswerList (not just the correct one),
+          // which causes the script to think a single-blank question has multiple blanks.
+          const actualBlanks = Math.max(
+            $all("select.lrn_cloze_response, select[data-lrn-role]", w).length,
+            $all(".lrn_combobox", w).length
+          );
+          if (actualBlanks > 0) {
+            Object.keys(byIdx).map(Number).sort((a,b)=>a-b).slice(actualBlanks).forEach(k => delete byIdx[k]);
+          }
+          const allOptionTexts = [...new Set($all("select option",w).map(o=>o.textContent.trim()).filter(Boolean))];
+          const reconcile = raw => {
+            if (!allOptionTexts.length) return stripAnswerPrefix(raw);
+            const stripped = stripAnswerPrefix(raw);
+            if (allOptionTexts.includes(stripped)) return stripped;
+            if (allOptionTexts.includes(raw)) return raw;
+            const labelStripped = stripped.replace(/^[^=:]+=\s*|^[^=:]+:\s*/, "");
+            if (labelStripped && allOptionTexts.includes(labelStripped)) return labelStripped;
+            const suffixMatch = allOptionTexts.find(ot => ot.length > 2 && stripped.endsWith(ot));
+            return suffixMatch ?? stripped;
+          };
+          const answers=Object.keys(byIdx).map(Number).sort((a,b)=>a-b).map(i=>reconcile(byIdx[i])).filter(Boolean);
           if (answers.length) { qaMap[stimulus]={type:"dropdown",answers}; count++; }
         }
         return;
@@ -1552,12 +1793,26 @@
         return;
       }
       if (cls.contains("lrn_imageclozedropdown")||cls.contains("lrn_imagecloze")) {
-        const img=trim?$one("img.lrn_imagecloze_image,img[class*='imagecloze'],img",w):null;
-        const url=img?(img.src.replace(/^https?:/,"").split("?")[0]):null;
-        let a=$all(".lrn_correctAnswerList .lrn_responseText,.lrn_correctAnswerList li",w).map(trim).filter(Boolean);
+        const imgEl=$one("img.lrn_imagecloze_image,img[class*='imagecloze'],img",w);
+        const url=imgEl?(imgEl.src.replace(/^https?:/,"").split("?")[0]):null;
+        let a=$all(".lrn_correctAnswerList li",w).map(li=>trim($one(".lrn_responseText",li))||trimLi(li)).filter(Boolean);
         if (!a.length) { a=getComboAnswers(w); }
         if (!a.length) a=$all(".lrn_clozedropdown_answer",w).map(el => trim($all("span:not(.lrn-accessibility-label)",el)[0]||el)).filter(Boolean);
         if (a.length) {
+          // Reconcile each answer against actual option texts so stored value always matches what's fillable.
+          // e.g. correctAnswerList says "A = 1/2 x b x h" but the option text is "1/2 x b x h".
+          const allOptionTexts = [...new Set($all("select option",w).map(o=>o.textContent.trim()).filter(Boolean))];
+          if (allOptionTexts.length) {
+            a = a.map(raw => {
+              if (allOptionTexts.includes(raw)) return raw;
+              const stripped = stripAnswerPrefix(raw);
+              if (allOptionTexts.includes(stripped)) return stripped;
+              const labelStripped = raw.replace(/^[^=:]+=\s*|^[^=:]+:\s*/, "");
+              if (labelStripped && allOptionTexts.includes(labelStripped)) return labelStripped;
+              const suffixMatch = allOptionTexts.find(ot => ot.length > 2 && raw.endsWith(ot));
+              return suffixMatch ?? raw;
+            });
+          }
           qaMap[stimulus]={type:"imagecloze",answers:a};
           if (url) { if (!qaMap.imageCloze) qaMap.imageCloze={}; qaMap.imageCloze[url]={type:"imagecloze",answers:a}; }
           count++;
@@ -1572,7 +1827,7 @@
       if (cls.contains("lrn_clozeassociation")||cls.contains("lrn_clozednd")) {
         const a={};
         $all(".lrn_correctAnswerList li",w).forEach((li,i) => {
-          const t=trim($one(".lrn_responseText",li)||li); if (!t) return;
+          const t=trim($one(".lrn_responseText",li))||trimLi(li); if (!t) return;
           const idxEl=$one(".lrn_responseIndex",li);
           a[idxEl?parseInt(trim(idxEl),10)-1:i]=t;
         });
@@ -1637,6 +1892,30 @@
     const {qaMap,stimToId={}}=getQAMap(lid); let filled=0;
     logInfo(`Filling ${lid}…`); Toast.info("Filling answers…",3000);
 
+    // ── DEBUG: dump all saved answers for this lesson ──────────────────
+    logInfo(`[fill:debug] ═══ Saved qaMap for "${lid}" ═══`, {
+      totalKeys: Object.keys(qaMap).filter(k=>k!=="imageCloze").length,
+      assocEntries: Object.entries(qaMap).filter(([,v])=>v?.type==="assoc").map(([stim,v])=>({
+        stimulus: stim.slice(0,80),
+        rowCount: Object.keys(v.answers||{}).length,
+        keys: Object.keys(v.answers||{}).map(k=>k.slice(0,80)),
+        vals: Object.values(v.answers||{}).map(v=>v.slice(0,80)),
+      })),
+      allTypes: Object.entries(qaMap).filter(([k])=>k!=="imageCloze").map(([k,v])=>({ key: k.slice(0,60), type: v?.type })),
+    });
+    // ── DEBUG: dump live widgets on this page ──────────────────────────
+    logInfo(`[fill:debug] ═══ Live widgets on page ═══`, {
+      widgetSummary: $all(".lrn_widget[id]").map(w => ({
+        id: w.id,
+        classes: [...w.classList].filter(c=>c.startsWith("lrn_")).join(" "),
+        stimulus: trim($one(".lrn_stimulus_content",w))?.slice(0,60) ?? "(none)",
+        assocRows: $all(".lrn_assoc_question,.lrn_stem_label",w).map(el=>trim(el).slice(0,60)),
+      })),
+    });
+
+    // Allow the page DOM to fully settle before we start interacting with widgets
+    await wait(1500);
+
     const ddData=Object.values(qaMap).filter(q=>q.type==="dropdown");
     const stimulusHandledDropdowns=new Set();
 
@@ -1644,9 +1923,21 @@
     $all(".lrn_clozedropdown").forEach(c => {
       const w=c.closest(".lrn_widget[id]"); if (!w) return;
       const stimulus=trim($one(".lrn_stimulus_content",w)); if (!stimulus) return;
-      const q=qaMap[stimulus]; if (!q||q.type!=="dropdown") return;
+      let q=qaMap[stimulus];
+      // Normalized fallback
+      if (!q || q.type!=="dropdown") {
+        const normStim = cleanSpaces(stimulus);
+        const matchKey = Object.keys(qaMap).find(k => k !== "imageCloze" && cleanSpaces(k) === normStim && qaMap[k]?.type === "dropdown");
+        if (matchKey) q = qaMap[matchKey];
+      }
+      if (!q||q.type!=="dropdown") return;
       stimulusHandledDropdowns.add(c);
-      $all("select",c).forEach((sel,i) => { const a=q.answers[i]; if (a&&setSelectValue(sel,a)) filled++; });
+      $all("select",c).forEach((sel,i) => {
+        const a=q.answers[i];
+        if (a && setSelectValue(sel,a)) filled++;
+        else if (a) logWarn(`[fill:dropdown] Blank ${i+1}: option "${a}" not found in select`, { opts: Array.from(sel.options).map(o=>o.textContent.trim()) });
+        else logWarn(`[fill:dropdown] Blank ${i+1}: no saved answer (stimulus match)`, { stimulus: stimulus.slice(0,60) });
+      });
     });
 
     // Second pass: fallback index-based fill
@@ -1654,7 +1945,12 @@
     $all(".lrn_clozedropdown").forEach(c => {
       if (stimulusHandledDropdowns.has(c)) { ddIdx++; return; }
       const qd=ddData[ddIdx++]; if (!qd) return;
-      $all("select",c).forEach((sel,i) => { const a=qd.answers[i]; if (a&&setSelectValue(sel,a)) filled++; });
+      $all("select",c).forEach((sel,i) => {
+        const a=qd.answers[i];
+        if (a && setSelectValue(sel,a)) filled++;
+        else if (a) logWarn(`[fill:dropdown-idx] Blank ${i+1}: option "${a}" not found in select`, { opts: Array.from(sel.options).map(o=>o.textContent.trim()) });
+        else logWarn(`[fill:dropdown-idx] Blank ${i+1}: no saved answer (index-based fallback)`);
+      });
     });
 
     // imageCloze fill
@@ -1664,7 +1960,10 @@
         const normUrl=img.src.replace(/^https?:/,"").split("?")[0];
         const data=qaMap.imageCloze[normUrl]||qaMap.imageCloze[img.src.split("?")[0]]; if (!data) return;
         $all(".lrn_imagecloze_response select,select",c).forEach((sel,i) => {
-          const a=data.answers[i]; if (a&&setSelectValue(sel,a)) { fireEvents(sel,"input"); filled++; }
+          const a=data.answers[i];
+          if (a && setSelectValue(sel,a)) { fireEvents(sel,"input"); filled++; }
+          else if (a) logWarn(`[fill:imageCloze] Blank ${i+1}: option "${a}" not found in select`, { opts: Array.from(sel.options).map(o=>o.textContent.trim()) });
+          else logWarn(`[fill:imageCloze] Blank ${i+1}: no saved answer`);
         });
       });
     }
@@ -1672,82 +1971,303 @@
     const allAssocEntries=Object.values(qaMap).filter(q=>q?.type==="assoc");
     const usedAssocEntries=new Set();
 
-    $all(".lrn_widget[id]").forEach(w => {
+    // Main widget fill loop — async so drag-drop operations can flush state between clicks
+    for (const w of $all(".lrn_widget[id]")) {
       const stimulus=trim($one(".lrn_stimulus_content",w));
       let q=null;
-      if (stimulus) {
-        if (qaMap[stimulus]!==undefined&&stimToId[stimulus]===w.id) q=qaMap[stimulus];
-        else if (qaMap[w.id]!==undefined) q=qaMap[w.id];
-        else if (qaMap[stimulus]!==undefined&&stimToId[stimulus]===undefined) q=qaMap[stimulus];
-      } else if (qaMap[w.id]!==undefined) q=qaMap[w.id];
 
-      // Assoc fallback: match by row question text when ID mismatches between summary and live
+      // ── ID suffix match: live IDs and saved IDs often share only the trailing portion
+      // e.g. live "019d45a8-0312-..._713da259..." matches saved "019d45a7-d867-..._713da259..."
+      // Extract suffix = everything after the last underscore (or the whole ID if no underscore).
+      const wIdSuffix = w.id.includes("_") ? w.id.slice(w.id.lastIndexOf("_") + 1) : w.id;
+      if (wIdSuffix && !q) {
+        const suffixKey = Object.keys(qaMap).find(k => k !== "imageCloze" && k.includes("_") && k.slice(k.lastIndexOf("_") + 1) === wIdSuffix);
+        if (suffixKey) { q = qaMap[suffixKey]; logInfo(`[fill:match] Widget "${w.id}" matched saved key by ID suffix "${wIdSuffix}"`); }
+      }
+
+      if (!q) {
+        if (stimulus) {
+          if (qaMap[stimulus]!==undefined&&stimToId[stimulus]===w.id) q=qaMap[stimulus];
+          else if (qaMap[w.id]!==undefined) q=qaMap[w.id];
+          else if (qaMap[stimulus]!==undefined&&stimToId[stimulus]===undefined) q=qaMap[stimulus];
+          // Normalized fallback: find a stored key that matches after cleaning whitespace/special chars
+          if (!q) {
+            const normStim = cleanSpaces(stimulus);
+            const matchKey = Object.keys(qaMap).find(k => k !== "imageCloze" && cleanSpaces(k) === normStim);
+            if (matchKey) q = qaMap[matchKey];
+          }
+        } else if (qaMap[w.id]!==undefined) q=qaMap[w.id];
+      }
+
+      // Assoc fallback: match by row question text when ID mismatches between summary and live.
+      // Uses best-overlap scoring: pick the unused assoc entry whose saved keys match the most live row texts.
       if ((!q||q.type!=="assoc") && (w.classList.contains("lrn_association")||w.classList.contains("lrn_assoc")||!!$one(".lrn_assoc_row",w))) {
         const rowTexts=$all(".lrn_assoc_question,.lrn_stem_label",w).map(el=>trim(el)).filter(Boolean);
         if (rowTexts.length) {
-          const matched=allAssocEntries.find(entry => !usedAssocEntries.has(entry) && rowTexts.some(rt=>entry.answers&&rt in entry.answers));
-          if (matched) q=matched;
+          let bestEntry=null, bestScore=0;
+          for (const entry of allAssocEntries) {
+            if (usedAssocEntries.has(entry)) continue;
+            const keys = Object.keys(entry.answers||{});
+            const vals = Object.values(entry.answers||{});
+            // Count how many live row texts appear as keys OR values in this entry
+            let score = 0;
+            for (const rt of rowTexts) {
+              const normRt = mathLite(rt);
+              if (keys.some(k => mathLite(k) === normRt)) score += 2; // key match = stronger signal
+              else if (vals.some(v => mathLite(v) === normRt)) score += 1;
+            }
+            if (score > bestScore) { bestScore = score; bestEntry = entry; }
+          }
+          if (bestEntry && bestScore > 0) {
+            logInfo(`[fill:assoc] Matched widget ${w.id} to entry with score ${bestScore}/${rowTexts.length*2}`, { rowSample: rowTexts[0]?.slice(0,50), keySample: Object.keys(bestEntry.answers)[0]?.slice(0,50) });
+            q=bestEntry;
+          } else {
+            // Log what we have vs what's on screen to help diagnose
+            logWarn(`[fill:assoc] Could not match widget ${w.id} to any saved entry`, {
+              liveRows: rowTexts.map(r=>r.slice(0,50)),
+              savedEntries: allAssocEntries.filter(e=>!usedAssocEntries.has(e)).map(e=>Object.keys(e.answers||{}).map(k=>k.slice(0,40))),
+            });
+          }
         }
       }
 
-      if (!q||q.type==="dropdown") return;
+      if (!q||q.type==="dropdown") {
+        const wid = w.id, wstim = stimulus?.slice(0,60) ?? "(no stimulus)";
+        if (!q) logWarn(`[fill:no-match] Widget ${wid} — no saved answer found`, { stimulus: wstim, widgetClasses: [...w.classList].join(" ") });
+        continue;
+      }
 
       switch (q.type) {
         case "choice": {
-          const m=$all("li.lrn-mcq-option label",w).find(l=>trim($one(".lrn_contentWrapper",l))===q.answer);
+          const normAnswer = mathLite(q.answer);
+          const allOpts = $all("li.lrn-mcq-option label",w).map(l => trim($one(".lrn_contentWrapper",l)||$one(".lrn-possible-answer",l)||l));
+          const m=$all("li.lrn-mcq-option label",w).find(l=>{
+            const txt = trim($one(".lrn_contentWrapper",l)||$one(".lrn-possible-answer",l)||l);
+            return mathLite(txt) === normAnswer;
+          });
           if (m) { const inp=m.closest("li")?.querySelector("input[type=radio]"); inp?inp.click():m.click(); filled++; }
+          else logWarn(`[fill:choice] Answer "${q.answer}" not found among options`, { options: allOpts, widgetId: w.id });
           break;
         }
-        case "token":
-          $all(".lrn_token",w).filter(t=>q.answers.includes(trim($one("span",t)||t))&&t.getAttribute("aria-pressed")!=="true").forEach(t=>{t.click();filled++;}); break;
+        case "token": {
+          const tokenEls = $all(".lrn_token",w);
+          const matched = tokenEls.filter(t=>{
+            const txt = mathLite(trim($one("span",t)||t));
+            return q.answers.some(a => mathLite(a) === txt) && t.getAttribute("aria-pressed")!=="true";
+          });
+          if (matched.length) matched.forEach(t=>{t.click();filled++;});
+          else {
+            const avail = tokenEls.map(t => trim($one("span",t)||t));
+            logWarn(`[fill:token] No matching tokens found`, { want: q.answers, available: avail, widgetId: w.id });
+          }
+          break;
+        }
         case "cloze": {
+          const isHidden = w.classList.contains("lrn_invisible") ||
+            w.closest(".learnosity-item")?.classList.contains("lrn_invisible") ||
+            w.closest("[aria-hidden='true']") !== null;
           const zones=$all(".lrn_response_container,.lrn_dropzone",w).filter(d=>d.dataset.inputid!==undefined||d.classList.contains("lrn_dropzone"));
-          Object.entries(q.answers).sort((a,b)=>+a[0]-+b[0]).forEach(([idx,ans]) => {
-            const zone=zones.find(d=>d.dataset.inputid===String(idx))||zones[+idx]; if (!zone) return;
-            const drag=$all(".lrn_possibilityList .lrn_btn_drag,.lrn_btn_drag[role='button']",w)
-              .filter(el=>!el.closest(".lrn_response_container,.lrn_dropzone"))
-              .find(el=>trim($one(".lrn_item",el)||el)===ans);
-            if (!drag) return; drag.click(); zone.click(); filled++;
-          }); break;
+          const poolAll=$all(".lrn_possibilityList .lrn_btn_drag,.lrn_btn_drag[role='button']",w).filter(el=>!el.closest(".lrn_response_container,.lrn_dropzone"));
+          for (const [idx,ans] of Object.entries(q.answers).sort((a,b)=>+a[0]-+b[0])) {
+            const zone=zones.find(d=>d.dataset.inputid===String(idx))||zones[+idx];
+            if (!zone) { logWarn(`[fill:cloze] Blank ${+idx+1}: drop zone not found`, { inputid: idx, zoneCount: zones.length, widgetId: w.id }); continue; }
+            const normAns = mathLite(ans);
+            const drag=poolAll.find(el=>mathLite(trim($one(".lrn_item",el)||el))===normAns);
+            if (!drag) {
+              const poolTexts = poolAll.map(el => trim($one(".lrn_item",el)||el));
+              logWarn(`[fill:cloze] Blank ${+idx+1}: draggable "${ans}" not in pool`, { pool: poolTexts, widgetId: w.id });
+              continue;
+            }
+            if (isHidden) {
+              drag.setAttribute("aria-pressed", "false");
+              drag.classList.remove("lrn_active", "lrn_selected", "lrn-dragdrop-selected");
+              zone.appendChild(drag);
+              zone.classList.remove("lrn-dragdrop-empty");
+              fireEvents(zone, "change", "input");
+            } else {
+              drag.click();
+              zone.click();
+            }
+            filled++;
+          }
+          break;
         }
         case "matrix":
           $all("tr.lrn_stem",w).forEach(row => {
-            const stmt=trim($one("th .lrn-stem-text,th .lrn_stem_label,th",row)), ans=q.answers[stmt]; if (!ans) return;
+            const stmt=trim($one("th .lrn-stem-text,th .lrn_stem_label,th",row)), ans=q.answers[stmt];
+            if (!ans) { logWarn(`[fill:matrix] Row "${(stmt||"").slice(0,50)}" has no saved answer`, { widgetId: w.id }); return; }
+            const normAns = mathLite(ans);
+            let hit = false;
             $all("td.lrn_option,td[role='radio']",row).forEach(td => {
               const inp=$one("input[type=radio]",td);
-              if (inp&&trim($one("label .lrn_option_text,label",td))===ans) { inp.click(); filled++; }
+              if (inp&&mathLite(trim($one("label .lrn_option_text,label",td)))===normAns) { inp.click(); filled++; hit=true; }
             });
+            if (!hit) {
+              const colLabels = $all("td.lrn_option,td[role='radio']",row).map(td=>trim($one("label .lrn_option_text,label",td)));
+              logWarn(`[fill:matrix] Row "${(stmt||"").slice(0,50)}": answer "${ans}" not found`, { cols: colLabels, widgetId: w.id });
+            }
           }); break;
         case "text": {
-          const inp=$one("input[type=text],textarea",w); if (inp) { inp.value=q.answer; fireEvents(inp,"input","change"); filled++; } break;
+          const inp=$one("input[type=text],textarea",w);
+          if (inp) { inp.value=q.answer; fireEvents(inp,"input","change"); filled++; }
+          else logWarn(`[fill:text] No input/textarea found in widget`, { widgetId: w.id });
+          break;
         }
         case "order": {
-          const ar=$one(".lrn_arrow_right",w); if (!ar) break;
-          q.items.forEach(ans => {
-            const item=$all(".lrn_source .lrn_draggable",w).find(el=>trim($one(".lrn_item",el)||el)===ans);
-            if (item) { item.click(); ar.click(); filled++; }
-          }); break;
+          const ar=$one(".lrn_arrow_right",w);
+          if (!ar) { logWarn(`[fill:order] Arrow button not found`, { widgetId: w.id }); break; }
+          const srcAll=$all(".lrn_source .lrn_draggable",w);
+          for (const ans of q.items) {
+            const normAns = mathLite(ans);
+            const item=srcAll.find(el=>mathLite(trim($one(".lrn_item",el)||el))===normAns);
+            if (!item) {
+              const avail = srcAll.map(el=>trim($one(".lrn_item",el)||el));
+              logWarn(`[fill:order] Item "${ans}" not found in source list`, { available: avail, widgetId: w.id });
+              continue;
+            }
+            item.click();
+            ar.click();
+            filled++;
+          }
+          break;
         }
         case "assoc": {
           usedAssocEntries.add(q);
-          const pool=$all(".lrn_possibilityList .lrn_btn_drag,.lrn_btn_drag[role='button']",w).filter(el=>!el.closest(".lrn_response_container,.lrn_dropzone"));
-          $all(".lrn_assoc_row",w).forEach(row => {
-            const question=trim($one(".lrn_assoc_question,.lrn_stem_label",row)), answer=q.answers[question];
-            if (!question||!answer) return;
-            const dz=$one(".lrn_response_container.lrn_dropzone,.lrn_dropzone",row)||[...$all(".lrn_assoc_col2",row)].find(c=>c.classList.contains("lrn_dragdrop"));
-            if (!dz) return;
-            const drag=pool.find(btn=>trim($one(".lrn_item",btn)||btn)===answer); if (!drag) return;
-            drag.click(); dz.click(); filled++;
-          }); break;
+
+          // Determine if this widget is on a background (invisible) page
+          const isWidgetHidden = w.classList.contains("lrn_invisible") ||
+            w.closest(".learnosity-item")?.classList.contains("lrn_invisible") ||
+            w.closest("[aria-hidden='true']") !== null;
+
+          // Pool: prefer widget-scoped first, fall back to global
+          // (iCEV sometimes renders the possibility list outside the widget element)
+          const widgetPool = $one(".lrn_possibilityList", w);
+          // Walk up ancestors looking for a possibility list sibling
+          let poolEl = widgetPool;
+          if (!poolEl) {
+            let ancestor = w.parentElement;
+            while (ancestor && ancestor !== document.body) {
+              const pl = $one(".lrn_possibilityList", ancestor);
+              if (pl) { poolEl = pl; break; }
+              ancestor = ancestor.parentElement;
+            }
+          }
+          if (!poolEl) {
+            poolEl = $one(
+              `.lrn_possibilityList[aria-label*="${$all(".lrn_assoc_question",w)[0]?.textContent?.slice(0,10) ?? ""}"]`
+            ) || $all(".lrn_possibilityList").find(p => p.closest(".learnosity-item") === w.closest(".learnosity-item"));
+          }
+          const pool = $all(".lrn_btn_drag,.lrn_draggable", poolEl || w.closest(".learnosity-item") || document)
+            .filter(el => !el.closest(".lrn_response_container,.lrn_dropzone"));
+          const poolTexts = pool.map(btn => trim($one(".lrn_item",btn)||btn));
+
+          // Detect inverted layout: on the live page the rows show definitions and draggables are
+          // terms, but the summary page parsed it the other way round (rowMap[term]=definition).
+          // Detect by checking if any live row text matches a *value* in q.answers rather than a key.
+          const liveRowTexts = $all(".lrn_assoc_row",w)
+            .map(r => trim($one(".lrn_assoc_question,.lrn_stem_label",r))).filter(Boolean);
+          const savedKeys   = Object.keys(q.answers);
+          const savedValues = Object.values(q.answers);
+          const keyMatchCount   = liveRowTexts.filter(t => savedKeys.some(k => mathLite(k) === mathLite(t))).length;
+          const valueMatchCount = liveRowTexts.filter(t => savedValues.some(v => mathLite(v) === mathLite(t))).length;
+          // If values match the live rows better than keys do, the mapping is inverted — flip it
+          const invertedMap = valueMatchCount > keyMatchCount
+            ? Object.fromEntries(Object.entries(q.answers).map(([k,v]) => [v, k]))
+            : null;
+          if (invertedMap) logWarn(`[fill:assoc] Inverted layout detected — flipping key↔value map`, { widgetId: w.id, keyMatchCount, valueMatchCount });
+
+          const answerMap = invertedMap ?? q.answers;
+
+          // ── DEBUG: full pre-row dump ──────────────────────────────────────
+          logInfo(`[fill:assoc] ▶ Widget "${w.id}" — starting fill`, {
+            widgetId: w.id,
+            isHidden: isWidgetHidden,
+            stimulus: stimulus?.slice(0,80) ?? "(none)",
+            liveRows: liveRowTexts,
+            savedKeys: savedKeys.map(k=>k.slice(0,80)),
+            savedValues: savedValues.map(v=>v.slice(0,80)),
+            pool: poolTexts.map(t=>t.slice(0,60)),
+            keyMatchCount,
+            valueMatchCount,
+            isInverted: !!invertedMap,
+            poolSource: widgetPool ? "widget-scoped" : poolEl ? (poolEl !== widgetPool ? "ancestor-walk / aria-label / learnosity-item" : "?") : "document fallback",
+          });
+
+          for (const row of $all(".lrn_assoc_row",w)) {
+            const question = trim($one(".lrn_assoc_question,.lrn_stem_label",row));
+            if (!question) { logWarn(`[fill:assoc] Row has no question text`, { widgetId: w.id }); continue; }
+
+            // Exact key lookup first, then normalised fallback
+            let answer = answerMap[question];
+            const exactHit = answer !== undefined;
+            if (!answer) {
+              const normQ = mathLite(question);
+              const matchKey = Object.keys(answerMap).find(k => mathLite(k) === normQ);
+              if (matchKey) { answer = answerMap[matchKey]; logInfo(`[fill:assoc] Row "${question.slice(0,60)}" — normalised key match → "${answer?.slice(0,60)}"`); }
+            }
+            if (!answer) {
+              // ── DEBUG: full row failure dump ──────────────────────────────
+              const normQ = mathLite(question);
+              const normKeys = Object.keys(answerMap).map(k => ({ raw: k.slice(0,80), norm: mathLite(k).slice(0,80) }));
+              logWarn(`[fill:assoc] ✗ No saved answer for row "${question.slice(0,80)}"`, {
+                widgetId: w.id,
+                rowText_raw: question,
+                rowText_norm: normQ,
+                exactHit,
+                answerMapEntries: Object.entries(answerMap).map(([k,v]) => ({ key: k.slice(0,80), val: v.slice(0,80), keyNorm: mathLite(k).slice(0,80) })),
+                normKeyComparison: normKeys.map(nk => ({ ...nk, matches: nk.norm === normQ })),
+                poolTexts: poolTexts.map(t=>t.slice(0,60)),
+                savedQAMap_allKeys: Object.keys(qaMap).filter(k=>k!=="imageCloze").map(k=>k.slice(0,60)),
+              });
+              continue;
+            }
+            // ── DEBUG: successful lookup ──────────────────────────────────
+            logInfo(`[fill:assoc] ✓ Row "${question.slice(0,60)}" → answer "${answer.slice(0,60)}"`, { exactHit, widgetId: w.id });
+
+            const dz = $one(".lrn_response_container.lrn_dropzone,.lrn_dropzone",row)
+              || [...$all(".lrn_assoc_col2",row)].find(c=>c.classList.contains("lrn_dragdrop"));
+            if (!dz) { logWarn(`[fill:assoc] Drop zone not found for row "${question.slice(0,50)}"`, { widgetId: w.id }); continue; }
+
+            const normAnswer = mathLite(answer);
+            const drag = pool.find(btn => mathLite(trim($one(".lrn_item",btn)||btn)) === normAnswer);
+            if (!drag) {
+              logWarn(`[fill:assoc] ✗ Draggable not found in pool for row "${question.slice(0,60)}"`, {
+                widgetId: w.id,
+                wantedAnswer_raw: answer,
+                wantedAnswer_norm: normAnswer,
+                poolTexts_raw: poolTexts.map(t=>t.slice(0,60)),
+                poolTexts_norm: poolTexts.map(t=>mathLite(t).slice(0,60)),
+                question: question.slice(0,60),
+              });
+              continue;
+            }
+
+            if (isWidgetHidden) {
+              // Background page: DOM move directly — clicks are no-ops on hidden elements
+              drag.setAttribute("aria-pressed", "false");
+              drag.classList.remove("lrn_active", "lrn_selected", "lrn-dragdrop-selected");
+              dz.appendChild(drag);
+              dz.classList.remove("lrn-dragdrop-empty");
+              fireEvents(dz, "change", "input");
+            } else {
+              // Visible page: iCEV two-step click
+              drag.click();
+              dz.click();
+            }
+            filled++;
+          }
+          // ── DEBUG: post-row summary ────────────────────────────────────
+          logInfo(`[fill:assoc] ◀ Widget "${w.id}" done — filled ${filled} total so far`, { widgetId: w.id, rowCount: liveRowTexts.length });
+          break;
         }
       }
-    });
+    }
 
     // Expected total
     let expected_total=0;
     Object.entries(qaMap).forEach(([k,q]) => {
       if (!q||typeof q!=="object") return;
-      if (k==="imageCloze") { Object.values(q).forEach(v=>{ if(v?.answers) expected_total+=v.answers.length; }); return; }
+      if (k==="imageCloze") return; // URL-keyed lookup table only — answers already counted via stimulus-keyed imagecloze entries
       switch(q.type) {
         case "choice": case "text": expected_total+=1; break;
         case "dropdown": case "imagecloze": case "token": case "order": expected_total+=q.answers?.length||1; break;
@@ -1827,25 +2347,32 @@
     const shortFill = !gradeTargetActive && expected_total>0 && filled<expected_total;
 
     if (filled===0||shortFill) {
-      const alreadyRetried=getLessons()[lid]?.fillRetry==="1";
-      if (alreadyRetried) {
-        patchLesson(lid,{fillRetry:null});
-        logWarn(`Short fill after retry (${filled}/${effectiveExpected})`,{lid});
-        if (isSkipFillPrompt()) {
-          Toast.warn(`Fill incomplete (${filled}/${effectiveExpected}) — submitting anyway`,5000);
-          await clickLastReviewItem(); await wait(500); await submitAssessment(); return;
-        }
-        const go=await showFillPrompt({lessonID:lid,filled,expected:effectiveExpected});
-        if (go) { await clickLastReviewItem(); await wait(500); await submitAssessment(); }
-        else { setStatus(lid,"error"); refreshPanelStatus(); disableAutomation(); }
+      const retryCount = parseInt(getLessons()[lid]?.fillRetry ?? "0", 10) || 0;
+      const maxR = getMaxRetries();
+
+      // Auto retry: clear all blanks and re-fill in-place (no reload, no navigation)
+      if (isAutoRetry() && retryCount < maxR) {
+        patchLesson(lid, { fillRetry: String(retryCount + 1) });
+        logWarn(`Short fill (${filled}/${effectiveExpected}), auto-retry ${retryCount + 1}/${maxR}`, {lid});
+        Toast.warn(`Short fill (${filled}/${effectiveExpected}) — clearing & retrying (${retryCount + 1}/${maxR})…`, 5000);
+        await wait(800);
+        clearAllBlanks();
+        await wait(600);
+        // Re-run fill without advancing queue or navigating
+        await fillAssessment();
         return;
       }
-      patchLesson(lid,{fillRetry:"1"});
-      setPending({id:lid,action:"retry_fill",assessUrl:location.href.split("?")[0]});
-      Toast.warn(`Short fill (${filled}/${effectiveExpected}) — retrying…`,6000);
-      logWarn(`Short fill, retrying`,{filled,effectiveExpected});
-      await wait(2000);
-      location.reload();
+
+      // Exhausted retries (or auto-retry off)
+      patchLesson(lid, { fillRetry: null });
+      logWarn(`Short fill after ${retryCount} retries (${filled}/${effectiveExpected})`, {lid});
+      if (isSkipFillPrompt()) {
+        Toast.warn(`Fill incomplete (${filled}/${effectiveExpected}) — submitting anyway`, 5000);
+        await clickLastReviewItem(); await wait(500); await submitAssessment(); return;
+      }
+      const go = await showFillPrompt({lessonID: lid, filled, expected: effectiveExpected});
+      if (go) { await clickLastReviewItem(); await wait(500); await submitAssessment(); }
+      else { setStatus(lid, "error"); refreshPanelStatus(); disableAutomation(); }
       return;
     }
 
@@ -1872,7 +2399,7 @@
     if (!ready) return;
     buildPanel();
     const cid=getCID(), ln=getLNum()??location.pathname.match(/\/lessons\/(\d+)/)?.[1]??"";
-    const baseURL=`https://login.icevonline.com/mycourses/${cid}/lesson/${ln}`;
+    const baseURL=`https://login.icevonline.com/app/courses/${cid}/lessons/${ln}`;
     const apiMap=await getAttemptMap(cid,ln);
     const assessments=[], seenIDs=new Set();
 
@@ -2034,7 +2561,7 @@
     }
     if (confirmBtn&&isVisible(confirmBtn)) {
       confirmBtn.click(); Toast.ok("First-run submitted ✓",5000); setStatus(lid,"running");
-      setTimeout(()=>{location.href=`https://login.icevonline.com/mycourses/${getCID()}/lesson/${getLNum()}`;},3000);
+      setTimeout(()=>{location.href=`https://login.icevonline.com/app/courses/${getCID()}/lessons/${getLNum()}`;},3000);
     } else {
       logWarn("Confirm dialog not found — fallback intercept",{lid}); clearPending(); interceptFinishForFirstRun(lid,baseURL);
     }
@@ -2048,7 +2575,7 @@
       btn.addEventListener("click", () => {
         Toast.info("Submitted — finding summary…",5000);
         setPending({id:lid,action:"find_summary",baseURL,assessId:lid});
-        setTimeout(()=>{location.href=`https://login.icevonline.com/mycourses/${getCID()}/lesson/${getLNum()}`;},3000);
+        setTimeout(()=>{location.href=`https://login.icevonline.com/app/courses/${getCID()}/lessons/${getLNum()}`;},3000);
       },{once:true});
       Toast.info("Click Finish when done.",5000);
     },500);
@@ -2083,6 +2610,46 @@
   (async () => {
     buildPanel();
     const path=location.pathname, href=location.href, pending=getPending();
+
+    // ── "Resource not found" recovery ─────────────────────────────────────
+    // If iCEV shows the error page, go back to the main lesson list and then
+    // retry the same URL we were trying to reach.
+    const notFoundEl = $one(".content p");
+    if (notFoundEl && /the resource you requested could not be found/i.test(notFoundEl.textContent)) {
+      const failedURL = location.href;
+      logWarn(`[router] Not-found page detected — will retry: ${failedURL}`);
+      Toast.warn("Page not found — retrying in 3 s…", 3000);
+      // Store the URL we need to go back to, then navigate to the main course list.
+      // On the next load the router will detect the stored retry and redirect.
+      const cid = getCID(), ln = getLNum() ?? location.pathname.match(/\/lessons\/(\d+)/)?.[1];
+      const mainURL = cid && ln
+        ? `https://login.icevonline.com/app/courses/${cid}/lessons/${ln}`
+        : cid
+          ? `https://login.icevonline.com/app/courses/${cid}/lessons`
+          : null;
+      if (mainURL) {
+        setPending({ ...(pending ?? {}), _notFoundRetry: failedURL });
+        setTimeout(() => { location.href = mainURL; }, 2000);
+      } else {
+        logError("[router] Not-found page: could not determine main URL to redirect to");
+      }
+      return;
+    }
+
+    // ── Retry after not-found bounce ──────────────────────────────────────
+    // If we landed on the main page because of a not-found retry, wait briefly
+    // for the page to settle then navigate directly to the failed URL.
+    if (pending?._notFoundRetry) {
+      const retryURL = pending._notFoundRetry;
+      // Remove the retry flag but keep the rest of pending intact
+      const { _notFoundRetry, ...restPending } = pending;
+      if (Object.keys(restPending).length) setPending(restPending); else clearPending();
+      logInfo(`[router] Retrying after not-found: ${retryURL}`);
+      Toast.info("Retrying…", 2000);
+      setTimeout(() => { location.href = retryURL; }, 1500);
+      return;
+    }
+
     const isLessonList=(path.includes("/mycourses/")||path.includes("/app/courses/"))&&!path.match(/\/CEV[^/]*/)&&!href.includes("/summary");
 
     if (isLessonList) {
@@ -2165,14 +2732,14 @@
         if (isSilentHL()) { interceptFinishForSilent(lid); applySilentHL(); startHLObserver(); Toast.info("Answers highlighted — submit manually.",6000); }
         else if (status!=="running") await fillAssessment();
       } else if (status==="running") {
-        const bURL=`https://login.icevonline.com/mycourses/${getCID()}/lesson/${getLNum()}`;
+        const bURL=`https://login.icevonline.com/app/courses/${getCID()}/lessons/${getLNum()}`;
         if (isAutoOn()&&isAutoFirstRun()) await autoNavigateAndSubmitFirstRun(lid,bURL);
         else interceptFinishForFirstRun(lid,bURL);
       } else if (status==="unseen") {
         const qc=$all(".lrn_widget[id]").filter(w=>!!$one(".lrn_stimulus_content",w)).length;
         if (qc>0) setQCount(lid,qc);
         setStatus(lid,"running"); refreshPanelStatus();
-        const bURL=`https://login.icevonline.com/mycourses/${getCID()}/lesson/${getLNum()}`;
+        const bURL=`https://login.icevonline.com/app/courses/${getCID()}/lessons/${getLNum()}`;
         if (isAutoOn()&&isAutoFirstRun()) await autoNavigateAndSubmitFirstRun(lid,bURL);
         else { Toast.info("First run — complete it, Finish will continue.",8000); interceptFinishForFirstRun(lid,bURL); }
       }
