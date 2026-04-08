@@ -1,113 +1,124 @@
+Here’s a cleaner, more polished version that keeps your intent but reads more professional and structured:
+
+---
+
 # Userscripts Collection
 
-A collection of maintained userscripts focused on automating repetitive tasks, bypassing unnecessary restrictions, and improving overall workflow efficiency.
+A curated collection of actively maintained userscripts designed to automate repetitive tasks, bypass unnecessary restrictions, and improve overall workflow efficiency.
 
 ---
 
-## Disclaimer
+## ⚠️ Disclaimer
 
-I’m still learning and currently in school, so many of these scripts are AI-assisted. However, I review and test everything before releasing to make sure it works properly and isn’t low quality.
+I’m currently a student and still learning, so some scripts are developed with AI assistance. That said, everything in this repository is reviewed, tested, and refined before being released to ensure it meets a solid quality standard.
 
-I actively maintain these projects.
+This project is actively maintained.
 
-If you’re more experienced and want to improve or rewrite anything, contributions are welcome.
+Contributions from more experienced developers are highly appreciated—whether that’s improving performance, refactoring code, or adding new features.
 
-If you run into issues or have suggestions, feel free to open an issue.
+If you encounter any issues or have suggestions, please open an issue.
 
-**Note:** AutoLuarmor is currently obfuscated to reduce detection. If needed, I can provide a deobfuscated version on request.
+**Note:** *AutoLuarmor* is partially obfuscated to reduce detection. A deobfuscated version can be provided upon request if needed.
 
 ---
 
-## Installation
+## 📦 Installation
 
-It’s recommended to use:
+To use these scripts, install one of the following browser extensions:
 
-* TamperMonkey
+* Tampermonkey
 * Violentmonkey
 
 ---
 
-## Userscripts Overview
+## 📜 Userscripts Overview
 
 ### AutoLuarmor
 
-Handles Luarmor key systems automatically.
+Automates interactions with Luarmor key systems.
 
-* Retrieves keys
-* Bypasses Luarmor links
+* Retrieves keys automatically
+* Bypasses Luarmor link steps
 * Manages key workflows
-* Undetected
-* etc
+* Designed to remain undetected
+
 ---
 
 ### Edpuzzle Fix
 
-Fixes issues with Edpuzzle answer scripts.
+Restores functionality for Edpuzzle answer scripts.
 
-* Resolves CSP (Content Security Policy) errors
-* Restores functionality for answer tools
+* Fixes CSP (Content Security Policy) issues
+* Re-enables broken answer tools
 
 ---
 
-### GmetrixAI
+### GmetrixAI *(Work in Progress)*
 
 Automates answering Gmetrix questions using AI.
 
 * Uses OpenRouter for AI queries
 * Generates answers automatically
-* Reduces manual input
-* UNFINISHED (but nearly reliable)
+* Reduces manual effort
+* ⚠️ Nearly reliable, but still under development
+
 ---
 
 ### ICEV Solver
 
-Automates ICEV assignments with a two-step approach.
+Automates ICEV assignments using a two-step method.
 
-* Submits an initial attempt to gather answers
-* Parses results
+* Submits an initial attempt to collect answers
+* Parses returned results
 * Re-submits with correct answers
-(parses nearly all answers)
+* Successfully parses most answer formats
+
 ---
 
 ### ULB (Unknown Link Bypasser)
 
 Bypasses lesser-known ad-link services.
 
-* Supports:
+**Currently supports:**
 
-  * shortxlinks
-  * dl.surf
-  * tpi.li
-  * shrtslug
+* shortxlinks
+* dl.surf
+* tpi.li
+* shrtslug
 
-Any suggestions for adlinks? Create a ticket!
----
-
-## Contributing
-
-Contributions are encouraged. You can:
-
-* Optimize code
-* Improve reliability
-* Add new features or bypasses
-
-Submit a pull request if you make improvements.
+Have suggestions for additional ad-link services? Open an issue!
 
 ---
 
-## Support
+## 🤝 Contributing
+
+Contributions are welcome and encouraged. You can help by:
+
+* Improving code quality or performance
+* Fixing bugs or edge cases
+* Adding new features or bypass methods
+
+Feel free to submit a pull request with your improvements.
+
+---
+
+## 🛠 Support
 
 If something isn’t working:
 
 * Open an issue
-* Provide a clear description
-* Include screenshots or logs if possible
+* Provide a clear description of the problem
+* Include screenshots or logs when possible
 
 ---
 
-## Notes
+## 📝 Notes
 
-These scripts are designed to save time and reduce friction. They are actively maintained and will continue to be improved. 
-## ----I AM NOT RESPONSIBLE FOR ANY BLACKLISTS OR TROUBLE YOU MAY GET IN.----
+These scripts are built to save time and reduce friction in repetitive workflows. They will continue to be updated and improved over time.
 
-Use responsibly.
+**Use at your own risk.**
+I am not responsible for any consequences, including account restrictions or bans resulting from the use of these scripts.
+
+---
+
+If you want, I can take it a step further and make it look more “premium” (badges, shields, stats, repo visuals, etc.), which makes a big difference on GitHub.
