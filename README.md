@@ -36,7 +36,8 @@ Handles Luarmor key systems automatically.
 * Retrieves keys
 * Bypasses Luarmor links
 * Manages key workflows
-
+* Undetected
+* etc
 ---
 
 ### Edpuzzle Fix
@@ -55,7 +56,7 @@ Automates answering Gmetrix questions using AI.
 * Uses OpenRouter for AI queries
 * Generates answers automatically
 * Reduces manual input
-
+* UNFINISHED (but nearly reliable)
 ---
 
 ### ICEV Solver
@@ -65,7 +66,7 @@ Automates ICEV assignments with a two-step approach.
 * Submits an initial attempt to gather answers
 * Parses results
 * Re-submits with correct answers
-
+(parses nearly all answers)
 ---
 
 ### ULB (Unknown Link Bypasser)
@@ -79,6 +80,7 @@ Bypasses lesser-known ad-link services.
   * tpi.li
   * shrtslug
 
+Any suggestions for adlinks? Create a ticket!
 ---
 
 ## Contributing
