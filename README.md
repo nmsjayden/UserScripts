@@ -116,6 +116,3 @@ These scripts are built to save time and reduce friction in repetitive workflows
 **Use at your own risk.**
 I am not responsible for any consequences, including account restrictions or bans resulting from the use of these scripts.
 
----
-
-If you want, I can take it a step further and make it look more “premium” (badges, shields, stats, repo visuals, etc.), which makes a big difference on GitHub.
