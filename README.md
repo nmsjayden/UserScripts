@@ -1,15 +1,111 @@
-Recommended to use TamperMonkey or Violentmonkey for these scripts.
+# Userscripts Collection
+
+A collection of maintained userscripts focused on automating repetitive tasks, bypassing unnecessary restrictions, and improving overall workflow efficiency.
+
+---
 
 ## Disclaimer
 
-I’m still learning and currently in school, so many of these scripts are AI. Tho I do review and test it myself before releasing to make sure everything works properly and I dont release straight slop.
+I’m still learning and currently in school, so many of these scripts are AI-assisted. However, I review and test everything before releasing to make sure it works properly and isn’t low quality.
 
-I also actively maintain the projects.
+I actively maintain these projects.
 
-If you’re more experienced and want to improve or rewrite something I highly encourage it as I look up to those who can code.
+If you’re more experienced and want to improve or rewrite anything, contributions are welcome.
 
-If you run into issues or have suggestions, feel free to open an Issue. Otherwise, enjoy!
+If you run into issues or have suggestions, feel free to open an issue.
 
+**Note:** AutoLuarmor is currently obfuscated to reduce detection. If needed, I can provide a deobfuscated version on request.
 
+---
 
-- Sorry AutoLuarmor is obfuscated, im just trying to not get people detected. (if you request i will give deob)
+## Installation
+
+It’s recommended to use:
+
+* TamperMonkey
+* Violentmonkey
+
+---
+
+## Userscripts Overview
+
+### AutoLuarmor
+
+Handles Luarmor key systems automatically.
+
+* Retrieves keys
+* Bypasses Luarmor links
+* Manages key workflows
+
+---
+
+### Edpuzzle Fix
+
+Fixes issues with Edpuzzle answer scripts.
+
+* Resolves CSP (Content Security Policy) errors
+* Restores functionality for answer tools
+
+---
+
+### GmetrixAI
+
+Automates answering Gmetrix questions using AI.
+
+* Uses OpenRouter for AI queries
+* Generates answers automatically
+* Reduces manual input
+
+---
+
+### ICEV Solver
+
+Automates ICEV assignments with a two-step approach.
+
+* Submits an initial attempt to gather answers
+* Parses results
+* Re-submits with correct answers
+
+---
+
+### ULB (Unknown Link Bypasser)
+
+Bypasses lesser-known ad-link services.
+
+* Supports:
+
+  * shortxlinks
+  * dl.surf
+  * tpi.li
+  * shrtslug
+
+---
+
+## Contributing
+
+Contributions are encouraged. You can:
+
+* Optimize code
+* Improve reliability
+* Add new features or bypasses
+
+Submit a pull request if you make improvements.
+
+---
+
+## Support
+
+If something isn’t working:
+
+* Open an issue
+* Provide a clear description
+* Include screenshots or logs if possible
+
+---
+
+## Notes
+
+These scripts are designed to save time and reduce friction. They are actively maintained and will continue to be improved. 
+## ----I AM NOT RESPONSIBLE FOR ANY BLACKLISTS OR TROUBLE YOU MAY GET IN.----
+
+Use responsibly.
