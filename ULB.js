@@ -17,6 +17,8 @@
 // @grant        unsafeWindow
 // @connect      challenges.cloudflare.com
 // @run-at       document-start
+/// @downloadURL https://raw.githubusercontent.com/nmsjayden/UserScripts/main/ULB.js
+/// @updateURL   https://raw.githubusercontent.com/nmsjayden/UserScripts/main/ULB.js
 // ==/UserScript==
 
 (function () {
