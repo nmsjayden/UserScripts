@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Unknown Link Bypasser
 // @namespace    http://tampermonkey.net/
-// @version      6.0
+// @version      6.0.1
 // @description  Safelink bypasser + dl.surf auto downloader + form-based auto bypasser + tpi.li bypasser. Made by @Aro Moon
 // @author       @Aro Moon
 // @include      /^https:\/\/mtc1\.[^/]+\.[a-z.]+\//
@@ -13,12 +13,13 @@
 // @match        https://dailyjobposting.xyz/*
 // @match        https://tpi.li/*
 // @match        https://challenges.cloudflare.com/*
+// @match        https://airflowscript.com/key
 // @grant        GM_addElement
 // @grant        unsafeWindow
 // @connect      challenges.cloudflare.com
 // @run-at       document-start
-/// @downloadURL https://raw.githubusercontent.com/nmsjayden/UserScripts/main/ULB.js
-/// @updateURL   https://raw.githubusercontent.com/nmsjayden/UserScripts/main/ULB.js
+// @downloadURL  https://raw.githubusercontent.com/nmsjayden/UserScripts/main/ULB.js
+// @updateURL    https://raw.githubusercontent.com/nmsjayden/UserScripts/main/ULB.js
 // ==/UserScript==
 
 (function () {
@@ -27,12 +28,23 @@
     const FORM_HOSTS = ['shrtslug.biz', 'biovetro.net', 'technons.com', 'tournguide.com', 'dailyjobposting.xyz'];
     const TPI_HOSTS = ['tpi.li'];
 
+    // Polyfill for crypto.randomUUID — not available on older iOS/Android
+    function generateId() {
+        if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+            return crypto.randomUUID().replace(/-/g, '');
+        }
+        // Fallback: use getRandomValues (supported since iOS 6 / Android 4.4)
+        const arr = new Uint8Array(16);
+        (crypto || window.msCrypto).getRandomValues(arr);
+        return Array.from(arr, b => b.toString(16).padStart(2, '0')).join('');
+    }
+
     // ═══════════════════════════════════════════════════════════════════════════
     // ─── SHARED UI HELPERS ───────────────────────────────────────────────────
     // ═══════════════════════════════════════════════════════════════════════════
 
     // Base card CSS shared by notify + countdown widgets
-    const BASE_CARD = 'background:linear-gradient(135deg,#1a1a2e,#16213e);border:1px solid rgba(255,255,255,.08);color:#e0e0e0;border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.45);pointer-events:auto;opacity:0;transform:translateX(20px);transition:opacity .25s ease,transform .25s ease;font-family:"Segoe UI",Arial,sans-serif';
+    const BASE_CARD = 'background:linear-gradient(135deg,#1a1a2e,#16213e);border:1px solid rgba(255,255,255,.08);color:#e0e0e0;border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.45);pointer-events:auto;opacity:0;transform:translateX(20px);transition:opacity .25s ease,transform .25s ease;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif';
     const LABEL_CSS = 'font-size:10px;text-transform:uppercase;letter-spacing:1.4px;color:#666;margin-bottom';
 
     let _nc = null;
@@ -41,7 +53,7 @@
         _nc = Object.assign(document.createElement('div'), {
             id: '__ulb_nc'
         });
-        _nc.style.cssText = 'position:fixed;bottom:28px;right:28px;z-index:2147483647;display:flex;flex-direction:column-reverse;gap:10px;pointer-events:none;font-family:"Segoe UI",Arial,sans-serif';
+        _nc.style.cssText = 'position:fixed;bottom:calc(28px + env(safe-area-inset-bottom,0px));right:calc(28px + env(safe-area-inset-right,0px));z-index:2147483647;display:flex;flex-direction:column-reverse;gap:10px;pointer-events:none;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif';
         document.body.appendChild(_nc);
         return _nc;
     };
@@ -107,7 +119,7 @@
             icon
         } = TYPES[type] || TYPES.info;
         const card = document.createElement('div');
-        card.style.cssText = `${BASE_CARD};border-left:3px solid ${accent};padding:12px 16px;min-width:240px;max-width:320px`;
+        card.style.cssText = `${BASE_CARD};border-left:3px solid ${accent};padding:12px 16px;min-width:min(240px,calc(100vw - 56px));max-width:min(320px,calc(100vw - 56px))`;
 
         const iconEl = document.createElement('div');
         iconEl.style.cssText = `font-size:15px;color:${accent};margin-top:1px;flex-shrink:0`;
@@ -168,7 +180,7 @@
 
     function showCountdown(seconds, onDone, subtitle = 'Redirect queued') {
         const card = document.createElement('div');
-        card.style.cssText = `${BASE_CARD};border-left:3px solid #4f8ef7;padding:14px 18px;min-width:240px`;
+        card.style.cssText = `${BASE_CARD};border-left:3px solid #4f8ef7;padding:14px 18px;min-width:min(240px,calc(100vw - 56px))`;
         card.innerHTML = `
             <div style="${LABEL_CSS}:8px">Unknown Link Bypasser · @Aro Moon</div>
             <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
@@ -216,9 +228,17 @@
     // ═══════════════════════════════════════════════════════════════════════════
 
     // ── Early exit: if we are inside a challenges.cloudflare.com frame,
-    //    only run the CF hook and nothing else. The @match above injects us here.
+    //    only run the CF hook when the parent page is one of our explicitly
+    //    handled sites (checked via document.referrer). Ignore all others.
     if(location.hostname === 'challenges.cloudflare.com') {
-        _runCfHook();
+        const ALLOWED_REFS = [
+            'airflowscript.com',
+            'dl.surf',
+            'tpi.li',
+            ...FORM_HOSTS,
+            'mtc1.',
+        ];
+        if(ALLOWED_REFS.some(h => document.referrer.includes(h))) _runCfHook();
         return; // stop — do NOT run any bypasser logic on CF pages
     }
 
@@ -242,18 +262,18 @@
 
         return new Promise((resolve, reject) => {
             // Unique callback name so multiple concurrent calls never collide
-            const cbName = '__ulb_tsCb_' + crypto.randomUUID().replace(/-/g, '');
+            const cbName = '__ulb_tsCb_' + generateId();
 
             // ── Visible wrapper so user can manually click the checkbox if
             //    auto-solve stalls (same UX as before, no srcdoc needed) ─────────
             const wrapper = document.createElement('div');
             wrapper.style.cssText = [
-                'position:fixed;bottom:100px;right:28px;z-index:2147483646',
+                'position:fixed;bottom:calc(100px + env(safe-area-inset-bottom,0px));right:calc(28px + env(safe-area-inset-right,0px));z-index:2147483646',
                 'background:linear-gradient(135deg,#1a1a2e,#16213e)',
                 'border:1px solid rgba(255,255,255,.12);border-radius:10px',
                 'box-shadow:0 8px 32px rgba(0,0,0,.5);padding:10px 12px',
                 'display:flex;flex-direction:column;gap:6px',
-                'font-family:"Segoe UI",Arial,sans-serif',
+                'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif',
             ].join(';');
 
             const label = document.createElement('div');
@@ -426,11 +446,24 @@
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
+    // ─── AIRFLOWSCRIPT.COM — DISCORD STEP BYPASSER ───────────────────────────
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    function runAirflowBypasser() {
+        const KEY = 'rinku_step1_done';
+        if(localStorage.getItem(KEY) === 'true') return;
+        notify('Bypassing Discord requirement…', 'loading', 3000);
+        localStorage.setItem(KEY, 'true');
+        location.reload();
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
     // ─── ROUTER ──────────────────────────────────────────────────────────────
     // ═══════════════════════════════════════════════════════════════════════════
 
     const host = location.hostname;
     if(host.includes('dl.surf')) runDlSurf();
+    else if(host.includes('airflowscript.com')) runAirflowBypasser();
     else if(TPI_HOSTS.some(h => host.includes(h))) runTpiLiBypasser();
     else if(FORM_HOSTS.some(h => host.includes(h))) runFormBypasser();
     else runSafelinkBypasser();
@@ -584,7 +617,7 @@
 
         function showRedirectNotif(dest) {
             const card = document.createElement('div');
-            card.style.cssText = `${BASE_CARD};border-left:3px solid #22c55e;padding:14px 18px;min-width:240px;max-width:320px`;
+            card.style.cssText = `${BASE_CARD};border-left:3px solid #22c55e;padding:14px 18px;min-width:min(240px,calc(100vw - 56px));max-width:min(320px,calc(100vw - 56px))`;
 
             card.innerHTML = `
             <div style="${LABEL_CSS}:6px">Unknown Link Bypasser · @Aro Moon</div>
@@ -869,8 +902,8 @@
             } else {
                 Object.assign(btn.style, {
                     position: 'fixed',
-                    bottom: '24px',
-                    right: '24px',
+                    bottom: 'calc(24px + env(safe-area-inset-bottom,0px))',
+                    right: 'calc(24px + env(safe-area-inset-right,0px))',
                     zIndex: 99999,
                     padding: '12px 22px',
                     backgroundColor: '#dc2626',
@@ -881,6 +914,8 @@
                     fontFamily: 'Segoe UI,Arial,sans-serif',
                     fontSize: '14px',
                     fontWeight: '600',
+                    minHeight: '44px',
+                    touchAction: 'manipulation',
                 });
                 document.body.appendChild(btn);
             }
@@ -931,13 +966,19 @@
                 const url = await getDownloadUrl(token, cap);
                 if(typeof url === 'string' && url.startsWith('http')) {
                     setStatus('Download started!', 'success');
+                    // iOS Safari blocks programmatic clicks on <a download>; use window.open as fallback
                     const a = Object.assign(document.createElement('a'), {
                         href: url,
-                        download: ''
+                        download: '',
+                        target: '_blank',
+                        rel: 'noopener'
                     });
                     document.body.appendChild(a);
-                    a.click();
+                    try { a.click(); } catch(_) {}
                     a.remove();
+                    // iOS fallback: open in new tab if download didn't trigger
+                    const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+                    if (isIOS) window.open(url, '_blank');
                 } else {
                     setStatus('Unexpected response — check console.', 'warn');
                 }
