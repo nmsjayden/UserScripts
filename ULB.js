@@ -12,6 +12,7 @@
 // @match        https://tournguide.com/*
 // @match        https://dailyjobposting.xyz/*
 // @match        https://tpi.li/*
+// @match        https://rekonise.com/*
 // @match        https://challenges.cloudflare.com/*
 // @match        https://airflowscript.com/key
 // @grant        GM_addElement
@@ -30,7 +31,7 @@
 
     // Polyfill for crypto.randomUUID — not available on older iOS/Android
     function generateId() {
-        if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+        if(typeof crypto !== 'undefined' && crypto.randomUUID) {
             return crypto.randomUUID().replace(/-/g, '');
         }
         // Fallback: use getRandomValues (supported since iOS 6 / Android 4.4)
@@ -458,12 +459,56 @@
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
+    // ─── REKONISE.COM BYPASSER ───────────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    function runRekoniseBypasser() {
+        const nh = notify('Rekonise — waiting for page…', 'loading', 0);
+
+        const run = async () => {
+            await new Promise(r => setTimeout(r, 5000));
+            try {
+                let token;
+                const d = JSON.parse(document.getElementById('ng-state').textContent);
+                for(const k in d)
+                    if(d[k]?.b?.unlock_token) {
+                        token = d[k].b.unlock_token;
+                        break;
+                    }
+                if(!token) throw new Error('unlock_token not found');
+
+                nh.update('Fetching destination…', 'loading');
+                const s = location.pathname.split('/').pop();
+                const u = `https://api.rekonise.com/social-unlocks/${s}/unlock?token=${encodeURIComponent(token)}`;
+                const j = await (await fetch(u)).json();
+                const dest = j.url || j;
+                if(typeof dest !== 'string' || !dest.startsWith('http')) throw new Error('No valid URL in response');
+
+                nh.update('Redirecting!', 'success');
+                setTimeout(() => {
+                    nh.remove();
+                    location.href = dest;
+                }, 800);
+            } catch (err) {
+                console.error('[Rekonise]', err);
+                nh.update(`Error: ${err.message}`, 'error');
+            }
+        };
+
+        if(document.readyState === 'complete') run();
+        else window.addEventListener('load', run, {
+            once: true
+        });
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
     // ─── ROUTER ──────────────────────────────────────────────────────────────
     // ═══════════════════════════════════════════════════════════════════════════
 
     const host = location.hostname;
     if(host.includes('dl.surf')) runDlSurf();
     else if(host.includes('airflowscript.com')) runAirflowBypasser();
+    else if(host.includes('rekonise.com')) runRekoniseBypasser();
     else if(TPI_HOSTS.some(h => host.includes(h))) runTpiLiBypasser();
     else if(FORM_HOSTS.some(h => host.includes(h))) runFormBypasser();
     else runSafelinkBypasser();
@@ -974,11 +1019,13 @@
                         rel: 'noopener'
                     });
                     document.body.appendChild(a);
-                    try { a.click(); } catch(_) {}
+                    try {
+                        a.click();
+                    } catch (_) {}
                     a.remove();
                     // iOS fallback: open in new tab if download didn't trigger
                     const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-                    if (isIOS) window.open(url, '_blank');
+                    if(isIOS) window.open(url, '_blank');
                 } else {
                     setStatus('Unexpected response — check console.', 'warn');
                 }
