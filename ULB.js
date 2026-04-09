@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Unknown Link Bypasser
 // @namespace    http://tampermonkey.net/
-// @version      6.0.2
-// @description  Safelink bypasser + dl.surf auto downloader + form-based auto bypasser + tpi.li bypasser. Made by @Aro Moon
+// @version      6.1.0
+// @description  Safelink bypasser + dl.surf auto downloader + form-based auto bypasser + tpi.li bypasser + bstlar bypasser + wareguardv2 bypasser + subnise bypasser. Made by @Aro Moon
 // @author       @Aro Moon
 // @include      /^https:\/\/mtc1\.[^/]+\.[a-z.]+\//
 // @match        https://dl.surf/f/*
@@ -12,9 +12,12 @@
 // @match        https://tournguide.com/*
 // @match        https://dailyjobposting.xyz/*
 // @match        https://tpi.li/*
-// @match        https://rekonise.com/*
 // @match        https://challenges.cloudflare.com/*
 // @match        https://airflowscript.com/key
+// @match        https://stfly.biz/*
+// @match        https://bstlar.com/*
+// @match        https://wareguardv2.xyz/checkpoint*
+// @match        https://subnise.com/link/*
 // @grant        GM_addElement
 // @grant        unsafeWindow
 // @connect      challenges.cloudflare.com
@@ -26,12 +29,12 @@
 (function () {
     'use strict';
 
-    const FORM_HOSTS = ['shrtslug.biz', 'biovetro.net', 'technons.com', 'tournguide.com', 'dailyjobposting.xyz'];
+    const FORM_HOSTS = ['shrtslug.biz', 'biovetro.net', 'technons.com', 'tournguide.com', 'dailyjobposting.xyz', 'stfly.biz'];
     const TPI_HOSTS = ['tpi.li'];
 
     // Polyfill for crypto.randomUUID — not available on older iOS/Android
     function generateId() {
-        if(typeof crypto !== 'undefined' && crypto.randomUUID) {
+        if (typeof crypto !== 'undefined' && crypto.randomUUID) {
             return crypto.randomUUID().replace(/-/g, '');
         }
         // Fallback: use getRandomValues (supported since iOS 6 / Android 4.4)
@@ -459,59 +462,162 @@
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
-    // ─── REKONISE.COM BYPASSER ───────────────────────────────────────────────
-    // ═══════════════════════════════════════════════════════════════════════════
-
-    function runRekoniseBypasser() {
-        const nh = notify('Rekonise — waiting for page…', 'loading', 0);
-
-        const run = async () => {
-            await new Promise(r => setTimeout(r, 5000));
-            try {
-                let token;
-                const d = JSON.parse(document.getElementById('ng-state').textContent);
-                for(const k in d)
-                    if(d[k]?.b?.unlock_token) {
-                        token = d[k].b.unlock_token;
-                        break;
-                    }
-                if(!token) throw new Error('unlock_token not found');
-
-                nh.update('Fetching destination…', 'loading');
-                const s = location.pathname.split('/').pop();
-                const u = `https://api.rekonise.com/social-unlocks/${s}/unlock?token=${encodeURIComponent(token)}`;
-                const j = await (await fetch(u)).json();
-                const dest = j.url || j;
-                if(typeof dest !== 'string' || !dest.startsWith('http')) throw new Error('No valid URL in response');
-
-                nh.update('Redirecting!', 'success');
-                setTimeout(() => {
-                    nh.remove();
-                    location.href = dest;
-                }, 800);
-            } catch (err) {
-                console.error('[Rekonise]', err);
-                nh.update(`Error: ${err.message}`, 'error');
-            }
-        };
-
-        if(document.readyState === 'complete') run();
-        else window.addEventListener('load', run, {
-            once: true
-        });
-    }
-
-    // ═══════════════════════════════════════════════════════════════════════════
     // ─── ROUTER ──────────────────────────────────────────────────────────────
     // ═══════════════════════════════════════════════════════════════════════════
 
     const host = location.hostname;
-    if(host.includes('dl.surf')) runDlSurf();
-    else if(host.includes('airflowscript.com')) runAirflowBypasser();
-    else if(host.includes('rekonise.com')) runRekoniseBypasser();
-    else if(TPI_HOSTS.some(h => host.includes(h))) runTpiLiBypasser();
-    else if(FORM_HOSTS.some(h => host.includes(h))) runFormBypasser();
-    else runSafelinkBypasser();
+    if(host.includes('dl.surf'))                                    runDlSurf();
+    else if(host.includes('airflowscript.com'))                     runAirflowBypasser();
+    else if(host.includes('bstlar.com'))                            runBstlarBypasser();
+    else if(host.includes('wareguardv2.xyz'))                       runWareguardBypasser();
+    else if(host.includes('subnise.com'))                           runSubniseBypasser();
+    else if(TPI_HOSTS.some(h => host.includes(h)))                  runTpiLiBypasser();
+    else if(FORM_HOSTS.some(h => host.includes(h)))                 runFormBypasser();
+    else                                                            runSafelinkBypasser();
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // ─── BSTLAR.COM BYPASSER ─────────────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    function runBstlarBypasser() {
+        const nh = notify('bstlar.com detected — bypassing…', 'loading', 0);
+
+        const run = async () => {
+            try {
+                const e = document.getElementById('link_action_id');
+                const link_action_id = e && ('value' in e ? e.value : e.textContent);
+
+                const r1 = await fetch(`/api/link?url=${encodeURIComponent(location.pathname.slice(1))}&link_action_id=${link_action_id}`);
+                if(!r1.ok) throw new Error(`API /api/link returned HTTP ${r1.status}`);
+                const linkData = await r1.json();
+
+                const r2 = await fetch('/api/link-completed', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ link_id: linkData.id, link_action_id })
+                });
+                if(!r2.ok) throw new Error(`API /api/link-completed returned HTTP ${r2.status}`);
+                const result = await r2.json();
+
+                const dest = result.destination_url;
+                if(!dest) throw new Error('No destination_url in response');
+
+                nh.update('Redirecting…', 'success');
+                setTimeout(() => nh.remove(), 2000);
+                location.href = dest;
+            } catch (err) {
+                console.error('[ULB/bstlar]', err);
+                nh.update(`bstlar error: ${err.message}`, 'error');
+                setTimeout(() => nh.remove(), 6000);
+            }
+        };
+
+        // Wait for DOM so link_action_id element is available
+        if(document.readyState !== 'loading') {
+            run();
+        } else {
+            document.addEventListener('DOMContentLoaded', run, { once: true });
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // ─── WAREGUARDV2.XYZ CHECKPOINT BYPASSER ─────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    function runWareguardBypasser() {
+        const nh = notify('wareguardv2 checkpoint detected — bypassing…', 'loading', 0);
+
+        const run = () => {
+            try {
+                const btn = document.getElementById('continueBtn');
+                if(!btn || !btn.href) {
+                    nh.update('wareguardv2: continueBtn not found — unsupported page layout.', 'error');
+                    setTimeout(() => nh.remove(), 6000);
+                    return;
+                }
+
+                const r = new URL(btn.href).searchParams.get('r');
+                if(!r) {
+                    nh.update('wareguardv2: no redirect URL found — unsupported.', 'error');
+                    setTimeout(() => nh.remove(), 6000);
+                    return;
+                }
+
+                let dest;
+                try {
+                    dest = atob(decodeURIComponent(r));
+                } catch {
+                    nh.update('wareguardv2: failed to decode redirect URL — unsupported.', 'error');
+                    setTimeout(() => nh.remove(), 6000);
+                    return;
+                }
+
+                if(!dest || !dest.startsWith('http')) {
+                    nh.update('wareguardv2: decoded URL is invalid — unsupported.', 'error');
+                    setTimeout(() => nh.remove(), 6000);
+                    return;
+                }
+
+                nh.update('Redirecting in 1s…', 'info');
+                showCountdown(1, () => {
+                    nh.update('Redirecting…', 'success');
+                    setTimeout(() => nh.remove(), 2000);
+                    location.href = dest;
+                }, 'wareguardv2 bypass');
+
+            } catch (err) {
+                console.error('[ULB/wareguardv2]', err);
+                nh.update(`wareguardv2 error: ${err.message}`, 'error');
+                setTimeout(() => nh.remove(), 6000);
+            }
+        };
+
+        if(document.readyState !== 'loading') {
+            run();
+        } else {
+            document.addEventListener('DOMContentLoaded', run, { once: true });
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // ─── SUBNISE.COM LINK BYPASSER ────────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    function runSubniseBypasser() {
+        const nh = notify('subnise.com detected — bypassing…', 'loading', 0);
+
+        const run = async () => {
+            try {
+                const id = location.pathname.split('/').pop();
+                if(!id) throw new Error('Could not extract link ID from URL');
+
+                const r = await fetch(`/api/links/${id}`);
+                if(!r.ok) throw new Error(`API returned HTTP ${r.status}`);
+                const data = await r.json();
+
+                const dest = data.url;
+                if(!dest) throw new Error('No URL in API response');
+
+                nh.update('Redirecting in 1s…', 'info');
+                showCountdown(1, () => {
+                    nh.update('Redirecting…', 'success');
+                    setTimeout(() => nh.remove(), 2000);
+                    location.href = dest;
+                }, 'subnise bypass');
+
+            } catch (err) {
+                console.error('[ULB/subnise]', err);
+                nh.update(`subnise error: ${err.message}`, 'error');
+                setTimeout(() => nh.remove(), 6000);
+            }
+        };
+
+        if(document.readyState !== 'loading') {
+            run();
+        } else {
+            document.addEventListener('DOMContentLoaded', run, { once: true });
+        }
+    }
 
     // ═══════════════════════════════════════════════════════════════════════════
     // ─── TPI.LI BYPASSER ─────────────────────────────────────────────────────
@@ -1019,13 +1125,11 @@
                         rel: 'noopener'
                     });
                     document.body.appendChild(a);
-                    try {
-                        a.click();
-                    } catch (_) {}
+                    try { a.click(); } catch(_) {}
                     a.remove();
                     // iOS fallback: open in new tab if download didn't trigger
                     const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-                    if(isIOS) window.open(url, '_blank');
+                    if (isIOS) window.open(url, '_blank');
                 } else {
                     setStatus('Unexpected response — check console.', 'warn');
                 }
