@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Unknown Link Bypasser
 // @namespace    http://tampermonkey.net/
-// @version      6.0.1
+// @version      6.0.2
 // @description  Safelink bypasser + dl.surf auto downloader + form-based auto bypasser + tpi.li bypasser. Made by @Aro Moon
 // @author       @Aro Moon
 // @include      /^https:\/\/mtc1\.[^/]+\.[a-z.]+\//
