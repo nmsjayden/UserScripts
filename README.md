@@ -87,6 +87,7 @@ Bypasses lesser-known ad-link services.
 * subnise
 * reshortfly
 * lnbz.la
+* airflowscript (discord requirement bypass)
 
 Have suggestions for additional ad-link services? Open an issue!
 
