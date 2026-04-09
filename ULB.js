@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Unknown Link Bypasser
 // @namespace    http://tampermonkey.net/
-// @version      6.1.0
-// @description  Safelink bypasser + dl.surf auto downloader + form-based auto bypasser + tpi.li bypasser + bstlar bypasser + wareguardv2 bypasser + subnise bypasser. Made by @Aro Moon
+// @version      6.2.1
+// @description  Safelink bypasser + dl.surf auto downloader + form-based auto bypasser + tpi.li bypasser + bstlar bypasser + wareguardv2 bypasser + subnise bypasser + reshortfly bypasser + lnbz.la bypasser. Made by @Aro Moon
 // @author       @Aro Moon
 // @include      /^https:\/\/mtc1\.[^/]+\.[a-z.]+\//
 // @match        https://dl.surf/f/*
@@ -18,6 +18,9 @@
 // @match        https://bstlar.com/*
 // @match        https://wareguardv2.xyz/checkpoint*
 // @match        https://subnise.com/link/*
+// @match        https://reshortfly.com/*
+// @match        https://lnbz.la/*
+// @match        https://avnsgames.com/*
 // @grant        GM_addElement
 // @grant        unsafeWindow
 // @connect      challenges.cloudflare.com
@@ -239,6 +242,7 @@
             'airflowscript.com',
             'dl.surf',
             'tpi.li',
+            'lnbz.la',
             ...FORM_HOSTS,
             'mtc1.',
         ];
@@ -471,6 +475,9 @@
     else if(host.includes('bstlar.com'))                            runBstlarBypasser();
     else if(host.includes('wareguardv2.xyz'))                       runWareguardBypasser();
     else if(host.includes('subnise.com'))                           runSubniseBypasser();
+    else if(host.includes('reshortfly.com'))                        runReshortflyBypasser();
+    else if(host.includes('avnsgames.com'))                         runAvnsGamesInterstitial();
+    else if(host.includes('lnbz.la'))                               runLnbzLaBypasser();
     else if(TPI_HOSTS.some(h => host.includes(h)))                  runTpiLiBypasser();
     else if(FORM_HOSTS.some(h => host.includes(h)))                 runFormBypasser();
     else                                                            runSafelinkBypasser();
@@ -997,6 +1004,275 @@
                 setStatus('Unexpected response — check console.', 'warn');
                 console.warn('[FormBypasser] unrecognised result.data:', result.data);
             }
+        });
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // ─── RESHORTFLY.COM BYPASSER ─────────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    function runReshortflyBypasser() {
+        const nh = notify('reshortfly.com detected — waiting 5s…', 'loading', 0);
+
+        const doFetch = async () => {
+            try {
+                const form = document.querySelector('#go-link');
+                if(!form) throw new Error('Form #go-link not found');
+
+                const r = await fetch('/links/go', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: new URLSearchParams(new FormData(form)),
+                    credentials: 'include'
+                });
+                const t = await r.text();
+
+                let dest = null;
+                try {
+                    const j = JSON.parse(t);
+                    if(j.url) dest = j.url;
+                    else if(j.data) dest = atob(j.data).match(/https?:\/\/[^\s"']+/)?.[0];
+                } catch {
+                    dest = t.match(/https?:\/\/[^\s"']+/)?.[0];
+                }
+
+                if(!dest) throw new Error('No destination URL found in response');
+                nh.update('Redirecting…', 'success');
+                setTimeout(() => nh.remove(), 2000);
+                location.href = dest;
+
+            } catch (err) {
+                console.error('[ULB/reshortfly]', err);
+                nh.update(`reshortfly error: ${err.message}`, 'error');
+                setTimeout(() => nh.remove(), 6000);
+            }
+        };
+
+        const start = () => {
+            nh.update('reshortfly.com — redirecting in 7s…', 'loading');
+            showCountdown(7, doFetch, 'reshortfly bypass');
+        };
+
+        document.readyState !== 'loading'
+            ? start()
+            : document.addEventListener('DOMContentLoaded', start, { once: true });
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // ─── AVNSGAMES.COM INTERSTITIAL (→ lnbz.la) ──────────────────────────────
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    function runAvnsGamesInterstitial() {
+        const nh = notify('Interstitial page detected — waiting for redirect form…', 'loading', 0);
+
+        const trySubmit = () => {
+            const f = document.getElementById('go_d2');
+            if(f) {
+                nh.update('Form found — submitting…', 'success');
+                setTimeout(() => nh.remove(), 1500);
+                HTMLFormElement.prototype.submit.call(f);
+                return true;
+            }
+            return false;
+        };
+
+        const init = () => {
+            if(trySubmit()) return;
+
+            const iv = setInterval(() => {
+                if(trySubmit()) clearInterval(iv);
+            }, 300);
+
+            // Safety timeout: stop polling after 30s
+            setTimeout(() => {
+                clearInterval(iv);
+                if(!document.getElementById('go_d2')) {
+                    nh.update('Interstitial form not found — unsupported page layout.', 'error');
+                    setTimeout(() => nh.remove(), 6000);
+                }
+            }, 30_000);
+        };
+
+        document.readyState !== 'loading'
+            ? init()
+            : document.addEventListener('DOMContentLoaded', init, { once: true });
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // ─── LNBZ.LA BYPASSER ────────────────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════════════════
+    //
+    // Two sub-pages:
+    //   1. Captcha page  — no [name="ad_form_data"]; Turnstile present.
+    //                      Auto-solve via solveTurnstile(), submit form.
+    //   2. Go/redirect   — [name="ad_form_data"] present.
+    //                      POST /links/go after 1s countdown, navigate to d.url.
+
+    // ── Shared helper: read app_vars from unsafeWindow or parse the inline script ──
+
+    function _lnbzGetAppVars() {
+        // Primary: page already executed the script — grab the live object
+        try {
+            const v = unsafeWindow.app_vars;
+            if(v && typeof v === 'object') return v;
+        } catch {}
+
+        // Fallback: parse the raw JSON from the CDATA script tag
+        for(const s of document.querySelectorAll('script:not([src])')) {
+            const m = s.textContent.match(/var\s+app_vars\s*=\s*(\{[\s\S]*?\});/);
+            if(m) {
+                try { return JSON.parse(m[1]); } catch {}
+            }
+        }
+        return null;
+    }
+
+    // ── Wait for app_vars to be available (script may not have run yet) ──────
+
+    function _lnbzWaitForAppVars(cb, timeoutMs = 8000) {
+        const v = _lnbzGetAppVars();
+        if(v) { cb(v); return; }
+
+        const start = Date.now();
+        const obs = new MutationObserver(() => {
+            const v2 = _lnbzGetAppVars();
+            if(v2) { obs.disconnect(); cb(v2); return; }
+            if(Date.now() - start > timeoutMs) { obs.disconnect(); cb(null); }
+        });
+        obs.observe(document.documentElement, { childList: true, subtree: true });
+
+        // Also try a plain setTimeout fallback so we don't stall if DOM is static
+        setTimeout(() => { obs.disconnect(); cb(_lnbzGetAppVars()); }, timeoutMs);
+    }
+
+    // ── Router ───────────────────────────────────────────────────────────────
+
+    function runLnbzLaBypasser() {
+        const detect = () => {
+            const adEl = document.querySelector('[name="ad_form_data"]');
+            if(adEl) { _lnbzGoPage(adEl); return; }
+
+            const form = document.querySelector('form');
+            if(form) { _lnbzCaptchaPage(form); return; }
+
+            // Neither present yet — wait for DOM mutations
+            const obs = new MutationObserver(() => {
+                const adEl2 = document.querySelector('[name="ad_form_data"]');
+                const form2  = document.querySelector('form');
+                if(adEl2 || form2) {
+                    obs.disconnect();
+                    adEl2 ? _lnbzGoPage(adEl2) : _lnbzCaptchaPage(form2);
+                }
+            });
+            obs.observe(document.documentElement, { childList: true, subtree: true });
+        };
+
+        document.readyState !== 'loading'
+            ? detect()
+            : document.addEventListener('DOMContentLoaded', detect, { once: true });
+    }
+
+    // ── Phase 1: captcha page ────────────────────────────────────────────────
+
+    function _lnbzCaptchaPage(form) {
+        const nh = notify('lnbz.la — solving captcha…', 'loading', 0);
+
+        const submitWithToken = token => {
+            // Inject or reuse the hidden input CF expects
+            let input = form.querySelector('[name="cf-turnstile-response"]');
+            if(!input) {
+                input = Object.assign(document.createElement('input'), {
+                    type: 'hidden',
+                    name: 'cf-turnstile-response'
+                });
+                form.appendChild(input);
+            }
+            input.value = token;
+            nh.update('Captcha solved — submitting…', 'success');
+            setTimeout(() => nh.remove(), 1500);
+            HTMLFormElement.prototype.submit.call(form);
+        };
+
+        const handleError = (label, err) => {
+            console.error(`[ULB/lnbz.la captcha] ${label}`, err);
+            nh.update(`lnbz.la: ${label}${err?.message ? ` — ${err.message}` : ''}`, 'error');
+            setTimeout(() => nh.remove(), 7000);
+        };
+
+        // Prefer sitekey from app_vars; fall back to DOM scan via getSiteKey()
+        _lnbzWaitForAppVars(vars => {
+            const sitekey = vars?.turnstile_site_key || getSiteKey();
+
+            if(sitekey) {
+                solveTurnstile(sitekey)
+                    .then(submitWithToken)
+                    .catch(err => handleError('captcha solver failed', err));
+            } else {
+                // Last resort: poll for the token being written by the page's own script
+                nh.update('lnbz.la — waiting for captcha…', 'loading');
+                let elapsed = 0;
+                const iv = setInterval(() => {
+                    const c = form.querySelector('[name="cf-turnstile-response"]')?.value;
+                    if(c && c.length > 20) { clearInterval(iv); submitWithToken(c); return; }
+                    if((elapsed += 500) >= 60_000) {
+                        clearInterval(iv);
+                        handleError('captcha timed out after 60s', null);
+                    }
+                }, 500);
+            }
+        });
+    }
+
+    // ── Phase 2: go/redirect page ────────────────────────────────────────────
+
+    function _lnbzGoPage(adFormDataEl) {
+        // Read counter_value from app_vars; minimum 1, default 15 to match site default
+        const FALLBACK_SECS = 15;
+
+        const handleError = (label, err) => {
+            console.error(`[ULB/lnbz.la go] ${label}`, err);
+            nh.update(`lnbz.la: ${label}${err?.message ? ` — ${err.message}` : ''}`, 'error');
+            setTimeout(() => nh.remove(), 7000);
+        };
+
+        const nh = notify('lnbz.la — reading countdown…', 'loading', 0);
+
+        const doFetch = async () => {
+            nh.update('lnbz.la — fetching destination…', 'loading');
+            try {
+                const r = await fetch('/links/go', {
+                    method: 'POST',
+                    headers: {
+                        'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                        'x-requested-with': 'XMLHttpRequest'
+                    },
+                    body: '_method=POST&ad_form_data=' + encodeURIComponent(adFormDataEl.value)
+                });
+
+                if(!r.ok) throw new Error(`Server returned HTTP ${r.status}`);
+
+                let d;
+                try { d = await r.json(); }
+                catch { throw new Error('Response was not valid JSON'); }
+
+                if(!d.url) throw new Error('No destination URL in server response');
+
+                nh.update('Redirecting…', 'success');
+                setTimeout(() => nh.remove(), 2000);
+                location.href = d.url;
+
+            } catch (err) {
+                handleError('fetch failed', err);
+            }
+        };
+
+        _lnbzWaitForAppVars(vars => {
+            const secs = Math.max(1, parseInt(vars?.counter_value, 10) || FALLBACK_SECS);
+            nh.update(`lnbz.la — redirecting in ${secs}s…`, 'loading');
+            showCountdown(secs, doFetch, 'lnbz.la bypass');
         });
     }
 
