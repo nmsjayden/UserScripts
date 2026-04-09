@@ -82,7 +82,11 @@ Bypasses lesser-known ad-link services.
 * dl.surf
 * tpi.li
 * shrtslug
-
+* bstlar
+* wargaurdv2 (linkvertise only)
+* subnise
+* reshortfly
+* lnbz.la
 Have suggestions for additional ad-link services? Open an issue!
 
 ---
