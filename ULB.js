@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Unknown Link Bypasser
 // @namespace    http://tampermonkey.net/
-// @version      6.5.7
+// @version      6.6.2
 // @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live + go.yorurl.com + jankariweb + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + gplinks.co + powergam.online. Made by @Aro Moon
 // @author       @Aro Moon
 // @include      /^https:\/\/mtc\d+\.[^/]+\.[a-z.]+\//
@@ -40,6 +40,7 @@
 // @match        https://mwgamesyt.com.br/*
 // @match        https://topjogosvip.online/*
 // @match        https://legacyagency.com.br/*
+// @match        https://aylink.co/*
 // @grant        GM_addElement
 // @grant        unsafeWindow
 // @connect      challenges.cloudflare.com
@@ -467,40 +468,127 @@
         if (!sitekey) return Promise.reject(new Error('[ULB/Turnstile] sitekey is required'));
         return new Promise((resolve, reject) => {
             const cbName = '__ulb_tsCb_' + generateId();
-            const wrapper = document.createElement('div');
-            wrapper.style.cssText = [
+
+            // ── Full-screen overlay (beats every z-index war) ──────────────
+            const overlay = document.createElement('div');
+            overlay.id = '__ulb_ts_overlay';
+            overlay.style.cssText = [
+                'all:initial',
                 'position:fixed',
-                'bottom:calc(100px + env(safe-area-inset-bottom,0px))',
-                'right:calc(28px + env(safe-area-inset-right,0px))',
-                'z-index:2147483646',
-                'background:linear-gradient(135deg,#1a1a2e,#16213e)',
-                'border:1px solid rgba(255,255,255,.12)',
-                'border-radius:10px',
-                'box-shadow:0 8px 32px rgba(0,0,0,.5)',
-                'padding:10px 12px',
-                'display:flex;flex-direction:column;gap:6px',
+                'inset:0',
+                'z-index:2147483647',
+                'display:flex',
+                'align-items:center',
+                'justify-content:center',
+                'background:rgba(2,6,23,.82)',
+                'backdrop-filter:blur(6px)',
+                '-webkit-backdrop-filter:blur(6px)',
                 'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif',
+                'transition:opacity .3s ease',
             ].join(';');
-            const label = Object.assign(document.createElement('div'), {
-                style: 'font-size:10px;color:#888;letter-spacing:1px;text-transform:uppercase',
-                textContent: 'Solving captcha… (tap if stuck)',
-            });
+
+            const card = document.createElement('div');
+            card.style.cssText = [
+                'background:linear-gradient(145deg,#0f172a,#1e293b)',
+                'border:1px solid rgba(99,102,241,.35)',
+                'border-radius:18px',
+                'box-shadow:0 0 0 1px rgba(255,255,255,.04),0 32px 64px rgba(0,0,0,.7),0 0 80px rgba(99,102,241,.12)',
+                'padding:32px 28px 28px',
+                'display:flex',
+                'flex-direction:column',
+                'align-items:center',
+                'gap:16px',
+                'min-width:340px',
+                'max-width:calc(100vw - 48px)',
+                'position:relative',
+            ].join(';');
+
+            // spinner ring
+            const spinWrap = document.createElement('div');
+            spinWrap.style.cssText = 'position:relative;width:48px;height:48px;flex-shrink:0';
+            const spinRing = document.createElement('div');
+            spinRing.id = '__ulb_ts_ring';
+            spinRing.style.cssText = [
+                'position:absolute;inset:0;border-radius:50%',
+                'border:3px solid rgba(99,102,241,.18)',
+                'border-top-color:#818cf8',
+                'animation:__ulb_spin 0.9s linear infinite',
+            ].join(';');
+            const spinIcon = document.createElement('div');
+            spinIcon.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:22px';
+            spinIcon.textContent = '🔐';
+            spinWrap.append(spinRing, spinIcon);
+
+            // text block
+            const textWrap = document.createElement('div');
+            textWrap.style.cssText = 'text-align:center';
+            const heading = document.createElement('div');
+            heading.style.cssText = 'font-size:15px;font-weight:700;color:#e2e8f0;letter-spacing:.3px;margin-bottom:5px';
+            heading.textContent = 'Solving CAPTCHA';
+            const sub = document.createElement('div');
+            sub.id = '__ulb_ts_sub';
+            sub.style.cssText = 'font-size:12px;color:#64748b;line-height:1.5';
+            sub.textContent = 'Please complete the challenge below if it appears…';
+            textWrap.append(heading, sub);
+
+            // the actual turnstile widget
             const widgetDiv = document.createElement('div');
             widgetDiv.setAttribute('data-sitekey', sitekey);
             widgetDiv.setAttribute('data-callback', cbName);
             widgetDiv.setAttribute('data-theme', 'dark');
-            wrapper.append(label, widgetDiv);
-            document.body.appendChild(wrapper);
+            widgetDiv.style.cssText = 'border-radius:8px;overflow:hidden';
 
-            const timeout = setTimeout(() => { cleanup(); reject(new Error('[ULB/Turnstile] timed out after 45s')); }, 45_000);
+            // footer label
+            const footer = document.createElement('div');
+            footer.style.cssText = 'font-size:10px;color:#334155;letter-spacing:1.2px;text-transform:uppercase;margin-top:4px';
+            footer.textContent = 'Unknown Link Bypasser · @Aro Moon';
+
+            card.append(spinWrap, textWrap, widgetDiv, footer);
+            overlay.appendChild(card);
+
+            const mountOverlay = () => {
+                overlay.style.opacity = '0';
+                (document.body || document.documentElement).appendChild(overlay);
+                requestAnimationFrame(() => { overlay.style.opacity = '1'; });
+            };
+            if (document.body) mountOverlay();
+            else document.addEventListener('DOMContentLoaded', mountOverlay, { once: true });
+
+            // ── Auto-click the iframe checkbox if the widget renders it ────
+            const autoClickObs = new MutationObserver(() => {
+                overlay.querySelectorAll('iframe').forEach(fr => {
+                    try {
+                        const cb = fr.contentDocument?.querySelector('input[type=checkbox]');
+                        if (cb && !cb.checked) cb.click();
+                    } catch (_) {}
+                });
+            });
+            autoClickObs.observe(overlay, { childList: true, subtree: true });
+
+            // ── Timeout + cleanup ──────────────────────────────────────────
+            const timeout = setTimeout(() => {
+                cleanup();
+                reject(new Error('[ULB/Turnstile] timed out after 60s'));
+            }, 60_000);
+
             function cleanup() {
                 clearTimeout(timeout);
+                autoClickObs.disconnect();
                 try { delete unsafeWindow[cbName]; } catch (_) {}
-                setTimeout(() => wrapper.remove(), 600);
+                overlay.style.opacity = '0';
+                setTimeout(() => overlay.remove(), 350);
             }
-            const onToken = token => { cleanup(); resolve(token); };
+
+            const onToken = token => {
+                const sub2 = overlay.querySelector('#__ulb_ts_sub');
+                if (sub2) sub2.textContent = 'Solved ✓ — redirecting…';
+                const ring = overlay.querySelector('#__ulb_ts_ring');
+                if (ring) { ring.style.borderTopColor = '#22c55e'; ring.style.animationDuration = '0.3s'; }
+                setTimeout(() => { cleanup(); resolve(token); }, 400);
+            };
             unsafeWindow[cbName] = onToken;
 
+            // ── Render ─────────────────────────────────────────────────────
             const tryRenderApi = () => {
                 const ts = unsafeWindow.turnstile;
                 if (!ts?.render) return false;
@@ -672,6 +760,7 @@
     else if (host.includes('sub4unlock.co'))             runSub4UnlockBypasser();
     else if (host.includes('app.khaddavi.net'))          runKhaddaviBypasser();
     else if (host.includes('sfl.gl'))                    runSflGlBypasser();
+    else if (host.includes('aylink.co'))                   runAylinkBypasser();
     else if (
         host.includes('biplabtewary.com')   ||
         host.includes('mwgamesyt.com.br')   ||
@@ -1676,6 +1765,129 @@
                     if (tries > 150) { nh.update('rojgarhindi.in: no btn6 or tp-form found — unsupported layout.', 'error'); setTimeout(() => nh.remove(), 6000); }
                 }
             }, 200);
+        };
+        onReady(init);
+    }
+
+    // ── aylink.co ──────────────────────────────────────────────────────────
+
+    function runAylinkBypasser() {
+        const t         = makeTimer();
+        const siteLabel = 'aylink.co';
+
+        const handleError = (label, err) => {
+            console.error(`[ULB/${siteLabel}] ${label}`, err);
+            notify(`${siteLabel}: ${label}${err?.message ? ` — ${err.message}` : ''}`, 'error', 7000, { site: siteLabel });
+        };
+
+        // Detect which page we are on:
+        //   captcha page  → has .cf-turnstile with data-sitekey
+        //   link page     → has window.app.csrf (Inertia / blade app object)
+        const isCaptchaPage = () => !!document.querySelector('.cf-turnstile[data-sitekey]');
+
+        // ── CAPTCHA PAGE ──────────────────────────────────────────────────
+        const runCaptchaPage = async () => {
+            const nh = notify(`${siteLabel} — solving captcha…`, 'loading', 0, { site: siteLabel });
+
+            // grab _a, _t, _d from hidden inputs or meta tags on the captcha form
+            const getField = name => {
+                const el = document.querySelector(`[name="${name}"],[id="${name}"]`);
+                return el ? (el.value || el.content || '') : '';
+            };
+
+            const sitekey = document.querySelector('.cf-turnstile[data-sitekey]')?.dataset?.sitekey
+                || '0x4AAAAAAA-1YLZYLRnN8eBX';
+
+            let token;
+            try { token = await solveTurnstile(sitekey); }
+            catch (e) { nh.remove(); handleError('captcha solve failed', e); return; }
+
+            // Inject token into the form and trigger the page's own callback
+            const hiddenInput = document.querySelector('[name="cf-turnstile-response"]');
+            if (hiddenInput) hiddenInput.value = token;
+
+            const cbName = document.querySelector('.cf-turnstile')?.dataset?.callback;
+            if (cbName) {
+                try {
+                    if (typeof unsafeWindow[cbName] === 'function') unsafeWindow[cbName](token);
+                } catch (_) {}
+            }
+
+            // Also try submitting the form directly if present
+            const form = document.querySelector('form');
+            if (form) {
+                try { HTMLFormElement.prototype.submit.call(form); }
+                catch (_) {}
+            }
+
+            nh.update(`${siteLabel} — captcha done, waiting for redirect…`, 'success', { site: siteLabel, time: t.elapsed() + 's' });
+            setTimeout(() => nh.remove(), 3000);
+        };
+
+        // ── LINK PAGE ─────────────────────────────────────────────────────
+        const runLinkPage = async () => {
+            const nh = notify(`${siteLabel} — fetching token…`, 'loading', 0, { site: siteLabel });
+
+            // _a, _t, _d — try unsafeWindow first, then scrape from inline <script> text.
+            // They are declared in one comma-separated let statement so only _a has 'let'
+            // before it; match all three with a looser pattern: `varname = 'value'`
+            const _scrapeVar = name => {
+                for (const s of document.querySelectorAll('script:not([src])')) {
+                    const m = s.textContent.match(new RegExp(`\\b${name}\\s*=\\s*'([^']+)'`));
+                    if (m) return m[1];
+                }
+                return '';
+            };
+            const _a = unsafeWindow._a || _scrapeVar('_a');
+            const _t = unsafeWindow._t || _scrapeVar('_t');
+            const _d = unsafeWindow._d || _scrapeVar('_d');
+
+            // alias is the path slug; csrf lives on app.csrf
+            const alias = location.pathname.split('/').filter(Boolean).pop() || '';
+            const csrf  = unsafeWindow?.app?.csrf ?? document.querySelector('[name="csrf"]')?.value ?? '';
+
+            try {
+                nh.update(`${siteLabel} — getting tk…`, 'loading', { site: siteLabel });
+                const tkResp = await fetch('/get/tk', {
+                    method:      'POST',
+                    credentials: 'include',
+                    headers:     {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type':     'application/x-www-form-urlencoded; charset=UTF-8',
+                    },
+                    body: new URLSearchParams({ _a, _t, _d }),
+                }).then(r => r.json());
+
+                if (!tkResp.status) { handleError('tk request failed', null); nh.remove(); console.log('[ULB/aylink] tk resp:', tkResp); return; }
+
+                nh.update(`${siteLabel} — fetching destination…`, 'loading', { site: siteLabel });
+
+                const goResp = await fetch('/links/go2', {
+                    method:      'POST',
+                    credentials: 'include',
+                    headers:     {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type':     'application/x-www-form-urlencoded; charset=UTF-8',
+                    },
+                    body: new URLSearchParams({ alias, csrf, tkn: tkResp.th }),
+                }).then(r => r.json());
+
+                if (!goResp.url) { handleError('no URL in go2 response', null); nh.remove(); console.log('[ULB/aylink] go2 resp:', goResp); return; }
+
+                nh.update(`${siteLabel} — redirecting…`, 'success', { site: siteLabel, time: t.elapsed() + 's' });
+                if (CONFIG.autoDismissOnRedirect) setTimeout(() => nh.remove(), 500);
+                else setTimeout(() => nh.remove(), 2000);
+                location.href = goResp.url;
+            } catch (err) { nh.remove(); handleError('bypass failed', err); }
+        };
+
+        const init = () => {
+            if (isCaptchaPage()) {
+                runCaptchaPage();
+            } else {
+                // Wait 1s for app vars to initialise before running
+                setTimeout(runLinkPage, 1000);
+            }
         };
         onReady(init);
     }
