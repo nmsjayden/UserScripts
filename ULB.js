@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name         Unknown Link Bypasser
 // @namespace    http://tampermonkey.net/
-// @version      6.3.0
-// @description  Safelink bypasser + dl.surf auto downloader + form-based auto bypasser + tpi.li bypasser + bstlar bypasser + wareguardv2 bypasser + subnise bypasser + reshortfly bypasser + lnbz.la bypasser + bloxscript.live key gen + go.yorurl.com bypasser + jober.jankariweb bypasser + how2guidess.com bypasser + phantomfluxkey bypasser. Made by @Aro Moon
+// @version      6.5.5
+// @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live + go.yorurl.com + jankariweb + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + gplinks.co + powergam.online. Made by @Aro Moon | powergam bypass by @NickUpdates
 // @author       @Aro Moon
-// @include      /^https:\/\/mtc1\.[^/]+\.[a-z.]+\//
+// @include      /^https:\/\/mtc\d+\.[^/]+\.[a-z.]+\//
 // @match        https://dl.surf/f/*
 // @match        https://shrtslug.biz/*
 // @match        https://biovetro.net/*
@@ -22,10 +22,17 @@
 // @match        https://lnbz.la/*
 // @match        https://avnsgames.com/*
 // @match        https://bloxscript.live/*
-// @match        https://*.jankariweb.*/*
+// @match        https://*.jankariweb.online/*
 // @match        https://how2guidess.com/*
 // @match        https://go.yorurl.com/*
 // @match        https://v0-phantomfluxkey.vercel.app/*
+// @match        https://link-unlock.com/*
+// @match        https://link4sub.com/*
+// @match        https://*.tapvietcode.com/*
+// @match        https://rojgarhindi.in/*
+// @match        https://go.caslinks.com/*
+// @match        https://gplinks.co/*
+// @match        https://powergam.online/*
 // @grant        GM_addElement
 // @grant        unsafeWindow
 // @connect      challenges.cloudflare.com
@@ -37,17 +44,72 @@
 (function () {
     'use strict';
 
-    // ═══════════════════════════════════════════════════════════════════════════
-    // ─── CONSTANTS & CONFIG ──────────────────────────────────────────────────
-    // ═══════════════════════════════════════════════════════════════════════════
+    // ╔══════════════════════════════════════════════════════════════════════╗
+    // ║                     ★  USER CONFIGURATION  ★                       ║
+    // ║  Easy to edit — no coding knowledge required!                       ║
+    // ║  Change values between the quotes or true/false as described.       ║
+    // ╚══════════════════════════════════════════════════════════════════════╝
 
+    const CONFIG = {
+
+        // ── Notification Position ──────────────────────────────────────────
+        // Where toasts appear on screen. Options:
+        //   'bottom-right'  'bottom-left'  'top-right'  'top-left'
+        notifPosition: 'bottom-right',
+
+        // ── Notification Duration (milliseconds) ──────────────────────────
+        // How long success/info notifications stay visible before fading.
+        //   4000 = 4 seconds. Set to 0 to keep them on screen until clicked.
+        notifDuration: 4000,
+
+        // ── Show Bypass Timer ──────────────────────────────────────────────
+        // When true, toasts show how long the bypass took (e.g. "Done in 1.3s").
+        showBypassTime: true,
+
+        // ── Show Site Label in Toast ───────────────────────────────────────
+        // When true, toasts show which bypasser handled the page.
+        showSiteLabel: true,
+
+        // ── Compact Mode ──────────────────────────────────────────────────
+        // When true, notifications are smaller and less detailed.
+        compactMode: false,
+
+        // ── Auto-dismiss on Redirect ───────────────────────────────────────
+        // When true, the notification is removed the moment navigation starts.
+        autoDismissOnRedirect: true,
+
+        // ── dl.surf: Show Download Button Automatically ────────────────────
+        // When false, the bypass button is NOT shown; you must click manually.
+        dlSurfAutoInject: true,
+
+        // ── Safelink: Block Ads ────────────────────────────────────────────
+        // When false, ads on safelink pages will NOT be removed.
+        blockAds: true,
+
+        // ── Phantom Flux Key: Direct Bypass URL ───────────────────────────
+        // Target URL for the "Get Key" direct bypass button.
+        phantomDirectUrl: 'https://pastefy.app/8PxwQFt8',
+
+        // ── Cloudflare Challenge: Allowed Referrers ────────────────────────
+        // Pages that are allowed to trigger the CF auto-click hook.
+        // Add new safelink domains here if needed (comma-separated strings).
+        cfAllowedRefs: [
+            'airflowscript.com', 'dl.surf', 'tpi.li', 'lnbz.la',
+            'go.yorurl.com', 'go.caslinks.com', 'mtc1.',
+            'shrtslug.biz', 'biovetro.net', 'technons.com',
+            'tournguide.com', 'dailyjobposting.xyz', 'stfly.biz',
+            'gplinks.co',
+        ],
+    };
+
+    // ╔══════════════════════════════════════════════════════════════════════╗
+    // ║                    INTERNAL CODE — DO NOT EDIT                      ║
+    // ╚══════════════════════════════════════════════════════════════════════╝
+
+    // ── Constants ──────────────────────────────────────────────────────────
     const FORM_HOSTS = ['shrtslug.biz', 'biovetro.net', 'technons.com', 'tournguide.com', 'dailyjobposting.xyz', 'stfly.biz'];
     const TPI_HOSTS  = ['tpi.li'];
-    const CF_ALLOWED_REFS = ['airflowscript.com', 'dl.surf', 'tpi.li', 'lnbz.la', 'go.yorurl.com', 'mtc1.', ...FORM_HOSTS];
 
-    const PHANTOM_DIRECT_URL = 'https://pastefy.app/8PxwQFt8';
-
-    // Notification type definitions
     const NOTIFY_TYPES = {
         info:    { accent: '#4f8ef7', icon: 'ℹ' },
         success: { accent: '#22c55e', icon: '✔' },
@@ -56,38 +118,21 @@
         loading: { accent: '#a78bfa', icon: '◌' },
     };
 
-    // ═══════════════════════════════════════════════════════════════════════════
-    // ─── UTILITY HELPERS ─────────────────────────────────────────────────────
-    // ═══════════════════════════════════════════════════════════════════════════
+    // ── Utility Helpers ────────────────────────────────────────────────────
 
-    /**
-     * Cross-browser UUID generator — works on iOS 6+, Android 4.4+, all modern browsers.
-     */
     function generateId() {
-        if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+        if (typeof crypto !== 'undefined' && crypto.randomUUID)
             return crypto.randomUUID().replace(/-/g, '');
-        }
         const arr = new Uint8Array(16);
         (crypto || window.msCrypto).getRandomValues(arr);
         return Array.from(arr, b => b.toString(16).padStart(2, '0')).join('');
     }
 
-    /**
-     * Run fn immediately if DOM is ready, otherwise defer to DOMContentLoaded.
-     * @param {Function} fn
-     */
     function onReady(fn) {
         if (document.readyState !== 'loading') fn();
         else document.addEventListener('DOMContentLoaded', fn, { once: true });
     }
 
-    /**
-     * Poll for an element by selector, resolving when found.
-     * @param {string} sel  CSS selector
-     * @param {number} [interval=100] Poll interval in ms
-     * @param {number} [timeout=20000] Max wait in ms (0 = indefinite)
-     * @returns {Promise<Element>}
-     */
     function waitForEl(sel, interval = 100, timeout = 20_000) {
         return new Promise((resolve, reject) => {
             const el = document.querySelector(sel);
@@ -96,31 +141,19 @@
                 const found = document.querySelector(sel);
                 if (found) { clearInterval(iv); if (tid) clearTimeout(tid); resolve(found); }
             }, interval);
-            const tid = timeout > 0 ? setTimeout(() => { clearInterval(iv); reject(new Error(`waitForEl: "${sel}" not found after ${timeout}ms`)); }, timeout) : null;
+            const tid = timeout > 0
+                ? setTimeout(() => { clearInterval(iv); reject(new Error(`waitForEl: "${sel}" not found after ${timeout}ms`)); }, timeout)
+                : null;
         });
     }
 
-    /**
-     * Wait for document.body — resolves immediately if already present.
-     * @returns {Promise<HTMLBodyElement>}
-     */
     const waitBody = () =>
         document.body
             ? Promise.resolve(document.body)
             : new Promise(r => document.addEventListener('DOMContentLoaded', () => r(document.body), { once: true }));
 
-    /**
-     * Click an element by ID, retrying until found or max attempts reached.
-     * @param {string} id   Element ID
-     * @param {string} label  Log label
-     * @param {number} [maxTries=100] Max poll iterations (× 200 ms each)
-     */
     function clickWhenReady(id, label, maxTries = 100) {
-        const attempt = () => {
-            const el = document.getElementById(id);
-            if (el) { el.click(); console.log(`[ULB] ${label} — clicked #${id}`); return true; }
-            return false;
-        };
+        const attempt = () => { const el = document.getElementById(id); if (el) { el.click(); return true; } return false; };
         const init = () => {
             if (attempt()) return;
             let tries = 0;
@@ -134,16 +167,37 @@
         onReady(init);
     }
 
-    /**
-     * Detect iOS / iPadOS (including iPad on macOS UA mode).
-     */
     const isIOS = () =>
         /iP(hone|ad|od)/.test(navigator.userAgent) ||
         (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
-    // ═══════════════════════════════════════════════════════════════════════════
-    // ─── SHARED UI HELPERS ───────────────────────────────────────────────────
-    // ═══════════════════════════════════════════════════════════════════════════
+    // ── Timer Helper ───────────────────────────────────────────────────────
+
+    function makeTimer() {
+        const start = performance.now();
+        return {
+            elapsed: () => ((performance.now() - start) / 1000).toFixed(2),
+            label:   () => `Done in ${((performance.now() - start) / 1000).toFixed(2)}s`,
+        };
+    }
+
+    // ── Notification Position ──────────────────────────────────────────────
+
+    function _posStyles() {
+        const p = CONFIG.notifPosition || 'bottom-right';
+        const [v, h] = p.split('-');
+        const vert = v === 'top'
+            ? `top:calc(28px + env(safe-area-inset-top,0px))`
+            : `bottom:calc(28px + env(safe-area-inset-bottom,0px))`;
+        const horiz = h === 'left'
+            ? `left:calc(28px + env(safe-area-inset-left,0px))`
+            : `right:calc(28px + env(safe-area-inset-right,0px))`;
+        const dir = v === 'top' ? 'column' : 'column-reverse';
+        const slide = h === 'left' ? 'translateX(-20px)' : 'translateX(20px)';
+        return { vert, horiz, dir, slide };
+    }
+
+    // ── Shared UI ──────────────────────────────────────────────────────────
 
     const CSS_CARD_BASE = [
         'background:linear-gradient(135deg,#1a1a2e,#16213e)',
@@ -153,24 +207,21 @@
         'box-shadow:0 8px 32px rgba(0,0,0,.45)',
         'pointer-events:auto',
         'opacity:0',
-        'transform:translateX(20px)',
         'transition:opacity .25s ease,transform .25s ease',
         'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif',
     ].join(';');
 
     const CSS_LABEL = 'font-size:10px;text-transform:uppercase;letter-spacing:1.4px;color:#666;margin-bottom';
 
-    // Singleton notification container (bottom-right, safe-area aware)
     let _container = null;
     function getContainer() {
         if (_container?.isConnected) return _container;
+        const { vert, horiz, dir } = _posStyles();
         _container = Object.assign(document.createElement('div'), { id: '__ulb_nc' });
         _container.style.cssText = [
-            'position:fixed',
-            'bottom:calc(28px + env(safe-area-inset-bottom,0px))',
-            'right:calc(28px + env(safe-area-inset-right,0px))',
+            'position:fixed', vert, horiz,
             'z-index:2147483647',
-            'display:flex;flex-direction:column-reverse;gap:10px',
+            `display:flex;flex-direction:${dir};gap:10px`,
             'pointer-events:none',
             'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif',
         ].join(';');
@@ -178,7 +229,6 @@
         return _container;
     }
 
-    /** Inject spin keyframes once */
     function ensureSpinStyle() {
         if (!document.getElementById('__ulb_style')) {
             const s = Object.assign(document.createElement('style'), {
@@ -189,20 +239,18 @@
         }
     }
 
-    /** Append card to container with slide-in animation */
     function mountCard(card) {
+        const { slide } = _posStyles();
+        card.style.transform = slide;
         getContainer().appendChild(card);
-        requestAnimationFrame(() => {
-            card.style.opacity = '1';
-            card.style.transform = 'translateX(0)';
-        });
+        requestAnimationFrame(() => { card.style.opacity = '1'; card.style.transform = 'translateX(0)'; });
         return card;
     }
 
-    /** Slide out + remove card */
     function dismissCard(card) {
+        const { slide } = _posStyles();
         card.style.opacity = '0';
-        card.style.transform = 'translateX(20px)';
+        card.style.transform = slide;
         setTimeout(() => card.remove(), 280);
     }
 
@@ -210,41 +258,67 @@
      * Show a toast notification.
      * @param {string} message
      * @param {'info'|'success'|'warn'|'error'|'loading'} [type='info']
-     * @param {number} [duration=4000]  0 = persistent
-     * @returns {{ update(msg:string,type?:string):void, remove():void }}
+     * @param {number} [duration]  Omit to use CONFIG.notifDuration; 0 = persistent
+     * @param {object} [opts]
+     * @param {string} [opts.site]   Site label shown in footer
+     * @param {string} [opts.time]   Elapsed time string (e.g. "1.3s")
+     * @returns {{ update(msg:string, type?:string, opts?:object):void, remove():void }}
      */
-    function notify(message, type = 'info', duration = 4000) {
-        // Defer if body not ready yet
+    function notify(message, type = 'info', duration, opts = {}) {
+        const dur = duration === undefined ? CONFIG.notifDuration : duration;
+
         if (!document.body) {
             const h = { update: () => {}, remove: () => {} };
             document.addEventListener('DOMContentLoaded', () => {
-                const r = notify(message, type, duration);
-                h.update = r.update;
-                h.remove = r.remove;
+                const r = notify(message, type, dur, opts);
+                h.update = r.update; h.remove = r.remove;
             }, { once: true });
             return h;
         }
 
         ensureSpinStyle();
-
         const { accent, icon } = NOTIFY_TYPES[type] || NOTIFY_TYPES.info;
 
+        const pad   = CONFIG.compactMode ? '8px 12px' : '12px 16px';
+        const mw    = CONFIG.compactMode ? 'min(200px,calc(100vw - 56px))' : 'min(240px,calc(100vw - 56px))';
+        const maxW  = CONFIG.compactMode ? 'min(280px,calc(100vw - 56px))' : 'min(320px,calc(100vw - 56px))';
+
         const card = document.createElement('div');
-        card.style.cssText = `${CSS_CARD_BASE};border-left:3px solid ${accent};padding:12px 16px;min-width:min(240px,calc(100vw - 56px));max-width:min(320px,calc(100vw - 56px));display:flex;align-items:flex-start;gap:10px`;
+        card.style.cssText = `${CSS_CARD_BASE};border-left:3px solid ${accent};padding:${pad};min-width:${mw};max-width:${maxW};display:flex;align-items:flex-start;gap:10px`;
 
         const iconEl = document.createElement('div');
-        iconEl.style.cssText = `font-size:15px;color:${accent};margin-top:1px;flex-shrink:0`;
+        iconEl.style.cssText = `font-size:${CONFIG.compactMode ? '13' : '15'}px;color:${accent};margin-top:1px;flex-shrink:0`;
         iconEl.textContent = icon;
 
         const bodyEl = document.createElement('div');
         bodyEl.style.cssText = 'flex:1;min-width:0';
-        bodyEl.innerHTML = `<div style="${CSS_LABEL}:3px">Unknown Link Bypasser · @Aro Moon</div>`;
+
+        if (!CONFIG.compactMode) {
+            bodyEl.innerHTML = `<div style="${CSS_LABEL}:3px">Unknown Link Bypasser · @Aro Moon</div>`;
+        }
 
         const msgEl = document.createElement('div');
-        msgEl.style.cssText = 'font-size:13px;line-height:1.4;color:#e0e0e0;word-break:break-word';
+        msgEl.style.cssText = `font-size:${CONFIG.compactMode ? '12' : '13'}px;line-height:1.4;color:#e0e0e0;word-break:break-word`;
         msgEl.textContent = message;
-
         bodyEl.appendChild(msgEl);
+
+        // Footer row: site label + elapsed time
+        const footerEl = document.createElement('div');
+        footerEl.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-top:4px;gap:8px';
+
+        const siteEl = document.createElement('div');
+        siteEl.style.cssText = 'font-size:10px;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
+        if (CONFIG.showSiteLabel && opts.site) siteEl.textContent = opts.site;
+
+        const timeEl = document.createElement('div');
+        timeEl.style.cssText = 'font-size:10px;color:#3d8b40;font-variant-numeric:tabular-nums;white-space:nowrap;flex-shrink:0';
+        if (CONFIG.showBypassTime && opts.time) timeEl.textContent = `⏱ ${opts.time}`;
+
+        if (opts.site || opts.time) {
+            footerEl.append(siteEl, timeEl);
+            bodyEl.appendChild(footerEl);
+        }
+
         card.append(iconEl, bodyEl);
         mountCard(card);
 
@@ -255,7 +329,7 @@
 
         let timer;
         const remove = () => { clearTimeout(timer); dismissCard(card); };
-        const update = (newMsg, newType) => {
+        const update = (newMsg, newType, newOpts = {}) => {
             clearTimeout(timer);
             msgEl.textContent = newMsg;
             if (newType && NOTIFY_TYPES[newType]) {
@@ -265,18 +339,19 @@
                 card.style.borderLeftColor = s.accent;
                 setSpinning(newType === 'loading');
             }
-            if (duration > 0) timer = setTimeout(remove, duration);
+            if (CONFIG.showSiteLabel && newOpts.site) siteEl.textContent = newOpts.site;
+            if (CONFIG.showBypassTime && newOpts.time) {
+                timeEl.textContent = `⏱ ${newOpts.time}`;
+                footerEl.append(siteEl, timeEl);
+                if (!footerEl.parentNode) bodyEl.appendChild(footerEl);
+            }
+            if (dur > 0) timer = setTimeout(remove, dur);
         };
-        if (duration > 0) timer = setTimeout(remove, duration);
+        if (dur > 0) timer = setTimeout(remove, dur);
         return { update, remove };
     }
 
-    /**
-     * Show an animated countdown card.
-     * @param {number} seconds
-     * @param {Function} onDone  Called after countdown reaches 0
-     * @param {string}   [subtitle='Redirect queued']
-     */
+    /** Countdown card */
     function showCountdown(seconds, onDone, subtitle = 'Redirect queued') {
         const card = document.createElement('div');
         card.style.cssText = `${CSS_CARD_BASE};border-left:3px solid #4f8ef7;padding:14px 18px;min-width:min(240px,calc(100vw - 56px))`;
@@ -292,24 +367,16 @@
             <div style="background:rgba(255,255,255,.07);border-radius:999px;height:3px;overflow:hidden">
                 <div id="__ulb_cb" style="height:100%;width:100%;background:linear-gradient(90deg,#4f8ef7,#a78bfa);border-radius:999px;transition:width 1s linear"></div>
             </div>`;
-
         mountCard(card);
-
         const numEl = card.querySelector('#__ulb_cn');
         const barEl = card.querySelector('#__ulb_cb');
         const subEl = card.querySelector('#__ulb_cs');
         let rem = seconds;
-
-        requestAnimationFrame(() => {
-            barEl.style.width = `${((seconds - 1) / seconds) * 100}%`;
-        });
-
+        requestAnimationFrame(() => { barEl.style.width = `${((seconds - 1) / seconds) * 100}%`; });
         const iv = setInterval(() => {
             if (--rem <= 0) {
                 clearInterval(iv);
-                numEl.textContent = '0';
-                barEl.style.width = '0%';
-                subEl.textContent = 'done…';
+                numEl.textContent = '0'; barEl.style.width = '0%'; subEl.textContent = 'done…';
                 card.style.borderLeftColor = '#22c55e';
                 setTimeout(() => { dismissCard(card); setTimeout(onDone, 280); }, 400);
             } else {
@@ -319,10 +386,7 @@
         }, 1000);
     }
 
-    /**
-     * Show the safelink redirect notification with a "tap if stuck" fallback link.
-     * @param {string} dest  Destination URL
-     */
+    /** Redirect notification with fallback tap link */
     function showRedirectNotif(dest) {
         const card = document.createElement('div');
         card.style.cssText = `${CSS_CARD_BASE};border-left:3px solid #22c55e;padding:14px 18px;min-width:min(240px,calc(100vw - 56px));max-width:min(320px,calc(100vw - 56px))`;
@@ -345,18 +409,15 @@
         }, 3000);
     }
 
-    /**
-     * Show a "Direct Bypass" action button notification.
-     * @param {string} label    Button text
-     * @param {string} url      Target URL
-     * @param {string} [subtitle]  Small label shown above button
-     */
+    /** Direct bypass action button */
     function showDirectBypassBtn(label, url, subtitle = 'Direct Bypass Available') {
-        if (!document.body) { document.addEventListener('DOMContentLoaded', () => showDirectBypassBtn(label, url, subtitle), { once: true }); return; }
+        if (!document.body) {
+            document.addEventListener('DOMContentLoaded', () => showDirectBypassBtn(label, url, subtitle), { once: true });
+            return;
+        }
         ensureSpinStyle();
-
         const card = document.createElement('div');
-        card.style.cssText = `${CSS_CARD_BASE};border-left:3px solid #f59e0b;padding:14px 18px;min-width:min(260px,calc(100vw - 56px));max-width:min(340px,calc(100vw - 56px))`;
+        card.style.cssText = `${CSS_CARD_BASE};border-left:3px solid #f59e0b;padding:14px 18px;min-width:min(260px,calc(100vw - 56px));max-width:min(340px,calc(100vw - 56px));position:relative`;
         card.innerHTML = `
             <div style="${CSS_LABEL}:6px">Unknown Link Bypasser · @Aro Moon</div>
             <div style="font-size:11px;color:#f59e0b;margin-bottom:10px;font-weight:600;letter-spacing:.5px">${subtitle}</div>
@@ -368,26 +429,17 @@
                       touch-action:manipulation;min-height:44px;line-height:24px">
                 ⚡ ${label}
             </a>`;
-
-        const closeBtn = document.createElement('div');
-        closeBtn.style.cssText = 'position:absolute;top:8px;right:10px;font-size:14px;color:#555;cursor:pointer;padding:2px 5px;border-radius:4px';
-        closeBtn.textContent = '✕';
+        const closeBtn = Object.assign(document.createElement('div'), {
+            style: 'position:absolute;top:8px;right:10px;font-size:14px;color:#555;cursor:pointer;padding:2px 5px;border-radius:4px',
+            textContent: '✕',
+        });
         closeBtn.addEventListener('click', () => dismissCard(card));
-        card.style.position = 'relative';
         card.appendChild(closeBtn);
-
         mountCard(card);
     }
 
-    // ═══════════════════════════════════════════════════════════════════════════
-    // ─── CLOUDFLARE TURNSTILE HELPERS ────────────────────────────────────────
-    // ═══════════════════════════════════════════════════════════════════════════
+    // ── Cloudflare Turnstile Helpers ───────────────────────────────────────
 
-    /**
-     * Scan the page for a Turnstile sitekey.
-     * @param {*} [fallback=null]
-     * @returns {string|null}
-     */
     function getSiteKey(fallback = null) {
         for (const sel of ['[data-sitekey]', '.cf-turnstile', 'iframe[src*="challenges.cloudflare.com"]']) {
             const el = document.querySelector(sel);
@@ -404,18 +456,10 @@
         return fallback;
     }
 
-    /**
-     * Programmatically solve a Cloudflare Turnstile challenge.
-     * Renders widget directly in page DOM (correct origin — avoids error 600010).
-     * @param {string} sitekey
-     * @returns {Promise<string>} Resolves with the one-time token
-     */
     function solveTurnstile(sitekey) {
         if (!sitekey) return Promise.reject(new Error('[ULB/Turnstile] sitekey is required'));
-
         return new Promise((resolve, reject) => {
             const cbName = '__ulb_tsCb_' + generateId();
-
             const wrapper = document.createElement('div');
             wrapper.style.cssText = [
                 'position:fixed',
@@ -430,27 +474,23 @@
                 'display:flex;flex-direction:column;gap:6px',
                 'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif',
             ].join(';');
-
-            const label = document.createElement('div');
-            label.style.cssText = 'font-size:10px;color:#888;letter-spacing:1px;text-transform:uppercase';
-            label.textContent = 'Solving captcha… (tap if stuck)';
-
+            const label = Object.assign(document.createElement('div'), {
+                style: 'font-size:10px;color:#888;letter-spacing:1px;text-transform:uppercase',
+                textContent: 'Solving captcha… (tap if stuck)',
+            });
             const widgetDiv = document.createElement('div');
             widgetDiv.setAttribute('data-sitekey', sitekey);
             widgetDiv.setAttribute('data-callback', cbName);
             widgetDiv.setAttribute('data-theme', 'dark');
-
             wrapper.append(label, widgetDiv);
             document.body.appendChild(wrapper);
 
             const timeout = setTimeout(() => { cleanup(); reject(new Error('[ULB/Turnstile] timed out after 45s')); }, 45_000);
-
             function cleanup() {
                 clearTimeout(timeout);
                 try { delete unsafeWindow[cbName]; } catch (_) {}
                 setTimeout(() => wrapper.remove(), 600);
             }
-
             const onToken = token => { cleanup(); resolve(token); };
             unsafeWindow[cbName] = onToken;
 
@@ -463,9 +503,10 @@
 
             if (!tryRenderApi()) {
                 if (!document.querySelector('script[src*="challenges.cloudflare.com/turnstile"]')) {
-                    const s = document.createElement('script');
-                    s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
-                    s.async = true;
+                    const s = Object.assign(document.createElement('script'), {
+                        src: 'https://challenges.cloudflare.com/turnstile/v0/api.js',
+                        async: true,
+                    });
                     s.onload = () => tryRenderApi();
                     document.head.appendChild(s);
                 } else {
@@ -476,10 +517,7 @@
         });
     }
 
-    // ═══════════════════════════════════════════════════════════════════════════
-    // ─── CLOUDFLARE CHALLENGE FRAME HOOK ─────────────────────────────────────
-    // ─── (runs only inside challenges.cloudflare.com iframes) ────────────────
-    // ═══════════════════════════════════════════════════════════════════════════
+    // ── Cloudflare Challenge Frame Hook ────────────────────────────────────
 
     function _runCfHook() {
         const spoofEvt = (e, props) => new Proxy(e, { get: (t, p) => p in props ? props[p] : t[p] });
@@ -496,15 +534,12 @@
         const tryClick = (root, frameId) => {
             const cb = root.querySelector('input[type=checkbox]');
             if (cb && !cb.checked) {
-                try {
-                    window.parent.postMessage({ __ulb: true, __ulb_clicked: true, id: frameId || '' }, '*');
-                } catch (_) {}
+                try { window.parent.postMessage({ __ulb: true, __ulb_clicked: true, id: frameId || '' }, '*'); } catch (_) {}
                 cb.click();
             }
         };
 
         const frameId = (location.hash.match(/[#&]ulbid=([^&]+)/) || [])[1] || '';
-
         const shadowObs = new MutationObserver(muts => {
             for (const m of muts)
                 m.addedNodes.forEach(n => {
@@ -533,22 +568,15 @@
         });
     }
 
-    // ─── Early exit for CF challenge pages ───────────────────────────────────
     if (location.hostname === 'challenges.cloudflare.com') {
-        if (CF_ALLOWED_REFS.some(h => document.referrer.includes(h))) _runCfHook();
+        if (CONFIG.cfAllowedRefs.some(h => document.referrer.includes(h))) _runCfHook();
         return;
     }
 
-    // ═══════════════════════════════════════════════════════════════════════════
-    // ─── LNBZ / YORURL SHARED HELPERS ────────────────────────────────────────
-    // ═══════════════════════════════════════════════════════════════════════════
+    // ── lnbz / yorurl shared helpers ───────────────────────────────────────
 
-    /** Read app_vars from unsafeWindow or parse inline script tag */
     function _lnbzGetAppVars() {
-        try {
-            const v = unsafeWindow.app_vars;
-            if (v && typeof v === 'object') return v;
-        } catch (_) {}
+        try { const v = unsafeWindow.app_vars; if (v && typeof v === 'object') return v; } catch (_) {}
         for (const s of document.querySelectorAll('script:not([src])')) {
             const m = s.textContent.match(/var\s+app_vars\s*=\s*(\{[\s\S]*?\});/);
             if (m) { try { return JSON.parse(m[1]); } catch (_) {} }
@@ -556,7 +584,6 @@
         return null;
     }
 
-    /** Wait for app_vars, calling cb when ready (or null on timeout) */
     function _lnbzWaitForAppVars(cb, timeoutMs = 8000) {
         const v = _lnbzGetAppVars();
         if (v) { cb(v); return; }
@@ -570,21 +597,18 @@
         setTimeout(() => { obs.disconnect(); cb(_lnbzGetAppVars()); }, timeoutMs);
     }
 
-    /** Shared captcha-page handler for lnbz.la and go.yorurl.com */
     function _lnbzCaptchaPage(form) {
+        const t = makeTimer();
         const nh = notify('Solving captcha…', 'loading', 0);
 
         const submitWithToken = token => {
             let input = form.querySelector('[name="cf-turnstile-response"]');
             if (!input) {
-                input = Object.assign(document.createElement('input'), {
-                    type: 'hidden',
-                    name: 'cf-turnstile-response',
-                });
+                input = Object.assign(document.createElement('input'), { type: 'hidden', name: 'cf-turnstile-response' });
                 form.appendChild(input);
             }
             input.value = token;
-            nh.update('Captcha solved — submitting…', 'success');
+            nh.update('Captcha solved — submitting…', 'success', { time: t.elapsed() + 's' });
             setTimeout(() => nh.remove(), 1500);
             HTMLFormElement.prototype.submit.call(form);
         };
@@ -611,42 +635,45 @@
         });
     }
 
-    // ═══════════════════════════════════════════════════════════════════════════
-    // ─── ROUTER ──────────────────────────────────────────────────────────────
-    // ═══════════════════════════════════════════════════════════════════════════
+    // ── Router ─────────────────────────────────────────────────────────────
 
     const host = location.hostname;
     const path = location.pathname;
 
-    if      (host.includes('dl.surf'))                                    runDlSurf();
-    else if (host.includes('airflowscript.com'))                          runAirflowBypasser();
-    else if (host.includes('bstlar.com'))                                 runBstlarBypasser();
-    else if (host.includes('wareguardv2.xyz'))                            runWareguardBypasser();
-    else if (host.includes('subnise.com'))                                runSubniseBypasser();
-    else if (host.includes('reshortfly.com'))                             runReshortflyBypasser();
-    else if (host.includes('avnsgames.com'))                              runAvnsGamesInterstitial();
-    else if (host.includes('lnbz.la'))                                    runLnbzLaBypasser();
-    else if (host.includes('bloxscript.live'))                            runBloxscriptBypasser();
-    else if (host.includes('jankariweb'))                                 runJoberBypasser();
-    else if (host.includes('how2guidess.com'))                            runHow2GuidesBypasser();
-    else if (host.includes('go.yorurl.com'))                              runYorurlBypasser();
-    else if (host.includes('v0-phantomfluxkey.vercel.app'))               runPhantomFluxKeyBypasser();
-    else if (TPI_HOSTS.some(h => host.includes(h)))                       runTpiLiBypasser();
-    else if (FORM_HOSTS.some(h => host.includes(h)))                      runFormBypasser();
-    else                                                                   runSafelinkBypasser();
+    if      (host.includes('dl.surf'))                  runDlSurf();
+    else if (host.includes('airflowscript.com'))        runAirflowBypasser();
+    else if (host.includes('bstlar.com'))               runBstlarBypasser();
+    else if (host.includes('wareguardv2.xyz'))          runWareguardBypasser();
+    else if (host.includes('subnise.com'))              runSubniseBypasser();
+    else if (host.includes('reshortfly.com'))           runReshortflyBypasser();
+    else if (host.includes('avnsgames.com'))            runAvnsGamesInterstitial();
+    else if (host.includes('lnbz.la'))                  runLnbzLaBypasser();
+    else if (host.includes('bloxscript.live'))          runBloxscriptBypasser();
+    else if (host.includes('jankariweb'))               runJoberBypasser();
+    else if (host.includes('how2guidess.com'))          runHow2GuidesBypasser();
+    else if (host.includes('go.yorurl.com'))            runYorurlBypasser();
+    else if (host.includes('go.caslinks.com'))          runCasLinksBypasser();
+    else if (host.includes('gplinks.co'))               runGpLinksBypasser();
+    else if (host.includes('powergam.online'))          runPowergamBypasser();
+    else if (host.includes('rojgarhindi.in'))            runRojgarhindiBypasser();
+    else if (host.includes('v0-phantomfluxkey.vercel.app')) runPhantomFluxKeyBypasser();
+    else if (host.includes('link-unlock.com'))          runLinkUnlockBypasser();
+    else if (host.includes('link4sub.com'))             runLink4SubBypasser();
+    else if (host.includes('tapvietcode.com'))          runTapVietCodeBypasser();
+    else if (TPI_HOSTS.some(h => host.includes(h)))    runTpiLiBypasser();
+    else if (FORM_HOSTS.some(h => host.includes(h)))   runFormBypasser();
+    else                                                runSafelinkBypasser();
 
-    // ═══════════════════════════════════════════════════════════════════════════
-    // ─── PHANTOM FLUX KEY BYPASSER ────────────────────────────────────────────
-    // ═══════════════════════════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════════════════════
+    // ─── BYPASSERS ─────────────────────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════════════
 
     function runPhantomFluxKeyBypasser() {
-        notify('PhantomFluxKey detected — showing direct bypass…', 'info', 4000);
-        showDirectBypassBtn('Direct Bypass — Get Key', PHANTOM_DIRECT_URL, 'PhantomFluxKey Direct Bypass');
+        notify('PhantomFluxKey detected — showing direct bypass…', 'info', undefined, { site: 'phantomfluxkey' });
+        showDirectBypassBtn('Direct Bypass — Get Key', CONFIG.phantomDirectUrl, 'PhantomFluxKey Direct Bypass');
     }
 
-    // ═══════════════════════════════════════════════════════════════════════════
-    // ─── DL.SURF AUTO DOWNLOADER ─────────────────────────────────────────────
-    // ═══════════════════════════════════════════════════════════════════════════
+    // ── dl.surf ────────────────────────────────────────────────────────────
 
     function runDlSurf() {
         const API    = 'https://backendapi.dl.surf/api/file';
@@ -661,18 +688,10 @@
             return j.data;
         };
 
-        const getToken = () => fetchJSON(`${API}/request-download/file/${slug}/`, {
-            headers: { Accept: 'application/json' },
-        }).then(d => d.token);
-
+        const getToken    = () => fetchJSON(`${API}/request-download/file/${slug}/`, { headers: { Accept: 'application/json' } }).then(d => d.token);
         const getDownloadUrl = (tk, cap) => fetchJSON(`${API}/new-download-file/`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-                Origin: location.origin,
-                Referer: location.href,
-            },
+            headers: { 'Content-Type': 'application/json', Accept: 'application/json', Origin: location.origin, Referer: location.href },
             body: JSON.stringify({ token: tk, captcha_token: cap }),
         }).then(d => d.url || d.download_url || d.link || d);
 
@@ -682,7 +701,7 @@
         });
 
         let nh = null;
-        const setStatus = (msg, type) => nh ? nh.update(msg, type) : (nh = notify(msg, type, 0));
+        const setStatus = (msg, type, extra) => nh ? nh.update(msg, type, extra) : (nh = notify(msg, type, 0, extra));
 
         function injectBtn() {
             const orig = document.querySelector('button[title="Continue to Download"]');
@@ -693,79 +712,63 @@
                 orig.replaceWith(btn);
             } else {
                 Object.assign(btn.style, {
-                    position: 'fixed',
-                    bottom: 'calc(24px + env(safe-area-inset-bottom,0px))',
-                    right: 'calc(24px + env(safe-area-inset-right,0px))',
-                    zIndex: 99999,
-                    padding: '12px 22px',
-                    backgroundColor: '#dc2626',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    fontFamily: 'Segoe UI,Arial,sans-serif',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    minHeight: '44px',
-                    touchAction: 'manipulation',
+                    position: 'fixed', bottom: 'calc(24px + env(safe-area-inset-bottom,0px))',
+                    right: 'calc(24px + env(safe-area-inset-right,0px))', zIndex: 99999,
+                    padding: '12px 22px', backgroundColor: '#dc2626', color: '#fff',
+                    border: 'none', borderRadius: '8px', cursor: 'pointer',
+                    fontFamily: 'Segoe UI,Arial,sans-serif', fontSize: '14px', fontWeight: '600',
+                    minHeight: '44px', touchAction: 'manipulation',
                 });
                 document.body.appendChild(btn);
             }
-            notify('dl.surf detected — bypasser ready.', 'info', 3000);
+            notify('dl.surf detected — bypasser ready.', 'info', undefined, { site: 'dl.surf' });
+        }
+
+        if (!CONFIG.dlSurfAutoInject) {
+            notify('dl.surf — auto-inject disabled in config.', 'info', undefined, { site: 'dl.surf' });
+            return;
         }
 
         let lastHref = location.href, injectIv = null;
-
         function startInjecting() {
-            btn.innerHTML = 'Download via Bypasser';
-            btn.disabled = false;
+            btn.innerHTML = 'Download via Bypasser'; btn.disabled = false;
             clearInterval(injectIv);
             injectIv = setInterval(() => {
                 if (btn.isConnected) return;
-                if (document.querySelector('button[title="Continue to Download"]')) {
-                    clearInterval(injectIv);
-                    injectBtn();
-                }
+                if (document.querySelector('button[title="Continue to Download"]')) { clearInterval(injectIv); injectBtn(); }
             }, 200);
             setTimeout(() => { clearInterval(injectIv); if (!btn.isConnected) injectBtn(); }, 15_000);
         }
 
-        const hrefCheck = () => {
-            if (location.href !== lastHref) { lastHref = location.href; startInjecting(); }
-        };
-        new MutationObserver(hrefCheck).observe(
-            document.querySelector('title') || document.head,
-            { childList: true, subtree: true }
-        );
+        const hrefCheck = () => { if (location.href !== lastHref) { lastHref = location.href; startInjecting(); } };
+        new MutationObserver(hrefCheck).observe(document.querySelector('title') || document.head, { childList: true, subtree: true });
         setInterval(hrefCheck, 500);
         startInjecting();
 
         btn.addEventListener('click', async () => {
             btn.disabled = true;
+            const t = makeTimer();
             try {
-                setStatus('Requesting download token…', 'loading');
+                setStatus('Requesting download token…', 'loading', { site: 'dl.surf' });
                 const token = await getToken();
-                setStatus('Solving captcha automatically…', 'loading');
+                setStatus('Solving captcha automatically…', 'loading', { site: 'dl.surf' });
                 const cap = await solveTurnstile(DL_KEY);
-                setStatus('Fetching download URL…', 'loading');
+                setStatus('Fetching download URL…', 'loading', { site: 'dl.surf' });
                 const url = await getDownloadUrl(token, cap);
                 if (typeof url === 'string' && url.startsWith('http')) {
-                    setStatus('Download started!', 'success');
-                    const a = Object.assign(document.createElement('a'), {
-                        href: url, download: '', target: '_blank', rel: 'noopener',
-                    });
+                    setStatus('Download started!', 'success', { site: 'dl.surf', time: t.elapsed() + 's' });
+                    const a = Object.assign(document.createElement('a'), { href: url, download: '', target: '_blank', rel: 'noopener' });
                     document.body.appendChild(a);
                     try { a.click(); } catch (_) {}
                     a.remove();
-                    // iOS Safari doesn't trigger <a download>; open in new tab instead
                     if (isIOS()) window.open(url, '_blank');
                 } else {
-                    setStatus('Unexpected response — check console.', 'warn');
+                    setStatus('Unexpected response — check console.', 'warn', { site: 'dl.surf' });
                 }
                 setTimeout(() => { nh?.remove(); nh = null; }, 4000);
             } catch (err) {
                 console.error('[ULB/dl.surf]', err);
-                setStatus(`Error: ${err.message}`, 'error');
+                setStatus(`Error: ${err.message}`, 'error', { site: 'dl.surf' });
                 setTimeout(() => { nh?.remove(); nh = null; }, 5000);
             } finally {
                 btn.disabled = false;
@@ -773,91 +776,68 @@
         });
     }
 
-    // ═══════════════════════════════════════════════════════════════════════════
-    // ─── AIRFLOWSCRIPT.COM — DISCORD STEP BYPASSER ───────────────────────────
-    // ═══════════════════════════════════════════════════════════════════════════
+    // ── airflowscript.com ──────────────────────────────────────────────────
 
     function runAirflowBypasser() {
         const KEY = 'rinku_step1_done';
         if (localStorage.getItem(KEY) === 'true') return;
-        notify('Bypassing Discord requirement…', 'loading', 3000);
+        notify('Bypassing Discord requirement…', 'loading', 3000, { site: 'airflowscript.com' });
         localStorage.setItem(KEY, 'true');
         location.reload();
     }
 
-    // ═══════════════════════════════════════════════════════════════════════════
-    // ─── BSTLAR.COM BYPASSER ─────────────────────────────────────────────────
-    // ═══════════════════════════════════════════════════════════════════════════
+    // ── bstlar.com ─────────────────────────────────────────────────────────
 
     function runBstlarBypasser() {
-        const nh = notify('bstlar.com detected — bypassing…', 'loading', 0);
-
+        const t  = makeTimer();
+        const nh = notify('bstlar.com detected — bypassing…', 'loading', 0, { site: 'bstlar.com' });
         const run = async () => {
             try {
                 const e = document.getElementById('link_action_id');
                 const link_action_id = e && ('value' in e ? e.value : e.textContent);
-
                 const r1 = await fetch(`/api/link?url=${encodeURIComponent(path.slice(1))}&link_action_id=${link_action_id}`);
                 if (!r1.ok) throw new Error(`API /api/link returned HTTP ${r1.status}`);
                 const linkData = await r1.json();
-
                 const r2 = await fetch('/api/link-completed', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ link_id: linkData.id, link_action_id }),
                 });
                 if (!r2.ok) throw new Error(`API /api/link-completed returned HTTP ${r2.status}`);
                 const result = await r2.json();
-
                 const dest = result.destination_url;
                 if (!dest) throw new Error('No destination_url in response');
-
-                nh.update('Redirecting…', 'success');
-                setTimeout(() => nh.remove(), 2000);
+                nh.update('Redirecting…', 'success', { site: 'bstlar.com', time: t.elapsed() + 's' });
+                if (CONFIG.autoDismissOnRedirect) setTimeout(() => nh.remove(), 500);
+                else setTimeout(() => nh.remove(), 2000);
                 location.href = dest;
             } catch (err) {
                 console.error('[ULB/bstlar]', err);
-                nh.update(`bstlar error: ${err.message}`, 'error');
+                nh.update(`bstlar error: ${err.message}`, 'error', { site: 'bstlar.com' });
                 setTimeout(() => nh.remove(), 6000);
             }
         };
-
         onReady(run);
     }
 
-    // ═══════════════════════════════════════════════════════════════════════════
-    // ─── WAREGUARDV2.XYZ CHECKPOINT BYPASSER ─────────────────────────────────
-    // ═══════════════════════════════════════════════════════════════════════════
+    // ── wareguardv2.xyz ────────────────────────────────────────────────────
 
     function runWareguardBypasser() {
-        const nh = notify('wareguardv2 checkpoint — bypassing…', 'loading', 0);
-
+        const t  = makeTimer();
+        const nh = notify('wareguardv2 checkpoint — bypassing…', 'loading', 0, { site: 'wareguardv2.xyz' });
         const run = () => {
             try {
                 const btn = document.getElementById('continueBtn');
-                if (!btn?.href) {
-                    nh.update('wareguardv2: continueBtn not found — unsupported layout.', 'error');
-                    setTimeout(() => nh.remove(), 6000);
-                    return;
-                }
-
+                if (!btn?.href) { nh.update('wareguardv2: continueBtn not found.', 'error', { site: 'wareguardv2.xyz' }); setTimeout(() => nh.remove(), 6000); return; }
                 const r = new URL(btn.href).searchParams.get('r');
                 if (!r) { nh.update('wareguardv2: no redirect URL found.', 'error'); setTimeout(() => nh.remove(), 6000); return; }
-
                 let dest;
                 try { dest = atob(decodeURIComponent(r)); }
                 catch { nh.update('wareguardv2: failed to decode redirect URL.', 'error'); setTimeout(() => nh.remove(), 6000); return; }
-
-                if (!dest?.startsWith('http')) {
-                    nh.update('wareguardv2: decoded URL is invalid.', 'error');
-                    setTimeout(() => nh.remove(), 6000);
-                    return;
-                }
-
-                nh.update('Redirecting in 1s…', 'info');
+                if (!dest?.startsWith('http')) { nh.update('wareguardv2: decoded URL is invalid.', 'error'); setTimeout(() => nh.remove(), 6000); return; }
+                nh.update('Redirecting in 1s…', 'info', { site: 'wareguardv2.xyz' });
                 showCountdown(1, () => {
-                    nh.update('Redirecting…', 'success');
-                    setTimeout(() => nh.remove(), 2000);
+                    nh.update('Redirecting…', 'success', { site: 'wareguardv2.xyz', time: t.elapsed() + 's' });
+                    if (CONFIG.autoDismissOnRedirect) setTimeout(() => nh.remove(), 500); else setTimeout(() => nh.remove(), 2000);
                     location.href = dest;
                 }, 'wareguardv2 bypass');
             } catch (err) {
@@ -866,32 +846,26 @@
                 setTimeout(() => nh.remove(), 6000);
             }
         };
-
         onReady(run);
     }
 
-    // ═══════════════════════════════════════════════════════════════════════════
-    // ─── SUBNISE.COM LINK BYPASSER ────────────────────────────────────────────
-    // ═══════════════════════════════════════════════════════════════════════════
+    // ── subnise.com ────────────────────────────────────────────────────────
 
     function runSubniseBypasser() {
-        const nh = notify('subnise.com detected — bypassing…', 'loading', 0);
-
+        const t  = makeTimer();
+        const nh = notify('subnise.com detected — bypassing…', 'loading', 0, { site: 'subnise.com' });
         const run = async () => {
             try {
                 const id = path.split('/').pop();
                 if (!id) throw new Error('Could not extract link ID from URL');
-
                 const r = await fetch(`/api/links/${id}`);
                 if (!r.ok) throw new Error(`API returned HTTP ${r.status}`);
                 const data = await r.json();
-
                 if (!data.url) throw new Error('No URL in API response');
-
-                nh.update('Redirecting in 1s…', 'info');
+                nh.update('Redirecting in 1s…', 'info', { site: 'subnise.com' });
                 showCountdown(1, () => {
-                    nh.update('Redirecting…', 'success');
-                    setTimeout(() => nh.remove(), 2000);
+                    nh.update('Redirecting…', 'success', { site: 'subnise.com', time: t.elapsed() + 's' });
+                    if (CONFIG.autoDismissOnRedirect) setTimeout(() => nh.remove(), 500); else setTimeout(() => nh.remove(), 2000);
                     location.href = data.url;
                 }, 'subnise bypass');
             } catch (err) {
@@ -900,17 +874,13 @@
                 setTimeout(() => nh.remove(), 6000);
             }
         };
-
         onReady(run);
     }
 
-    // ═══════════════════════════════════════════════════════════════════════════
-    // ─── TPI.LI BYPASSER ─────────────────────────────────────────────────────
-    // ═══════════════════════════════════════════════════════════════════════════
+    // ── tpi.li ─────────────────────────────────────────────────────────────
 
     function runTpiLiBypasser() {
         const DELAY = 3;
-
         function extractUrl() {
             try {
                 const tokenInput = document.querySelector('[name=token]');
@@ -922,84 +892,70 @@
         }
 
         function doBypass() {
+            const t = makeTimer();
             const dest = extractUrl();
-            if (!dest) { notify('tpi.li: token not found — check console.', 'error', 6000); return; }
-            notify(`tpi.li decoded. Redirecting in ${DELAY}s…`, 'info', 4000);
-            showCountdown(DELAY, () => { location.href = dest; }, 'tpi.li bypass');
+            if (!dest) { notify('tpi.li: token not found — check console.', 'error', 6000, { site: 'tpi.li' }); return; }
+            notify(`tpi.li decoded. Redirecting in ${DELAY}s…`, 'info', 4000, { site: 'tpi.li' });
+            showCountdown(DELAY, () => {
+                notify('tpi.li — redirected!', 'success', undefined, { site: 'tpi.li', time: t.elapsed() + 's' });
+                location.href = dest;
+            }, 'tpi.li bypass');
         }
 
         function init() {
-            notify('tpi.li bypasser active…', 'loading', 2500);
+            notify('tpi.li bypasser active…', 'loading', 2500, { site: 'tpi.li' });
             if (extractUrl()) { doBypass(); return; }
-
             const obs = new MutationObserver(() => {
                 if (extractUrl()) { obs.disconnect(); doBypass(); }
             });
-            obs.observe(document.documentElement, {
-                childList: true, subtree: true, attributes: true, attributeFilter: ['value'],
-            });
-
+            obs.observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['value'] });
             let tries = 0;
             const iv = setInterval(() => {
-                if (extractUrl() || ++tries > 60) {
-                    clearInterval(iv);
-                    obs.disconnect();
-                    if (extractUrl()) doBypass();
-                }
+                if (extractUrl() || ++tries > 60) { clearInterval(iv); obs.disconnect(); if (extractUrl()) doBypass(); }
             }, 500);
         }
-
         onReady(init);
     }
 
-    // ═══════════════════════════════════════════════════════════════════════════
-    // ─── SAFELINK BYPASSER ───────────────────────────────────────────────────
-    // ═══════════════════════════════════════════════════════════════════════════
+    // ── safelink ───────────────────────────────────────────────────────────
 
     function runSafelinkBypasser() {
         let scheduled = false;
+        const t = makeTimer();
 
-        // ── Ad blocking ──────────────────────────────────────────────────────
+        if (CONFIG.blockAds) {
+            const AD_SEL = [
+                'iframe[src*="doubleclick"]', 'iframe[src*="googlesyndication"]', 'iframe[src*="adservice"]',
+                'div[id^="div-gpt-ad"]', 'ins.adsbygoogle',
+                'script[src*="pagead2.googlesyndication"]', 'script[src*="securepubads"]',
+                'script[src*="adsbygoogle"]', 'script[src*="googletag"]',
+                'div[class*="ad-"]', 'div[id*="-ad-"]', 'div[class*="ads-"]',
+                '[data-ad-slot]', '[data-ad-client]',
+            ];
+            const AD_PAT = [
+                /pagead2\.googlesyndication\.com/, /securepubads\.g\.doubleclick\.net/, /adsbygoogle/,
+                /googletag/, /googleadservices/, /adnxs\.com/, /popads\.net/, /popcash\.net/,
+                /propellerads\.com/, /exoclick\.com/, /trafficjunky\.net/, /hilltopads\.net/, /adsterra\.com/,
+            ];
 
-        const AD_SEL = [
-            'iframe[src*="doubleclick"]', 'iframe[src*="googlesyndication"]', 'iframe[src*="adservice"]',
-            'div[id^="div-gpt-ad"]', 'ins.adsbygoogle',
-            'script[src*="pagead2.googlesyndication"]', 'script[src*="securepubads"]',
-            'script[src*="adsbygoogle"]', 'script[src*="googletag"]',
-            'div[class*="ad-"]', 'div[id*="-ad-"]', 'div[class*="ads-"]',
-            '[data-ad-slot]', '[data-ad-client]',
-        ];
-        const AD_PAT = [
-            /pagead2\.googlesyndication\.com/, /securepubads\.g\.doubleclick\.net/, /adsbygoogle/,
-            /googletag/, /googleadservices/, /adnxs\.com/, /popads\.net/, /popcash\.net/,
-            /propellerads\.com/, /exoclick\.com/, /trafficjunky\.net/, /hilltopads\.net/, /adsterra\.com/,
-        ];
+            const _ac = Element.prototype.appendChild;
+            const _ib = Element.prototype.insertBefore;
+            const isAd = el => {
+                if (!el || el.nodeType !== 1) return false;
+                const src = el.src || el.getAttribute?.('src') || '';
+                const tg = el.tagName?.toLowerCase();
+                return (tg === 'script' || tg === 'iframe') && src && AD_PAT.some(p => p.test(src));
+            };
+            Element.prototype.appendChild  = function (c) { return isAd(c) ? c : _ac.call(this, c); };
+            Element.prototype.insertBefore = function (n, r) { return isAd(n) ? n : _ib.call(this, n, r); };
+            window.googletag = { cmd: { push: () => {} }, defineSlot: () => ({ addService: () => ({}) }), pubads: () => ({}), enableServices: () => {}, display: () => {} };
+            window.adsbygoogle = { push: () => {} };
 
-        const _ac = Element.prototype.appendChild;
-        const _ib = Element.prototype.insertBefore;
-
-        const isAd = el => {
-            if (!el || el.nodeType !== 1) return false;
-            const src = el.src || el.getAttribute?.('src') || '';
-            const t = el.tagName?.toLowerCase();
-            return (t === 'script' || t === 'iframe') && src && AD_PAT.some(p => p.test(src));
-        };
-
-        Element.prototype.appendChild  = function (c) { return isAd(c) ? c : _ac.call(this, c); };
-        Element.prototype.insertBefore = function (n, r) { return isAd(n) ? n : _ib.call(this, n, r); };
-
-        window.googletag = {
-            cmd: { push: () => {} },
-            defineSlot: () => ({ addService: () => ({}) }),
-            pubads: () => ({}),
-            enableServices: () => {},
-            display: () => {},
-        };
-        window.adsbygoogle = { push: () => {} };
-
-        const cleanAds = () => AD_SEL.forEach(s => document.querySelectorAll(s).forEach(e => e.remove()));
-
-        // ── Extract destination + delay ───────────────────────────────────────
+            const cleanAds = () => AD_SEL.forEach(s => document.querySelectorAll(s).forEach(e => e.remove()));
+            var _cleanAds = cleanAds;
+        } else {
+            var _cleanAds = () => {};
+        }
 
         function extract() {
             const inp = document.querySelector('input[name="newwpsafelink"]');
@@ -1008,58 +964,44 @@
                 const outer = JSON.parse(atob(inp.value));
                 const url   = new URL(outer.linkr);
                 const inner = JSON.parse(atob(url.searchParams.get('safelink_redirect')));
-                return {
-                    dest: inner.safelink || inner.second_safelink_url || null,
-                    delay: Math.max(0, parseInt(outer.delay, 10) || 0),
-                };
+                return { dest: inner.safelink || inner.second_safelink_url || null, delay: Math.max(0, parseInt(outer.delay, 10) || 0) };
             } catch { return null; }
         }
-
-        // ── Scheduling ────────────────────────────────────────────────────────
 
         function scheduleBypass() {
             if (scheduled) return;
             const data = extract();
             if (!data?.dest) return;
             scheduled = true;
-            notify(`Safelink decoded. Redirecting in ${data.delay}s.`, 'info', 5000);
+            notify(`Safelink decoded. Redirecting in ${data.delay}s.`, 'info', 5000, { site: host });
             const startCountdown = () => {
                 showCountdown(data.delay, () => {
+                    notify('Safelink bypassed!', 'success', undefined, { site: host, time: t.elapsed() + 's' });
                     showRedirectNotif(data.dest);
                     window.location.replace(data.dest);
-                }, 'Ads blocked');
+                }, CONFIG.blockAds ? 'Ads blocked' : 'Redirecting');
             };
             if (document.readyState === 'complete') startCountdown();
             else window.addEventListener('load', startCountdown, { once: true });
         }
 
-        // ── MutationObserver ──────────────────────────────────────────────────
-
         function startObserver() {
             const obs = new MutationObserver(mutations => {
-                cleanAds();
+                _cleanAds();
                 if (scheduled) return;
-                for (const m of mutations) {
-                    for (const n of m.addedNodes) {
-                        if (
-                            n.nodeType === 1 &&
-                            (n.matches?.('input[name="newwpsafelink"]') ||
-                             n.querySelector?.('input[name="newwpsafelink"]'))
-                        ) {
+                for (const m of mutations)
+                    for (const n of m.addedNodes)
+                        if (n.nodeType === 1 && (n.matches?.('input[name="newwpsafelink"]') || n.querySelector?.('input[name="newwpsafelink"]'))) {
                             scheduleBypass();
                             if (scheduled) obs.disconnect();
                         }
-                    }
-                }
             });
             obs.observe(document.documentElement, { childList: true, subtree: true });
         }
 
-        // ── Init ──────────────────────────────────────────────────────────────
-
         function init() {
-            notify('Unknown Link Bypasser active — scanning…', 'loading', 3000);
-            cleanAds();
+            notify('Unknown Link Bypasser active — scanning…', 'loading', 3000, { site: host });
+            _cleanAds();
             scheduleBypass();
             if (!scheduled) startObserver();
         }
@@ -1067,61 +1009,53 @@
         if (document.readyState === 'complete') init();
         else window.addEventListener('load', init, { once: true });
 
-        // Poll fallback
         let attempts = 0;
         const poll = setInterval(() => {
-            cleanAds();
+            _cleanAds();
             if (scheduled || ++attempts > 60) clearInterval(poll);
             else scheduleBypass();
         }, 500);
     }
 
-    // ═══════════════════════════════════════════════════════════════════════════
-    // ─── FORM-BASED BYPASSER (shrtslug / biovetro / technons / stfly etc.) ───
-    // ═══════════════════════════════════════════════════════════════════════════
+    // ── form-based bypasser ────────────────────────────────────────────────
 
     function runFormBypasser() {
-        // Stub out the eecdbd querySelector guard used by some hosts
         const _qs = Document.prototype.querySelector;
         Document.prototype.querySelector = function (sel) {
             if (typeof sel === 'string' && sel.includes('eecdbd')) return this.createElement('div');
             return _qs.call(this, sel);
         };
 
-        const RETRY_KEY       = '__ulb_shrtslug_extra_delay';
-        const extraDelaySec   = parseInt(sessionStorage.getItem(RETRY_KEY) || '0', 10);
+        const RETRY_KEY     = '__ulb_shrtslug_extra_delay';
+        const extraDelaySec = parseInt(sessionStorage.getItem(RETRY_KEY) || '0', 10);
+        const t = makeTimer();
 
         notify(
-            extraDelaySec > 0
-                ? `Retry #${extraDelaySec} — adding ${extraDelaySec}s extra delay…`
-                : 'Form bypasser active — waiting for page…',
+            extraDelaySec > 0 ? `Retry #${extraDelaySec} — adding ${extraDelaySec}s extra delay…` : 'Form bypasser active — waiting for page…',
             extraDelaySec > 0 ? 'warn' : 'loading',
-            extraDelaySec > 0 ? 4000 : 3000
+            extraDelaySec > 0 ? 4000 : 3000,
+            { site: host }
         );
 
         waitForEl('form[action*="api-endpoint/verify"]').then(async form => {
             const action        = form.querySelector('input[name="action"]')?.value;
-            const progressMatch = [...document.querySelectorAll('script')]
-                .map(s => s.textContent.match(/progress_original\s*=\s*(\d+)/))
-                .find(Boolean);
+            const progressMatch = [...document.querySelectorAll('script')].map(s => s.textContent.match(/progress_original\s*=\s*(\d+)/)).find(Boolean);
             const baseDelay = action === 'countdown' ? 5000 : progressMatch ? +progressMatch[1] * 1000 : 0;
             const delay     = baseDelay + extraDelaySec * 1000;
             const seconds   = Math.ceil(delay / 1000);
             await waitBody();
 
             let nh = null;
-            const setStatus = (msg, type) => nh ? nh.update(msg, type) : (nh = notify(msg, type, 0));
+            const setStatus = (msg, type, extra) => nh ? nh.update(msg, type, extra) : (nh = notify(msg, type, 0, extra));
 
             const [captchaToken] = await Promise.all([
                 action === 'captcha'
-                    ? (setStatus('Solving captcha automatically…', 'loading'), solveTurnstile(getSiteKey()))
+                    ? (setStatus('Solving captcha automatically…', 'loading', { site: host }), solveTurnstile(getSiteKey()))
                     : Promise.resolve(null),
-                seconds > 0
-                    ? new Promise(res => showCountdown(seconds, res, 'Processing safelink…'))
-                    : Promise.resolve(),
+                seconds > 0 ? new Promise(res => showCountdown(seconds, res, 'Processing safelink…')) : Promise.resolve(),
             ]);
 
-            setStatus('Fetching destination…', 'loading');
+            setStatus('Fetching destination…', 'loading', { site: host });
 
             const data = new FormData();
             form.querySelectorAll('input[type="hidden"]').forEach(f => data.append(f.name, f.value));
@@ -1139,26 +1073,19 @@
                 return;
             }
 
-            if (result.status !== 'success') {
-                setStatus(`Failed: ${result.data || result.message || 'unknown'}`, 'error');
-                return;
-            }
+            if (result.status !== 'success') { setStatus(`Failed: ${result.data || result.message || 'unknown'}`, 'error'); return; }
 
             sessionStorage.removeItem(RETRY_KEY);
             const { final, next_page, speed_token } = result.data;
 
             if (final) {
-                setStatus('Redirecting!', 'success');
+                setStatus('Redirecting!', 'success', { site: host, time: t.elapsed() + 's' });
                 setTimeout(() => nh?.remove(), 3000);
                 if (final.toLowerCase().startsWith('http')) window.location = final;
-                else unsafeWindow.setup_special_link?.(final) ??
-                    console.warn('[ULB/FormBypasser] setup_special_link missing for:', final);
+                else unsafeWindow.setup_special_link?.(final) ?? console.warn('[ULB/FormBypasser] setup_special_link missing for:', final);
             } else if (next_page && speed_token) {
-                setStatus('Next step — continuing…', 'loading');
-                const next = Object.assign(document.createElement('form'), {
-                    method: 'POST',
-                    action: next_page,
-                });
+                setStatus('Next step — continuing…', 'loading', { site: host });
+                const next = Object.assign(document.createElement('form'), { method: 'POST', action: next_page });
                 next.insertAdjacentHTML('beforeend', `<input type="hidden" name="speed_token" value="${speed_token}">`);
                 document.body.appendChild(next);
                 next.submit();
@@ -1169,41 +1096,32 @@
         });
     }
 
-    // ═══════════════════════════════════════════════════════════════════════════
-    // ─── RESHORTFLY.COM BYPASSER ─────────────────────────────────────────────
-    // ═══════════════════════════════════════════════════════════════════════════
+    // ── reshortfly.com ─────────────────────────────────────────────────────
 
     function runReshortflyBypasser() {
-        const nh = notify('reshortfly.com detected — waiting…', 'loading', 0);
+        const t  = makeTimer();
+        const nh = notify('reshortfly.com detected — waiting…', 'loading', 0, { site: 'reshortfly.com' });
 
         const doFetch = async () => {
             try {
                 const form = document.querySelector('#go-link');
                 if (!form) throw new Error('Form #go-link not found');
-
                 const r = await fetch('/links/go', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-                        'X-Requested-With': 'XMLHttpRequest',
-                    },
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8', 'X-Requested-With': 'XMLHttpRequest' },
                     body: new URLSearchParams(new FormData(form)),
                     credentials: 'include',
                 });
-                const t = await r.text();
-
+                const tx = await r.text();
                 let dest = null;
                 try {
-                    const j = JSON.parse(t);
+                    const j = JSON.parse(tx);
                     if (j.url) dest = j.url;
                     else if (j.data) dest = atob(j.data).match(/https?:\/\/[^\s"']+/)?.[0];
-                } catch {
-                    dest = t.match(/https?:\/\/[^\s"']+/)?.[0];
-                }
-
+                } catch { dest = tx.match(/https?:\/\/[^\s"']+/)?.[0]; }
                 if (!dest) throw new Error('No destination URL found in response');
-                nh.update('Redirecting…', 'success');
-                setTimeout(() => nh.remove(), 2000);
+                nh.update('Redirecting…', 'success', { site: 'reshortfly.com', time: t.elapsed() + 's' });
+                if (CONFIG.autoDismissOnRedirect) setTimeout(() => nh.remove(), 500); else setTimeout(() => nh.remove(), 2000);
                 location.href = dest;
             } catch (err) {
                 console.error('[ULB/reshortfly]', err);
@@ -1212,25 +1130,22 @@
             }
         };
 
-        const start = () => {
-            nh.update('reshortfly.com — redirecting in 7s…', 'loading');
+        onReady(() => {
+            nh.update('reshortfly.com — redirecting in 7s…', 'loading', { site: 'reshortfly.com' });
             showCountdown(7, doFetch, 'reshortfly bypass');
-        };
-
-        onReady(start);
+        });
     }
 
-    // ═══════════════════════════════════════════════════════════════════════════
-    // ─── AVNSGAMES.COM INTERSTITIAL (→ lnbz.la) ──────────────────────────────
-    // ═══════════════════════════════════════════════════════════════════════════
+    // ── avnsgames.com ──────────────────────────────────────────────────────
 
     function runAvnsGamesInterstitial() {
-        const nh = notify('Interstitial page detected — waiting for redirect form…', 'loading', 0);
+        const t  = makeTimer();
+        const nh = notify('Interstitial page detected — waiting for redirect form…', 'loading', 0, { site: 'avnsgames.com' });
 
         const trySubmit = () => {
             const f = document.getElementById('go_d2');
             if (f) {
-                nh.update('Form found — submitting…', 'success');
+                nh.update('Form found — submitting…', 'success', { site: 'avnsgames.com', time: t.elapsed() + 's' });
                 setTimeout(() => nh.remove(), 1500);
                 HTMLFormElement.prototype.submit.call(f);
                 return true;
@@ -1249,40 +1164,31 @@
                 }
             }, 30_000);
         };
-
         onReady(init);
     }
 
-    // ═══════════════════════════════════════════════════════════════════════════
-    // ─── LNBZ.LA BYPASSER ────────────────────────────────────────────────────
-    // ═══════════════════════════════════════════════════════════════════════════
+    // ── lnbz.la ────────────────────────────────────────────────────────────
 
     function runLnbzLaBypasser() {
         const detect = () => {
             const adEl = document.querySelector('[name="ad_form_data"]');
             if (adEl) { _lnbzGoPage(adEl); return; }
-
             const form = document.querySelector('form');
             if (form) { _lnbzCaptchaPage(form); return; }
-
-            // Neither present yet — wait for DOM changes
             const obs = new MutationObserver(() => {
                 const adEl2 = document.querySelector('[name="ad_form_data"]');
                 const form2 = document.querySelector('form');
-                if (adEl2 || form2) {
-                    obs.disconnect();
-                    adEl2 ? _lnbzGoPage(adEl2) : _lnbzCaptchaPage(form2);
-                }
+                if (adEl2 || form2) { obs.disconnect(); adEl2 ? _lnbzGoPage(adEl2) : _lnbzCaptchaPage(form2); }
             });
             obs.observe(document.documentElement, { childList: true, subtree: true });
         };
-
         onReady(detect);
     }
 
     function _lnbzGoPage(adFormDataEl) {
         const FALLBACK_SECS = 15;
-        const nh = notify('lnbz.la — reading countdown…', 'loading', 0);
+        const t  = makeTimer();
+        const nh = notify('lnbz.la — reading countdown…', 'loading', 0, { site: 'lnbz.la' });
 
         const handleError = (label, err) => {
             console.error(`[ULB/lnbz.la go] ${label}`, err);
@@ -1291,81 +1197,59 @@
         };
 
         const doFetch = async () => {
-            nh.update('lnbz.la — fetching destination…', 'loading');
+            nh.update('lnbz.la — fetching destination…', 'loading', { site: 'lnbz.la' });
             try {
                 const r = await fetch('/links/go', {
                     method: 'POST',
-                    headers: {
-                        'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
-                        'x-requested-with': 'XMLHttpRequest',
-                    },
+                    headers: { 'content-type': 'application/x-www-form-urlencoded; charset=UTF-8', 'x-requested-with': 'XMLHttpRequest' },
                     body: '_method=POST&ad_form_data=' + encodeURIComponent(adFormDataEl.value),
                 });
                 if (!r.ok) throw new Error(`Server returned HTTP ${r.status}`);
-
                 let d;
-                try { d = await r.json(); }
-                catch { throw new Error('Response was not valid JSON'); }
+                try { d = await r.json(); } catch { throw new Error('Response was not valid JSON'); }
                 if (!d.url) throw new Error('No destination URL in server response');
-
-                nh.update('Redirecting…', 'success');
-                setTimeout(() => nh.remove(), 2000);
+                nh.update('Redirecting…', 'success', { site: 'lnbz.la', time: t.elapsed() + 's' });
+                if (CONFIG.autoDismissOnRedirect) setTimeout(() => nh.remove(), 500); else setTimeout(() => nh.remove(), 2000);
                 location.href = d.url;
             } catch (err) { handleError('fetch failed', err); }
         };
 
         _lnbzWaitForAppVars(vars => {
             const secs = Math.max(1, parseInt(vars?.counter_value, 10) || FALLBACK_SECS);
-            nh.update(`lnbz.la — redirecting in ${secs}s…`, 'loading');
+            nh.update(`lnbz.la — redirecting in ${secs}s…`, 'loading', { site: 'lnbz.la' });
             showCountdown(secs, doFetch, 'lnbz.la bypass');
         });
     }
 
-    // ═══════════════════════════════════════════════════════════════════════════
-    // ─── BLOXSCRIPT.LIVE KEY GENERATOR ───────────────────────────────────────
-    // ═══════════════════════════════════════════════════════════════════════════
+    // ── bloxscript.live ────────────────────────────────────────────────────
 
     function runBloxscriptBypasser() {
-        const nh = notify('bloxscript.live — waiting for key generator…', 'loading', 0);
+        const t  = makeTimer();
+        const nh = notify('bloxscript.live — waiting for key generator…', 'loading', 0, { site: 'bloxscript.live' });
 
         const tryGenerate = () => {
             const keyEl = document.getElementById('keyValue');
             const gen   = unsafeWindow.generateKey;
             if (!keyEl || typeof gen !== 'function') return false;
-
             try {
                 const key = gen();
                 keyEl.textContent = key;
-
                 const copy = () => {
                     if (navigator.clipboard?.writeText) return navigator.clipboard.writeText(key);
-                    // execCommand fallback (legacy browsers / restricted WebViews)
-                    const ta = Object.assign(document.createElement('textarea'), {
-                        value: key,
-                        style: { cssText: 'position:fixed;opacity:0' },
-                    });
-                    document.body.appendChild(ta);
-                    ta.select();
+                    const ta = Object.assign(document.createElement('textarea'), { value: key });
+                    ta.style.cssText = 'position:fixed;opacity:0';
+                    document.body.appendChild(ta); ta.select();
                     try { document.execCommand('copy'); } catch (_) {}
-                    ta.remove();
-                    return Promise.resolve();
+                    ta.remove(); return Promise.resolve();
                 };
-
                 copy()
-                    .then(() => {
-                        nh.update('Key generated and copied to clipboard!', 'success');
-                        setTimeout(() => nh.remove(), 4000);
-                    })
-                    .catch(() => {
-                        nh.update(`Key generated: ${key} (copy failed — paste manually)`, 'warn');
-                        setTimeout(() => nh.remove(), 8000);
-                    });
+                    .then(() => { nh.update('Key generated and copied to clipboard!', 'success', { site: 'bloxscript.live', time: t.elapsed() + 's' }); setTimeout(() => nh.remove(), 4000); })
+                    .catch(() => { nh.update(`Key generated: ${key} (copy failed — paste manually)`, 'warn', { site: 'bloxscript.live' }); setTimeout(() => nh.remove(), 8000); });
             } catch (err) {
                 console.error('[ULB/bloxscript]', err);
                 nh.update(`bloxscript error: ${err.message}`, 'error');
                 setTimeout(() => nh.remove(), 6000);
             }
-
             return true;
         };
 
@@ -1375,10 +1259,308 @@
             const iv = setInterval(() => {
                 if (tryGenerate() || ++tries > 100) {
                     clearInterval(iv);
-                    if (tries > 100) {
-                        nh.update('bloxscript: key generator not found — unsupported layout.', 'error');
-                        setTimeout(() => nh.remove(), 6000);
+                    if (tries > 100) { nh.update('bloxscript: key generator not found — unsupported layout.', 'error'); setTimeout(() => nh.remove(), 6000); }
+                }
+            }, 200);
+        };
+        onReady(init);
+    }
+
+    // ── jankariweb ─────────────────────────────────────────────────────────
+
+    function runJoberBypasser() {
+        if (path !== '/') clickWhenReady('btn7', 'jankariweb step 2');
+        else              clickWhenReady('notarobot', 'jankariweb step 1');
+    }
+
+    // ── how2guidess.com ────────────────────────────────────────────────────
+
+    function runHow2GuidesBypasser() {
+        const clickEl = id => { const el = document.getElementById(id); if (el) { el.click(); return true; } return false; };
+        const waitAndClick = (id, afterMs, afterFn) => {
+            let tries = 0;
+            const iv = setInterval(() => {
+                if (clickEl(id)) {
+                    clearInterval(iv);
+                    notify(`how2guidess — clicked #${id}`, 'info', 2000, { site: 'how2guidess.com' });
+                    if (afterFn) setTimeout(afterFn, afterMs);
+                } else if (++tries > 150) {
+                    clearInterval(iv);
+                    notify(`how2guidess: #${id} not found — unsupported layout.`, 'error', 6000, { site: 'how2guidess.com' });
+                }
+            }, 200);
+        };
+        const run = () => {
+            const t  = makeTimer();
+            const nh = notify('how2guidess.com — bypassing…', 'loading', 0, { site: 'how2guidess.com' });
+            waitAndClick('gi', 500, () => {
+                nh.update('Step 1 done…', 'loading', { site: 'how2guidess.com' });
+                waitAndClick('ci', 0, () => {
+                    nh.update('Done!', 'success', { site: 'how2guidess.com', time: t.elapsed() + 's' });
+                    setTimeout(() => nh.remove(), 2000);
+                });
+            });
+        };
+        onReady(run);
+    }
+
+    // ── go.yorurl.com / go.caslinks.com ────────────────────────────────────
+
+    function _runYorurlLikeBypasser(siteLabel) {
+        const handleError = (nh, label, err) => {
+            console.error(`[ULB/${siteLabel}] ${label}`, err);
+            nh.update(`${siteLabel}: ${label}${err?.message ? ` — ${err.message}` : ''}`, 'error');
+            setTimeout(() => nh.remove(), 7000);
+        };
+
+        const doGoPage = form => {
+            const t  = makeTimer();
+            const nh = notify(`${siteLabel} — reading countdown…`, 'loading', 0, { site: siteLabel });
+
+            const doFetch = async () => {
+                nh.update(`${siteLabel} — fetching destination…`, 'loading', { site: siteLabel });
+                try {
+                    const params = new URLSearchParams();
+                    form.querySelectorAll('input[type="hidden"]').forEach(inp => params.append(inp.name, inp.value));
+                    const r = await fetch('/links/go', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8', 'X-Requested-With': 'XMLHttpRequest', Accept: 'application/json, text/javascript, */*; q=0.01' },
+                        credentials: 'include',
+                        body: params.toString(),
+                    });
+                    if (!r.ok) throw new Error(`Server returned HTTP ${r.status}`);
+                    let d;
+                    try { d = await r.json(); } catch { throw new Error('Response was not valid JSON'); }
+                    if (!d.url) throw new Error('No destination URL in server response');
+                    nh.update('Redirecting…', 'success', { site: siteLabel, time: t.elapsed() + 's' });
+                    if (CONFIG.autoDismissOnRedirect) setTimeout(() => nh.remove(), 500); else setTimeout(() => nh.remove(), 2000);
+                    location.href = d.url;
+                } catch (err) { handleError(nh, 'fetch failed', err); }
+            };
+
+            _lnbzWaitForAppVars(vars => {
+                const secs = Math.max(1, parseInt(vars?.counter_value, 10) || 15);
+                nh.update(`${siteLabel} — redirecting in ${secs}s…`, 'loading', { site: siteLabel });
+                showCountdown(secs, doFetch, `${siteLabel} bypass`);
+            });
+        };
+
+        const detect = () => {
+            const adEl = document.querySelector('[name="ad_form_data"]');
+            if (adEl) { doGoPage(adEl.closest('form') || document.querySelector('form')); return; }
+            const form = document.querySelector('form');
+            if (form) { _lnbzCaptchaPage(form); return; }
+            const obs = new MutationObserver(() => {
+                const adEl2 = document.querySelector('[name="ad_form_data"]');
+                const form2 = document.querySelector('form');
+                if (adEl2 || form2) { obs.disconnect(); adEl2 ? doGoPage(adEl2.closest('form') || form2) : _lnbzCaptchaPage(form2); }
+            });
+            obs.observe(document.documentElement, { childList: true, subtree: true });
+            setTimeout(() => {
+                obs.disconnect();
+                if (!document.querySelector('[name="ad_form_data"]') && !document.querySelector('form'))
+                    notify(`${siteLabel}: no form found — unsupported layout.`, 'error', 6000, { site: siteLabel });
+            }, 15_000);
+        };
+        onReady(detect);
+    }
+
+    function runYorurlBypasser()   { _runYorurlLikeBypasser('go.yorurl.com');  }
+    function runCasLinksBypasser() { _runYorurlLikeBypasser('go.caslinks.com'); }
+
+    // ── link-unlock.com ────────────────────────────────────────────────────
+
+    function runLinkUnlockBypasser() {
+        const t  = makeTimer();
+        const nh = notify('link-unlock.com — bypassing…', 'loading', 0, { site: 'link-unlock.com' });
+        const slug = new URL(location.href).pathname.split('/').filter(Boolean)[0];
+        if (!slug) { nh.update('link-unlock.com: could not read slug from URL.', 'error'); setTimeout(() => nh.remove(), 6000); return; }
+
+        const handleError = (label, err) => {
+            console.error(`[ULB/link-unlock] ${label}`, err);
+            nh.update(`link-unlock.com: ${label}${err?.message ? ` — ${err.message}` : ''}`, 'error');
+            setTimeout(() => nh.remove(), 7000);
+        };
+
+        (async () => {
+            try {
+                nh.update('link-unlock.com — fetching steps…', 'loading', { site: 'link-unlock.com' });
+                const r1 = await fetch(`https://api.link-unlock.com/u/${slug}`);
+                if (!r1.ok) throw new Error(`HTTP ${r1.status} on step fetch`);
+                const d1 = await r1.json();
+                const steps = d1?.unlock?.steps?.map(s => s.id);
+                if (!steps?.length) throw new Error('No steps found in API response');
+
+                nh.update('link-unlock.com — completing steps…', 'loading', { site: 'link-unlock.com' });
+                const r2 = await fetch(`https://api.link-unlock.com/u/${slug}/complete`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ steps }),
+                });
+                if (!r2.ok) throw new Error(`HTTP ${r2.status} on complete`);
+                const d2 = await r2.json();
+                if (!d2?.destinationUrl) throw new Error('No destinationUrl in response');
+
+                nh.update('Redirecting…', 'success', { site: 'link-unlock.com', time: t.elapsed() + 's' });
+                if (CONFIG.autoDismissOnRedirect) setTimeout(() => nh.remove(), 500); else setTimeout(() => nh.remove(), 2000);
+                location.href = d2.destinationUrl;
+            } catch (err) { handleError('bypass failed', err); }
+        })();
+    }
+
+    // ── link4sub.com ───────────────────────────────────────────────────────
+
+    function runLink4SubBypasser() {
+        notify('link4sub.com — following redirect to tapvietcode.com…', 'info', undefined, { site: 'link4sub.com' });
+    }
+
+    // ── tapvietcode.com ────────────────────────────────────────────────────
+
+    function runTapVietCodeBypasser() {
+        if (host.includes('blog.tapvietcode.com')) {
+            const t  = makeTimer();
+            const nh = notify('tapvietcode.com — waiting for continue button…', 'loading', 0, { site: 'tapvietcode.com' });
+
+            const tryClick = () => {
+                const btn = document.getElementById('continueBtn');
+                if (!btn) return false;
+                const dest = btn.href;
+                if (!dest) { nh.update('tapvietcode.com: continueBtn has no href.', 'error'); setTimeout(() => nh.remove(), 6000); return true; }
+                nh.update('tapvietcode.com — redirecting…', 'success', { site: 'tapvietcode.com', time: t.elapsed() + 's' });
+                if (CONFIG.autoDismissOnRedirect) setTimeout(() => nh.remove(), 500); else setTimeout(() => nh.remove(), 2000);
+                location.href = dest;
+                return true;
+            };
+
+            const init = () => {
+                if (tryClick()) return;
+                let tries = 0;
+                const iv = setInterval(() => {
+                    if (tryClick() || ++tries > 150) {
+                        clearInterval(iv);
+                        if (tries > 150) { nh.update('tapvietcode.com: continue button not found — unsupported layout.', 'error'); setTimeout(() => nh.remove(), 6000); }
                     }
+                }, 200);
+            };
+            onReady(init);
+        } else {
+            const t  = makeTimer();
+            const nh = notify('tapvietcode.com — reading destination from storage…', 'loading', 0, { site: 'tapvietcode.com' });
+
+            const tryStorage = () => {
+                try {
+                    for (let i = 0; i < localStorage.length; i++) {
+                        const k = localStorage.key(i);
+                        const v = localStorage.getItem(k);
+                        if (v && v.includes('"lnk1"')) {
+                            try {
+                                const j = JSON.parse(v);
+                                const u = j?.data?.lnk?.lnk1?.url || j?.lnk?.lnk1?.url;
+                                if (u) {
+                                    nh.update('tapvietcode.com — redirecting…', 'success', { site: 'tapvietcode.com', time: t.elapsed() + 's' });
+                                    if (CONFIG.autoDismissOnRedirect) setTimeout(() => nh.remove(), 500); else setTimeout(() => nh.remove(), 2000);
+                                    location.href = u;
+                                    return true;
+                                }
+                            } catch (e) { /* malformed entry, skip */ }
+                        }
+                    }
+                } catch (e) { console.error('[ULB/tapvietcode] localStorage read failed', e); }
+                return false;
+            };
+
+            const init = () => {
+                if (tryStorage()) return;
+                let tries = 0;
+                const iv = setInterval(() => {
+                    if (tryStorage() || ++tries > 100) {
+                        clearInterval(iv);
+                        if (tries > 100) { nh.update('tapvietcode.com: lnk1 URL not found in storage — unsupported layout.', 'error'); setTimeout(() => nh.remove(), 6000); }
+                    }
+                }, 300);
+            };
+            onReady(init);
+        }
+    }
+
+    // ── gplinks.co ─────────────────────────────────────────────────────────
+
+    function runGpLinksBypasser() {
+        const t         = makeTimer();
+        const siteLabel = 'gplinks.co';
+        const nh        = notify(`${siteLabel} — solving captcha…`, 'loading', 0, { site: siteLabel });
+
+        const doRedirect = url => {
+            nh.update(`${siteLabel} — redirecting…`, 'success', { site: siteLabel, time: t.elapsed() + 's' });
+            if (CONFIG.autoDismissOnRedirect) setTimeout(() => nh.remove(), 500);
+            else setTimeout(() => nh.remove(), 2000);
+            location.href = url;
+        };
+
+        const handleError = (label, err) => {
+            console.error(`[ULB/${siteLabel}] ${label}`, err);
+            nh.update(`${siteLabel}: ${label}${err?.message ? ` — ${err.message}` : ''}`, 'error');
+            setTimeout(() => nh.remove(), 7000);
+        };
+
+        // Pull sitekey from the CF iframe src (e.g. .../0x4AAAAAAAynCEcs0RV-UleY/...)
+        const getGpSiteKey = () => {
+            const iframe = document.querySelector('iframe[src*="challenges.cloudflare.com"]');
+            if (iframe) {
+                const m = iframe.getAttribute('src').match(/\/([0-9a-zA-Z_\-]{20,})\//);
+                if (m) return m[1];
+            }
+            return getSiteKey();
+        };
+
+        const init = async () => {
+            // Wait for the result button
+            let btn;
+            try { btn = await waitForEl('#captchaButton', 200, 15_000); }
+            catch (e) { handleError('captchaButton not found', e); return; }
+
+            // If href is already set (captcha pre-solved / not required), go immediately
+            const existingHref = btn.getAttribute('href');
+            if (existingHref && existingHref !== '#' && !existingHref.startsWith('javascript')) {
+                doRedirect(existingHref);
+                return;
+            }
+
+            // Locate sitekey
+            const sitekey = getGpSiteKey();
+            if (!sitekey) { handleError('could not find Turnstile sitekey', null); return; }
+
+            // Solve the Cloudflare Turnstile
+            let token;
+            try { token = await solveTurnstile(sitekey); }
+            catch (e) { handleError('Turnstile solve failed', e); return; }
+
+            // Inject token into any hidden input the page expects
+            let tsInput = document.querySelector('[name="cf-turnstile-response"]');
+            if (!tsInput) {
+                tsInput = Object.assign(document.createElement('input'), { type: 'hidden', name: 'cf-turnstile-response' });
+                document.body.appendChild(tsInput);
+            }
+            tsInput.value = token;
+
+            // Call the page's own Turnstile callback if declared (sets button href)
+            const tsEl = document.querySelector('[data-callback]');
+            const cbName = tsEl?.dataset?.callback;
+            if (cbName) {
+                try {
+                    if (typeof unsafeWindow[cbName] === 'function') unsafeWindow[cbName](token);
+                } catch (_) {}
+            }
+
+            // Poll for the button href to become a real URL after solve
+            nh.update(`${siteLabel} — waiting for link…`, 'loading', { site: siteLabel });
+            let tries = 0;
+            const iv = setInterval(() => {
+                const href = btn.getAttribute('href');
+                if (href && href !== '#' && !href.startsWith('javascript') && href.startsWith('http')) {
+                    clearInterval(iv);
+                    doRedirect(href);
+                } else if (++tries > 150) {
+                    clearInterval(iv);
+                    handleError('link did not appear after captcha solve — unsupported layout', null);
                 }
             }, 200);
         };
@@ -1386,133 +1568,130 @@
         onReady(init);
     }
 
-    // ═══════════════════════════════════════════════════════════════════════════
-    // ─── JOBER / JANKARIWEB BYPASSER ─────────────────────────────────────────
-    // ═══════════════════════════════════════════════════════════════════════════
-    //
-    // Supports the full *.jankariweb.* wildcard:
-    //   Page 1 — any page with #notarobot → click it
-    //   Page 2 — any page with #btn7      → click it
+    // ── powergam.online ────────────────────────────────────────────────────
+    // Bypass by @NickUpdates
 
-    function runJoberBypasser() {
-        // Step 2: subpages with #btn7 (e.g. /electric-vehicle-…/)
-        if (path !== '/') {
-            clickWhenReady('btn7', 'jankariweb step 2');
-        }
-        // Step 1: landing page with #notarobot
-        else {
-            clickWhenReady('notarobot', 'jankariweb step 1');
-        }
-    }
+    function runPowergamBypasser() {
+        const t         = makeTimer();
+        const siteLabel = 'powergam.online';
+        const REQUIRED  = ['imps', 'lid', 'pages', 'pid', 'step_count', 'vid'];
 
-    // ═══════════════════════════════════════════════════════════════════════════
-    // ─── HOW2GUIDESS.COM BYPASSER ─────────────────────────────────────────────
-    // ═══════════════════════════════════════════════════════════════════════════
+        const nh = notify(`${siteLabel} — waiting for cookies…`, 'loading', 0, { site: siteLabel });
 
-    function runHow2GuidesBypasser() {
-        const clickEl = id => { const el = document.getElementById(id); if (el) { el.click(); return true; } return false; };
-
-        const waitAndClick = (id, afterMs, afterFn) => {
-            let tries = 0;
-            const iv = setInterval(() => {
-                if (clickEl(id)) {
-                    clearInterval(iv);
-                    notify(`how2guidess — clicked #${id}`, 'info', 2000);
-                    if (afterFn) setTimeout(afterFn, afterMs);
-                } else if (++tries > 150) {
-                    clearInterval(iv);
-                    notify(`how2guidess: #${id} not found — unsupported layout.`, 'error', 6000);
-                }
-            }, 200);
-        };
-
-        const run = () => {
-            const nh = notify('how2guidess.com — bypassing…', 'loading', 0);
-            // Step 1: click #gi, then 500ms later click #ci
-            waitAndClick('gi', 500, () => {
-                nh.remove();
-                waitAndClick('ci', 0, null);
-            });
-        };
-
-        onReady(run);
-    }
-
-    // ═══════════════════════════════════════════════════════════════════════════
-    // ─── GO.YORURL.COM BYPASSER ───────────────────────────────────────────────
-    // ═══════════════════════════════════════════════════════════════════════════
-
-    function runYorurlBypasser() {
-        const handleError = (nh, label, err) => {
-            console.error(`[ULB/yorurl] ${label}`, err);
-            nh.update(`go.yorurl.com: ${label}${err?.message ? ` — ${err.message}` : ''}`, 'error');
+        const handleError = (label, err) => {
+            console.error(`[ULB/${siteLabel}] ${label}`, err);
+            nh.update(`${siteLabel}: ${label}${err?.message ? ` — ${err.message}` : ''}`, 'error');
             setTimeout(() => nh.remove(), 7000);
         };
 
-        const doGoPage = form => {
-            const nh = notify('go.yorurl.com — reading countdown…', 'loading', 0);
+        // Parse all cookies into a plain object
+        const getCookies = () =>
+            Object.fromEntries(
+                document.cookie.split('; ').filter(Boolean)
+                    .map(c => c.split('=').map(decodeURIComponent))
+            );
 
-            const doFetch = async () => {
-                nh.update('go.yorurl.com — fetching destination…', 'loading');
+        // POST each ad-step sequentially then redirect
+        const runSteps = async (cookies) => {
+            const pages = parseInt(cookies.pages, 10);
+            if (!pages || pages < 1) { handleError('invalid pages cookie value', null); return; }
+
+            const ref   = location.origin;
+            const final = `https://gplinks.co/${cookies.lid}?pid=${cookies.pid}&vid=${cookies.vid}`;
+            const delay = pages * 30;
+
+            // Show a countdown toast for the wait period
+            nh.update(`${siteLabel} — waiting ${delay}s before submitting steps…`, 'loading', { site: siteLabel });
+
+            await new Promise(resolve => {
+                let rem = delay;
+                const iv = setInterval(() => {
+                    rem--;
+                    nh.update(`${siteLabel} — submitting in ${rem}s…`, 'loading', { site: siteLabel });
+                    if (rem <= 0) { clearInterval(iv); resolve(); }
+                }, 1000);
+            });
+
+            nh.update(`${siteLabel} — submitting ${pages} step(s)…`, 'loading', { site: siteLabel });
+
+            for (let s = 1; s <= pages; s++) {
+                const body = new URLSearchParams({
+                    ad_impressions: 2,
+                    form_name:      'ads-track-data',
+                    next_target:    s === pages ? final : ref,
+                    step_id:        String(s),
+                    visitor_id:     cookies.vid,
+                });
                 try {
-                    const params = new URLSearchParams();
-                    form.querySelectorAll('input[type="hidden"]').forEach(inp => params.append(inp.name, inp.value));
-
-                    const r = await fetch('/links/go', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-                            'X-Requested-With': 'XMLHttpRequest',
-                            Accept: 'application/json, text/javascript, */*; q=0.01',
-                        },
+                    await fetch(ref + '/', {
+                        method:      'POST',
+                        headers:     { 'Content-Type': 'application/x-www-form-urlencoded', 'Referer': ref + '/' },
                         credentials: 'include',
-                        body: params.toString(),
+                        body:        body.toString(),
                     });
-                    if (!r.ok) throw new Error(`Server returned HTTP ${r.status}`);
-
-                    let d;
-                    try { d = await r.json(); }
-                    catch { throw new Error('Response was not valid JSON'); }
-                    if (!d.url) throw new Error('No destination URL in server response');
-
-                    nh.update('Redirecting…', 'success');
-                    setTimeout(() => nh.remove(), 2000);
-                    location.href = d.url;
-                } catch (err) { handleError(nh, 'fetch failed', err); }
-            };
-
-            _lnbzWaitForAppVars(vars => {
-                const secs = Math.max(1, parseInt(vars?.counter_value, 10) || 15);
-                nh.update(`go.yorurl.com — redirecting in ${secs}s…`, 'loading');
-                showCountdown(secs, doFetch, 'go.yorurl.com bypass');
-            });
-        };
-
-        const detect = () => {
-            const adEl = document.querySelector('[name="ad_form_data"]');
-            if (adEl) { doGoPage(adEl.closest('form') || document.querySelector('form')); return; }
-
-            const form = document.querySelector('form');
-            if (form) { _lnbzCaptchaPage(form); return; }
-
-            // Wait for DOM
-            const obs = new MutationObserver(() => {
-                const adEl2 = document.querySelector('[name="ad_form_data"]');
-                const form2 = document.querySelector('form');
-                if (adEl2 || form2) {
-                    obs.disconnect();
-                    adEl2 ? doGoPage(adEl2.closest('form') || form2) : _lnbzCaptchaPage(form2);
+                    if (s < pages) await new Promise(r => setTimeout(r, 1200));
+                } catch (err) {
+                    console.warn(`[ULB/${siteLabel}] POST failed at step ${s}`, err);
                 }
-            });
-            obs.observe(document.documentElement, { childList: true, subtree: true });
-            setTimeout(() => {
-                obs.disconnect();
-                if (!document.querySelector('[name="ad_form_data"]') && !document.querySelector('form'))
-                    notify('go.yorurl.com: no form found — unsupported layout.', 'error', 6000);
-            }, 15_000);
+            }
+
+            nh.update(`${siteLabel} — redirecting…`, 'success', { site: siteLabel, time: t.elapsed() + 's' });
+            if (CONFIG.autoDismissOnRedirect) setTimeout(() => nh.remove(), 500);
+            else setTimeout(() => nh.remove(), 2000);
+            location.href = final;
         };
 
-        onReady(detect);
+        // Poll until all required cookies are present, then fire
+        const init = () => {
+            let done = false;
+            const iv = setInterval(() => {
+                if (done) return;
+                const cookies = getCookies();
+                if (!REQUIRED.every(k => k in cookies)) return;
+                done = true;
+                clearInterval(iv);
+                runSteps(cookies);
+            }, 500);
+        };
+
+        onReady(init);
+    }
+
+    // ── rojgarhindi.in ─────────────────────────────────────────────────────
+
+    function runRojgarhindiBypasser() {
+        const t  = makeTimer();
+        const nh = notify('rojgarhindi.in — detecting page type…', 'loading', 0, { site: 'rojgarhindi.in' });
+
+        const tryBypass = () => {
+            const btn = document.getElementById('btn6');
+            if (btn && btn.href) {
+                nh.update('rojgarhindi.in — redirecting via button…', 'success', { site: 'rojgarhindi.in', time: t.elapsed() + 's' });
+                if (CONFIG.autoDismissOnRedirect) setTimeout(() => nh.remove(), 500); else setTimeout(() => nh.remove(), 2000);
+                location.href = btn.href;
+                return true;
+            }
+            const form = [...document.forms].find(f => /^tp\d*$/i.test(f.name || '') && f.name !== 'search-form');
+            if (form) {
+                nh.update('rojgarhindi.in — submitting form…', 'success', { site: 'rojgarhindi.in', time: t.elapsed() + 's' });
+                if (CONFIG.autoDismissOnRedirect) setTimeout(() => nh.remove(), 500); else setTimeout(() => nh.remove(), 2000);
+                HTMLFormElement.prototype.submit.call(form);
+                return true;
+            }
+            return false;
+        };
+
+        const init = () => {
+            if (tryBypass()) return;
+            let tries = 0;
+            const iv = setInterval(() => {
+                if (tryBypass() || ++tries > 150) {
+                    clearInterval(iv);
+                    if (tries > 150) { nh.update('rojgarhindi.in: no btn6 or tp-form found — unsupported layout.', 'error'); setTimeout(() => nh.remove(), 6000); }
+                }
+            }, 200);
+        };
+        onReady(init);
     }
 
 })();
