@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Unknown Link Bypasser
 // @namespace    http://tampermonkey.net/
-// @version      6.6.3
-// @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live + go.yorurl.com + jankariweb + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + gplinks.co + powergam.online + getpolsec.com. Made by @Aro Moon
+// @version      6.6.5
+// @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live + go.yorurl.com + jankariweb + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + gplinks.co + powergam.online + getpolsec.com + hehehub. Made by @Aro Moon
 // @author       @Aro Moon
 // @include      /^https:\/\/mtc\d+\.[^/]+\.[a-z.]+\//
 // @match        https://dl.surf/f/*
@@ -43,6 +43,7 @@
 // @match        https://www.ytsubme.com/s2u*
 // @match        https://aylink.co/*
 // @match        https://getpolsec.com/ad/*
+// @match        https://hehehub-acsu123.pythonanywhere.com/api/getkey*
 // @grant        GM_addElement
 // @grant        unsafeWindow
 // @connect      challenges.cloudflare.com
@@ -764,6 +765,7 @@
     else if (host.includes('sfl.gl'))                    runSflGlBypasser();
     else if (host.includes('ytsubme.com'))                 runYtSubMeBypasser();
     else if (host.includes('aylink.co'))                   runAylinkBypasser();
+    else if (host.includes('hehehub-acsu123.pythonanywhere.com') && /[?&]hwid=[\w.]+/.test(location.search)) runHehehubSkipper();
     else if (host.includes('getpolsec.com'))               runGetPolSecBypasser();
     else if (
         host.includes('biplabtewary.com')   ||
@@ -2137,6 +2139,81 @@
                         nh.update(`${siteLabel}: no button-link found — unsupported layout.`, 'error');
                         setTimeout(() => nh.remove(), 7000);
                     }
+                }
+            }, 200);
+        };
+        onReady(init);
+    }
+
+    // ── hehehub-acsu123.pythonanywhere.com ────────────────────────────────
+
+    function runHehehubSkipper() {
+        const t         = makeTimer();
+        const siteLabel = 'hehehub';
+
+        const handleError = (label, err) => {
+            console.error(`[ULB/${siteLabel}] ${label}`, err);
+            notify(`${siteLabel}: ${label}${err?.message ? ` — ${err.message}` : ''}`, 'error', 7000, { site: siteLabel });
+        };
+
+        const trySkip = () => {
+            // Find a window.location.href = '...' assignment in the page source
+            const match = (document.body?.innerHTML || '').match(
+                /window\.location\.href\s*=\s*['"\`]([^'"\`]+)['"\`]/
+            );
+            const rawUrl = match?.[1];
+            if (!rawUrl) return false;
+
+            let dest;
+            try {
+                const x = new URL(rawUrl);
+                const hwid = x.searchParams.get('hwid');
+                if (hwid) x.searchParams.set('hwid', hwid.replace('next', ''));
+                dest = x.toString();
+            } catch (e) {
+                handleError('invalid redirect URL', e);
+                return true; // stop polling even on error
+            }
+
+            const nh = notify(`${siteLabel} — skipping extra stuff…`, 'loading', 0, { site: siteLabel });
+            nh.update(`${siteLabel} — done in ${t.elapsed()}s`, 'success', { site: siteLabel, time: t.elapsed() + 's' });
+            if (CONFIG.autoDismissOnRedirect) setTimeout(() => nh.remove(), 500);
+            else setTimeout(() => nh.remove(), 2000);
+            location.href = dest;
+            return true;
+        };
+
+        // Strip window.open(...,'_blank') from all button onclick handlers,
+        // leaving any remaining statements (e.g. location.href=...) intact.
+        const stripBlankOpens = () => {
+            document.querySelectorAll('button[onclick]').forEach(btn => {
+                const orig = btn.getAttribute('onclick');
+                // Remove every window.open(…) call that targets '_blank'
+                const cleaned = orig
+                    .replace(/window\.open\s*\([^)]*['"]_blank['"]\s*\)\s*;?\s*/g, '')
+                    .trim();
+                if (cleaned !== orig) {
+                    btn.setAttribute('onclick', cleaned);
+                    console.log(`[ULB/hehehub] stripped _blank open from button:`, btn.textContent.trim());
+                }
+            });
+        };
+
+        // Watch for dynamically added buttons too
+        const blankObs = new MutationObserver(() => stripBlankOpens());
+
+        const init = () => {
+            stripBlankOpens();
+            blankObs.observe(document.body, { childList: true, subtree: true });
+            notify(`${siteLabel} — popup links removed from buttons`, 'info', undefined, { site: siteLabel });
+
+            if (trySkip()) { blankObs.disconnect(); return; }
+            let tries = 0;
+            const iv = setInterval(() => {
+                if (trySkip() || ++tries > 150) {
+                    clearInterval(iv);
+                    blankObs.disconnect();
+                    if (tries > 150) handleError('redirect URL not found in page source', null);
                 }
             }, 200);
         };
