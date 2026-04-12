@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name         Unknown Link Bypasser
 // @namespace    http://tampermonkey.net/
-// @version      6.6.6
-// @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live + go.yorurl.com + jankariweb + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + gplinks.co + powergam.online + getpolsec.com + hehehub + sub4unlock.co + app.khaddavi.net + sfl.gl + ytsubme.com + aylink.co + biplabtewary.com + mwgamesyt.com.br + topjogosvip.online + legacyagency.com.br. Made by @Aro Moon
+// @version      6.7.1
+// @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live(SCAM WARNING) + go.yorurl.com + jankariweb + newsuchnaonline + bigcarinsurance + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + highlocus.shop + gplinks.co + powergam.online + getpolsec.com + hehehub + sub4unlock.co + app.khaddavi.net + sfl.gl + ytsubme.com + aylink.co + biplabtewary.com + mwgamesyt.com.br + topjogosvip.online + legacyagency.com.br + 4br.me + short-jambo.com/ink + fastcars. Made by @Aro Moon
 // @author       @Aro Moon
 // @include      /^https:\/\/mtc\d+\.[^/]+\.[a-z.]+\//
+// @include      /^https?:\/\/(?:\w+\.)?fastcars\d+\.com\//
 // @match        https://dl.surf/f/*
 // @match        https://shrtslug.biz/*
 // @match        https://biovetro.net/*
@@ -23,6 +24,9 @@
 // @match        https://avnsgames.com/*
 // @match        https://bloxscript.live/*
 // @match        https://*.jankariweb.online/*
+// @match        https://newsuchnaonline.com/*
+// @match        https://*.bigcarinsurance.com/*
+// @match        https://highlocus.shop/*
 // @match        https://how2guidess.com/*
 // @match        https://go.yorurl.com/*
 // @match        https://v0-phantomfluxkey.vercel.app/*
@@ -33,6 +37,9 @@
 // @match        https://go.caslinks.com/*
 // @match        https://gplinks.co/*
 // @match        https://powergam.online/*
+// @match        https://4br.me/*
+// @match        https://short-jambo.com/*
+// @match        https://short-jambo.ink/*
 // @match        https://sub4unlock.co/*
 // @match        https://app.khaddavi.net/*
 // @match        https://sfl.gl/ready/go*
@@ -56,12 +63,19 @@
     'use strict';
 
     // ╔══════════════════════════════════════════════════════════════════════╗
-    // ║                     ★  USER CONFIGURATION  ★                         ║
-    // ║  Easy to edit — no coding knowledge required!                        ║
-    // ║  Change values between the quotes or true/false as described.        ║
+    // ║                     ★  USER CONFIGURATION  ★                       ║
+    // ║  Easy to edit — no coding knowledge required!                       ║
+    // ║  Change values between the quotes or true/false as described.       ║
     // ╚══════════════════════════════════════════════════════════════════════╝
 
     const CONFIG = {
+
+        // ── Auto-Solve Captcha ─────────────────────────────────────────────
+        // When true,  Cloudflare Turnstile captchas are solved automatically.
+        // When false, captcha pages are left for you to solve manually;
+        //             the /links/go step (which has NO captcha) is still
+        //             automated regardless of this setting.
+        autoCaptcha: true,
 
         // ── Notification Position ──────────────────────────────────────────
         // Where toasts appear on screen. Options:
@@ -106,10 +120,11 @@
         // Add new safelink domains here if needed (comma-separated strings).
         cfAllowedRefs: [
             'airflowscript.com', 'dl.surf', 'tpi.li', 'lnbz.la',
-            'go.yorurl.com', 'go.caslinks.com', 'mtc1.',
+            'go.yorurl.com', 'go.caslinks.com', 'highlocus.shop', 'mtc1.',
             'shrtslug.biz', 'biovetro.net', 'technons.com',
             'tournguide.com', 'dailyjobposting.xyz', 'stfly.biz',
-            'gplinks.co',
+            'gplinks.co', '4br.me',
+            'short-jambo.com', 'short-jambo.ink',
         ],
     };
 
@@ -404,7 +419,6 @@
     function notify(message, type = 'info', duration, opts = {}) {
         const dur = duration === undefined ? CONFIG.notifDuration : duration;
 
-        // If the DOM isn't ready yet, defer and return a proxy handle.
         if (!document.body) {
             const h = { update: () => {}, remove: () => {} };
             document.addEventListener('DOMContentLoaded', () => {
@@ -440,7 +454,6 @@
         msgEl.textContent = message;
         bodyEl.appendChild(msgEl);
 
-        // Footer row: site label + elapsed time.
         const footerEl = document.createElement('div');
         footerEl.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-top:4px;gap:8px';
 
@@ -507,7 +520,6 @@
             </div>`;
         mountCard(card);
 
-        // Use local refs to avoid static-ID collisions when multiple countdowns run.
         const numEl = card.querySelector('.__ulb_cn');
         const barEl = card.querySelector('.__ulb_cb');
         const subEl = card.querySelector('.__ulb_cs');
@@ -611,7 +623,6 @@
         return new Promise((resolve, reject) => {
             const cbName = '__ulb_tsCb_' + generateId();
 
-            // Full-screen overlay that beats every z-index war.
             const overlay = document.createElement('div');
             overlay.id = '__ulb_ts_overlay';
             overlay.style.cssText = [
@@ -633,7 +644,6 @@
                 'min-width:340px', 'max-width:calc(100vw - 48px)', 'position:relative',
             ].join(';');
 
-            // Spinner ring.
             const spinWrap = document.createElement('div');
             spinWrap.style.cssText = 'position:relative;width:48px;height:48px;flex-shrink:0';
             const spinRing = document.createElement('div');
@@ -649,7 +659,6 @@
             spinIcon.textContent = '🔐';
             spinWrap.append(spinRing, spinIcon);
 
-            // Text block.
             const textWrap = document.createElement('div');
             textWrap.style.cssText = 'text-align:center';
             const heading = document.createElement('div');
@@ -661,14 +670,12 @@
             sub.textContent = 'Please complete the challenge below if it appears…';
             textWrap.append(heading, sub);
 
-            // The actual Turnstile widget div.
             const widgetDiv = document.createElement('div');
             widgetDiv.setAttribute('data-sitekey', sitekey);
             widgetDiv.setAttribute('data-callback', cbName);
             widgetDiv.setAttribute('data-theme', 'dark');
             widgetDiv.style.cssText = 'border-radius:8px;overflow:hidden';
 
-            // Footer attribution.
             const footer = document.createElement('div');
             footer.style.cssText = 'font-size:10px;color:#334155;letter-spacing:1.2px;text-transform:uppercase;margin-top:4px';
             footer.textContent = 'Unknown Link Bypasser · @Aro Moon';
@@ -684,7 +691,6 @@
             if (document.body) mountOverlay();
             else document.addEventListener('DOMContentLoaded', mountOverlay, { once: true });
 
-            // Auto-click the iframe checkbox if the widget renders one.
             const autoClickObs = new MutationObserver(() => {
                 overlay.querySelectorAll('iframe').forEach(fr => {
                     try {
@@ -695,7 +701,6 @@
             });
             autoClickObs.observe(overlay, { childList: true, subtree: true });
 
-            // Cleanup and 60s timeout.
             const timeout = setTimeout(() => {
                 cleanup();
                 reject(new Error('[ULB/Turnstile] timed out after 60s'));
@@ -718,7 +723,6 @@
             };
             unsafeWindow[cbName] = onToken;
 
-            // Attempt to use the page's existing Turnstile API, otherwise inject it.
             const tryRenderApi = () => {
                 const ts = unsafeWindow.turnstile;
                 if (!ts?.render) return false;
@@ -743,7 +747,6 @@
     }
 
     // ── Cloudflare Challenge Frame Hook ────────────────────────────────────
-    // Runs inside the challenge iframe to auto-tick the verify checkbox.
 
     function _runCfHook() {
         const spoofEvt = (e, props) => new Proxy(e, { get: (t, p) => p in props ? props[p] : t[p] });
@@ -806,10 +809,8 @@
 
     /**
      * Create a standard error handler bound to a notification handle.
-     * Logs to the console, updates (or creates) a toast, and schedules removal.
-     *
      * @param {string}      siteLabel
-     * @param {object|null} nh          Notify handle, or null to fire a new toast.
+     * @param {object|null} nh
      * @param {number}      [msClose=6000]
      * @returns {(label: string, err: Error|null) => void}
      */
@@ -828,14 +829,11 @@
 
     /**
      * Validate url and redirect, updating the notification handle in the process.
-     * Returns false (and shows an error) if the URL is missing or unsafe.
-     *
+     * Always shows a manual-redirect button card so users on mobile (or sites
+     * that block location.href) always have a tap target to follow.
      * @param {string}      url
      * @param {object|null} nh
      * @param {object}      [opts]
-     * @param {object}      [opts.t]         makeTimer() result — adds elapsed time.
-     * @param {string}      [opts.siteLabel]
-     * @param {boolean}     [opts.autoDismiss=CONFIG.autoDismissOnRedirect]
      * @returns {boolean}
      */
     function safeRedirect(url, nh, opts = {}) {
@@ -858,11 +856,13 @@
             nh.update('Redirecting…', 'success', extra);
             setTimeout(() => nh.remove(), autoDismiss ? 500 : 2000);
         }
+        // Always show a manual redirect card so mobile users have a fallback tap target
+        showRedirectNotif(url);
         location.href = url;
         return true;
     }
 
-    // ── lnbz.la / yorurl shared app_vars helpers ───────────────────────────
+    // ── lnbz / app_vars helpers ────────────────────────────────────────────
 
     /** Try to read the page's `app_vars` object from the window or inline scripts. */
     function _lnbzGetAppVars() {
@@ -882,8 +882,6 @@
         const v = _lnbzGetAppVars();
         if (v) { cb(v); return; }
 
-        // Guard: cb must be called exactly once even if the observer and the
-        // timeout both fire in quick succession.
         let done = false;
         const safeCb = val => { if (!done) { done = true; cb(val); } };
 
@@ -897,103 +895,156 @@
         setTimeout(() => { obs.disconnect(); safeCb(_lnbzGetAppVars()); }, timeoutMs);
     }
 
-    /**
-     * Handle a captcha-gated lnbz-style page: solve Turnstile then POST the form.
-     */
-    function _lnbzCaptchaPage(form) {
-        const t  = makeTimer();
-        const nh = notify('Solving captcha…', 'loading', 0);
-        const handleError = makeErrHandler('captcha', nh, 7000);
+    /** Promise wrapper for _lnbzWaitForAppVars */
+    function _lnbzWaitForAppVarsAsync(timeoutMs = 8000) {
+        return new Promise(resolve => _lnbzWaitForAppVars(resolve, timeoutMs));
+    }
 
-        const submitWithToken = token => {
+    /**
+     * Generic /links/go bypasser for encurta.net-system sites.
+     *
+     * Handles two-page flow automatically:
+     *   PAGE A (captcha)  — form without ad_form_data → solve Turnstile → submit
+     *   PAGE B (go-link)  — [name="ad_form_data"] present →
+     *                        read countdown from app_vars.counter_value →
+     *                        wait → POST /links/go → redirect
+     *
+     * Sites: lnbz.la, 4br.me, go.yorurl.com, go.caslinks.com,
+     *        short-jambo.com, short-jambo.ink
+     *
+     * @param {string}      siteLabel      Display name shown in notifications
+     * @param {string|null} captchaSiteKey Known Turnstile sitekey (null = auto-detect)
+     */
+    function _runLinksGoBypasser(siteLabel, captchaSiteKey) {
+        const t  = makeTimer();
+        const nh = notify(`${siteLabel} — detecting page…`, 'loading', 0, { site: siteLabel });
+
+        const handleError = (label, err) => {
+            console.error(`[ULB/${siteLabel}] ${label}`, err);
+            nh.update(`${siteLabel}: ${label}${err?.message ? ` — ${err.message}` : ''}`, 'error');
+            setTimeout(() => nh.remove(), 7000);
+        };
+
+        // ── PAGE B: POST /links/go ─────────────────────────────────────────
+        const doGoFetch = async (adEl) => {
+            nh.update(`${siteLabel} — fetching destination…`, 'loading', { site: siteLabel });
+            try {
+                const form = adEl.closest('form') || document.querySelector('#go-link') || document.querySelector('form');
+                let body;
+                if (form) {
+                    const params = new URLSearchParams();
+                    form.querySelectorAll('input[type="hidden"]').forEach(inp => {
+                        if (inp.name) params.append(inp.name, inp.value);
+                    });
+                    if (!params.has('_method')) params.set('_method', 'POST');
+                    body = params.toString();
+                } else {
+                    body = '_method=POST&ad_form_data=' + encodeURIComponent(adEl.value);
+                }
+
+                const r = await fetch('/links/go', {
+                    method:      'POST',
+                    headers:     {
+                        'Content-Type':     'application/x-www-form-urlencoded; charset=UTF-8',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept':           'application/json, text/javascript, */*; q=0.01',
+                    },
+                    credentials: 'include',
+                    body,
+                });
+                if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                let d;
+                try { d = await r.json(); } catch { throw new Error('Response was not valid JSON'); }
+                const dest = d.url || d.data;
+                if (!dest) throw new Error('No destination URL in server response');
+                safeRedirect(dest, nh, { t, siteLabel });
+            } catch (err) { handleError('go-link POST failed', err); }
+        };
+
+        const runGoPage = (adEl) => {
+            nh.update(`${siteLabel} — reading countdown…`, 'loading', { site: siteLabel });
+            _lnbzWaitForAppVars(vars => {
+                const secs = Math.max(1, parseInt(vars?.counter_value, 10) || 15);
+                nh.update(`${siteLabel} — redirecting in ${secs}s…`, 'loading', { site: siteLabel });
+                showCountdown(secs, () => doGoFetch(adEl), `${siteLabel} bypass`);
+            });
+        };
+
+        // ── PAGE A: Captcha form ───────────────────────────────────────────
+        const runCaptchaPage = async (form) => {
+            if (!CONFIG.autoCaptcha) {
+                nh.update(`${siteLabel} — solve captcha manually to continue…`, 'info', 0, { site: siteLabel });
+                return;
+            }
+
+            nh.update(`${siteLabel} — solving captcha…`, 'loading', { site: siteLabel });
+
+            let sitekey = captchaSiteKey;
+            if (!sitekey) {
+                const vars = await _lnbzWaitForAppVarsAsync(5000);
+                sitekey = vars?.turnstile_site_key || getSiteKey();
+            }
+            if (!sitekey) { handleError('could not find Turnstile sitekey', null); return; }
+
+            let token;
+            try { token = await solveTurnstile(sitekey); }
+            catch (e) { handleError('Turnstile solve failed', e); return; }
+
             let input = form.querySelector('[name="cf-turnstile-response"]');
             if (!input) {
                 input = Object.assign(document.createElement('input'), { type: 'hidden', name: 'cf-turnstile-response' });
                 form.appendChild(input);
             }
             input.value = token;
-            nh.update('Captcha solved — submitting…', 'success', { time: t.elapsed() + 's' });
-            setTimeout(() => nh.remove(), 1500);
-            HTMLFormElement.prototype.submit.call(form);
-        };
 
-        _lnbzWaitForAppVars(vars => {
-            const sitekey = vars?.turnstile_site_key || getSiteKey();
-            if (sitekey) {
-                solveTurnstile(sitekey).then(submitWithToken).catch(err => handleError('solver failed', err));
-            } else {
-                nh.update('Waiting for captcha…', 'loading');
-                let elapsed = 0;
-                const iv = setInterval(() => {
-                    const c = form.querySelector('[name="cf-turnstile-response"]')?.value;
-                    if (c && c.length > 20) { clearInterval(iv); submitWithToken(c); return; }
-                    if ((elapsed += 500) >= 60_000) { clearInterval(iv); handleError('timed out after 60s', null); }
-                }, 500);
+            const widgetInput = document.getElementById('cf-chl-widget-qg0yr_response')
+                             || document.querySelector('.cf-turnstile [name$="_response"]');
+            if (widgetInput && widgetInput !== input) widgetInput.value = token;
+
+            const submitBtn = document.getElementById('invisibleCaptchaShortlink')
+                           || form.querySelector('button[type="submit"][disabled], input[type="submit"][disabled]');
+            if (submitBtn) submitBtn.disabled = false;
+
+            nh.update(`${siteLabel} — submitting…`, 'loading', { site: siteLabel });
+
+            // Use requestSubmit() when available (spec-correct, avoids "Illegal invocation"
+            // errors in sandboxed Tampermonkey contexts). Fall back to the prototype call
+            // only if requestSubmit is absent (very old browsers).
+            try {
+                if (typeof form.requestSubmit === 'function') {
+                    form.requestSubmit();
+                } else {
+                    HTMLFormElement.prototype.submit.call(form);
+                }
+            } catch (e) {
+                console.warn('[ULB/lnbz] form submit failed, trying click fallback:', e);
+                const btn2 = form.querySelector('button[type="submit"], input[type="submit"]');
+                if (btn2) btn2.click();
             }
-        });
-    }
-
-    /**
-     * Shared logic for go.yorurl.com / go.caslinks.com (and similar lnbz-derivative sites).
-     * Detects whether we're on an ad-countdown page or a captcha page, then handles both.
-     */
-    function _runYorurlLikeBypasser(siteLabel) {
-        const doGoPage = form => {
-            const t  = makeTimer();
-            const nh = notify(`${siteLabel} — reading countdown…`, 'loading', 0, { site: siteLabel });
-            const handleError = makeErrHandler(siteLabel, nh, 7000);
-
-            const doFetch = async () => {
-                nh.update(`${siteLabel} — fetching destination…`, 'loading', { site: siteLabel });
-                try {
-                    const params = new URLSearchParams();
-                    form.querySelectorAll('input[type="hidden"]').forEach(inp => params.append(inp.name, inp.value));
-                    const r = await fetch('/links/go', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-                            'X-Requested-With': 'XMLHttpRequest',
-                            Accept: 'application/json, text/javascript, */*; q=0.01',
-                        },
-                        credentials: 'include',
-                        body: params.toString(),
-                    });
-                    if (!r.ok) throw new Error(`Server returned HTTP ${r.status}`);
-                    let d;
-                    try { d = await r.json(); } catch { throw new Error('Response was not valid JSON'); }
-                    if (!d.url) throw new Error('No destination URL in server response');
-                    safeRedirect(d.url, nh, { t, siteLabel });
-                } catch (err) { handleError('fetch failed', err); }
-            };
-
-            _lnbzWaitForAppVars(vars => {
-                const secs = Math.max(1, parseInt(vars?.counter_value, 10) || 15);
-                nh.update(`${siteLabel} — redirecting in ${secs}s…`, 'loading', { site: siteLabel });
-                showCountdown(secs, doFetch, `${siteLabel} bypass`);
-            });
         };
 
+        // ── Detection ─────────────────────────────────────────────────────
         const detect = () => {
             const adEl = document.querySelector('[name="ad_form_data"]');
-            if (adEl) { doGoPage(adEl.closest('form') || document.querySelector('form')); return; }
-            const form = document.querySelector('form');
-            if (form) { _lnbzCaptchaPage(form); return; }
-            const obs = new MutationObserver(() => {
-                const adEl2 = document.querySelector('[name="ad_form_data"]');
-                const form2 = document.querySelector('form');
-                if (adEl2 || form2) {
-                    obs.disconnect();
-                    adEl2 ? doGoPage(adEl2.closest('form') || form2) : _lnbzCaptchaPage(form2);
-                }
-            });
-            obs.observe(document.documentElement, { childList: true, subtree: true });
-            setTimeout(() => {
-                obs.disconnect();
-                if (!document.querySelector('[name="ad_form_data"]') && !document.querySelector('form'))
-                    notify(`${siteLabel}: no form found — unsupported layout.`, 'error', 6000, { site: siteLabel });
-            }, 15_000);
+            if (adEl) { runGoPage(adEl); return true; }
+            const form = document.getElementById('link-view') || document.querySelector('form');
+            if (form) { runCaptchaPage(form); return true; }
+            return false;
         };
-        onReady(detect);
+
+        const init = () => {
+            if (detect()) return;
+            let tries = 0;
+            const iv = setInterval(() => {
+                if (detect()) { clearInterval(iv); return; }
+                if (++tries > 200) {
+                    clearInterval(iv);
+                    handleError('page structure not recognised after 20s', null);
+                }
+            }, 100);
+        };
+
+        onReady(init);
     }
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -1012,35 +1063,46 @@
         else if (host.includes('reshortfly.com'))           runReshortflyBypasser();
         else if (host.includes('avnsgames.com'))            runAvnsGamesInterstitial();
         else if (host.includes('lnbz.la'))                  runLnbzLaBypasser();
-        else if (host.includes('bloxscript.live'))          runBloxscriptBypasser();
-        else if (host.includes('jankariweb'))               runJoberBypasser();
+        else if (host.includes('bloxscript.live'))          runBloxscriptScamWarning();
+        else if (
+            host.includes('jankariweb')          ||
+            host.includes('newsuchnaonline.com') ||
+            host.includes('bigcarinsurance.com')
+        )                                                   runJoberBypasser();
         else if (host.includes('how2guidess.com'))          runHow2GuidesBypasser();
         else if (host.includes('go.yorurl.com'))            runYorurlBypasser();
-        else if (host.includes('go.caslinks.com'))          runCasLinksBypasser();
+        else if (
+            host.includes('go.caslinks.com') ||
+            host.includes('highlocus.shop')
+        )                                                   runCasLinksBypasser();
         else if (host.includes('gplinks.co'))               runGpLinksBypasser();
         else if (host.includes('powergam.online'))          runPowergamBypasser();
-        else if (host.includes('rojgarhindi.in'))            runRojgarhindiBypasser();
+        else if (host.includes('4br.me'))                   run4BrMeBypasser();
+        else if (host.includes('rojgarhindi.in'))           runRojgarhindiBypasser();
         else if (host.includes('v0-phantomfluxkey.vercel.app')) runPhantomFluxKeyBypasser();
         else if (host.includes('link-unlock.com'))          runLinkUnlockBypasser();
         else if (host.includes('link4sub.com'))             runLink4SubBypasser();
         else if (host.includes('tapvietcode.com'))          runTapVietCodeBypasser();
-        else if (TPI_HOSTS.some(h => host.includes(h)))    runTpiLiBypasser();
-        else if (FORM_HOSTS.some(h => host.includes(h)))   runFormBypasser();
-        else if (host.includes('sub4unlock.co'))             runSub4UnlockBypasser();
-        else if (host.includes('app.khaddavi.net'))          runKhaddaviBypasser();
-        else if (host.includes('sfl.gl'))                    runSflGlBypasser();
-        else if (host.includes('ytsubme.com'))               runYtSubMeBypasser();
-        else if (host.includes('aylink.co'))                 runAylinkBypasser();
+        else if (host.includes('short-jambo.ink'))          runShortJamboInkBypasser();
+        else if (host.includes('short-jambo.com'))          runShortJamboDotComBypasser();
+        else if (/fastcars\d*\.com/.test(host))             runFastcarsBypasser();
+        else if (host.includes('sub4unlock.co'))            runSub4UnlockBypasser();
+        else if (host.includes('app.khaddavi.net'))         runKhaddaviBypasser();
+        else if (host.includes('sfl.gl'))                   runSflGlBypasser();
+        else if (host.includes('ytsubme.com'))              runYtSubMeBypasser();
+        else if (host.includes('aylink.co'))                runAylinkBypasser();
         else if (host.includes('hehehub-acsu123.pythonanywhere.com') && /[?&]hwid=[\w.]+/.test(location.search))
-                                                             runHehehubSkipper();
-        else if (host.includes('getpolsec.com'))             runGetPolSecBypasser();
+                                                            runHehehubSkipper();
+        else if (host.includes('getpolsec.com'))            runGetPolSecBypasser();
         else if (
             host.includes('biplabtewary.com')   ||
             host.includes('mwgamesyt.com.br')   ||
             host.includes('topjogosvip.online') ||
             host.includes('legacyagency.com.br')
-        )                                                    runButtonFinderBypasser();
-        else                                                 runSafelinkBypasser();
+        )                                                   runButtonFinderBypasser();
+        else if (TPI_HOSTS.some(h => host.includes(h)))    runTpiLiBypasser();
+        else if (FORM_HOSTS.some(h => host.includes(h)))   runFormBypasser();
+        else                                                runSafelinkBypasser();
     } catch (routerErr) {
         console.error('[ULB] Uncaught router error:', routerErr);
         notify(`ULB: unexpected error — ${routerErr.message}`, 'error', 8000);
@@ -1064,7 +1126,6 @@
         const DL_KEY = '0x4AAAAAABbfHaaMuK4MmNeI';
         const slug   = location.pathname.split('/').filter(Boolean).pop();
 
-        // dl.surf-specific fetchJSON: validates the .status field and unwraps .data.
         const dlFetch = async (url, opts) => {
             const r = await fetch(url, opts);
             if (!r.ok) throw new Error(`HTTP ${r.status}`);
@@ -1125,7 +1186,6 @@
             setTimeout(() => { clearInterval(injectIv); if (!btn.isConnected) injectBtn(); }, 15_000);
         }
 
-        // Watch for SPA navigation (dl.surf is a SPA).
         const hrefCheck = () => { if (location.href !== lastHref) { lastHref = location.href; startInjecting(); } };
         new MutationObserver(hrefCheck).observe(document.querySelector('title') || document.head, { childList: true, subtree: true });
         setInterval(hrefCheck, 500);
@@ -1303,7 +1363,6 @@
         let scheduled = false;
         const t = makeTimer();
 
-        // Ad-blocking setup, isolated to an IIFE so cleanAds is properly scoped.
         const _cleanAds = CONFIG.blockAds ? (() => {
             const AD_SEL = [
                 'iframe[src*="doubleclick"]', 'iframe[src*="googlesyndication"]', 'iframe[src*="adservice"]',
@@ -1330,7 +1389,6 @@
             Element.prototype.appendChild  = function (c) { return isAd(c) ? c : _ac.call(this, c); };
             Element.prototype.insertBefore = function (n, r) { return isAd(n) ? n : _ib.call(this, n, r); };
 
-            // Stub out ad globals so inline ad scripts don't throw.
             window.googletag  = { cmd: { push: () => {} }, defineSlot: () => ({ addService: () => ({}) }), pubads: () => ({}), enableServices: () => {}, display: () => {} };
             window.adsbygoogle = { push: () => {} };
 
@@ -1400,7 +1458,6 @@
     // ── form-based bypasser ────────────────────────────────────────────────
 
     function runFormBypasser() {
-        // Stub out the anti-bot selector check the page uses.
         const _qs = Document.prototype.querySelector;
         Document.prototype.querySelector = function (sel) {
             if (typeof sel === 'string' && sel.includes('eecdbd')) return this.createElement('div');
@@ -1508,8 +1565,11 @@
         };
 
         onReady(() => {
-            nh.update(`${SITE} — redirecting in 7s…`, 'loading', { site: SITE });
-            showCountdown(7, doFetch, 'reshortfly bypass');
+            _lnbzWaitForAppVars(vars => {
+                const secs = Math.max(1, parseInt(vars?.counter_value, 10) || 7);
+                nh.update(`${SITE} — redirecting in ${secs}s…`, 'loading', { site: SITE });
+                showCountdown(secs, doFetch, 'reshortfly bypass');
+            }, 5000);
         });
     }
 
@@ -1541,99 +1601,317 @@
         onReady(init);
     }
 
-    // ── lnbz.la ────────────────────────────────────────────────────────────
+    // ── lnbz.la / go.yorurl.com / go.caslinks.com / highlocus.shop ─────────
+    // Powered by the shared _runLinksGoBypasser helper
 
-    function runLnbzLaBypasser() {
-        const detect = () => {
-            const adEl = document.querySelector('[name="ad_form_data"]');
-            if (adEl) { _lnbzGoPage(adEl); return; }
-            const form = document.querySelector('form');
-            if (form) { _lnbzCaptchaPage(form); return; }
-            const obs = new MutationObserver(() => {
-                const adEl2 = document.querySelector('[name="ad_form_data"]');
-                const form2 = document.querySelector('form');
-                if (adEl2 || form2) { obs.disconnect(); adEl2 ? _lnbzGoPage(adEl2) : _lnbzCaptchaPage(form2); }
-            });
-            obs.observe(document.documentElement, { childList: true, subtree: true });
-        };
-        onReady(detect);
+    function runLnbzLaBypasser()   { _runLinksGoBypasser('lnbz.la',         null); }
+    function runYorurlBypasser()   { _runLinksGoBypasser('go.yorurl.com',   null); }
+    function runCasLinksBypasser() { _runLinksGoBypasser(host,              null); }
+
+    // ── 4br.me ─────────────────────────────────────────────────────────────
+
+    function run4BrMeBypasser() {
+        _runLinksGoBypasser('4br.me', '0x4AAAAAAA9NLL_co1eXbypf');
     }
 
-    function _lnbzGoPage(adFormDataEl) {
-        const FALLBACK_SECS = 15;
-        const SITE = 'lnbz.la';
-        const t    = makeTimer();
-        const nh   = notify(`${SITE} — reading countdown…`, 'loading', 0, { site: SITE });
-        const handleError = makeErrHandler(SITE, nh, 7000);
+    // ── short-jambo.com ────────────────────────────────────────────────────
+    // Intermediate shortlink; same encurta.net system as 4br/lnbz.
+    // Redirects through to fastcars*.com after bypass.
 
-        const doFetch = async () => {
-            nh.update(`${SITE} — fetching destination…`, 'loading', { site: SITE });
-            try {
-                const r = await fetch('/links/go', {
-                    method: 'POST',
-                    headers: { 'content-type': 'application/x-www-form-urlencoded; charset=UTF-8', 'x-requested-with': 'XMLHttpRequest' },
-                    body: '_method=POST&ad_form_data=' + encodeURIComponent(adFormDataEl.value),
-                });
-                if (!r.ok) throw new Error(`Server returned HTTP ${r.status}`);
-                let d;
-                try { d = await r.json(); } catch { throw new Error('Response was not valid JSON'); }
-                if (!d.url) throw new Error('No destination URL in server response');
-                safeRedirect(d.url, nh, { t, siteLabel: SITE });
-            } catch (err) { handleError('fetch failed', err); }
-        };
-
-        _lnbzWaitForAppVars(vars => {
-            const secs = Math.max(1, parseInt(vars?.counter_value, 10) || FALLBACK_SECS);
-            nh.update(`${SITE} — redirecting in ${secs}s…`, 'loading', { site: SITE });
-            showCountdown(secs, doFetch, `${SITE} bypass`);
-        });
+    function runShortJamboDotComBypasser() {
+        _runLinksGoBypasser('short-jambo.com', null);
     }
 
-    // ── bloxscript.live ────────────────────────────────────────────────────
+    // ── short-jambo.ink ────────────────────────────────────────────────────
+    // Final go-link page in the short-jambo chain (after fastcars).
 
-    function runBloxscriptBypasser() {
-        const SITE = 'bloxscript.live';
-        const t    = makeTimer();
-        const nh   = notify(`${SITE} — waiting for key generator…`, 'loading', 0, { site: SITE });
+    function runShortJamboInkBypasser() {
+        _runLinksGoBypasser('short-jambo.ink', null);
+    }
 
-        const tryGenerate = () => {
-            const keyEl = document.getElementById('keyValue');
-            const gen   = unsafeWindow.generateKey;
-            if (!keyEl || typeof gen !== 'function') return false;
+    // ── fastcars*.com ──────────────────────────────────────────────────────
+    // Intermediate page in the short-jambo chain.
+    // Scrolls down (via yuideascrolldown) then follows the #yuidea-btmbtn href.
+
+    function runFastcarsBypasser() {
+        const siteLabel = host;
+        const t  = makeTimer();
+        const nh = notify(`${siteLabel} — waiting for continue button…`, 'loading', 0, { site: siteLabel });
+
+        const tryBypass = () => {
+            const btn = document.getElementById('yuidea-btmbtn');
+            if (!btn?.href) return false;
+
             try {
-                const key = gen();
-                keyEl.textContent = key;
-                copyToClipboard(key)
-                    .then(() => {
-                        nh.update('Key generated and copied to clipboard!', 'success', { site: SITE, time: t.elapsed() + 's' });
-                        setTimeout(() => nh.remove(), 4000);
-                    })
-                    .catch(() => {
-                        nh.update(`Key generated: ${key} (copy failed — paste manually)`, 'warn', { site: SITE });
-                        setTimeout(() => nh.remove(), 8000);
-                    });
-            } catch (err) {
-                console.error('[ULB/bloxscript]', err);
-                nh.update(`bloxscript error: ${err.message}`, 'error');
-                setTimeout(() => nh.remove(), 6000);
-            }
+                if (typeof unsafeWindow.yuideascrolldown === 'function')
+                    unsafeWindow.yuideascrolldown();
+            } catch (_) {}
+
+            safeRedirect(btn.href, nh, { t, siteLabel });
             return true;
         };
 
         const init = () => {
-            pollUntil(tryGenerate, 200, 100).catch(() => {
-                nh.update(`${SITE}: key generator not found — unsupported layout.`, 'error');
-                setTimeout(() => nh.remove(), 6000);
-            });
+            if (tryBypass()) return;
+            let tries = 0;
+            const iv = setInterval(() => {
+                if (tryBypass() || ++tries > 300) {
+                    clearInterval(iv);
+                    if (tries > 300) {
+                        nh.update(`${siteLabel}: #yuidea-btmbtn not found — unsupported layout.`, 'error');
+                        setTimeout(() => nh.remove(), 6000);
+                    }
+                }
+            }, 100);
         };
         onReady(init);
     }
 
-    // ── jankariweb ─────────────────────────────────────────────────────────
+    // ── Scam Warning Utility ───────────────────────────────────────────────
+    //
+    // showScamWarning(opts) — reusable full-page scam overlay.
+    //
+    // opts = {
+    //   site      {string}   Display name of the scam site.           (required)
+    //   reason    {string}   Short reason headline, e.g.
+    //                        "This site steals your Discord token."    (required)
+    //   details   {string}   Longer explanation shown in the body box. (optional)
+    //   actionUrl {string}   URL for the primary action button.        (optional)
+    //   actionLabel{string}  Label for that button.                    (optional)
+    //   logTag    {string}   Console prefix for blocked-request logs.  (optional)
+    // }
+    //
+    // Usage examples:
+    //
+    //   showScamWarning({
+    //       site:        'bloxscript.live',
+    //       reason:      'This site steals your Discord token.',
+    //       details:     'Attackers get full access to your account, DMs, servers and Nitro. '
+    //                  + 'Change your Discord password immediately if you have interacted with this site.',
+    //       actionUrl:   'https://discord.com/login',
+    //       actionLabel: '🔒 Change My Discord Password',
+    //   });
+    //
+    //   showScamWarning({
+    //       site:        'evil-keygen.xyz',
+    //       reason:      'This site distributes malware disguised as a key generator.',
+    //       details:     'Do not download or run any files from this page.',
+    //   });
+
+    /**
+     * Kill all fetch / XHR on the page and show a polished full-screen scam warning.
+     *
+     * @param {object} opts
+     * @param {string}  opts.site         Domain / display name of the scam site.
+     * @param {string}  opts.reason       One-line headline reason (shown in red box).
+     * @param {string}  [opts.details]    Extended explanation paragraph.
+     * @param {string}  [opts.actionUrl]  URL for the primary CTA button.
+     * @param {string}  [opts.actionLabel] Label for the primary CTA button.
+     * @param {string}  [opts.logTag]     Tag used in console.warn for blocked requests.
+     */
+    function showScamWarning(opts) {
+        const {
+            site        = location.hostname,
+            reason      = 'This site has been flagged as malicious.',
+            details     = '',
+            actionUrl   = '',
+            actionLabel = '🔒 Take Action',
+            logTag      = site,
+        } = opts;
+
+        // ── 1. Kill all outbound network requests ────────────────────────
+        try {
+            unsafeWindow.fetch = () => Promise.reject(new Error('[ULB] blocked by scam warning'));
+        } catch (_) {}
+        try {
+            unsafeWindow.XMLHttpRequest.prototype.open = function () {
+                console.warn(`[ULB/${logTag}] XHR blocked by scam warning`);
+            };
+        } catch (_) {}
+
+        // ── 2. Mount overlay ─────────────────────────────────────────────
+        const mount = () => {
+            // Strip any inline scripts the page already queued
+            document.querySelectorAll('script:not([src])').forEach(s => s.remove());
+
+            // Inject keyframe animation for the pulsing glow
+            if (!document.getElementById('__ulb_scam_style')) {
+                const st = Object.assign(document.createElement('style'), {
+                    id: '__ulb_scam_style',
+                    textContent: `
+                        @keyframes __ulb_scam_pulse {
+                            0%,100% { box-shadow: 0 0 48px rgba(239,68,68,.40), 0 0 96px rgba(239,68,68,.12); }
+                            50%     { box-shadow: 0 0 72px rgba(239,68,68,.65), 0 0 144px rgba(239,68,68,.22); }
+                        }
+                        @keyframes __ulb_scam_fade {
+                            from { opacity:0; transform:translateY(18px) scale(.97); }
+                            to   { opacity:1; transform:translateY(0)    scale(1);   }
+                        }
+                        #__ulb_scam_card {
+                            animation: __ulb_scam_fade .35s cubic-bezier(.22,.68,0,1.2) forwards,
+                                       __ulb_scam_pulse 3s ease-in-out 0.4s infinite;
+                        }
+                    `,
+                });
+                (document.head || document.documentElement).appendChild(st);
+            }
+
+            const overlay = Object.assign(document.createElement('div'), { id: '__ulb_scam_overlay' });
+            overlay.style.cssText = [
+                'all:initial',
+                'position:fixed', 'inset:0', 'z-index:2147483647',
+                'background:rgba(4,0,8,.96)',
+                'backdrop-filter:blur(4px)', '-webkit-backdrop-filter:blur(4px)',
+                'display:flex', 'align-items:center', 'justify-content:center',
+                'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif',
+                'padding:20px', 'box-sizing:border-box',
+                'overflow-y:auto',
+            ].join(';');
+
+            // Build card DOM manually (no innerHTML) so CSP can't block us
+            const card = Object.assign(document.createElement('div'), { id: '__ulb_scam_card' });
+            Object.assign(card.style, {
+                maxWidth: '500px', width: '100%',
+                background: 'linear-gradient(160deg,#1c0008 0%,#2a000f 60%,#1a0010 100%)',
+                border: '1.5px solid #ef4444',
+                borderRadius: '20px',
+                padding: '36px 28px 26px',
+                color: '#fff',
+                textAlign: 'center',
+                position: 'relative',
+                opacity: '0',
+            });
+
+            // Icon
+            const icon = Object.assign(document.createElement('div'), { textContent: '⛔' });
+            Object.assign(icon.style, { fontSize: '52px', lineHeight: '1', marginBottom: '14px' });
+
+            // Title
+            const title = Object.assign(document.createElement('div'), { textContent: 'SCAM SITE — DO NOT PROCEED' });
+            Object.assign(title.style, {
+                fontSize: '19px', fontWeight: '800', color: '#ef4444',
+                letterSpacing: '.5px', textTransform: 'uppercase', marginBottom: '6px',
+            });
+
+            // Domain badge
+            const badge = Object.assign(document.createElement('div'), { textContent: site });
+            Object.assign(badge.style, {
+                display: 'inline-block',
+                background: 'rgba(239,68,68,.14)', border: '1px solid rgba(239,68,68,.3)',
+                borderRadius: '999px', padding: '3px 14px',
+                fontSize: '12px', color: '#fca5a5', fontWeight: '600',
+                letterSpacing: '.3px', marginBottom: '18px',
+            });
+
+            // Reason box
+            const reasonBox = document.createElement('div');
+            Object.assign(reasonBox.style, {
+                background: 'rgba(239,68,68,.10)', border: '1px solid rgba(239,68,68,.28)',
+                borderLeft: '3px solid #ef4444',
+                borderRadius: '10px', padding: '13px 16px',
+                marginBottom: '14px', textAlign: 'left',
+                fontSize: '13px', color: '#fca5a5', fontWeight: '700', lineHeight: '1.65',
+            });
+            reasonBox.innerHTML = `🚨 <strong style="color:#fff">${site}</strong> — ${reason}`;
+
+            // Details paragraph
+            let detailsEl = null;
+            if (details) {
+                detailsEl = Object.assign(document.createElement('div'), { textContent: details });
+                Object.assign(detailsEl.style, {
+                    fontSize: '12px', color: '#9ca3af', lineHeight: '1.7',
+                    marginBottom: '20px', textAlign: 'left',
+                    background: 'rgba(255,255,255,.03)', borderRadius: '8px',
+                    padding: '10px 14px',
+                });
+            }
+
+            // Divider
+            const divider = document.createElement('div');
+            Object.assign(divider.style, {
+                borderTop: '1px solid rgba(255,255,255,.07)',
+                margin: '18px 0 16px',
+            });
+
+            // Action button (optional)
+            let actionBtn = null;
+            if (actionUrl) {
+                actionBtn = Object.assign(document.createElement('a'), {
+                    href: actionUrl, target: '_blank', rel: 'noopener noreferrer',
+                    textContent: actionLabel,
+                });
+                Object.assign(actionBtn.style, {
+                    display: 'block',
+                    background: 'linear-gradient(135deg,#5865f2,#4752c4)',
+                    color: '#fff', fontWeight: '700', fontSize: '13px',
+                    textDecoration: 'none', padding: '11px 20px',
+                    borderRadius: '10px', marginBottom: '10px',
+                    boxShadow: '0 2px 14px rgba(88,101,242,.45)',
+                    touchAction: 'manipulation',
+                });
+            }
+
+            // Go-back button
+            const backBtn = Object.assign(document.createElement('button'), {
+                textContent: '← Go Back to Safety',
+            });
+            Object.assign(backBtn.style, {
+                background: 'rgba(255,255,255,.06)', border: '1px solid rgba(255,255,255,.13)',
+                color: '#d1d5db', fontSize: '13px', fontWeight: '600',
+                padding: '10px 22px', borderRadius: '10px', cursor: 'pointer',
+                width: '100%', touchAction: 'manipulation',
+            });
+            backBtn.addEventListener('click', () => history.back());
+
+            // Footer
+            const footer = Object.assign(document.createElement('div'), {
+                textContent: 'Unknown Link Bypasser · @Aro Moon — Scam Protection',
+            });
+            Object.assign(footer.style, {
+                marginTop: '18px', fontSize: '10px', color: '#374151',
+                letterSpacing: '1.1px', textTransform: 'uppercase',
+            });
+
+            // Assemble
+            card.append(icon, title, badge, reasonBox);
+            if (detailsEl) card.appendChild(detailsEl);
+            card.append(divider);
+            if (actionBtn) card.appendChild(actionBtn);
+            card.append(backBtn, footer);
+            overlay.appendChild(card);
+            (document.body || document.documentElement).appendChild(overlay);
+
+            try { document.body.style.overflow = 'hidden'; } catch (_) {}
+
+            console.warn(`[ULB/ScamWarning] Blocked scam site: ${site} — ${reason}`);
+        };
+
+        if (document.body) mount();
+        else document.addEventListener('DOMContentLoaded', mount, { once: true });
+    }
+
+    // ── bloxscript.live — calls the shared utility above ──────────────────
+
+    function runBloxscriptScamWarning() {
+        showScamWarning({
+            site:        'bloxscript.live',
+            reason:      'This site steals your Discord token.',
+            details:     'A Discord token is a permanent credential that bypasses 2FA, giving '
+                       + 'attackers full access to your account, DMs, servers, and Nitro. '
+                       + 'If you have already interacted with this site, change your Discord '
+                       + 'password immediately to invalidate your token.',
+            actionUrl:   'https://discord.com/login',
+            actionLabel: '🔒 Change My Discord Password',
+        });
+    }
+
+    // ── jankariweb / newsuchnaonline / bigcarinsurance ─────────────────────
+    // All three run on the same jober/jankariweb shortlink platform.
 
     function runJoberBypasser() {
-        if (path !== '/') clickWhenReady('btn7', 'jankariweb step 2');
-        else              clickWhenReady('notarobot', 'jankariweb step 1');
+        const SITE = host.replace(/^www\./, '');
+        if (path !== '/') clickWhenReady('btn7', `${SITE} step 2`);
+        else              clickWhenReady('notarobot', `${SITE} step 1`);
     }
 
     // ── how2guidess.com ────────────────────────────────────────────────────
@@ -1670,11 +1948,6 @@
         };
         onReady(run);
     }
-
-    // ── go.yorurl.com / go.caslinks.com ────────────────────────────────────
-
-    function runYorurlBypasser()   { _runYorurlLikeBypasser('go.yorurl.com');  }
-    function runCasLinksBypasser() { _runYorurlLikeBypasser('go.caslinks.com'); }
 
     // ── link-unlock.com ────────────────────────────────────────────────────
 
@@ -1717,7 +1990,6 @@
         const SITE = 'tapvietcode.com';
 
         if (host.includes('blog.tapvietcode.com')) {
-            // Blog subdomain: click the continueBtn when it appears.
             const t  = makeTimer();
             const nh = notify(`${SITE} — waiting for continue button…`, 'loading', 0, { site: SITE });
 
@@ -1727,7 +1999,7 @@
                 if (!btn.href) {
                     nh.update(`${SITE}: continueBtn has no href.`, 'error');
                     setTimeout(() => nh.remove(), 6000);
-                    return true; // stop polling even on soft error
+                    return true;
                 }
                 safeRedirect(btn.href, nh, { t, siteLabel: SITE });
                 return true;
@@ -1742,7 +2014,6 @@
             onReady(init);
 
         } else {
-            // Main domain: read destination from localStorage.
             const t  = makeTimer();
             const nh = notify(`${SITE} — reading destination from storage…`, 'loading', 0, { site: SITE });
 
@@ -1756,7 +2027,7 @@
                             const j = JSON.parse(v);
                             const u = j?.data?.lnk?.lnk1?.url || j?.lnk?.lnk1?.url;
                             if (u) { safeRedirect(u, nh, { t, siteLabel: SITE }); return true; }
-                        } catch (_) { /* malformed entry, skip */ }
+                        } catch (_) {}
                     }
                 } catch (e) { console.error('[ULB/tapvietcode] localStorage read failed', e); }
                 return false;
@@ -1794,7 +2065,6 @@
             try { btn = await waitForEl('#captchaButton', 200, 15_000); }
             catch (e) { handleError('captchaButton not found', e); return; }
 
-            // If the button already has a real href, skip the captcha solve.
             const existingHref = btn.getAttribute('href');
             if (existingHref && existingHref !== '#' && !existingHref.startsWith('javascript')) {
                 safeRedirect(existingHref, nh, { t, siteLabel: SITE });
@@ -1808,7 +2078,6 @@
             try { token = await solveTurnstile(sitekey); }
             catch (e) { handleError('Turnstile solve failed', e); return; }
 
-            // Inject token into the hidden input and fire the page callback.
             let tsInput = document.querySelector('[name="cf-turnstile-response"]');
             if (!tsInput) {
                 tsInput = Object.assign(document.createElement('input'), { type: 'hidden', name: 'cf-turnstile-response' });
@@ -1821,7 +2090,6 @@
                 try { if (typeof unsafeWindow[cbName] === 'function') unsafeWindow[cbName](token); } catch (_) {}
             }
 
-            // Wait for the button href to be populated by the page's own JS.
             nh.update(`${SITE} — waiting for link…`, 'loading', { site: SITE });
             pollUntil(() => {
                 const href = btn.getAttribute('href');
@@ -1846,7 +2114,7 @@
                 .map(c => c.split('=').map(decodeURIComponent))
         );
 
-        const handleError = makeErrHandler(SITE, null, 7000); // no nh — fires new toasts
+        const handleError = makeErrHandler(SITE, null, 7000);
 
         const runSteps = async (cookies, pages, finalURL) => {
             const ref = window.location.origin;
@@ -1943,7 +2211,6 @@
             notify(`${SITE}: ${label}${err?.message ? ` — ${err.message}` : ''}`, 'error', 7000, { site: SITE });
         };
 
-        // ── CAPTCHA PAGE ──────────────────────────────────────────────────
         const runCaptchaPage = async () => {
             const nh = notify(`${SITE} — solving captcha…`, 'loading', 0, { site: SITE });
 
@@ -1971,11 +2238,9 @@
             setTimeout(() => nh.remove(), 3000);
         };
 
-        // ── LINK PAGE ─────────────────────────────────────────────────────
         const runLinkPage = async () => {
             const nh = notify(`${SITE} — fetching token…`, 'loading', 0, { site: SITE });
 
-            // _a, _t, _d are comma-declared; scrape from inline script text.
             const scrapeVar = name => {
                 for (const s of document.querySelectorAll('script:not([src])')) {
                     const m = s.textContent.match(new RegExp(`\\b${name}\\s*=\\s*'([^']+)'`));
@@ -2029,7 +2294,7 @@
 
         const init = () => {
             if (isCaptchaPage()) runCaptchaPage();
-            else setTimeout(runLinkPage, 1000); // give app vars 1s to initialise
+            else setTimeout(runLinkPage, 1000);
         };
         onReady(init);
     }
@@ -2037,7 +2302,6 @@
     // ── ytsubme.com ────────────────────────────────────────────────────────
 
     function runYtSubMeBypasser() {
-        // Intercept the page's own API request rather than duplicating it.
         const SITE = 'ytsubme.com';
         const t    = makeTimer();
 
@@ -2059,7 +2323,6 @@
             location.href = url;
         };
 
-        // Hook fetch.
         const _origFetch = unsafeWindow.fetch;
         unsafeWindow.fetch = function (input, init) {
             const url     = typeof input === 'string' ? input : input?.url;
@@ -2073,7 +2336,6 @@
             return promise;
         };
 
-        // Hook XHR.
         const _OrigXHR = unsafeWindow.XMLHttpRequest;
         function PatchedXHR() {
             const xhr     = new _OrigXHR();
@@ -2105,7 +2367,7 @@
             try {
                 const url = JSON.parse(document.querySelector('#app')?.dataset.page || '{}')?.props?.link?.url;
                 if (url) { safeRedirect(url, nh, { t, siteLabel: SITE }); return true; }
-            } catch (_) { /* not ready yet */ }
+            } catch (_) {}
             return false;
         };
 
@@ -2166,14 +2428,12 @@
 
         const tryRedirect = () => {
             try {
-                // Check inline script text for a window.location.href assignment.
                 for (const s of document.querySelectorAll('script:not([src])')) {
                     const m = s.textContent.match(/window\.location\.href\s*=\s*"([^"]+)"/);
                     if (!m) continue;
                     const url = m[1].replace(/\\\//g, '/');
                     if (safeUrl(url)) { safeRedirect(url, nh, { t, siteLabel: SITE }); return true; }
                 }
-                // Also check the full HTML as a fallback (catches dynamically rendered strings).
                 const m2 = document.documentElement.innerHTML.match(/window\.location\.href\s*=\s*"([^"]+)"/);
                 if (m2) {
                     const url = m2[1].replace(/\\\//g, '/');
@@ -2200,7 +2460,6 @@
         const t    = makeTimer();
         const nh   = notify(`${SITE} — detecting task…`, 'loading', 0, { site: SITE });
 
-        // Read a "current/total" task progress indicator from <font> elements.
         const detectTask = () => {
             for (const el of document.querySelectorAll('font')) {
                 const m = el.textContent.match(/\b(\d+)\s*\/\s*(\d+)\b/);
@@ -2209,7 +2468,6 @@
             return null;
         };
 
-        // Find the first <a href> that wraps a <button>.
         const findHref = () =>
             [...document.querySelectorAll('a[href]')].find(a => a.querySelector('button'))?.href || null;
 
@@ -2246,7 +2504,7 @@
 
         const trySkip = () => {
             const match = (document.body?.innerHTML || '').match(
-                /window\.location\.href\s*=\s*['"`]([^'"`]+)['"`]/
+                /window\.location\.href\s*=\s*['"` + '`' + `]([^'"` + '`' + `]+)['"` + '`' + `]/
             );
             const rawUrl = match?.[1];
             if (!rawUrl) return false;
@@ -2259,7 +2517,7 @@
                 dest = x.toString();
             } catch (e) {
                 handleError('invalid redirect URL', e);
-                return true; // stop polling even on error
+                return true;
             }
 
             if (!safeUrl(dest)) { handleError('decoded URL is unsafe', null); return true; }
@@ -2271,7 +2529,6 @@
             return true;
         };
 
-        // Strip window.open(...,'_blank') from button onclick handlers.
         const stripBlankOpens = () => {
             document.querySelectorAll('button[onclick]').forEach(btn => {
                 const orig    = btn.getAttribute('onclick');
@@ -2285,7 +2542,6 @@
             });
         };
 
-        // Also watch for dynamically added buttons.
         const blankObs = new MutationObserver(stripBlankOpens);
 
         const init = () => {
@@ -2306,7 +2562,6 @@
     // ── getpolsec.com ──────────────────────────────────────────────────────
 
     function runGetPolSecBypasser() {
-        // Only act on /ad/* paths; ignore everything else.
         if (!path.startsWith('/ad/')) return;
 
         const SITE = 'getpolsec.com';
@@ -2348,7 +2603,6 @@
                 const r    = await resp.json();
 
                 if (r?.message?.url) {
-                    // Decode the destination from the API redirect URL's 'r' parameter.
                     let dest;
                     try {
                         dest = atob(new URL(r.message.url).searchParams.get('r'));
@@ -2370,7 +2624,6 @@
             }
         };
 
-        // hCaptcha must be solved by the user — poll until we see a token.
         const runCaptchaWait = nh => {
             nh.update(`${SITE} — solve the hCaptcha to continue…`, 'warn', 0, { site: SITE });
             let tries = 0;
@@ -2382,7 +2635,7 @@
                     runBypass(nh);
                     return;
                 }
-                if (++tries > 600) { // 60 s timeout
+                if (++tries > 600) {
                     clearInterval(iv);
                     handleError('timed out waiting for hCaptcha', null);
                 }
