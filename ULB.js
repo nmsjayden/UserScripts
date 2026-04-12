@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Unknown Link Bypasser
 // @namespace    http://tampermonkey.net/
-// @version      6.7.2
-// @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live(SCAM WARNING) + go.yorurl.com + jankariweb + newsuchnaonline + bigcarinsurance + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + highlocus.shop + gplinks.co + powergam.online + getpolsec.com + hehehub + sub4unlock.co + app.khaddavi.net + sfl.gl + ytsubme.com + aylink.co + biplabtewary.com + mwgamesyt.com.br + topjogosvip.online + legacyagency.com.br + 4br.me + short-jambo.com/ink + fastcars. Made by @Aro Moon
+// @version      6.7.3
+// @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live(SCAM WARNING) + go.yorurl.com + jankariweb + newsuchnaonline + bigcarinsurance + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + highlocus.shop + gplinks.co + powergam.online + getpolsec.com + hehehub + sub4unlock.co + app.khaddavi.net + sfl.gl + ytsubme.com + aylink.co + biplabtewary.com + mwgamesyt.com.br + topjogosvip.online + legacyagency.com.br + 4br.me + short-jambo.com/ink + fastcars + fluorine.s3ren1ty.xyz. Made by @Aro Moon
 // @author       @Aro Moon
 // @include      /^https:\/\/mtc\d+\.[^/]+\.[a-z.]+\//
 // @include      /^https?:\/\/(?:\w+\.)?fastcars\d+\.com\//
@@ -51,6 +51,7 @@
 // @match        https://aylink.co/*
 // @match        https://getpolsec.com/ad/*
 // @match        https://hehehub-acsu123.pythonanywhere.com/api/getkey*
+// @match        https://fluorine.s3ren1ty.xyz/getkey*
 // @grant        GM_addElement
 // @grant        unsafeWindow
 // @connect      challenges.cloudflare.com
@@ -1320,6 +1321,7 @@
         else if(host.includes('aylink.co')) runAylinkBypasser();
         else if(host.includes('hehehub-acsu123.pythonanywhere.com') && /[?&]hwid=[\w.]+/.test(location.search))
             runHehehubSkipper();
+        else if(host.includes('fluorine.s3ren1ty.xyz')) runFluorineBypasser()
         else if(host.includes('getpolsec.com')) runGetPolSecBypasser();
         else if(
             host.includes('biplabtewary.com') ||
@@ -3306,6 +3308,55 @@
             });
         };
         onReady(init);
+    }
+
+    // ── fluorine.s3ren1ty.xyz ──────────────────────────────────────────────
+
+    function runFluorineBypasser() {
+        if(!path.startsWith('/getkey')) return;
+
+        const SITE = 'fluorine.s3ren1ty.xyz';
+        const timer = makeTimer();
+        const nh = notify(`${SITE} — running key checkpoints…`, 'loading', 0, { site: SITE });
+        const handleError = makeErrHandler(SITE, nh, 7000);
+
+        const run = async () => {
+            try {
+                // Reuse an existing session token or mint a new one with random entropy,
+                // then persist it so subsequent visits share the same identity.
+                let token = localStorage.getItem('provider_session');
+                if (!token) {
+                    token = `loot_${Date.now()}_${Math.random().toString(36).substr(2, 16)}`;
+                    localStorage.setItem('provider_session', token);
+                }
+
+                // Hit the two loot verify checkpoints sequentially, as the API requires
+                for (let i = 1; i <= 2; i++) {
+                    nh.update(`${SITE} — checkpoint ${i}/2…`, 'loading', { site: SITE });
+                    await fetch('/api/loot/verify', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ token, checkpoint: i }),
+                    });
+                }
+
+                // Finalise — create the loot entry
+                nh.update(`${SITE} — finalising…`, 'loading', { site: SITE });
+                await fetch('/api/loot/create', { method: 'POST' });
+
+                // Decode optional redirect param, fall back to /generate success page
+                const rParam = new URLSearchParams(location.search).get('r');
+                const dest = rParam ? atob(rParam) : '/generate?suc=x1';
+
+                nh.update(`${SITE} — done in ${timer.elapsed()}s`, 'success', { site: SITE, time: timer.elapsed() + 's' });
+                setTimeout(() => nh.remove(), CONFIG.autoDismissOnRedirect ? 500 : 2000);
+                location.href = dest;
+            } catch (err) {
+                handleError('bypass failed', err);
+            }
+        };
+
+        onReady(run);
     }
 
     // ── hehehub-acsu123.pythonanywhere.com ────────────────────────────────
