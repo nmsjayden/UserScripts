@@ -78,6 +78,10 @@ Bypasses lesser-known ad-link services.
 
 **Currently supports:**
 
+Updated supported list (cleaned + only active/kept entries):
+
+**Currently supports:**
+
 * shortxlinks
 * dl.surf
 * tpi.li
@@ -87,7 +91,26 @@ Bypasses lesser-known ad-link services.
 * subnise
 * reshortfly
 * lnbz.la
-* airflowscript (discord requirement bypass)
+* airflowscript (discord requirement)
+* scriptix.live
+* v0-phantomfluxkey.vercel.app
+* link-unlock.com
+* link4sub.com
+* softurl.in
+* gplinks.co (TY @NickUpdates)
+* 4br.me
+* short-jambo.com
+* biplabtewary.com
+* sfl.gl
+* aylink.co
+* ytsubme.com
+
+## Not Supported / Blocked / Removed
+* link4m.net/go/PeSJilq (spam + brain hurty)
+* rblxscripthub.com/prison/key (too much to do)
+* arolinks.com/k4U8 (not supported)
+- sub2unlock.netlify.app/unlock.html?id=ug5rx6ao?t=1749306458 (unknown / to bypass this, I would need a valid link which I have not received)
+- ouo.press/KBPHH (broken, leads to google.com)
 
 Have suggestions for additional ad-link services? Open an issue!
 
