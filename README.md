@@ -105,11 +105,12 @@ Updated supported list (cleaned + only active/kept entries):
 * ytsubme.com
 
 ## Not Supported / Blocked / Removed
-* link4m.net/go/PeSJilq (spam + brain hurty)
-* rblxscripthub.com/prison/key (too much to do)
-* arolinks.com/k4U8 (not supported)
+- link4m.net (spam + brain hurty)
+- rblxscripthub.com (too much to do)
+- arolinks.com (not supported)
 - sub2unlock.netlify.app/unlock.html?id=ug5rx6ao?t=1749306458 (unknown / to bypass this, I would need a valid link which I have not received)
-- ouo.press/KBPHH (broken, leads to google.com)
+- ouo.press (broken, leads to google.com)
+- scriptix.live (!!DISCORD TOKEN GRABBER!!)
 
 Have suggestions for additional ad-link services? Open an issue!
 
