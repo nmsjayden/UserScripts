@@ -56,9 +56,9 @@
     'use strict';
 
     // ╔══════════════════════════════════════════════════════════════════════╗
-    // ║                     ★  USER CONFIGURATION  ★                       ║
-    // ║  Easy to edit — no coding knowledge required!                       ║
-    // ║  Change values between the quotes or true/false as described.       ║
+    // ║                     ★  USER CONFIGURATION  ★                         ║
+    // ║  Easy to edit — no coding knowledge required!                        ║
+    // ║  Change values between the quotes or true/false as described.        ║
     // ╚══════════════════════════════════════════════════════════════════════╝
 
     const CONFIG = {
