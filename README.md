@@ -103,6 +103,7 @@ Updated supported list (cleaned + only active/kept entries):
 * sfl.gl
 * aylink.co
 * ytsubme.com
+* fluorine.s3ren1ty.xyz
 
 ## Not Supported / Blocked / Removed
 - link4m.net (spam + brain hurty)
