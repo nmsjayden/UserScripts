@@ -92,7 +92,6 @@ Updated supported list (cleaned + only active/kept entries):
 * reshortfly
 * lnbz.la
 * airflowscript (discord requirement)
-* scriptix.live
 * v0-phantomfluxkey.vercel.app
 * link-unlock.com
 * link4sub.com
