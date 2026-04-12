@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Unknown Link Bypasser
 // @namespace    http://tampermonkey.net/
-// @version      6.6.2
-// @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live + go.yorurl.com + jankariweb + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + gplinks.co + powergam.online. Made by @Aro Moon
+// @version      6.6.3
+// @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live + go.yorurl.com + jankariweb + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + gplinks.co + powergam.online + getpolsec.com. Made by @Aro Moon
 // @author       @Aro Moon
 // @include      /^https:\/\/mtc\d+\.[^/]+\.[a-z.]+\//
 // @match        https://dl.surf/f/*
@@ -40,7 +40,9 @@
 // @match        https://mwgamesyt.com.br/*
 // @match        https://topjogosvip.online/*
 // @match        https://legacyagency.com.br/*
+// @match        https://www.ytsubme.com/s2u*
 // @match        https://aylink.co/*
+// @match        https://getpolsec.com/ad/*
 // @grant        GM_addElement
 // @grant        unsafeWindow
 // @connect      challenges.cloudflare.com
@@ -760,7 +762,9 @@
     else if (host.includes('sub4unlock.co'))             runSub4UnlockBypasser();
     else if (host.includes('app.khaddavi.net'))          runKhaddaviBypasser();
     else if (host.includes('sfl.gl'))                    runSflGlBypasser();
+    else if (host.includes('ytsubme.com'))                 runYtSubMeBypasser();
     else if (host.includes('aylink.co'))                   runAylinkBypasser();
+    else if (host.includes('getpolsec.com'))               runGetPolSecBypasser();
     else if (
         host.includes('biplabtewary.com')   ||
         host.includes('mwgamesyt.com.br')   ||
@@ -1892,7 +1896,69 @@
         onReady(init);
     }
 
-    // ── sub4unlock.co ──────────────────────────────────────────────────────
+    // ── ytsubme.com ────────────────────────────────────────────────────────
+
+    function runYtSubMeBypasser() {
+        // Runs at document-start — intercept the page's own API request
+        // instead of making a second one ourselves.
+        const t         = makeTimer();
+        const siteLabel = 'ytsubme.com';
+
+        const isTarget = url =>
+            typeof url === 'string' && (url.includes('s2u_links.php') || url.includes('s2uGetLink'));
+
+        let _handled = false; // guard against double-redirect if both hooks fire
+        const handleData = data => {
+            if (_handled) return;
+            const url = data?.return_url || data?.msg?.target;
+            if (!url) {
+                console.warn('[ULB/ytsubme] no return_url in response:', data);
+                notify(`${siteLabel}: no return_url in API response`, 'error', 7000, { site: siteLabel });
+                return;
+            }
+            _handled = true;
+            const nh = notify(`${siteLabel} — redirecting…`, 'success', { site: siteLabel, time: t.elapsed() + 's' });
+            if (CONFIG.autoDismissOnRedirect) setTimeout(() => nh.remove(), 500);
+            else setTimeout(() => nh.remove(), 2000);
+            location.href = url;
+        };
+
+        // ── Hook fetch ──────────────────────────────────────────────────────
+        const _origFetch = unsafeWindow.fetch;
+        unsafeWindow.fetch = function (input, init) {
+            const url = (typeof input === 'string') ? input : input?.url;
+            const promise = _origFetch.apply(this, arguments);
+            if (isTarget(url)) {
+                promise
+                    .then(r => r.clone().json())
+                    .then(handleData)
+                    .catch(e => console.warn('[ULB/ytsubme] fetch intercept parse error:', e));
+            }
+            return promise;
+        };
+
+        // ── Hook XHR ───────────────────────────────────────────────────────
+        const _OrigXHR = unsafeWindow.XMLHttpRequest;
+        function PatchedXHR() {
+            const xhr = new _OrigXHR();
+            const _open = xhr.open.bind(xhr);
+            let _targeted = false;
+            xhr.open = function (method, url, ...rest) {
+                if (isTarget(url)) _targeted = true;
+                return _open(method, url, ...rest);
+            };
+            xhr.addEventListener('load', () => {
+                if (!_targeted) return;
+                try { handleData(JSON.parse(xhr.responseText)); }
+                catch (e) { console.warn('[ULB/ytsubme] XHR intercept parse error:', e); }
+            });
+            return xhr;
+        }
+        PatchedXHR.prototype = _OrigXHR.prototype;
+        unsafeWindow.XMLHttpRequest = PatchedXHR;
+    }
+
+        // ── sub4unlock.co ──────────────────────────────────────────────────────
 
     function runSub4UnlockBypasser() {
         const t         = makeTimer();
@@ -2074,6 +2140,117 @@
                 }
             }, 200);
         };
+        onReady(init);
+    }
+
+    // ── getpolsec.com ──────────────────────────────────────────────────────
+
+    function runGetPolSecBypasser() {
+        // Only act on /ad/* paths; skip /revenue? and everything else
+        if (!path.startsWith('/ad/')) return;
+
+        const t         = makeTimer();
+        const siteLabel = 'getpolsec.com';
+
+        const handleError = (label, err) => {
+            console.error(`[ULB/${siteLabel}] ${label}`, err);
+            notify(`${siteLabel}: ${label}${err?.message ? ` — ${err.message}` : ''}`, 'error', 7000, { site: siteLabel });
+        };
+
+        // Detect whether the hCaptcha challenge widget is currently visible.
+        // Checks the iframe/textareas AND the "Verify You Are Human" heading
+        // that getpolsec renders even before the iframe fully loads.
+        const isCaptchaPresent = () => {
+            if (document.querySelector('iframe[src*="hcaptcha.com"]')) return true;
+            if (document.querySelector('[name="h-captcha-response"]'))  return true;
+            if (document.querySelector('[name="g-recaptcha-response"]')) return true;
+            // Match the visible heading text as the earliest possible signal
+            for (const el of document.querySelectorAll('.mb-2.text-base.font-semibold, [class*="font-semibold"]')) {
+                if (el.textContent.trim() === 'Verify You Are Human') return true;
+            }
+            return false;
+        };
+
+        // Get the hCaptcha response token from whichever textarea the page uses.
+        const getHCaptchaToken = () => {
+            const ta = document.querySelector('[name="h-captcha-response"]');
+            if (ta && ta.value && ta.value.length > 20) return ta.value;
+            try {
+                if (typeof unsafeWindow.hcaptcha?.getResponse === 'function') {
+                    const r = unsafeWindow.hcaptcha.getResponse();
+                    if (r && r.length > 20) return r;
+                }
+            } catch (_) {}
+            return '';
+        };
+
+        // ── BYPASS (no captcha, or captcha already solved) ─────────────────
+        const runBypass = async (nh) => {
+            const adSlug = path.split('/').filter(Boolean).pop();
+            nh.update(`${siteLabel} — fetching destination…`, 'loading', { site: siteLabel });
+
+            try {
+                const token = getHCaptchaToken();
+                const headers = {};
+                if (token) headers['x-hcaptcha-response'] = token;
+
+                const resp = await fetch(
+                    `https://api.getpolsec.com/ad/${adSlug}/linkvertise`,
+                    { headers }
+                );
+                const r = await resp.json();
+
+                if (r?.message?.url) {
+                    const dest = atob(new URL(r.message.url).searchParams.get('r'));
+                    nh.update(`${siteLabel} — redirecting…`, 'success', { site: siteLabel, time: t.elapsed() + 's' });
+                    if (CONFIG.autoDismissOnRedirect) setTimeout(() => nh.remove(), 500);
+                    else setTimeout(() => nh.remove(), 2000);
+                    location.href = dest;
+                } else {
+                    console.log(`[ULB/${siteLabel}] API response:`, r);
+                    nh.update(`${siteLabel}: link is not bypassable — manual action required.`, 'warn', 0, { site: siteLabel });
+                    setTimeout(() => nh.remove(), 7000);
+                }
+            } catch (err) {
+                handleError('bypass failed', err);
+            }
+        };
+
+        // ── CAPTCHA PAGE ───────────────────────────────────────────────────
+        // hCaptcha must be solved by the user; poll until a token appears,
+        // then immediately fire the bypass request with that token.
+        const runCaptchaWait = (nh) => {
+            nh.update(`${siteLabel} — solve the hCaptcha to continue…`, 'warn', 0, { site: siteLabel });
+
+            let tries = 0;
+            const iv = setInterval(() => {
+                const token = getHCaptchaToken();
+                if (token) {
+                    clearInterval(iv);
+                    console.log(`[ULB/${siteLabel}] hCaptcha solved — proceeding with bypass`);
+                    runBypass(nh);
+                    return;
+                }
+                if (++tries > 600) { // 60 s timeout
+                    clearInterval(iv);
+                    handleError('timed out waiting for hCaptcha', null);
+                }
+            }, 100);
+        };
+
+        // ── INIT ──────────────────────────────────────────────────────────
+        const init = () => {
+            const nh = notify(`${siteLabel} — checking…`, 'loading', 0, { site: siteLabel });
+
+            if (isCaptchaPresent()) {
+                // Captcha visible — notify and wait for user to solve it
+                runCaptchaWait(nh);
+            } else {
+                // No captcha — attempt bypass immediately
+                runBypass(nh);
+            }
+        };
+
         onReady(init);
     }
 
