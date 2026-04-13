@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Unknown Link Bypasser
 // @namespace    http://tampermonkey.net/
-// @version      6.8.1
+// @version      6.8.2
 // @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live(SCAM WARNING) + go.yorurl.com + jankariweb + newsuchnaonline + bigcarinsurance + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + highlocus.shop + gplinks.co + powergam.online + getpolsec.com + hehehub + sub4unlock.co + app.khaddavi.net + sfl.gl + ytsubme.com + aylink.co + biplabtewary.com + mwgamesyt.com.br + topjogosvip.online + legacyagency.com.br + 4br.me + short-jambo.com/ink + fastcars + fluorine.s3ren1ty.xyz + rekonise.com + go.linkify.ru. Made by @Aro Moon
 // @author       @Aro Moon
 // @include      /^https:\/\/mtc\d+\.[^/]+\.[a-z.]+\//
@@ -172,14 +172,29 @@
     // ═══════════════════════════════════════════════════════════════════════
 
     const FORM_HOSTS = ['shrtslug.biz', 'biovetro.net', 'technons.com', 'tournguide.com', 'dailyjobposting.xyz', 'stfly.biz'];
-    const TPI_HOSTS  = ['tpi.li'];
+    const TPI_HOSTS = ['tpi.li'];
 
     const NOTIFY_TYPES = {
-        info:    { accent: '#4f8ef7', icon: 'ℹ' },
-        success: { accent: '#22c55e', icon: '✔' },
-        warn:    { accent: '#f59e0b', icon: '⚠' },
-        error:   { accent: '#ef4444', icon: '✖' },
-        loading: { accent: '#a78bfa', icon: '◌' },
+        info: {
+            accent: '#4f8ef7',
+            icon: 'ℹ'
+        },
+        success: {
+            accent: '#22c55e',
+            icon: '✔'
+        },
+        warn: {
+            accent: '#f59e0b',
+            icon: '⚠'
+        },
+        error: {
+            accent: '#ef4444',
+            icon: '✖'
+        },
+        loading: {
+            accent: '#a78bfa',
+            icon: '◌'
+        },
     };
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -189,7 +204,7 @@
     /** Generate a random hex ID using the Web Crypto API. */
     function generateId() {
         const cr = window.crypto || window.msCrypto;
-        if (cr?.randomUUID) return cr.randomUUID().replace(/-/g, '');
+        if(cr?.randomUUID) return cr.randomUUID().replace(/-/g, '');
         const arr = new Uint8Array(16);
         cr.getRandomValues(arr);
         return Array.from(arr, b => b.toString(16).padStart(2, '0')).join('');
@@ -203,9 +218,13 @@
      * same result.
      */
     function once(fn) {
-        let called = false, result;
+        let called = false,
+            result;
         return (...args) => {
-            if (!called) { called = true; result = fn(...args); }
+            if(!called) {
+                called = true;
+                result = fn(...args);
+            }
             return result;
         };
     }
@@ -215,24 +234,30 @@
      * @returns {URL|null}
      */
     function safeUrl(str) {
-        if (typeof str !== 'string' || !str) return null;
+        if(typeof str !== 'string' || !str) return null;
         try {
             const u = new URL(str);
             return ['http:', 'https:'].includes(u.protocol) ? u : null;
-        } catch { return null; }
+        } catch {
+            return null;
+        }
     }
 
     /** Run fn immediately if DOM is ready, otherwise wait for DOMContentLoaded. */
     function onReady(fn) {
-        if (document.readyState !== 'loading') fn();
-        else document.addEventListener('DOMContentLoaded', fn, { once: true });
+        if(document.readyState !== 'loading') fn();
+        else document.addEventListener('DOMContentLoaded', fn, {
+            once: true
+        });
     }
 
     /** Resolve with document.body once the DOM is ready. */
     const waitBody = () =>
-        document.body
-            ? Promise.resolve(document.body)
-            : new Promise(r => document.addEventListener('DOMContentLoaded', () => r(document.body), { once: true }));
+        document.body ?
+        Promise.resolve(document.body) :
+        new Promise(r => document.addEventListener('DOMContentLoaded', () => r(document.body), {
+            once: true
+        }));
 
     /**
      * Resolve with the first matching element, or reject after timeout.
@@ -243,14 +268,21 @@
     function waitForEl(sel, interval = 100, timeout = 20_000) {
         return new Promise((resolve, reject) => {
             const el = document.querySelector(sel);
-            if (el) return resolve(el);
+            if(el) return resolve(el);
             const iv = setInterval(() => {
                 const found = document.querySelector(sel);
-                if (found) { clearInterval(iv); clearTimeout(tid); resolve(found); }
+                if(found) {
+                    clearInterval(iv);
+                    clearTimeout(tid);
+                    resolve(found);
+                }
             }, interval);
-            const tid = timeout > 0
-                ? setTimeout(() => { clearInterval(iv); reject(new Error(`waitForEl: "${sel}" not found after ${timeout}ms`)); }, timeout)
-                : null;
+            const tid = timeout > 0 ?
+                setTimeout(() => {
+                    clearInterval(iv);
+                    reject(new Error(`waitForEl: "${sel}" not found after ${timeout}ms`));
+                }, timeout) :
+                null;
         });
     }
 
@@ -262,18 +294,32 @@
      */
     function pollUntil(fn, intervalMs = 200, maxTries = 150) {
         return new Promise((resolve, reject) => {
-            let tries = 0, settled = false;
-            const settle = (ok, val) => { if (!settled) { settled = true; ok ? resolve(val) : reject(val); } };
+            let tries = 0,
+                settled = false;
+            const settle = (ok, val) => {
+                if(!settled) {
+                    settled = true;
+                    ok ? resolve(val) : reject(val);
+                }
+            };
             const check = () => {
-                try { const r = fn(); if (r) { settle(true, r); return true; } }
-                catch (e) { settle(false, e); return true; }
+                try {
+                    const r = fn();
+                    if(r) {
+                        settle(true, r);
+                        return true;
+                    }
+                } catch (e) {
+                    settle(false, e);
+                    return true;
+                }
                 return false;
             };
-            if (check()) return;
+            if(check()) return;
             const iv = setInterval(() => {
-                if (check() || ++tries >= maxTries) {
+                if(check() || ++tries >= maxTries) {
                     clearInterval(iv);
-                    if (!settled) settle(false, new Error('pollUntil: condition not met after max tries'));
+                    if(!settled) settle(false, new Error('pollUntil: condition not met after max tries'));
                 }
             }, intervalMs);
         });
@@ -283,14 +329,21 @@
      * Click element by ID once it appears in the DOM.
      */
     function clickWhenReady(id, label, maxTries = 100) {
-        const attempt = () => { const el = document.getElementById(id); if (el) { el.click(); return true; } return false; };
+        const attempt = () => {
+            const el = document.getElementById(id);
+            if(el) {
+                el.click();
+                return true;
+            }
+            return false;
+        };
         const init = () => {
-            if (attempt()) return;
+            if(attempt()) return;
             let tries = 0;
             const iv = setInterval(() => {
-                if (attempt() || ++tries >= maxTries) {
+                if(attempt() || ++tries >= maxTries) {
                     clearInterval(iv);
-                    if (tries >= maxTries) console.warn(`[ULB] ${label}: #${id} not found after ${maxTries} tries`);
+                    if(tries >= maxTries) console.warn(`[ULB] ${label}: #${id} not found after ${maxTries} tries`);
                 }
             }, 200);
         };
@@ -307,7 +360,7 @@
         const start = performance.now();
         return {
             elapsed: () => ((performance.now() - start) / 1000).toFixed(2),
-            label:   () => `Done in ${((performance.now() - start) / 1000).toFixed(2)}s`,
+            label: () => `Done in ${((performance.now() - start) / 1000).toFixed(2)}s`,
         };
     }
 
@@ -317,7 +370,7 @@
      */
     async function fetchJSON(url, opts = {}) {
         const r = await fetch(url, opts);
-        if (!r.ok) throw new Error(`HTTP ${r.status}${r.statusText ? ' ' + r.statusText : ''}`);
+        if(!r.ok) throw new Error(`HTTP ${r.status}${r.statusText ? ' ' + r.statusText : ''}`);
         return r.json();
     }
 
@@ -328,11 +381,16 @@
     function _posStyles() {
         const p = CONFIG.notifPosition || 'bottom-right';
         const [v, h] = p.split('-');
-        const vert  = v === 'top'  ? `top:calc(28px + env(safe-area-inset-top,0px))`    : `bottom:calc(28px + env(safe-area-inset-bottom,0px))`;
-        const horiz = h === 'left' ? `left:calc(28px + env(safe-area-inset-left,0px))`  : `right:calc(28px + env(safe-area-inset-right,0px))`;
-        const dir   = v === 'top'  ? 'column' : 'column-reverse';
+        const vert = v === 'top' ? `top:calc(28px + env(safe-area-inset-top,0px))` : `bottom:calc(28px + env(safe-area-inset-bottom,0px))`;
+        const horiz = h === 'left' ? `left:calc(28px + env(safe-area-inset-left,0px))` : `right:calc(28px + env(safe-area-inset-right,0px))`;
+        const dir = v === 'top' ? 'column' : 'column-reverse';
         const slide = h === 'left' ? 'translateX(-20px)' : 'translateX(20px)';
-        return { vert, horiz, dir, slide };
+        return {
+            vert,
+            horiz,
+            dir,
+            slide
+        };
     }
 
     const CSS_CARD_BASE = [
@@ -352,9 +410,15 @@
     let _container = null;
 
     function getContainer() {
-        if (_container?.isConnected) return _container;
-        const { vert, horiz, dir } = _posStyles();
-        _container = Object.assign(document.createElement('div'), { id: '__ulb_nc' });
+        if(_container?.isConnected) return _container;
+        const {
+            vert,
+            horiz,
+            dir
+        } = _posStyles();
+        _container = Object.assign(document.createElement('div'), {
+            id: '__ulb_nc'
+        });
         _container.style.cssText = [
             'position:fixed', vert, horiz,
             'z-index:2147483647',
@@ -367,7 +431,7 @@
     }
 
     function ensureSpinStyle() {
-        if (!document.getElementById('__ulb_style')) {
+        if(!document.getElementById('__ulb_style')) {
             const s = Object.assign(document.createElement('style'), {
                 id: '__ulb_style',
                 textContent: '@keyframes __ulb_spin{to{transform:rotate(360deg)}}',
@@ -377,15 +441,22 @@
     }
 
     function mountCard(card) {
-        const { slide } = _posStyles();
+        const {
+            slide
+        } = _posStyles();
         card.style.transform = slide;
         getContainer().appendChild(card);
-        requestAnimationFrame(() => { card.style.opacity = '1'; card.style.transform = 'translateX(0)'; });
+        requestAnimationFrame(() => {
+            card.style.opacity = '1';
+            card.style.transform = 'translateX(0)';
+        });
         return card;
     }
 
     function dismissCard(card) {
-        const { slide } = _posStyles();
+        const {
+            slide
+        } = _posStyles();
         card.style.opacity = '0';
         card.style.transform = slide;
         setTimeout(() => card.remove(), 280);
@@ -404,21 +475,30 @@
     function notify(message, type = 'info', duration, opts = {}) {
         const dur = duration === undefined ? CONFIG.notifDuration : duration;
 
-        if (!document.body) {
-            const h = { update: () => {}, remove: () => {} };
+        if(!document.body) {
+            const h = {
+                update: () => {},
+                remove: () => {}
+            };
             document.addEventListener('DOMContentLoaded', () => {
                 const r = notify(message, type, dur, opts);
-                h.update = r.update; h.remove = r.remove;
-            }, { once: true });
+                h.update = r.update;
+                h.remove = r.remove;
+            }, {
+                once: true
+            });
             return h;
         }
 
         ensureSpinStyle();
-        const { accent, icon } = NOTIFY_TYPES[type] || NOTIFY_TYPES.info;
+        const {
+            accent,
+            icon
+        } = NOTIFY_TYPES[type] || NOTIFY_TYPES.info;
 
-        const pad  = CONFIG.compactMode ? '8px 12px'                          : '12px 16px';
-        const mw   = CONFIG.compactMode ? 'min(200px,calc(100vw - 56px))'    : 'min(240px,calc(100vw - 56px))';
-        const maxW = CONFIG.compactMode ? 'min(280px,calc(100vw - 56px))'    : 'min(320px,calc(100vw - 56px))';
+        const pad = CONFIG.compactMode ? '8px 12px' : '12px 16px';
+        const mw = CONFIG.compactMode ? 'min(200px,calc(100vw - 56px))' : 'min(240px,calc(100vw - 56px))';
+        const maxW = CONFIG.compactMode ? 'min(280px,calc(100vw - 56px))' : 'min(320px,calc(100vw - 56px))';
 
         const card = document.createElement('div');
         card.style.cssText = `${CSS_CARD_BASE};border-left:3px solid ${accent};padding:${pad};min-width:${mw};max-width:${maxW};display:flex;align-items:flex-start;gap:10px`;
@@ -432,7 +512,7 @@
         const bodyEl = document.createElement('div');
         bodyEl.style.cssText = 'flex:1;min-width:0';
 
-        if (!CONFIG.compactMode && CONFIG.notifShowBranding !== false) {
+        if(!CONFIG.compactMode && CONFIG.notifShowBranding !== false) {
             bodyEl.innerHTML = `<div style="${CSS_LABEL}:3px">Unknown Link Bypasser · @Aro Moon</div>`;
         }
 
@@ -446,13 +526,13 @@
 
         const siteEl = document.createElement('div');
         siteEl.style.cssText = 'font-size:10px;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
-        if (CONFIG.showSiteLabel && opts.site) siteEl.textContent = opts.site;
+        if(CONFIG.showSiteLabel && opts.site) siteEl.textContent = opts.site;
 
         const timeEl = document.createElement('div');
         timeEl.style.cssText = 'font-size:10px;color:#3d8b40;font-variant-numeric:tabular-nums;white-space:nowrap;flex-shrink:0';
-        if (CONFIG.showBypassTime && opts.time) timeEl.textContent = `⏱ ${opts.time}`;
+        if(CONFIG.showBypassTime && opts.time) timeEl.textContent = `⏱ ${opts.time}`;
 
-        if (opts.site || opts.time) {
+        if(opts.site || opts.time) {
             footerEl.append(siteEl, timeEl);
             bodyEl.appendChild(footerEl);
         }
@@ -461,14 +541,17 @@
         mountCard(card);
 
         const setSpinning = on => {
-            iconEl.style.animation = (on && CONFIG.notifAnimateIcon !== false)
-                ? '1s linear 0s infinite normal none running __ulb_spin'
-                : '';
+            iconEl.style.animation = (on && CONFIG.notifAnimateIcon !== false) ?
+                '1s linear 0s infinite normal none running __ulb_spin' :
+                '';
         };
-        if (type === 'loading') setSpinning(true);
+        if(type === 'loading') setSpinning(true);
 
         let timer;
-        const remove = () => { clearTimeout(timer); dismissCard(card); };
+        const remove = () => {
+            clearTimeout(timer);
+            dismissCard(card);
+        };
 
         // update(newMsg, newType?, newDurOrOpts?, newOpts?)
         // newDurOrOpts: number → overrides auto-dismiss (0 = persistent); object → treated as opts
@@ -478,51 +561,57 @@
 
             let activeDur = dur;
             let opts = {};
-            if (typeof newDurOrOpts === 'number') {
+            if(typeof newDurOrOpts === 'number') {
                 activeDur = newDurOrOpts;
                 opts = newOpts || {};
-            } else if (newDurOrOpts && typeof newDurOrOpts === 'object') {
+            } else if(newDurOrOpts && typeof newDurOrOpts === 'object') {
                 opts = newDurOrOpts;
             }
 
-            if (newType && NOTIFY_TYPES[newType]) {
+            if(newType && NOTIFY_TYPES[newType]) {
                 const s = NOTIFY_TYPES[newType];
                 iconEl.textContent = s.icon;
                 iconEl.style.color = s.accent;
                 card.style.borderLeftColor = s.accent;
                 setSpinning(newType === 'loading');
             }
-            if (CONFIG.showSiteLabel && opts.site) siteEl.textContent = opts.site;
-            if (CONFIG.showBypassTime && opts.time) {
+            if(CONFIG.showSiteLabel && opts.site) siteEl.textContent = opts.site;
+            if(CONFIG.showBypassTime && opts.time) {
                 timeEl.textContent = `⏱ ${opts.time}`;
                 footerEl.append(siteEl, timeEl);
-                if (!footerEl.parentNode) bodyEl.appendChild(footerEl);
+                if(!footerEl.parentNode) bodyEl.appendChild(footerEl);
             }
-            if (activeDur > 0) timer = setTimeout(remove, activeDur);
+            if(activeDur > 0) timer = setTimeout(remove, activeDur);
         };
-        if (dur > 0) timer = setTimeout(remove, dur);
+        if(dur > 0) timer = setTimeout(remove, dur);
 
         // notifClickToDismiss — tap card to close it
-        if (CONFIG.notifClickToDismiss) {
+        if(CONFIG.notifClickToDismiss) {
             card.style.cursor = 'pointer';
-            card.addEventListener('click', remove, { once: true });
+            card.addEventListener('click', remove, {
+                once: true
+            });
         }
 
         // notifPauseOnHover — pause auto-dismiss timer on hover
-        if (CONFIG.notifPauseOnHover && dur > 0) {
-            let remaining = dur, hoverStart;
+        if(CONFIG.notifPauseOnHover && dur > 0) {
+            let remaining = dur,
+                hoverStart;
             card.addEventListener('mouseenter', () => {
                 clearTimeout(timer);
                 hoverStart = Date.now();
             });
             card.addEventListener('mouseleave', () => {
                 remaining = Math.max(0, remaining - (Date.now() - hoverStart));
-                if (remaining > 0) timer = setTimeout(remove, remaining);
+                if(remaining > 0) timer = setTimeout(remove, remaining);
                 else remove();
             });
         }
 
-        return { update, remove };
+        return {
+            update,
+            remove
+        };
     }
 
     /** Show a self-advancing countdown card, then call onDone. */
@@ -548,15 +637,20 @@
         const subEl = card.querySelector('.__ulb_cs');
 
         let rem = seconds;
-        requestAnimationFrame(() => { barEl.style.width = `${((seconds - 1) / seconds) * 100}%`; });
+        requestAnimationFrame(() => {
+            barEl.style.width = `${((seconds - 1) / seconds) * 100}%`;
+        });
         const iv = setInterval(() => {
-            if (--rem <= 0) {
+            if(--rem <= 0) {
                 clearInterval(iv);
                 numEl.textContent = '0';
                 barEl.style.width = '0%';
                 subEl.textContent = 'done…';
                 card.style.borderLeftColor = '#22c55e';
-                setTimeout(() => { dismissCard(card); setTimeout(onDone, 280); }, 400);
+                setTimeout(() => {
+                    dismissCard(card);
+                    setTimeout(onDone, 280);
+                }, 400);
             } else {
                 numEl.textContent = rem;
                 barEl.style.width = `${(rem / seconds) * 100}%`;
@@ -581,16 +675,21 @@
         setTimeout(() => {
             const rm = card.querySelector('.__ulb_rm');
             const ri = card.querySelector('.__ulb_ri');
-            if (rm) rm.textContent = 'Redirect may have stalled.';
-            if (ri) { ri.textContent = '⚠'; ri.style.color = '#f59e0b'; }
+            if(rm) rm.textContent = 'Redirect may have stalled.';
+            if(ri) {
+                ri.textContent = '⚠';
+                ri.style.color = '#f59e0b';
+            }
             card.style.borderLeftColor = '#f59e0b';
         }, 3000);
     }
 
     /** Show a persistent action button that opens url in a new tab. */
     function showDirectBypassBtn(label, url, subtitle = 'Direct Bypass Available') {
-        if (!document.body) {
-            document.addEventListener('DOMContentLoaded', () => showDirectBypassBtn(label, url, subtitle), { once: true });
+        if(!document.body) {
+            document.addEventListener('DOMContentLoaded', () => showDirectBypassBtn(label, url, subtitle), {
+                once: true
+            });
             return;
         }
         ensureSpinStyle();
@@ -622,17 +721,17 @@
 
     /** Try every known strategy to extract a Cloudflare Turnstile sitekey. */
     function getSiteKey(fallback = null) {
-        for (const sel of ['[data-sitekey]', '.cf-turnstile', 'iframe[src*="challenges.cloudflare.com"]']) {
+        for(const sel of ['[data-sitekey]', '.cf-turnstile', 'iframe[src*="challenges.cloudflare.com"]']) {
             const el = document.querySelector(sel);
-            if (!el) continue;
+            if(!el) continue;
             const k = el.dataset?.sitekey || el.getAttribute('data-sitekey');
-            if (k) return k;
+            if(k) return k;
             const m = (el.getAttribute('src') || '').match(/[?&]sitekey=([^&]+)/);
-            if (m) return m[1];
+            if(m) return m[1];
         }
-        for (const s of document.querySelectorAll('script:not([src])')) {
+        for(const s of document.querySelectorAll('script:not([src])')) {
             const m = s.textContent.match(/sitekey['"::\s]+([0-9a-zA-Z_\-]{20,})/);
-            if (m) return m[1];
+            if(m) return m[1];
         }
         return fallback;
     }
@@ -642,7 +741,7 @@
      * Resolves with the token string, or rejects after 60 s.
      */
     function solveTurnstile(sitekey) {
-        if (!sitekey) return Promise.reject(new Error('[ULB/Turnstile] sitekey is required'));
+        if(!sitekey) return Promise.reject(new Error('[ULB/Turnstile] sitekey is required'));
         return new Promise((resolve, reject) => {
             const cbName = '__ulb_tsCb_' + generateId();
 
@@ -709,49 +808,76 @@
             const mountOverlay = () => {
                 overlay.style.opacity = '0';
                 (document.body || document.documentElement).appendChild(overlay);
-                requestAnimationFrame(() => { overlay.style.opacity = '1'; });
+                requestAnimationFrame(() => {
+                    overlay.style.opacity = '1';
+                });
             };
-            if (document.body) mountOverlay();
-            else document.addEventListener('DOMContentLoaded', mountOverlay, { once: true });
+            if(document.body) mountOverlay();
+            else document.addEventListener('DOMContentLoaded', mountOverlay, {
+                once: true
+            });
 
             const autoClickObs = new MutationObserver(() => {
                 overlay.querySelectorAll('iframe').forEach(fr => {
                     try {
                         const cb = fr.contentDocument?.querySelector('input[type=checkbox]');
-                        if (cb && !cb.checked) cb.click();
+                        if(cb && !cb.checked) cb.click();
                     } catch (_) {}
                 });
             });
-            autoClickObs.observe(overlay, { childList: true, subtree: true });
+            autoClickObs.observe(overlay, {
+                childList: true,
+                subtree: true
+            });
 
-            const timeout = setTimeout(() => { cleanup(); reject(new Error('[ULB/Turnstile] timed out after 60s')); }, 60_000);
+            const timeout = setTimeout(() => {
+                cleanup();
+                reject(new Error('[ULB/Turnstile] timed out after 60s'));
+            }, 60_000);
 
             function cleanup() {
                 clearTimeout(timeout);
                 autoClickObs.disconnect();
-                try { delete unsafeWindow[cbName]; } catch (_) {}
+                try {
+                    delete unsafeWindow[cbName];
+                } catch (_) {}
                 overlay.style.opacity = '0';
                 setTimeout(() => overlay.remove(), 350);
             }
 
             const onToken = token => {
                 const sub2 = overlay.querySelector('#__ulb_ts_sub');
-                if (sub2) sub2.textContent = 'Solved ✓ — redirecting…';
+                if(sub2) sub2.textContent = 'Solved ✓ — redirecting…';
                 const ring = overlay.querySelector('#__ulb_ts_ring');
-                if (ring) { ring.style.borderTopColor = '#22c55e'; ring.style.animationDuration = '0.3s'; }
-                setTimeout(() => { cleanup(); resolve(token); }, 400);
+                if(ring) {
+                    ring.style.borderTopColor = '#22c55e';
+                    ring.style.animationDuration = '0.3s';
+                }
+                setTimeout(() => {
+                    cleanup();
+                    resolve(token);
+                }, 400);
             };
             unsafeWindow[cbName] = onToken;
 
             const tryRenderApi = () => {
                 const ts = unsafeWindow.turnstile;
-                if (!ts?.render) return false;
-                try { ts.render(widgetDiv, { sitekey, theme: 'dark', callback: onToken }); return true; }
-                catch (e) { console.warn('[ULB/Turnstile] turnstile.render() threw:', e); return false; }
+                if(!ts?.render) return false;
+                try {
+                    ts.render(widgetDiv, {
+                        sitekey,
+                        theme: 'dark',
+                        callback: onToken
+                    });
+                    return true;
+                } catch (e) {
+                    console.warn('[ULB/Turnstile] turnstile.render() threw:', e);
+                    return false;
+                }
             };
 
-            if (!tryRenderApi()) {
-                if (!document.querySelector('script[src*="challenges.cloudflare.com/turnstile"]')) {
+            if(!tryRenderApi()) {
+                if(!document.querySelector('script[src*="challenges.cloudflare.com/turnstile"]')) {
                     const s = Object.assign(document.createElement('script'), {
                         src: 'https://challenges.cloudflare.com/turnstile/v0/api.js',
                         async: true,
@@ -759,7 +885,9 @@
                     s.onload = () => tryRenderApi();
                     document.head.appendChild(s);
                 } else {
-                    const poll = setInterval(() => { if (tryRenderApi()) clearInterval(poll); }, 150);
+                    const poll = setInterval(() => {
+                        if(tryRenderApi()) clearInterval(poll);
+                    }, 150);
                     setTimeout(() => clearInterval(poll), 10_000);
                 }
             }
@@ -769,12 +897,16 @@
     // ── Cloudflare Challenge Frame Hook ────────────────────────────────────
 
     function _runCfHook() {
-        const spoofEvt = (e, props) => new Proxy(e, { get: (t, p) => p in props ? props[p] : t[p] });
+        const spoofEvt = (e, props) => new Proxy(e, {
+            get: (t, p) => p in props ? props[p] : t[p]
+        });
         const _origAdd = EventTarget.prototype.addEventListener;
         EventTarget.prototype.addEventListener = function (type, listener, options) {
             return _origAdd.call(this, type, function (e) {
-                const props = { isTrusted: true };
-                if (location.hash.includes('origin='))
+                const props = {
+                    isTrusted: true
+                };
+                if(location.hash.includes('origin='))
                     props.origin = decodeURIComponent(location.hash.split('origin=')[1]);
                 return listener.call(this, spoofEvt(e, props));
             }, options);
@@ -782,20 +914,32 @@
 
         const tryClick = (root, frameId) => {
             const cb = root.querySelector('input[type=checkbox]');
-            if (cb && !cb.checked) {
-                try { window.parent.postMessage({ __ulb: true, __ulb_clicked: true, id: frameId || '' }, '*'); } catch (_) {}
+            if(cb && !cb.checked) {
+                try {
+                    window.parent.postMessage({
+                        __ulb: true,
+                        __ulb_clicked: true,
+                        id: frameId || ''
+                    }, '*');
+                } catch (_) {}
                 cb.click();
             }
         };
 
         const frameId = (location.hash.match(/[#&]ulbid=([^&]+)/) || [])[1] || '';
         const shadowObs = new MutationObserver(muts => {
-            for (const m of muts)
+            for(const m of muts)
                 m.addedNodes.forEach(n => {
-                    if (n.nodeType !== 1) return;
+                    if(n.nodeType !== 1) return;
                     const cb = n.matches?.('input[type=checkbox]') ? n : n.querySelector('input[type=checkbox]');
-                    if (cb && !cb.checked) {
-                        try { window.parent.postMessage({ __ulb: true, __ulb_clicked: true, id: frameId }, '*'); } catch (_) {}
+                    if(cb && !cb.checked) {
+                        try {
+                            window.parent.postMessage({
+                                __ulb: true,
+                                __ulb_clicked: true,
+                                id: frameId
+                            }, '*');
+                        } catch (_) {}
                         cb.click();
                     }
                 });
@@ -804,22 +948,28 @@
         const _origShadow = Element.prototype.attachShadow;
         Element.prototype.attachShadow = function (opt) {
             const root = _origShadow.call(this, opt);
-            shadowObs.observe(root, { childList: true, subtree: true });
+            shadowObs.observe(root, {
+                childList: true,
+                subtree: true
+            });
             Promise.resolve().then(() => tryClick(root, frameId));
             return root;
         };
 
         document.querySelectorAll('*').forEach(el => {
-            if (el.shadowRoot) {
-                shadowObs.observe(el.shadowRoot, { childList: true, subtree: true });
+            if(el.shadowRoot) {
+                shadowObs.observe(el.shadowRoot, {
+                    childList: true,
+                    subtree: true
+                });
                 tryClick(el.shadowRoot, frameId);
             }
         });
     }
 
     // Early return: only the CF hook runs inside challenge iframes.
-    if (location.hostname === 'challenges.cloudflare.com') {
-        if (CONFIG.cfAllowedRefs.some(h => document.referrer.includes(h))) _runCfHook();
+    if(location.hostname === 'challenges.cloudflare.com') {
+        if(CONFIG.cfAllowedRefs.some(h => document.referrer.includes(h))) _runCfHook();
         return;
     }
 
@@ -834,11 +984,13 @@
         return (label, err) => {
             console.error(`[ULB/${siteLabel}] ${label}`, err ?? '');
             const msg = `${siteLabel}: ${label}${err?.message ? ` — ${err.message}` : ''}`;
-            if (nh) {
+            if(nh) {
                 nh.update(msg, 'error');
                 setTimeout(() => nh.remove(), msClose);
             } else {
-                notify(msg, 'error', msClose, { site: siteLabel });
+                notify(msg, 'error', msClose, {
+                    site: siteLabel
+                });
             }
         };
     }
@@ -847,22 +999,28 @@
      * Validate url and redirect, showing a manual-redirect fallback card.
      */
     function safeRedirect(url, nh, opts = {}) {
-        const { t, siteLabel, autoDismiss = CONFIG.autoDismissOnRedirect } = opts;
-        if (!safeUrl(url)) {
+        const {
+            t,
+            siteLabel,
+            autoDismiss = CONFIG.autoDismissOnRedirect
+        } = opts;
+        if(!safeUrl(url)) {
             const msg = `Invalid or unsafe redirect URL`;
             console.error(`[ULB/${siteLabel ?? 'ULB'}] ${msg}:`, url);
-            if (nh) {
+            if(nh) {
                 nh.update(`${siteLabel ? siteLabel + ': ' : ''}${msg}`, 'error');
                 setTimeout(() => nh.remove(), 6000);
             } else {
-                notify(msg, 'error', 6000, siteLabel ? { site: siteLabel } : {});
+                notify(msg, 'error', 6000, siteLabel ? {
+                    site: siteLabel
+                } : {});
             }
             return false;
         }
-        if (nh) {
+        if(nh) {
             const extra = {};
-            if (siteLabel) extra.site = siteLabel;
-            if (t) extra.time = t.elapsed() + 's';
+            if(siteLabel) extra.site = siteLabel;
+            if(t) extra.time = t.elapsed() + 's';
             nh.update('Redirecting…', 'success', extra);
             setTimeout(() => nh.remove(), autoDismiss ? 500 : 2000);
         }
@@ -876,30 +1034,55 @@
     function _lnbzGetAppVars() {
         try {
             const v = unsafeWindow.app_vars;
-            if (v && typeof v === 'object') return v;
+            if(v && typeof v === 'object') return v;
         } catch (_) {}
-        for (const s of document.querySelectorAll('script:not([src])')) {
+        for(const s of document.querySelectorAll('script:not([src])')) {
             const m = s.textContent.match(/var\s+app_vars\s*=\s*(\{[\s\S]*?\});/);
-            if (m) { try { return JSON.parse(m[1]); } catch (_) {} }
+            if(m) {
+                try {
+                    return JSON.parse(m[1]);
+                } catch (_) {}
+            }
         }
         return null;
     }
 
     function _lnbzWaitForAppVars(cb, timeoutMs = 8000) {
         const v = _lnbzGetAppVars();
-        if (v) { cb(v); return; }
+        if(v) {
+            cb(v);
+            return;
+        }
 
         let done = false;
-        const safeCb = val => { if (!done) { done = true; cb(val); } };
+        const safeCb = val => {
+            if(!done) {
+                done = true;
+                cb(val);
+            }
+        };
 
         const start = Date.now();
         const obs = new MutationObserver(() => {
             const v2 = _lnbzGetAppVars();
-            if (v2) { obs.disconnect(); safeCb(v2); return; }
-            if (Date.now() - start > timeoutMs) { obs.disconnect(); safeCb(null); }
+            if(v2) {
+                obs.disconnect();
+                safeCb(v2);
+                return;
+            }
+            if(Date.now() - start > timeoutMs) {
+                obs.disconnect();
+                safeCb(null);
+            }
         });
-        obs.observe(document.documentElement, { childList: true, subtree: true });
-        setTimeout(() => { obs.disconnect(); safeCb(_lnbzGetAppVars()); }, timeoutMs);
+        obs.observe(document.documentElement, {
+            childList: true,
+            subtree: true
+        });
+        setTimeout(() => {
+            obs.disconnect();
+            safeCb(_lnbzGetAppVars());
+        }, timeoutMs);
     }
 
     function _lnbzWaitForAppVarsAsync(timeoutMs = 8000) {
@@ -919,7 +1102,9 @@
      */
     function _runLinksGoBypasser(siteLabel, captchaSiteKey) {
         const t = makeTimer();
-        const nh = notify(`${siteLabel} — detecting page…`, 'loading', 0, { site: siteLabel });
+        const nh = notify(`${siteLabel} — detecting page…`, 'loading', 0, {
+            site: siteLabel
+        });
 
         const handleError = (label, err) => {
             console.error(`[ULB/${siteLabel}] ${label}`, err);
@@ -928,14 +1113,18 @@
         };
 
         const doGoFetch = async (adEl) => {
-            nh.update(`${siteLabel} — fetching destination…`, 'loading', { site: siteLabel });
+            nh.update(`${siteLabel} — fetching destination…`, 'loading', {
+                site: siteLabel
+            });
             try {
                 const form = adEl.closest('form') || document.querySelector('#go-link') || document.querySelector('form');
                 let body;
-                if (form) {
+                if(form) {
                     const params = new URLSearchParams();
-                    form.querySelectorAll('input[type="hidden"]').forEach(inp => { if (inp.name) params.append(inp.name, inp.value); });
-                    if (!params.has('_method')) params.set('_method', 'POST');
+                    form.querySelectorAll('input[type="hidden"]').forEach(inp => {
+                        if(inp.name) params.append(inp.name, inp.value);
+                    });
+                    if(!params.has('_method')) params.set('_method', 'POST');
                     body = params.toString();
                 } else {
                     body = '_method=POST&ad_form_data=' + encodeURIComponent(adEl.value);
@@ -951,86 +1140,125 @@
                     credentials: 'include',
                     body,
                 });
-                if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                if(!r.ok) throw new Error(`HTTP ${r.status}`);
                 let d;
-                try { d = await r.json(); } catch { throw new Error('Response was not valid JSON'); }
+                try {
+                    d = await r.json();
+                } catch {
+                    throw new Error('Response was not valid JSON');
+                }
                 const dest = d.url || d.data;
-                if (!dest) throw new Error('No destination URL in server response');
-                safeRedirect(dest, nh, { t, siteLabel });
+                if(!dest) throw new Error('No destination URL in server response');
+                safeRedirect(dest, nh, {
+                    t,
+                    siteLabel
+                });
             } catch (err) {
                 handleError('go-link POST failed', err);
             }
         };
 
         const runGoPage = (adEl) => {
-            nh.update(`${siteLabel} — reading countdown…`, 'loading', { site: siteLabel });
+            nh.update(`${siteLabel} — reading countdown…`, 'loading', {
+                site: siteLabel
+            });
             _lnbzWaitForAppVars(vars => {
                 const secs = Math.max(1, parseInt(vars?.counter_value, 10) || 15);
-                nh.update(`${siteLabel} — redirecting in ${secs}s…`, 'loading', { site: siteLabel });
+                nh.update(`${siteLabel} — redirecting in ${secs}s…`, 'loading', {
+                    site: siteLabel
+                });
                 showCountdown(secs, () => doGoFetch(adEl), `${siteLabel} bypass`);
             });
         };
 
         const runCaptchaPage = async (form) => {
-            if (!CONFIG.autoCaptcha) {
-                nh.update(`${siteLabel} — solve captcha manually to continue…`, 'info', 0, { site: siteLabel });
+            if(!CONFIG.autoCaptcha) {
+                nh.update(`${siteLabel} — solve captcha manually to continue…`, 'info', 0, {
+                    site: siteLabel
+                });
                 return;
             }
 
-            nh.update(`${siteLabel} — solving captcha…`, 'loading', { site: siteLabel });
+            nh.update(`${siteLabel} — solving captcha…`, 'loading', {
+                site: siteLabel
+            });
 
             let sitekey = captchaSiteKey;
-            if (!sitekey) {
+            if(!sitekey) {
                 const vars = await _lnbzWaitForAppVarsAsync(5000);
                 sitekey = vars?.turnstile_site_key || getSiteKey();
             }
-            if (!sitekey) { handleError('could not find Turnstile sitekey', null); return; }
+            if(!sitekey) {
+                handleError('could not find Turnstile sitekey', null);
+                return;
+            }
 
             let token;
-            try { token = await solveTurnstile(sitekey); }
-            catch (e) { handleError('Turnstile solve failed', e); return; }
+            try {
+                token = await solveTurnstile(sitekey);
+            } catch (e) {
+                handleError('Turnstile solve failed', e);
+                return;
+            }
 
             let input = form.querySelector('[name="cf-turnstile-response"]');
-            if (!input) {
-                input = Object.assign(document.createElement('input'), { type: 'hidden', name: 'cf-turnstile-response' });
+            if(!input) {
+                input = Object.assign(document.createElement('input'), {
+                    type: 'hidden',
+                    name: 'cf-turnstile-response'
+                });
                 form.appendChild(input);
             }
             input.value = token;
 
             const widgetInput = document.getElementById('cf-chl-widget-qg0yr_response') ||
                 document.querySelector('.cf-turnstile [name$="_response"]');
-            if (widgetInput && widgetInput !== input) widgetInput.value = token;
+            if(widgetInput && widgetInput !== input) widgetInput.value = token;
 
             const submitBtn = document.getElementById('invisibleCaptchaShortlink') ||
                 form.querySelector('button[type="submit"][disabled], input[type="submit"][disabled]');
-            if (submitBtn) submitBtn.disabled = false;
+            if(submitBtn) submitBtn.disabled = false;
 
-            nh.update(`${siteLabel} — submitting…`, 'loading', { site: siteLabel });
+            nh.update(`${siteLabel} — submitting…`, 'loading', {
+                site: siteLabel
+            });
 
             try {
-                if (typeof form.requestSubmit === 'function') form.requestSubmit();
+                if(typeof form.requestSubmit === 'function') form.requestSubmit();
                 else HTMLFormElement.prototype.submit.call(form);
             } catch (e) {
                 console.warn('[ULB/lnbz] form submit failed, trying click fallback:', e);
                 const btn2 = form.querySelector('button[type="submit"], input[type="submit"]');
-                if (btn2) btn2.click();
+                if(btn2) btn2.click();
             }
         };
 
         const detect = () => {
             const adEl = document.querySelector('[name="ad_form_data"]');
-            if (adEl) { runGoPage(adEl); return true; }
+            if(adEl) {
+                runGoPage(adEl);
+                return true;
+            }
             const form = document.getElementById('link-view') || document.querySelector('form');
-            if (form) { runCaptchaPage(form); return true; }
+            if(form) {
+                runCaptchaPage(form);
+                return true;
+            }
             return false;
         };
 
         const init = () => {
-            if (detect()) return;
+            if(detect()) return;
             let tries = 0;
             const iv = setInterval(() => {
-                if (detect()) { clearInterval(iv); return; }
-                if (++tries > 200) { clearInterval(iv); handleError('page structure not recognised after 20s', null); }
+                if(detect()) {
+                    clearInterval(iv);
+                    return;
+                }
+                if(++tries > 200) {
+                    clearInterval(iv);
+                    handleError('page structure not recognised after 20s', null);
+                }
             }, 100);
         };
 
@@ -1045,59 +1273,61 @@
     const path = location.pathname;
 
     try {
-        if      (host.includes('dl.surf'))                            runDlSurf();
-        else if (host.includes('airflowscript.com'))                  runAirflowBypasser();
-        else if (host.includes('bstlar.com'))                         runBstlarBypasser();
-        else if (host.includes('wareguardv2.xyz'))                    runWareguardBypasser();
-        else if (host.includes('subnise.com'))                        runSubniseBypasser();
-        else if (host.includes('reshortfly.com'))                     runReshortflyBypasser();
-        else if (host.includes('avnsgames.com'))                      runAvnsGamesInterstitial();
-        else if (host.includes('lnbz.la'))                            runLnbzLaBypasser();
-        else if (host.includes('bloxscript.live'))                    runBloxscriptScamWarning();
-        else if (
+        if(host.includes('dl.surf')) runDlSurf();
+        else if(host.includes('airflowscript.com')) runAirflowBypasser();
+        else if(host.includes('bstlar.com')) runBstlarBypasser();
+        else if(host.includes('wareguardv2.xyz')) runWareguardBypasser();
+        else if(host.includes('subnise.com')) runSubniseBypasser();
+        else if(host.includes('reshortfly.com')) runReshortflyBypasser();
+        else if(host.includes('avnsgames.com')) runAvnsGamesInterstitial();
+        else if(host.includes('lnbz.la')) runLnbzLaBypasser();
+        else if(host.includes('bloxscript.live')) runBloxscriptScamWarning();
+        else if(
             host.includes('jankariweb') ||
-            host.includes('newsuchnaonline.com') ||
-            host.includes('bigcarinsurance.com')
-        )                                                              runJoberBypasser();
-        else if (host.includes('how2guidess.com'))                    runHow2GuidesBypasser();
-        else if (host.includes('go.yorurl.com'))                      runYorurlBypasser();
-        else if (
+            host.includes('newsuchnaonline.com')
+        ) runJoberBypasser();
+        else if(host.includes('how2guidess.com')) runHow2GuidesBypasser();
+        else if(host.includes('go.yorurl.com')) runYorurlBypasser();
+        else if(
             host.includes('go.caslinks.com') ||
             host.includes('highlocus.shop')
-        )                                                              runCasLinksBypasser();
-        else if (host.includes('gplinks.co'))                         runGpLinksBypasser();
-        else if (host.includes('powergam.online'))                    runPowergamBypasser();
-        else if (host.includes('4br.me'))                             run4BrMeBypasser();
-        else if (host.includes('rojgarhindi.in'))                     runRojgarhindiBypasser();
-        else if (host.includes('v0-phantomfluxkey.vercel.app'))       runPhantomFluxKeyBypasser();
-        else if (host.includes('link-unlock.com'))                    runLinkUnlockBypasser();
-        else if (host.includes('link4sub.com'))                       runLink4SubBypasser();
-        else if (host.includes('tapvietcode.com'))                    runTapVietCodeBypasser();
-        else if (host.includes('short-jambo.ink'))                    runShortJamboInkBypasser();
-        else if (host.includes('short-jambo.com'))                    runShortJamboDotComBypasser();
-        else if (/fastcars\d*\.com/.test(host))                       runFastcarsBypasser();
-        else if (host.includes('sub4unlock.co'))                      runSub4UnlockBypasser();
-        else if (host.includes('app.khaddavi.net'))                   runKhaddaviBypasser();
-        else if (host.includes('sfl.gl'))                             runSflGlBypasser();
-        else if (host.includes('ytsubme.com'))                        runYtSubMeBypasser();
-        else if (host.includes('aylink.co'))                          runAylinkBypasser();
-        else if (
+        ) runCasLinksBypasser();
+        else if(host.includes('gplinks.co')) runGpLinksBypasser();
+        else if(host.includes('powergam.online')) runPowergamBypasser();
+        else if(host.includes('4br.me')) run4BrMeBypasser();
+        else if(host.includes('rojgarhindi.in')) runRojgarhindiBypasser();
+        else if(host.includes('v0-phantomfluxkey.vercel.app')) runPhantomFluxKeyBypasser();
+        else if(host.includes('link-unlock.com')) runLinkUnlockBypasser();
+        else if(host.includes('link4sub.com')) runLink4SubBypasser();
+        else if(host.includes('tapvietcode.com')) runTapVietCodeBypasser();
+        else if(host.includes('short-jambo.ink')) runShortJamboInkBypasser();
+        else if(host.includes('short-jambo.com')) runShortJamboDotComBypasser();
+        else if(
+            /fastcars\d*\.com/.test(host) ||
+            host.includes('bigcarinsurance.com')
+        ) runFastcarsBypasser();
+        else if(host.includes('sub4unlock.co')) runSub4UnlockBypasser();
+        else if(host.includes('app.khaddavi.net')) runKhaddaviBypasser();
+        else if(host.includes('sfl.gl')) runSflGlBypasser();
+        else if(host.includes('ytsubme.com')) runYtSubMeBypasser();
+        else if(host.includes('aylink.co')) runAylinkBypasser();
+        else if(
             host.includes('hehehub-acsu123.pythonanywhere.com') &&
             /[?&]hwid=[\w.]+/.test(location.search)
-        )                                                              runHehehubSkipper();
-        else if (host.includes('fluorine.s3ren1ty.xyz'))              runFluorineBypasser();
-        else if (host.includes('getpolsec.com'))                      runGetPolSecBypasser();
-        else if (
+        ) runHehehubSkipper();
+        else if(host.includes('fluorine.s3ren1ty.xyz')) runFluorineBypasser();
+        else if(host.includes('getpolsec.com')) runGetPolSecBypasser();
+        else if(
             host.includes('biplabtewary.com') ||
             host.includes('mwgamesyt.com.br') ||
             host.includes('topjogosvip.online') ||
             host.includes('legacyagency.com.br')
-        )                                                              runButtonFinderBypasser();
-        else if (host.includes('rekonise.com'))                       runRekoniseBypasser();
-        else if (host.includes('go.linkify.ru'))                      runLinkifyRuBypasser();
-        else if (TPI_HOSTS.some(h => host.includes(h)))              runTpiLiBypasser();
-        else if (FORM_HOSTS.some(h => host.includes(h)))             runFormBypasser();
-        else                                                           runSafelinkBypasser();
+        ) runButtonFinderBypasser();
+        else if(host.includes('rekonise.com')) runRekoniseBypasser();
+        else if(host.includes('go.linkify.ru')) runLinkifyRuBypasser();
+        else if(TPI_HOSTS.some(h => host.includes(h))) runTpiLiBypasser();
+        else if(FORM_HOSTS.some(h => host.includes(h))) runFormBypasser();
+        else runSafelinkBypasser();
     } catch (routerErr) {
         console.error('[ULB] Uncaught router error:', routerErr);
         notify(`ULB: unexpected error — ${routerErr.message}`, 'error', 8000);
@@ -1110,7 +1340,9 @@
     // ── PhantomFluxKey ─────────────────────────────────────────────────────
 
     function runPhantomFluxKeyBypasser() {
-        notify('PhantomFluxKey detected — showing direct bypass…', 'info', undefined, { site: 'phantomfluxkey' });
+        notify('PhantomFluxKey detected — showing direct bypass…', 'info', undefined, {
+            site: 'phantomfluxkey'
+        });
         showDirectBypassBtn('Direct Bypass — Get Key', CONFIG.phantomDirectUrl, 'PhantomFluxKey Direct Bypass');
     }
 
@@ -1118,20 +1350,22 @@
     // ── dl.surf ────────────────────────────────────────────────────────────
 
     function runDlSurf() {
-        const API    = 'https://backendapi.dl.surf/api/file';
+        const API = 'https://backendapi.dl.surf/api/file';
         const DL_KEY = '0x4AAAAAABbfHaaMuK4MmNeI';
-        const slug   = location.pathname.split('/').filter(Boolean).pop();
+        const slug = location.pathname.split('/').filter(Boolean).pop();
 
         const dlFetch = async (url, opts) => {
             const r = await fetch(url, opts);
-            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+            if(!r.ok) throw new Error(`HTTP ${r.status}`);
             const j = await r.json();
-            if (j.status !== 'success') throw new Error(j.message || 'API error');
+            if(j.status !== 'success') throw new Error(j.message || 'API error');
             return j.data;
         };
 
         const getToken = () => dlFetch(`${API}/request-download/file/${slug}/`, {
-            headers: { Accept: 'application/json' }
+            headers: {
+                Accept: 'application/json'
+            }
         }).then(d => d.token);
 
         const getDownloadUrl = (tk, cap) => dlFetch(`${API}/new-download-file/`, {
@@ -1142,7 +1376,10 @@
                 Origin: location.origin,
                 Referer: location.href,
             },
-            body: JSON.stringify({ token: tk, captcha_token: cap }),
+            body: JSON.stringify({
+                token: tk,
+                captcha_token: cap
+            }),
         }).then(d => d.url || d.download_url || d.link || d);
 
         const btn = Object.assign(document.createElement('button'), {
@@ -1155,7 +1392,7 @@
 
         function injectBtn() {
             const orig = document.querySelector('button[title="Continue to Download"]');
-            if (orig) {
+            if(orig) {
                 btn.className = orig.className;
                 btn.style.cssText = orig.style.cssText;
                 btn.style.backgroundColor = btn.style.borderColor = '#dc2626';
@@ -1180,34 +1417,48 @@
                 });
                 document.body.appendChild(btn);
             }
-            notify('dl.surf detected — bypasser ready.', 'info', undefined, { site: 'dl.surf' });
+            notify('dl.surf detected — bypasser ready.', 'info', undefined, {
+                site: 'dl.surf'
+            });
         }
 
-        if (!CONFIG.dlSurfAutoInject) {
-            notify('dl.surf — auto-inject disabled in config.', 'info', undefined, { site: 'dl.surf' });
+        if(!CONFIG.dlSurfAutoInject) {
+            notify('dl.surf — auto-inject disabled in config.', 'info', undefined, {
+                site: 'dl.surf'
+            });
             return;
         }
 
-        let lastHref = location.href, injectIv = null;
+        let lastHref = location.href,
+            injectIv = null;
 
         function startInjecting() {
             btn.innerHTML = 'Download via Bypasser';
             btn.disabled = false;
             clearInterval(injectIv);
             injectIv = setInterval(() => {
-                if (btn.isConnected) return;
-                if (document.querySelector('button[title="Continue to Download"]')) {
+                if(btn.isConnected) return;
+                if(document.querySelector('button[title="Continue to Download"]')) {
                     clearInterval(injectIv);
                     injectBtn();
                 }
             }, 200);
-            setTimeout(() => { clearInterval(injectIv); if (!btn.isConnected) injectBtn(); }, 15_000);
+            setTimeout(() => {
+                clearInterval(injectIv);
+                if(!btn.isConnected) injectBtn();
+            }, 15_000);
         }
 
         const hrefCheck = () => {
-            if (location.href !== lastHref) { lastHref = location.href; startInjecting(); }
+            if(location.href !== lastHref) {
+                lastHref = location.href;
+                startInjecting();
+            }
         };
-        new MutationObserver(hrefCheck).observe(document.querySelector('title') || document.head, { childList: true, subtree: true });
+        new MutationObserver(hrefCheck).observe(document.querySelector('title') || document.head, {
+            childList: true,
+            subtree: true
+        });
         setInterval(hrefCheck, 500);
         startInjecting();
 
@@ -1215,28 +1466,54 @@
             btn.disabled = true;
             const t = makeTimer();
             try {
-                setStatus('Requesting download token…', 'loading', { site: 'dl.surf' });
+                setStatus('Requesting download token…', 'loading', {
+                    site: 'dl.surf'
+                });
                 const token = await getToken();
-                setStatus('Solving captcha automatically…', 'loading', { site: 'dl.surf' });
+                setStatus('Solving captcha automatically…', 'loading', {
+                    site: 'dl.surf'
+                });
                 const cap = await solveTurnstile(DL_KEY);
-                setStatus('Fetching download URL…', 'loading', { site: 'dl.surf' });
+                setStatus('Fetching download URL…', 'loading', {
+                    site: 'dl.surf'
+                });
                 const url = await getDownloadUrl(token, cap);
-                if (typeof url === 'string' && url.startsWith('http')) {
-                    setStatus('Download started!', 'success', { site: 'dl.surf', time: t.elapsed() + 's' });
-                    const a = Object.assign(document.createElement('a'), { href: url, download: '', target: '_blank', rel: 'noopener' });
+                if(typeof url === 'string' && url.startsWith('http')) {
+                    setStatus('Download started!', 'success', {
+                        site: 'dl.surf',
+                        time: t.elapsed() + 's'
+                    });
+                    const a = Object.assign(document.createElement('a'), {
+                        href: url,
+                        download: '',
+                        target: '_blank',
+                        rel: 'noopener'
+                    });
                     document.body.appendChild(a);
-                    try { a.click(); } catch (_) {}
+                    try {
+                        a.click();
+                    } catch (_) {}
                     a.remove();
-                    if (isIOS()) window.open(url, '_blank');
+                    if(isIOS()) window.open(url, '_blank');
                 } else {
-                    setStatus('Unexpected response — check console.', 'warn', { site: 'dl.surf' });
+                    setStatus('Unexpected response — check console.', 'warn', {
+                        site: 'dl.surf'
+                    });
                     console.warn('[ULB/dl.surf] unexpected download URL response:', url);
                 }
-                setTimeout(() => { nh?.remove(); nh = null; }, 4000);
+                setTimeout(() => {
+                    nh?.remove();
+                    nh = null;
+                }, 4000);
             } catch (err) {
                 console.error('[ULB/dl.surf]', err);
-                setStatus(`Error: ${err.message}`, 'error', { site: 'dl.surf' });
-                setTimeout(() => { nh?.remove(); nh = null; }, 5000);
+                setStatus(`Error: ${err.message}`, 'error', {
+                    site: 'dl.surf'
+                });
+                setTimeout(() => {
+                    nh?.remove();
+                    nh = null;
+                }, 5000);
             } finally {
                 btn.disabled = false;
             }
@@ -1247,8 +1524,10 @@
 
     function runAirflowBypasser() {
         const KEY = 'rinku_step1_done';
-        if (localStorage.getItem(KEY) === 'true') return;
-        notify('Bypassing Discord requirement…', 'loading', 3000, { site: 'airflowscript.com' });
+        if(localStorage.getItem(KEY) === 'true') return;
+        notify('Bypassing Discord requirement…', 'loading', 3000, {
+            site: 'airflowscript.com'
+        });
         localStorage.setItem(KEY, 'true');
         location.reload();
     }
@@ -1258,7 +1537,9 @@
     function runBstlarBypasser() {
         const SITE = 'bstlar.com';
         const t = makeTimer();
-        const nh = notify(`${SITE} detected — bypassing…`, 'loading', 0, { site: SITE });
+        const nh = notify(`${SITE} detected — bypassing…`, 'loading', 0, {
+            site: SITE
+        });
         const handleError = makeErrHandler(SITE, nh);
 
         const run = async () => {
@@ -1266,19 +1547,27 @@
                 const el = document.getElementById('link_action_id');
                 const link_action_id = el ? (el.value ?? el.textContent) : null;
                 const r1 = await fetch(`/api/link?url=${encodeURIComponent(path.slice(1))}&link_action_id=${link_action_id}`);
-                if (!r1.ok) throw new Error(`/api/link returned HTTP ${r1.status}`);
+                if(!r1.ok) throw new Error(`/api/link returned HTTP ${r1.status}`);
                 const linkData = await r1.json();
 
                 const r2 = await fetch('/api/link-completed', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ link_id: linkData.id, link_action_id }),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        link_id: linkData.id,
+                        link_action_id
+                    }),
                 });
-                if (!r2.ok) throw new Error(`/api/link-completed returned HTTP ${r2.status}`);
+                if(!r2.ok) throw new Error(`/api/link-completed returned HTTP ${r2.status}`);
                 const result = await r2.json();
-                if (!result.destination_url) throw new Error('No destination_url in response');
+                if(!result.destination_url) throw new Error('No destination_url in response');
 
-                safeRedirect(result.destination_url, nh, { t, siteLabel: SITE });
+                safeRedirect(result.destination_url, nh, {
+                    t,
+                    siteLabel: SITE
+                });
             } catch (err) {
                 handleError('bypass failed', err);
             }
@@ -1291,25 +1580,45 @@
     function runWareguardBypasser() {
         const SITE = 'wareguardv2.xyz';
         const t = makeTimer();
-        const nh = notify('wareguardv2 checkpoint — bypassing…', 'loading', 0, { site: SITE });
+        const nh = notify('wareguardv2 checkpoint — bypassing…', 'loading', 0, {
+            site: SITE
+        });
         const handleError = makeErrHandler(SITE, nh);
 
         const run = () => {
             try {
                 const btn = document.getElementById('continueBtn');
-                if (!btn?.href) { handleError('continueBtn not found', null); return; }
+                if(!btn?.href) {
+                    handleError('continueBtn not found', null);
+                    return;
+                }
 
                 const r = new URL(btn.href).searchParams.get('r');
-                if (!r) { handleError('no redirect parameter found', null); return; }
+                if(!r) {
+                    handleError('no redirect parameter found', null);
+                    return;
+                }
 
                 let dest;
-                try { dest = atob(decodeURIComponent(r)); }
-                catch (e) { handleError('failed to decode redirect URL', e); return; }
+                try {
+                    dest = atob(decodeURIComponent(r));
+                } catch (e) {
+                    handleError('failed to decode redirect URL', e);
+                    return;
+                }
 
-                if (!safeUrl(dest)) { handleError('decoded URL is invalid or unsafe', null); return; }
+                if(!safeUrl(dest)) {
+                    handleError('decoded URL is invalid or unsafe', null);
+                    return;
+                }
 
-                nh.update('Redirecting in 1s…', 'info', { site: SITE });
-                showCountdown(1, () => safeRedirect(dest, nh, { t, siteLabel: SITE }), 'wareguardv2 bypass');
+                nh.update('Redirecting in 1s…', 'info', {
+                    site: SITE
+                });
+                showCountdown(1, () => safeRedirect(dest, nh, {
+                    t,
+                    siteLabel: SITE
+                }), 'wareguardv2 bypass');
             } catch (err) {
                 handleError('unexpected error', err);
             }
@@ -1322,20 +1631,27 @@
     function runSubniseBypasser() {
         const SITE = 'subnise.com';
         const t = makeTimer();
-        const nh = notify(`${SITE} detected — bypassing…`, 'loading', 0, { site: SITE });
+        const nh = notify(`${SITE} detected — bypassing…`, 'loading', 0, {
+            site: SITE
+        });
         const handleError = makeErrHandler(SITE, nh);
 
         const run = async () => {
             try {
                 const id = path.split('/').pop();
-                if (!id) throw new Error('Could not extract link ID from URL');
+                if(!id) throw new Error('Could not extract link ID from URL');
                 const r = await fetch(`/api/links/${id}`);
-                if (!r.ok) throw new Error(`API returned HTTP ${r.status}`);
+                if(!r.ok) throw new Error(`API returned HTTP ${r.status}`);
                 const data = await r.json();
-                if (!data.url) throw new Error('No URL in API response');
+                if(!data.url) throw new Error('No URL in API response');
 
-                nh.update('Redirecting in 1s…', 'info', { site: SITE });
-                showCountdown(1, () => safeRedirect(data.url, nh, { t, siteLabel: SITE }), 'subnise bypass');
+                nh.update('Redirecting in 1s…', 'info', {
+                    site: SITE
+                });
+                showCountdown(1, () => safeRedirect(data.url, nh, {
+                    t,
+                    siteLabel: SITE
+                }), 'subnise bypass');
             } catch (err) {
                 handleError('bypass failed', err);
             }
@@ -1351,37 +1667,63 @@
         function extractUrl() {
             try {
                 const tokenInput = document.querySelector('[name=token]');
-                if (!tokenInput?.value) return null;
+                if(!tokenInput?.value) return null;
                 const match = tokenInput.value.match(/aHR0cHM6Ly9[A-Za-z0-9+/=]*/);
-                if (!match) return null;
+                if(!match) return null;
                 return atob(match[0]);
-            } catch { return null; }
+            } catch {
+                return null;
+            }
         }
 
         function doBypass() {
             const t = makeTimer();
             const dest = extractUrl();
-            if (!dest) {
-                notify('tpi.li: token not found — check console.', 'error', 6000, { site: 'tpi.li' });
+            if(!dest) {
+                notify('tpi.li: token not found — check console.', 'error', 6000, {
+                    site: 'tpi.li'
+                });
                 return;
             }
-            notify(`tpi.li decoded. Redirecting in ${DELAY}s…`, 'info', 4000, { site: 'tpi.li' });
+            notify(`tpi.li decoded. Redirecting in ${DELAY}s…`, 'info', 4000, {
+                site: 'tpi.li'
+            });
             showCountdown(DELAY, () => {
-                notify('tpi.li — redirected!', 'success', undefined, { site: 'tpi.li', time: t.elapsed() + 's' });
+                notify('tpi.li — redirected!', 'success', undefined, {
+                    site: 'tpi.li',
+                    time: t.elapsed() + 's'
+                });
                 location.href = dest;
             }, 'tpi.li bypass');
         }
 
         function init() {
-            notify('tpi.li bypasser active…', 'loading', 2500, { site: 'tpi.li' });
-            if (extractUrl()) { doBypass(); return; }
-            const obs = new MutationObserver(() => {
-                if (extractUrl()) { obs.disconnect(); doBypass(); }
+            notify('tpi.li bypasser active…', 'loading', 2500, {
+                site: 'tpi.li'
             });
-            obs.observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['value'] });
+            if(extractUrl()) {
+                doBypass();
+                return;
+            }
+            const obs = new MutationObserver(() => {
+                if(extractUrl()) {
+                    obs.disconnect();
+                    doBypass();
+                }
+            });
+            obs.observe(document.documentElement, {
+                childList: true,
+                subtree: true,
+                attributes: true,
+                attributeFilter: ['value']
+            });
             let tries = 0;
             const iv = setInterval(() => {
-                if (extractUrl() || ++tries > 60) { clearInterval(iv); obs.disconnect(); if (extractUrl()) doBypass(); }
+                if(extractUrl() || ++tries > 60) {
+                    clearInterval(iv);
+                    obs.disconnect();
+                    if(extractUrl()) doBypass();
+                }
             }, 500);
         }
         onReady(init);
@@ -1411,82 +1753,111 @@
             const _ac = Element.prototype.appendChild;
             const _ib = Element.prototype.insertBefore;
             const isAd = el => {
-                if (!el || el.nodeType !== 1) return false;
+                if(!el || el.nodeType !== 1) return false;
                 const src = el.src || el.getAttribute?.('src') || '';
                 const tg = el.tagName?.toLowerCase();
                 return (tg === 'script' || tg === 'iframe') && src && AD_PAT.some(p => p.test(src));
             };
-            Element.prototype.appendChild  = function (c) { return isAd(c) ? c : _ac.call(this, c); };
-            Element.prototype.insertBefore = function (n, r) { return isAd(n) ? n : _ib.call(this, n, r); };
+            Element.prototype.appendChild = function (c) {
+                return isAd(c) ? c : _ac.call(this, c);
+            };
+            Element.prototype.insertBefore = function (n, r) {
+                return isAd(n) ? n : _ib.call(this, n, r);
+            };
 
             window.googletag = {
-                cmd: { push: () => {} },
-                defineSlot: () => ({ addService: () => ({}) }),
+                cmd: {
+                    push: () => {}
+                },
+                defineSlot: () => ({
+                    addService: () => ({})
+                }),
                 pubads: () => ({}),
                 enableServices: () => {},
                 display: () => {},
             };
-            window.adsbygoogle = { push: () => {} };
+            window.adsbygoogle = {
+                push: () => {}
+            };
 
             return () => AD_SEL.forEach(s => document.querySelectorAll(s).forEach(e => e.remove()));
         })() : () => {};
 
         function extract() {
             const inp = document.querySelector('input[name="newwpsafelink"]');
-            if (!inp) return null;
+            if(!inp) return null;
             try {
                 const outer = JSON.parse(atob(inp.value));
-                const url   = new URL(outer.linkr);
+                const url = new URL(outer.linkr);
                 const inner = JSON.parse(atob(url.searchParams.get('safelink_redirect')));
-                return { dest: inner.safelink || inner.second_safelink_url || null, delay: Math.max(0, parseInt(outer.delay, 10) || 0) };
-            } catch { return null; }
+                return {
+                    dest: inner.safelink || inner.second_safelink_url || null,
+                    delay: Math.max(0, parseInt(outer.delay, 10) || 0)
+                };
+            } catch {
+                return null;
+            }
         }
 
         function scheduleBypass() {
-            if (scheduled) return;
+            if(scheduled) return;
             const data = extract();
-            if (!data?.dest) return;
+            if(!data?.dest) return;
             scheduled = true;
-            notify(`Safelink decoded. Redirecting in ${data.delay}s.`, 'info', 5000, { site: host });
+            notify(`Safelink decoded. Redirecting in ${data.delay}s.`, 'info', 5000, {
+                site: host
+            });
             const startCountdown = () => {
                 showCountdown(data.delay, () => {
-                    notify('Safelink bypassed!', 'success', undefined, { site: host, time: t.elapsed() + 's' });
+                    notify('Safelink bypassed!', 'success', undefined, {
+                        site: host,
+                        time: t.elapsed() + 's'
+                    });
                     showRedirectNotif(data.dest);
                     window.location.replace(data.dest);
                 }, CONFIG.blockAds ? 'Ads blocked' : 'Redirecting');
             };
-            if (document.readyState === 'complete') startCountdown();
-            else window.addEventListener('load', startCountdown, { once: true });
+            if(document.readyState === 'complete') startCountdown();
+            else window.addEventListener('load', startCountdown, {
+                once: true
+            });
         }
 
         function startObserver() {
             const obs = new MutationObserver(mutations => {
                 _cleanAds();
-                if (scheduled) return;
-                for (const m of mutations)
-                    for (const n of m.addedNodes)
-                        if (n.nodeType === 1 && (n.matches?.('input[name="newwpsafelink"]') || n.querySelector?.('input[name="newwpsafelink"]'))) {
+                if(scheduled) return;
+                for(const m of mutations)
+                    for(const n of m.addedNodes)
+                        if(n.nodeType === 1 && (n.matches?.('input[name="newwpsafelink"]') || n.querySelector?.('input[name="newwpsafelink"]'))) {
                             scheduleBypass();
-                            if (scheduled) obs.disconnect();
+                            if(scheduled) obs.disconnect();
                         }
             });
-            obs.observe(document.documentElement, { childList: true, subtree: true });
+            obs.observe(document.documentElement, {
+                childList: true,
+                subtree: true
+            });
         }
 
         function init() {
-            notify('Unknown Link Bypasser active — scanning…', 'loading', 3000, { site: host });
+            notify('Unknown Link Bypasser active — scanning…', 'loading', 3000, {
+                site: host
+            });
             _cleanAds();
             scheduleBypass();
-            if (!scheduled) startObserver();
+            if(!scheduled) startObserver();
         }
 
-        if (document.readyState === 'complete') init();
-        else window.addEventListener('load', init, { once: true });
+        if(document.readyState === 'complete') init();
+        else window.addEventListener('load', init, {
+            once: true
+        });
 
         let attempts = 0;
         const poll = setInterval(() => {
             _cleanAds();
-            if (scheduled || ++attempts > 60) clearInterval(poll);
+            if(scheduled || ++attempts > 60) clearInterval(poll);
             else scheduleBypass();
         }, 500);
     }
@@ -1496,7 +1867,7 @@
     function runFormBypasser() {
         const _qs = Document.prototype.querySelector;
         Document.prototype.querySelector = function (sel) {
-            if (typeof sel === 'string' && sel.includes('eecdbd')) return this.createElement('div');
+            if(typeof sel === 'string' && sel.includes('eecdbd')) return this.createElement('div');
             return _qs.call(this, sel);
         };
 
@@ -1507,15 +1878,16 @@
         notify(
             extraDelaySec > 0 ? `Retry #${extraDelaySec} — adding ${extraDelaySec}s extra delay…` : 'Form bypasser active — waiting for page…',
             extraDelaySec > 0 ? 'warn' : 'loading',
-            extraDelaySec > 0 ? 4000 : 3000,
-            { site: host }
+            extraDelaySec > 0 ? 4000 : 3000, {
+                site: host
+            }
         );
 
         waitForEl('form[action*="api-endpoint/verify"]').then(async form => {
             const action = form.querySelector('input[name="action"]')?.value;
             const progressMatch = [...document.querySelectorAll('script')].map(s => s.textContent.match(/progress_original\s*=\s*(\d+)/)).find(Boolean);
             const baseDelay = action === 'countdown' ? 5000 : progressMatch ? +progressMatch[1] * 1000 : 0;
-            const delay   = baseDelay + extraDelaySec * 1000;
+            const delay = baseDelay + extraDelaySec * 1000;
             const seconds = Math.ceil(delay / 1000);
             await waitBody();
 
@@ -1523,21 +1895,28 @@
             const setStatus = (msg, type, extra) => nh ? nh.update(msg, type, extra) : (nh = notify(msg, type, 0, extra));
 
             const [captchaToken] = await Promise.all([
-                action === 'captcha'
-                    ? (setStatus('Solving captcha automatically…', 'loading', { site: host }), solveTurnstile(getSiteKey()))
-                    : Promise.resolve(null),
+                action === 'captcha' ?
+                (setStatus('Solving captcha automatically…', 'loading', {
+                    site: host
+                }), solveTurnstile(getSiteKey())) :
+                Promise.resolve(null),
                 seconds > 0 ? new Promise(res => showCountdown(seconds, res, 'Processing safelink…')) : Promise.resolve(),
             ]);
 
-            setStatus('Fetching destination…', 'loading', { site: host });
+            setStatus('Fetching destination…', 'loading', {
+                site: host
+            });
 
             const data = new FormData();
             form.querySelectorAll('input[type="hidden"]').forEach(f => data.append(f.name, f.value));
-            if (captchaToken) data.append('cf-turnstile-response', captchaToken);
+            if(captchaToken) data.append('cf-turnstile-response', captchaToken);
 
             let result;
             try {
-                const res = await fetch(form.getAttribute('action'), { method: 'POST', body: data });
+                const res = await fetch(form.getAttribute('action'), {
+                    method: 'POST',
+                    body: data
+                });
                 result = await res.json();
             } catch (err) {
                 const nextExtra = extraDelaySec + 1;
@@ -1547,19 +1926,34 @@
                 return;
             }
 
-            if (result.status !== 'success') { setStatus(`Failed: ${result.data || result.message || 'unknown'}`, 'error'); return; }
+            if(result.status !== 'success') {
+                setStatus(`Failed: ${result.data || result.message || 'unknown'}`, 'error');
+                return;
+            }
 
             sessionStorage.removeItem(RETRY_KEY);
-            const { final, next_page, speed_token } = result.data;
+            const {
+                final,
+                next_page,
+                speed_token
+            } = result.data;
 
-            if (final) {
-                setStatus('Redirecting!', 'success', { site: host, time: t.elapsed() + 's' });
+            if(final) {
+                setStatus('Redirecting!', 'success', {
+                    site: host,
+                    time: t.elapsed() + 's'
+                });
                 setTimeout(() => nh?.remove(), 3000);
-                if (final.toLowerCase().startsWith('http')) window.location = final;
+                if(final.toLowerCase().startsWith('http')) window.location = final;
                 else unsafeWindow.setup_special_link?.(final) ?? console.warn('[ULB/FormBypasser] setup_special_link missing for:', final);
-            } else if (next_page && speed_token) {
-                setStatus('Next step — continuing…', 'loading', { site: host });
-                const next = Object.assign(document.createElement('form'), { method: 'POST', action: next_page });
+            } else if(next_page && speed_token) {
+                setStatus('Next step — continuing…', 'loading', {
+                    site: host
+                });
+                const next = Object.assign(document.createElement('form'), {
+                    method: 'POST',
+                    action: next_page
+                });
                 next.insertAdjacentHTML('beforeend', `<input type="hidden" name="speed_token" value="${speed_token}">`);
                 document.body.appendChild(next);
                 next.submit();
@@ -1575,16 +1969,21 @@
     function runReshortflyBypasser() {
         const SITE = 'reshortfly.com';
         const t = makeTimer();
-        const nh = notify(`${SITE} detected — waiting…`, 'loading', 0, { site: SITE });
+        const nh = notify(`${SITE} detected — waiting…`, 'loading', 0, {
+            site: SITE
+        });
         const handleError = makeErrHandler(SITE, nh);
 
         const doFetch = async () => {
             try {
                 const form = document.querySelector('#go-link');
-                if (!form) throw new Error('Form #go-link not found');
+                if(!form) throw new Error('Form #go-link not found');
                 const r = await fetch('/links/go', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8', 'X-Requested-With': 'XMLHttpRequest' },
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
                     body: new URLSearchParams(new FormData(form)),
                     credentials: 'include',
                 });
@@ -1592,11 +1991,16 @@
                 let dest = null;
                 try {
                     const j = JSON.parse(tx);
-                    if (j.url) dest = j.url;
-                    else if (j.data) dest = atob(j.data).match(/https?:\/\/[^\s"']+/)?.[0];
-                } catch { dest = tx.match(/https?:\/\/[^\s"']+/)?.[0]; }
-                if (!dest) throw new Error('No destination URL found in response');
-                safeRedirect(dest, nh, { t, siteLabel: SITE });
+                    if(j.url) dest = j.url;
+                    else if(j.data) dest = atob(j.data).match(/https?:\/\/[^\s"']+/)?.[0];
+                } catch {
+                    dest = tx.match(/https?:\/\/[^\s"']+/)?.[0];
+                }
+                if(!dest) throw new Error('No destination URL found in response');
+                safeRedirect(dest, nh, {
+                    t,
+                    siteLabel: SITE
+                });
             } catch (err) {
                 handleError('fetch failed', err);
             }
@@ -1605,7 +2009,9 @@
         onReady(() => {
             _lnbzWaitForAppVars(vars => {
                 const secs = Math.max(1, parseInt(vars?.counter_value, 10) || 7);
-                nh.update(`${SITE} — redirecting in ${secs}s…`, 'loading', { site: SITE });
+                nh.update(`${SITE} — redirecting in ${secs}s…`, 'loading', {
+                    site: SITE
+                });
                 showCountdown(secs, doFetch, 'reshortfly bypass');
             }, 5000);
         });
@@ -1616,12 +2022,17 @@
     function runAvnsGamesInterstitial() {
         const SITE = 'avnsgames.com';
         const t = makeTimer();
-        const nh = notify('Interstitial page detected — waiting for redirect form…', 'loading', 0, { site: SITE });
+        const nh = notify('Interstitial page detected — waiting for redirect form…', 'loading', 0, {
+            site: SITE
+        });
 
         const trySubmit = () => {
             const f = document.getElementById('go_d2');
-            if (f) {
-                nh.update('Form found — submitting…', 'success', { site: SITE, time: t.elapsed() + 's' });
+            if(f) {
+                nh.update('Form found — submitting…', 'success', {
+                    site: SITE,
+                    time: t.elapsed() + 's'
+                });
                 setTimeout(() => nh.remove(), 1500);
                 HTMLFormElement.prototype.submit.call(f);
                 return true;
@@ -1630,7 +2041,7 @@
         };
 
         const init = () => {
-            if (trySubmit()) return;
+            if(trySubmit()) return;
             pollUntil(trySubmit, 300, 100).catch(() => {
                 nh.update('Interstitial form not found — unsupported page layout.', 'error');
                 setTimeout(() => nh.remove(), 6000);
@@ -1641,41 +2052,63 @@
 
     // ── lnbz.la / go.yorurl.com / go.caslinks.com / highlocus.shop ─────────
 
-    function runLnbzLaBypasser()    { _runLinksGoBypasser('lnbz.la', null); }
-    function runYorurlBypasser()    { _runLinksGoBypasser('go.yorurl.com', null); }
-    function runCasLinksBypasser()  { _runLinksGoBypasser(host, null); }
+    function runLnbzLaBypasser() {
+        _runLinksGoBypasser('lnbz.la', null);
+    }
+
+    function runYorurlBypasser() {
+        _runLinksGoBypasser('go.yorurl.com', null);
+    }
+
+    function runCasLinksBypasser() {
+        _runLinksGoBypasser(host, null);
+    }
 
     // ── 4br.me ─────────────────────────────────────────────────────────────
 
-    function run4BrMeBypasser() { _runLinksGoBypasser('4br.me', '0x4AAAAAAA9NLL_co1eXbypf'); }
+    function run4BrMeBypasser() {
+        _runLinksGoBypasser('4br.me', '0x4AAAAAAA9NLL_co1eXbypf');
+    }
 
     // ── short-jambo.com / short-jambo.ink ──────────────────────────────────
 
-    function runShortJamboDotComBypasser() { _runLinksGoBypasser('short-jambo.com', null); }
-    function runShortJamboInkBypasser()    { _runLinksGoBypasser('short-jambo.ink', null); }
+    function runShortJamboDotComBypasser() {
+        _runLinksGoBypasser('short-jambo.com', null);
+    }
+
+    function runShortJamboInkBypasser() {
+        _runLinksGoBypasser('short-jambo.ink', null);
+    }
 
     // ── fastcars*.com ──────────────────────────────────────────────────────
 
     function runFastcarsBypasser() {
         const siteLabel = host;
         const t = makeTimer();
-        const nh = notify(`${siteLabel} — waiting for continue button…`, 'loading', 0, { site: siteLabel });
+        const nh = notify(`${siteLabel} — waiting for continue button…`, 'loading', 0, {
+            site: siteLabel
+        });
 
         const tryBypass = () => {
             const btn = document.getElementById('yuidea-btmbtn');
-            if (!btn?.href) return false;
-            try { if (typeof unsafeWindow.yuideascrolldown === 'function') unsafeWindow.yuideascrolldown(); } catch (_) {}
-            safeRedirect(btn.href, nh, { t, siteLabel });
+            if(!btn?.href) return false;
+            try {
+                if(typeof unsafeWindow.yuideascrolldown === 'function') unsafeWindow.yuideascrolldown();
+            } catch (_) {}
+            safeRedirect(btn.href, nh, {
+                t,
+                siteLabel
+            });
             return true;
         };
 
         const init = () => {
-            if (tryBypass()) return;
+            if(tryBypass()) return;
             let tries = 0;
             const iv = setInterval(() => {
-                if (tryBypass() || ++tries > 300) {
+                if(tryBypass() || ++tries > 300) {
                     clearInterval(iv);
-                    if (tries > 300) {
+                    if(tries > 300) {
                         nh.update(`${siteLabel}: #yuidea-btmbtn not found — unsupported layout.`, 'error');
                         setTimeout(() => nh.remove(), 6000);
                     }
@@ -1689,20 +2122,29 @@
 
     function showScamWarning(opts) {
         const {
-            site        = location.hostname,
-            reason      = 'This site has been flagged as malicious.',
-            details     = '',
-            actionUrl   = '',
-            actionLabel = '🔒 Take Action',
-            logTag      = site,
+            site = location.hostname,
+                reason = 'This site has been flagged as malicious.',
+                details = '',
+                actionUrl = '',
+                actionLabel = '🔒 Take Action',
+                logTag = site,
         } = opts;
 
-        try { unsafeWindow.fetch = () => Promise.reject(new Error('[ULB] blocked')); } catch (_) {}
-        try { unsafeWindow.XMLHttpRequest.prototype.open = function () { console.warn(`[ULB/${logTag}] XHR blocked`); }; } catch (_) {}
+        try {
+            unsafeWindow.fetch = () => Promise.reject(new Error('[ULB] blocked'));
+        } catch (_) {}
+        try {
+            unsafeWindow.XMLHttpRequest.prototype.open = function () {
+                console.warn(`[ULB/${logTag}] XHR blocked`);
+            };
+        } catch (_) {}
 
         const mount = () => {
             document.querySelectorAll('script, style, link, img, video, audio, iframe, canvas, svg:not(#__ulb_svg)').forEach(el => el.remove());
-            if (document.body) { document.body.innerHTML = ''; document.body.style.cssText = 'margin:0;padding:0;overflow:hidden;background:#060006;'; }
+            if(document.body) {
+                document.body.innerHTML = '';
+                document.body.style.cssText = 'margin:0;padding:0;overflow:hidden;background:#060006;';
+            }
 
             const st = Object.assign(document.createElement('style'), {
                 id: '__ulb_scam_style',
@@ -1728,90 +2170,224 @@
             });
             (document.head || document.documentElement).appendChild(st);
 
-            const scanline = Object.assign(document.createElement('div'), { id: '__ulb_scanline' });
+            const scanline = Object.assign(document.createElement('div'), {
+                id: '__ulb_scanline'
+            });
             document.documentElement.appendChild(scanline);
 
-            const overlay = Object.assign(document.createElement('div'), { id: '__ulb_overlay' });
-            const card    = Object.assign(document.createElement('div'), { id: '__ulb_card' });
+            const overlay = Object.assign(document.createElement('div'), {
+                id: '__ulb_overlay'
+            });
+            const card = Object.assign(document.createElement('div'), {
+                id: '__ulb_card'
+            });
 
-            const stripe = Object.assign(document.createElement('div'), { id: '__ulb_stripe' });
-            Object.assign(stripe.style, { background: '#ff2222', padding: '8px 20px', display: 'flex', alignItems: 'center', gap: '10px' });
+            const stripe = Object.assign(document.createElement('div'), {
+                id: '__ulb_stripe'
+            });
+            Object.assign(stripe.style, {
+                background: '#ff2222',
+                padding: '8px 20px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px'
+            });
             const stripeIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-            stripeIcon.setAttribute('width', '16'); stripeIcon.setAttribute('height', '16'); stripeIcon.setAttribute('viewBox', '0 0 16 16'); stripeIcon.setAttribute('fill', 'none');
+            stripeIcon.setAttribute('width', '16');
+            stripeIcon.setAttribute('height', '16');
+            stripeIcon.setAttribute('viewBox', '0 0 16 16');
+            stripeIcon.setAttribute('fill', 'none');
             stripeIcon.innerHTML = '<path d="M8 1L1 14h14L8 1z" fill="#fff"/><path d="M8 6v4M8 11v1.5" stroke="#cc0000" stroke-width="1.5" stroke-linecap="round"/>';
-            const stripeText = Object.assign(document.createElement('span'), { textContent: 'Security Warning — Unknown Link Bypasser' });
-            Object.assign(stripeText.style, { fontSize: '11px', fontWeight: '700', letterSpacing: '2px', textTransform: 'uppercase', color: '#fff' });
+            const stripeText = Object.assign(document.createElement('span'), {
+                textContent: 'Security Warning — Unknown Link Bypasser'
+            });
+            Object.assign(stripeText.style, {
+                fontSize: '11px',
+                fontWeight: '700',
+                letterSpacing: '2px',
+                textTransform: 'uppercase',
+                color: '#fff'
+            });
             stripe.append(stripeIcon, stripeText);
 
             const body = document.createElement('div');
-            Object.assign(body.style, { padding: '24px 22px 20px' });
+            Object.assign(body.style, {
+                padding: '24px 22px 20px'
+            });
 
-            const headline = Object.assign(document.createElement('div'), { id: '__ulb_headline', textContent: 'SCAM DETECTED' });
-            Object.assign(headline.style, { fontSize: '22px', fontWeight: '900', letterSpacing: '1px', textTransform: 'uppercase', color: '#ff3333', marginBottom: '4px', lineHeight: '1.1' });
+            const headline = Object.assign(document.createElement('div'), {
+                id: '__ulb_headline',
+                textContent: 'SCAM DETECTED'
+            });
+            Object.assign(headline.style, {
+                fontSize: '22px',
+                fontWeight: '900',
+                letterSpacing: '1px',
+                textTransform: 'uppercase',
+                color: '#ff3333',
+                marginBottom: '4px',
+                lineHeight: '1.1'
+            });
 
-            const subline = Object.assign(document.createElement('div'), { textContent: 'Do not proceed — this site is dangerous' });
-            Object.assign(subline.style, { fontSize: '12px', color: '#666', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '18px', borderBottom: '1px solid #1e001e', paddingBottom: '14px' });
+            const subline = Object.assign(document.createElement('div'), {
+                textContent: 'Do not proceed — this site is dangerous'
+            });
+            Object.assign(subline.style, {
+                fontSize: '12px',
+                color: '#666',
+                letterSpacing: '2px',
+                textTransform: 'uppercase',
+                marginBottom: '18px',
+                borderBottom: '1px solid #1e001e',
+                paddingBottom: '14px'
+            });
 
-            const domainBox = Object.assign(document.createElement('div'), { id: '__ulb_domain' });
-            Object.assign(domainBox.style, { background: '#180018', border: '1px solid #440044', padding: '10px 14px', marginBottom: '14px' });
-            const domainText = Object.assign(document.createElement('span'), { textContent: site });
-            Object.assign(domainText.style, { fontSize: '13px', color: '#ff9999', fontFamily: 'monospace', fontWeight: '600', letterSpacing: '0.5px' });
+            const domainBox = Object.assign(document.createElement('div'), {
+                id: '__ulb_domain'
+            });
+            Object.assign(domainBox.style, {
+                background: '#180018',
+                border: '1px solid #440044',
+                padding: '10px 14px',
+                marginBottom: '14px'
+            });
+            const domainText = Object.assign(document.createElement('span'), {
+                textContent: site
+            });
+            Object.assign(domainText.style, {
+                fontSize: '13px',
+                color: '#ff9999',
+                fontFamily: 'monospace',
+                fontWeight: '600',
+                letterSpacing: '0.5px'
+            });
             domainBox.appendChild(domainText);
 
             const reasonBox = document.createElement('div');
-            Object.assign(reasonBox.style, { background: '#1a0000', borderLeft: '3px solid #ff2222', padding: '12px 14px', marginBottom: '10px', fontSize: '13px', color: '#ffaaaa', fontWeight: '700', lineHeight: '1.5' });
+            Object.assign(reasonBox.style, {
+                background: '#1a0000',
+                borderLeft: '3px solid #ff2222',
+                padding: '12px 14px',
+                marginBottom: '10px',
+                fontSize: '13px',
+                color: '#ffaaaa',
+                fontWeight: '700',
+                lineHeight: '1.5'
+            });
             reasonBox.textContent = reason;
 
             let detailsEl = null;
-            if (details) {
-                detailsEl = Object.assign(document.createElement('div'), { textContent: details });
-                Object.assign(detailsEl.style, { fontSize: '12px', color: '#556', lineHeight: '1.75', marginBottom: '20px', padding: '10px 12px', background: '#0a000a', border: '1px solid #1a001a' });
+            if(details) {
+                detailsEl = Object.assign(document.createElement('div'), {
+                    textContent: details
+                });
+                Object.assign(detailsEl.style, {
+                    fontSize: '12px',
+                    color: '#556',
+                    lineHeight: '1.75',
+                    marginBottom: '20px',
+                    padding: '10px 12px',
+                    background: '#0a000a',
+                    border: '1px solid #1a001a'
+                });
             }
 
             const divider = document.createElement('div');
-            Object.assign(divider.style, { borderTop: '1px solid #1e001e', margin: '0 0 16px' });
+            Object.assign(divider.style, {
+                borderTop: '1px solid #1e001e',
+                margin: '0 0 16px'
+            });
 
             let actionBtn = null;
-            if (actionUrl) {
-                actionBtn = Object.assign(document.createElement('a'), { id: '__ulb_action_btn', href: actionUrl, target: '_blank', rel: 'noopener noreferrer', textContent: actionLabel });
-                Object.assign(actionBtn.style, { display: 'block', background: '#5865f2', color: '#fff', fontWeight: '700', fontSize: '13px', textDecoration: 'none', padding: '11px 20px', marginBottom: '8px', textAlign: 'center', letterSpacing: '0.5px', border: '1px solid #4752c4', cursor: 'pointer' });
+            if(actionUrl) {
+                actionBtn = Object.assign(document.createElement('a'), {
+                    id: '__ulb_action_btn',
+                    href: actionUrl,
+                    target: '_blank',
+                    rel: 'noopener noreferrer',
+                    textContent: actionLabel
+                });
+                Object.assign(actionBtn.style, {
+                    display: 'block',
+                    background: '#5865f2',
+                    color: '#fff',
+                    fontWeight: '700',
+                    fontSize: '13px',
+                    textDecoration: 'none',
+                    padding: '11px 20px',
+                    marginBottom: '8px',
+                    textAlign: 'center',
+                    letterSpacing: '0.5px',
+                    border: '1px solid #4752c4',
+                    cursor: 'pointer'
+                });
             }
 
-            const backBtn = Object.assign(document.createElement('button'), { id: '__ulb_back_btn', textContent: '← Go Back to Safety' });
-            Object.assign(backBtn.style, { background: 'transparent', border: '1px solid #2a002a', color: '#666', fontSize: '12px', fontWeight: '600', padding: '9px 22px', cursor: 'pointer', width: '100%', letterSpacing: '1px', textTransform: 'uppercase' });
-            backBtn.addEventListener('click', () => { window.location.href = 'https://www.google.com'; });
+            const backBtn = Object.assign(document.createElement('button'), {
+                id: '__ulb_back_btn',
+                textContent: '← Go Back to Safety'
+            });
+            Object.assign(backBtn.style, {
+                background: 'transparent',
+                border: '1px solid #2a002a',
+                color: '#666',
+                fontSize: '12px',
+                fontWeight: '600',
+                padding: '9px 22px',
+                cursor: 'pointer',
+                width: '100%',
+                letterSpacing: '1px',
+                textTransform: 'uppercase'
+            });
+            backBtn.addEventListener('click', () => {
+                window.location.href = 'https://www.google.com';
+            });
 
             body.append(headline, subline, domainBox, reasonBox);
-            if (detailsEl) body.appendChild(detailsEl);
+            if(detailsEl) body.appendChild(detailsEl);
             body.append(divider);
-            if (actionBtn) body.appendChild(actionBtn);
+            if(actionBtn) body.appendChild(actionBtn);
             body.appendChild(backBtn);
 
-            const footer = Object.assign(document.createElement('div'), { textContent: 'Unknown Link Bypasser · @Aro Moon — Scam Protection' });
-            Object.assign(footer.style, { background: '#080008', borderTop: '1px solid #1a001a', padding: '8px 22px', fontSize: '10px', color: '#2a002a', letterSpacing: '1.5px', textTransform: 'uppercase' });
+            const footer = Object.assign(document.createElement('div'), {
+                textContent: 'Unknown Link Bypasser · @Aro Moon — Scam Protection'
+            });
+            Object.assign(footer.style, {
+                background: '#080008',
+                borderTop: '1px solid #1a001a',
+                padding: '8px 22px',
+                fontSize: '10px',
+                color: '#2a002a',
+                letterSpacing: '1.5px',
+                textTransform: 'uppercase'
+            });
 
             card.append(stripe, body, footer);
             overlay.appendChild(card);
             document.documentElement.appendChild(overlay);
-            try { document.body.style.overflow = 'hidden'; } catch (_) {}
+            try {
+                document.body.style.overflow = 'hidden';
+            } catch (_) {}
             console.warn(`[ULB/ScamWarning] Blocked: ${site} — ${reason}`);
         };
 
-        if (document.body) mount();
-        else document.addEventListener('DOMContentLoaded', mount, { once: true });
+        if(document.body) mount();
+        else document.addEventListener('DOMContentLoaded', mount, {
+            once: true
+        });
     }
 
     // ── bloxscript.live ────────────────────────────────────────────────────
 
     function runBloxscriptScamWarning() {
         showScamWarning({
-            site:        'bloxscript.live',
-            reason:      'This site steals your Discord token.',
-            details:     'A Discord token is a permanent credential that bypasses 2FA, giving ' +
-                         'attackers full access to your account, DMs, servers, and Nitro. ' +
-                         'If you have already interacted with this site, change your Discord ' +
-                         'password immediately to invalidate your token.',
-            actionUrl:   'https://discord.com/login',
+            site: 'bloxscript.live',
+            reason: 'This site steals your Discord token.',
+            details: 'A Discord token is a permanent credential that bypasses 2FA, giving ' +
+                'attackers full access to your account, DMs, servers, and Nitro. ' +
+                'If you have already interacted with this site, change your Discord ' +
+                'password immediately to invalidate your token.',
+            actionUrl: 'https://discord.com/login',
             actionLabel: '🔒 Change My Discord Password',
         });
     }
@@ -1820,8 +2396,8 @@
 
     function runJoberBypasser() {
         const SITE = host.replace(/^www\./, '');
-        if (path !== '/') clickWhenReady('btn7', `${SITE} step 2`);
-        else             clickWhenReady('notarobot', `${SITE} step 1`);
+        if(path !== '/') clickWhenReady('btn7', `${SITE} step 2`);
+        else clickWhenReady('notarobot', `${SITE} step 1`);
     }
 
     // ── how2guidess.com ────────────────────────────────────────────────────
@@ -1830,21 +2406,39 @@
         const SITE = 'how2guidess.com';
 
         const waitAndClick = (id, afterMs, afterFn) => {
-            pollUntil(() => { const el = document.getElementById(id); if (!el) return false; el.click(); return true; }, 200, 150)
+            pollUntil(() => {
+                    const el = document.getElementById(id);
+                    if(!el) return false;
+                    el.click();
+                    return true;
+                }, 200, 150)
                 .then(() => {
-                    notify(`how2guidess — clicked #${id}`, 'info', 2000, { site: SITE });
-                    if (afterFn) setTimeout(afterFn, afterMs);
+                    notify(`how2guidess — clicked #${id}`, 'info', 2000, {
+                        site: SITE
+                    });
+                    if(afterFn) setTimeout(afterFn, afterMs);
                 })
-                .catch(() => { notify(`${SITE}: #${id} not found — unsupported layout.`, 'error', 6000, { site: SITE }); });
+                .catch(() => {
+                    notify(`${SITE}: #${id} not found — unsupported layout.`, 'error', 6000, {
+                        site: SITE
+                    });
+                });
         };
 
         const run = () => {
             const t = makeTimer();
-            const nh = notify(`${SITE} — bypassing…`, 'loading', 0, { site: SITE });
+            const nh = notify(`${SITE} — bypassing…`, 'loading', 0, {
+                site: SITE
+            });
             waitAndClick('gi', 500, () => {
-                nh.update('Step 1 done…', 'loading', { site: SITE });
+                nh.update('Step 1 done…', 'loading', {
+                    site: SITE
+                });
                 waitAndClick('ci', 0, () => {
-                    nh.update('Done!', 'success', { site: SITE, time: t.elapsed() + 's' });
+                    nh.update('Done!', 'success', {
+                        site: SITE,
+                        time: t.elapsed() + 's'
+                    });
                     setTimeout(() => nh.remove(), 2000);
                 });
             });
@@ -1857,28 +2451,44 @@
     function runLinkUnlockBypasser() {
         const SITE = 'link-unlock.com';
         const t = makeTimer();
-        const nh = notify(`${SITE} — bypassing…`, 'loading', 0, { site: SITE });
+        const nh = notify(`${SITE} — bypassing…`, 'loading', 0, {
+            site: SITE
+        });
         const handleError = makeErrHandler(SITE, nh, 7000);
 
         const slug = new URL(location.href).pathname.split('/').filter(Boolean)[0];
-        if (!slug) { handleError('could not read slug from URL', null); return; }
+        if(!slug) {
+            handleError('could not read slug from URL', null);
+            return;
+        }
 
         (async () => {
             try {
-                nh.update(`${SITE} — fetching steps…`, 'loading', { site: SITE });
+                nh.update(`${SITE} — fetching steps…`, 'loading', {
+                    site: SITE
+                });
                 const d1 = await fetchJSON(`https://api.link-unlock.com/u/${slug}`);
                 const steps = d1?.unlock?.steps?.map(s => s.id);
-                if (!steps?.length) throw new Error('No steps found in API response');
+                if(!steps?.length) throw new Error('No steps found in API response');
 
-                nh.update(`${SITE} — completing steps…`, 'loading', { site: SITE });
+                nh.update(`${SITE} — completing steps…`, 'loading', {
+                    site: SITE
+                });
                 const d2 = await fetchJSON(`https://api.link-unlock.com/u/${slug}/complete`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ steps }),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        steps
+                    }),
                 });
-                if (!d2?.destinationUrl) throw new Error('No destinationUrl in response');
+                if(!d2?.destinationUrl) throw new Error('No destinationUrl in response');
 
-                safeRedirect(d2.destinationUrl, nh, { t, siteLabel: SITE });
+                safeRedirect(d2.destinationUrl, nh, {
+                    t,
+                    siteLabel: SITE
+                });
             } catch (err) {
                 handleError('bypass failed', err);
             }
@@ -1888,7 +2498,9 @@
     // ── link4sub.com ───────────────────────────────────────────────────────
 
     function runLink4SubBypasser() {
-        notify('link4sub.com — following redirect to tapvietcode.com…', 'info', undefined, { site: 'link4sub.com' });
+        notify('link4sub.com — following redirect to tapvietcode.com…', 'info', undefined, {
+            site: 'link4sub.com'
+        });
     }
 
     // ── tapvietcode.com ────────────────────────────────────────────────────
@@ -1896,19 +2508,24 @@
     function runTapVietCodeBypasser() {
         const SITE = 'tapvietcode.com';
 
-        if (host.includes('blog.tapvietcode.com')) {
+        if(host.includes('blog.tapvietcode.com')) {
             const t = makeTimer();
-            const nh = notify(`${SITE} — waiting for continue button…`, 'loading', 0, { site: SITE });
+            const nh = notify(`${SITE} — waiting for continue button…`, 'loading', 0, {
+                site: SITE
+            });
 
             const tryClick = () => {
                 const btn = document.getElementById('continueBtn');
-                if (!btn) return false;
-                if (!btn.href) {
+                if(!btn) return false;
+                if(!btn.href) {
                     nh.update(`${SITE}: continueBtn has no href.`, 'error');
                     setTimeout(() => nh.remove(), 6000);
                     return true;
                 }
-                safeRedirect(btn.href, nh, { t, siteLabel: SITE });
+                safeRedirect(btn.href, nh, {
+                    t,
+                    siteLabel: SITE
+                });
                 return true;
             };
 
@@ -1922,21 +2539,31 @@
 
         } else {
             const t = makeTimer();
-            const nh = notify(`${SITE} — reading destination from storage…`, 'loading', 0, { site: SITE });
+            const nh = notify(`${SITE} — reading destination from storage…`, 'loading', 0, {
+                site: SITE
+            });
 
             const tryStorage = () => {
                 try {
-                    for (let i = 0; i < localStorage.length; i++) {
+                    for(let i = 0; i < localStorage.length; i++) {
                         const k = localStorage.key(i);
                         const v = localStorage.getItem(k);
-                        if (!v?.includes('"lnk1"')) continue;
+                        if(!v?.includes('"lnk1"')) continue;
                         try {
                             const j = JSON.parse(v);
                             const u = j?.data?.lnk?.lnk1?.url || j?.lnk?.lnk1?.url;
-                            if (u) { safeRedirect(u, nh, { t, siteLabel: SITE }); return true; }
+                            if(u) {
+                                safeRedirect(u, nh, {
+                                    t,
+                                    siteLabel: SITE
+                                });
+                                return true;
+                            }
                         } catch (_) {}
                     }
-                } catch (e) { console.error('[ULB/tapvietcode] localStorage read failed', e); }
+                } catch (e) {
+                    console.error('[ULB/tapvietcode] localStorage read failed', e);
+                }
                 return false;
             };
 
@@ -1955,52 +2582,80 @@
     function runGpLinksBypasser() {
         const SITE = 'gplinks.co';
         const t = makeTimer();
-        const nh = notify(`${SITE} — solving captcha…`, 'loading', 0, { site: SITE });
+        const nh = notify(`${SITE} — solving captcha…`, 'loading', 0, {
+            site: SITE
+        });
         const handleError = makeErrHandler(SITE, nh, 7000);
 
         const getGpSiteKey = () => {
             const iframe = document.querySelector('iframe[src*="challenges.cloudflare.com"]');
-            if (iframe) {
+            if(iframe) {
                 const m = iframe.getAttribute('src').match(/\/([0-9a-zA-Z_\-]{20,})\//);
-                if (m) return m[1];
+                if(m) return m[1];
             }
             return getSiteKey();
         };
 
         const init = async () => {
             let btn;
-            try { btn = await waitForEl('#captchaButton', 200, 15_000); }
-            catch (e) { handleError('captchaButton not found', e); return; }
+            try {
+                btn = await waitForEl('#captchaButton', 200, 15_000);
+            } catch (e) {
+                handleError('captchaButton not found', e);
+                return;
+            }
 
             const existingHref = btn.getAttribute('href');
-            if (existingHref && existingHref !== '#' && !existingHref.startsWith('javascript')) {
-                safeRedirect(existingHref, nh, { t, siteLabel: SITE });
+            if(existingHref && existingHref !== '#' && !existingHref.startsWith('javascript')) {
+                safeRedirect(existingHref, nh, {
+                    t,
+                    siteLabel: SITE
+                });
                 return;
             }
 
             const sitekey = getGpSiteKey();
-            if (!sitekey) { handleError('could not find Turnstile sitekey', null); return; }
+            if(!sitekey) {
+                handleError('could not find Turnstile sitekey', null);
+                return;
+            }
 
             let token;
-            try { token = await solveTurnstile(sitekey); }
-            catch (e) { handleError('Turnstile solve failed', e); return; }
+            try {
+                token = await solveTurnstile(sitekey);
+            } catch (e) {
+                handleError('Turnstile solve failed', e);
+                return;
+            }
 
             let tsInput = document.querySelector('[name="cf-turnstile-response"]');
-            if (!tsInput) {
-                tsInput = Object.assign(document.createElement('input'), { type: 'hidden', name: 'cf-turnstile-response' });
+            if(!tsInput) {
+                tsInput = Object.assign(document.createElement('input'), {
+                    type: 'hidden',
+                    name: 'cf-turnstile-response'
+                });
                 document.body.appendChild(tsInput);
             }
             tsInput.value = token;
 
             const cbName = document.querySelector('[data-callback]')?.dataset?.callback;
-            if (cbName) { try { if (typeof unsafeWindow[cbName] === 'function') unsafeWindow[cbName](token); } catch (_) {} }
+            if(cbName) {
+                try {
+                    if(typeof unsafeWindow[cbName] === 'function') unsafeWindow[cbName](token);
+                } catch (_) {}
+            }
 
-            nh.update(`${SITE} — waiting for link…`, 'loading', { site: SITE });
+            nh.update(`${SITE} — waiting for link…`, 'loading', {
+                site: SITE
+            });
             pollUntil(() => {
-                const href = btn.getAttribute('href');
-                return href && href !== '#' && !href.startsWith('javascript') && href.startsWith('http') ? href : false;
-            }, 200, 150)
-                .then(href => safeRedirect(href, nh, { t, siteLabel: SITE }))
+                    const href = btn.getAttribute('href');
+                    return href && href !== '#' && !href.startsWith('javascript') && href.startsWith('http') ? href : false;
+                }, 200, 150)
+                .then(href => safeRedirect(href, nh, {
+                    t,
+                    siteLabel: SITE
+                }))
                 .catch(() => handleError('link did not appear after captcha solve — unsupported layout', null));
         };
 
@@ -2010,7 +2665,7 @@
     // ── powergam.online ────────────────────────────────────────────────────
 
     function runPowergamBypasser() {
-        const SITE     = 'powergam.online';
+        const SITE = 'powergam.online';
         const REQUIRED = ['imps', 'lid', 'pages', 'pid', 'step_count', 'vid'];
         const t = makeTimer();
 
@@ -2022,46 +2677,62 @@
 
         const runSteps = async (cookies, pages, finalURL) => {
             const ref = window.location.origin;
-            for (let s = 1; s <= pages; s++) {
-                const nh2 = notify(`${SITE} — posting step ${s}/${pages}…`, 'loading', 0, { site: SITE, time: t.elapsed() + 's' });
+            for(let s = 1; s <= pages; s++) {
+                const nh2 = notify(`${SITE} — posting step ${s}/${pages}…`, 'loading', 0, {
+                    site: SITE,
+                    time: t.elapsed() + 's'
+                });
                 const body = new URLSearchParams({
                     ad_impressions: 2,
-                    form_name:      'ads-track-data',
-                    next_target:    s === pages ? finalURL : ref,
-                    step_id:        String(s),
-                    visitor_id:     cookies.vid,
+                    form_name: 'ads-track-data',
+                    next_target: s === pages ? finalURL : ref,
+                    step_id: String(s),
+                    visitor_id: cookies.vid,
                 });
                 try {
                     await fetch(`${ref}/`, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded', Referer: `${ref}/` },
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            Referer: `${ref}/`
+                        },
                         credentials: 'include',
                         body: body.toString(),
                     });
-                } catch (e) { console.warn(`[ULB/${SITE}] POST failed at step ${s}`, e); }
+                } catch (e) {
+                    console.warn(`[ULB/${SITE}] POST failed at step ${s}`, e);
+                }
                 nh2.remove();
-                if (s < pages) await sleep(1200);
+                if(s < pages) await sleep(1200);
             }
-            notify(`${SITE} — redirecting…`, 'success', 2000, { site: SITE, time: t.elapsed() + 's' });
-            if (safeUrl(finalURL)) location.href = finalURL;
+            notify(`${SITE} — redirecting…`, 'success', 2000, {
+                site: SITE,
+                time: t.elapsed() + 's'
+            });
+            if(safeUrl(finalURL)) location.href = finalURL;
             else handleError('invalid final URL', null);
         };
 
         let executed = false;
         const waiter = setInterval(() => {
-            if (executed) return;
+            if(executed) return;
             const cookies = getCookies();
-            if (!REQUIRED.every(k => k in cookies)) return;
+            if(!REQUIRED.every(k => k in cookies)) return;
             executed = true;
             clearInterval(waiter);
 
             const pages = parseInt(cookies.pages, 10);
-            if (!pages || pages < 1) { handleError('invalid pages cookie', null); return; }
+            if(!pages || pages < 1) {
+                handleError('invalid pages cookie', null);
+                return;
+            }
 
-            const finalURL   = `https://gplinks.co/${cookies.lid}?pid=${cookies.pid}&vid=${cookies.vid}`;
-            const delaySecs  = pages * 30;
+            const finalURL = `https://gplinks.co/${cookies.lid}?pid=${cookies.pid}&vid=${cookies.vid}`;
+            const delaySecs = pages * 30;
 
-            notify(`${SITE} — ${pages} step${pages > 1 ? 's' : ''} detected, waiting ${delaySecs}s…`, 'info', 4000, { site: SITE });
+            notify(`${SITE} — ${pages} step${pages > 1 ? 's' : ''} detected, waiting ${delaySecs}s…`, 'info', 4000, {
+                site: SITE
+            });
             showCountdown(delaySecs, () => runSteps(cookies, pages, finalURL), `powergam — ${pages} page${pages > 1 ? 's' : ''}`);
         }, 500);
     }
@@ -2071,15 +2742,26 @@
     function runRojgarhindiBypasser() {
         const SITE = 'rojgarhindi.in';
         const t = makeTimer();
-        const nh = notify(`${SITE} — detecting page type…`, 'loading', 0, { site: SITE });
+        const nh = notify(`${SITE} — detecting page type…`, 'loading', 0, {
+            site: SITE
+        });
         const handleError = makeErrHandler(SITE, nh);
 
         const tryBypass = () => {
             const btn = document.getElementById('btn6');
-            if (btn?.href && safeUrl(btn.href)) { safeRedirect(btn.href, nh, { t, siteLabel: SITE }); return true; }
+            if(btn?.href && safeUrl(btn.href)) {
+                safeRedirect(btn.href, nh, {
+                    t,
+                    siteLabel: SITE
+                });
+                return true;
+            }
             const form = [...document.forms].find(f => /^tp\d*$/i.test(f.name || '') && f.name !== 'search-form');
-            if (form) {
-                nh.update(`${SITE} — submitting form…`, 'success', { site: SITE, time: t.elapsed() + 's' });
+            if(form) {
+                nh.update(`${SITE} — submitting form…`, 'success', {
+                    site: SITE,
+                    time: t.elapsed() + 's'
+                });
                 setTimeout(() => nh.remove(), 2000);
                 HTMLFormElement.prototype.submit.call(form);
                 return true;
@@ -2088,7 +2770,9 @@
         };
 
         const init = () => {
-            pollUntil(tryBypass, 200, 150).catch(() => { handleError('no btn6 or tp-form found — unsupported layout', null); });
+            pollUntil(tryBypass, 200, 150).catch(() => {
+                handleError('no btn6 or tp-form found — unsupported layout', null);
+            });
         };
         onReady(init);
     }
@@ -2100,37 +2784,59 @@
         const t = makeTimer();
         const handleError = (label, err) => {
             console.error(`[ULB/${SITE}] ${label}`, err ?? '');
-            notify(`${SITE}: ${label}${err?.message ? ` — ${err.message}` : ''}`, 'error', 7000, { site: SITE });
+            notify(`${SITE}: ${label}${err?.message ? ` — ${err.message}` : ''}`, 'error', 7000, {
+                site: SITE
+            });
         };
 
         const runCaptchaPage = async () => {
-            const nh = notify(`${SITE} — solving captcha…`, 'loading', 0, { site: SITE });
+            const nh = notify(`${SITE} — solving captcha…`, 'loading', 0, {
+                site: SITE
+            });
             const sitekey = document.querySelector('.cf-turnstile[data-sitekey]')?.dataset?.sitekey || '0x4AAAAAAA-1YLZYLRnN8eBX';
 
             let token;
-            try { token = await solveTurnstile(sitekey); }
-            catch (e) { nh.remove(); handleError('captcha solve failed', e); return; }
+            try {
+                token = await solveTurnstile(sitekey);
+            } catch (e) {
+                nh.remove();
+                handleError('captcha solve failed', e);
+                return;
+            }
 
             const hiddenInput = document.querySelector('[name="cf-turnstile-response"]');
-            if (hiddenInput) hiddenInput.value = token;
+            if(hiddenInput) hiddenInput.value = token;
 
             const cbName = document.querySelector('.cf-turnstile')?.dataset?.callback;
-            if (cbName) { try { if (typeof unsafeWindow[cbName] === 'function') unsafeWindow[cbName](token); } catch (_) {} }
+            if(cbName) {
+                try {
+                    if(typeof unsafeWindow[cbName] === 'function') unsafeWindow[cbName](token);
+                } catch (_) {}
+            }
 
             const form = document.querySelector('form');
-            if (form) { try { HTMLFormElement.prototype.submit.call(form); } catch (_) {} }
+            if(form) {
+                try {
+                    HTMLFormElement.prototype.submit.call(form);
+                } catch (_) {}
+            }
 
-            nh.update(`${SITE} — captcha done, waiting for redirect…`, 'success', { site: SITE, time: t.elapsed() + 's' });
+            nh.update(`${SITE} — captcha done, waiting for redirect…`, 'success', {
+                site: SITE,
+                time: t.elapsed() + 's'
+            });
             setTimeout(() => nh.remove(), 3000);
         };
 
         const runLinkPage = async () => {
-            const nh = notify(`${SITE} — fetching token…`, 'loading', 0, { site: SITE });
+            const nh = notify(`${SITE} — fetching token…`, 'loading', 0, {
+                site: SITE
+            });
 
             const scrapeVar = name => {
-                for (const s of document.querySelectorAll('script:not([src])')) {
+                for(const s of document.querySelectorAll('script:not([src])')) {
                     const m = s.textContent.match(new RegExp(`\\b${name}\\s*=\\s*'([^']+)'`));
-                    if (m) return m[1];
+                    if(m) return m[1];
                 }
                 return '';
             };
@@ -2138,32 +2844,71 @@
             const _t = unsafeWindow._t || scrapeVar('_t');
             const _d = unsafeWindow._d || scrapeVar('_d');
             const alias = location.pathname.split('/').filter(Boolean).pop() || '';
-            const csrf  = unsafeWindow?.app?.csrf ?? document.querySelector('[name="csrf"]')?.value ?? '';
+            const csrf = unsafeWindow?.app?.csrf ?? document.querySelector('[name="csrf"]')?.value ?? '';
 
             try {
-                nh.update(`${SITE} — getting tk…`, 'loading', { site: SITE });
+                nh.update(`${SITE} — getting tk…`, 'loading', {
+                    site: SITE
+                });
                 const tkResp = await fetchJSON('/get/tk', {
-                    method: 'POST', credentials: 'include',
-                    headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
-                    body: new URLSearchParams({ _a, _t, _d }),
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                    },
+                    body: new URLSearchParams({
+                        _a,
+                        _t,
+                        _d
+                    }),
                 });
 
-                if (!tkResp.status) { nh.remove(); handleError('tk request failed', null); console.log('[ULB/aylink] tk resp:', tkResp); return; }
+                if(!tkResp.status) {
+                    nh.remove();
+                    handleError('tk request failed', null);
+                    console.log('[ULB/aylink] tk resp:', tkResp);
+                    return;
+                }
 
-                nh.update(`${SITE} — fetching destination…`, 'loading', { site: SITE });
+                nh.update(`${SITE} — fetching destination…`, 'loading', {
+                    site: SITE
+                });
                 const goResp = await fetchJSON('/links/go2', {
-                    method: 'POST', credentials: 'include',
-                    headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
-                    body: new URLSearchParams({ alias, csrf, tkn: tkResp.th }),
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                    },
+                    body: new URLSearchParams({
+                        alias,
+                        csrf,
+                        tkn: tkResp.th
+                    }),
                 });
 
-                if (!goResp.url) { nh.remove(); handleError('no URL in go2 response', null); console.log('[ULB/aylink] go2 resp:', goResp); return; }
-                safeRedirect(goResp.url, nh, { t, siteLabel: SITE });
-            } catch (err) { nh.remove(); handleError('bypass failed', err); }
+                if(!goResp.url) {
+                    nh.remove();
+                    handleError('no URL in go2 response', null);
+                    console.log('[ULB/aylink] go2 resp:', goResp);
+                    return;
+                }
+                safeRedirect(goResp.url, nh, {
+                    t,
+                    siteLabel: SITE
+                });
+            } catch (err) {
+                nh.remove();
+                handleError('bypass failed', err);
+            }
         };
 
         const isCaptchaPage = () => !!document.querySelector('.cf-turnstile[data-sitekey]');
-        const init = () => { if (isCaptchaPage()) runCaptchaPage(); else setTimeout(runLinkPage, 1000); };
+        const init = () => {
+            if(isCaptchaPage()) runCaptchaPage();
+            else setTimeout(runLinkPage, 1000);
+        };
         onReady(init);
     }
 
@@ -2177,11 +2922,20 @@
 
         let _handled = false;
         const handleData = data => {
-            if (_handled) return;
+            if(_handled) return;
             const url = data?.return_url || data?.msg?.target;
-            if (!url) { console.warn('[ULB/ytsubme] no return_url in response:', data); notify(`${SITE}: no return_url in API response`, 'error', 7000, { site: SITE }); return; }
+            if(!url) {
+                console.warn('[ULB/ytsubme] no return_url in response:', data);
+                notify(`${SITE}: no return_url in API response`, 'error', 7000, {
+                    site: SITE
+                });
+                return;
+            }
             _handled = true;
-            const nh = notify(`${SITE} — redirecting…`, 'success', { site: SITE, time: t.elapsed() + 's' });
+            const nh = notify(`${SITE} — redirecting…`, 'success', {
+                site: SITE,
+                time: t.elapsed() + 's'
+            });
             setTimeout(() => nh.remove(), CONFIG.autoDismissOnRedirect ? 500 : 2000);
             location.href = url;
         };
@@ -2190,20 +2944,29 @@
         unsafeWindow.fetch = function (input, init) {
             const url = typeof input === 'string' ? input : input?.url;
             const promise = _origFetch.apply(this, arguments);
-            if (isTarget(url)) { promise.then(r => r.clone().json()).then(handleData).catch(e => console.warn('[ULB/ytsubme] fetch intercept parse error:', e)); }
+            if(isTarget(url)) {
+                promise.then(r => r.clone().json()).then(handleData).catch(e => console.warn('[ULB/ytsubme] fetch intercept parse error:', e));
+            }
             return promise;
         };
 
         const _OrigXHR = unsafeWindow.XMLHttpRequest;
+
         function PatchedXHR() {
             const xhr = new _OrigXHR();
             const _open = xhr.open.bind(xhr);
             let _targeted = false;
-            xhr.open = function (method, url, ...rest) { if (isTarget(url)) _targeted = true; return _open(method, url, ...rest); };
+            xhr.open = function (method, url, ...rest) {
+                if(isTarget(url)) _targeted = true;
+                return _open(method, url, ...rest);
+            };
             xhr.addEventListener('load', () => {
-                if (!_targeted) return;
-                try { handleData(JSON.parse(xhr.responseText)); }
-                catch (e) { console.warn('[ULB/ytsubme] XHR intercept parse error:', e); }
+                if(!_targeted) return;
+                try {
+                    handleData(JSON.parse(xhr.responseText));
+                } catch (e) {
+                    console.warn('[ULB/ytsubme] XHR intercept parse error:', e);
+                }
             });
             return xhr;
         }
@@ -2216,12 +2979,20 @@
     function runSub4UnlockBypasser() {
         const SITE = 'sub4unlock.co';
         const t = makeTimer();
-        const nh = notify(`${SITE} — reading destination…`, 'loading', 0, { site: SITE });
+        const nh = notify(`${SITE} — reading destination…`, 'loading', 0, {
+            site: SITE
+        });
 
         const tryRedirect = () => {
             try {
                 const url = JSON.parse(document.querySelector('#app')?.dataset.page || '{}')?.props?.link?.url;
-                if (url) { safeRedirect(url, nh, { t, siteLabel: SITE }); return true; }
+                if(url) {
+                    safeRedirect(url, nh, {
+                        t,
+                        siteLabel: SITE
+                    });
+                    return true;
+                }
             } catch (_) {}
             return false;
         };
@@ -2240,7 +3011,9 @@
     function runKhaddaviBypasser() {
         const SITE = 'app.khaddavi.net';
         const t = makeTimer();
-        const nh = notify(`${SITE} — bypassing…`, 'loading', 0, { site: SITE });
+        const nh = notify(`${SITE} — bypassing…`, 'loading', 0, {
+            site: SITE
+        });
         const handleError = makeErrHandler(SITE, nh, 7000);
 
         (async () => {
@@ -2248,18 +3021,44 @@
                 const k = Math.floor(Math.random() * 1e3);
                 const r = Math.random().toString(16).slice(2);
 
-                await fetch('/api/verify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ _a: 0 }) });
-
-                nh.update(`${SITE} — fetching link…`, 'loading', { site: SITE });
-                const d = await fetchJSON('/api/go', {
+                await fetch('/api/verify', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Idempotency-Key': r, 'X-Requested-With': 'XMLHttpRequest' },
-                    body: JSON.stringify({ key: k, size: `${(window.innerWidth + k) * 2}.${(window.innerHeight + k) * 2}`, _dvc: r }),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        _a: 0
+                    })
                 });
 
-                if (d.url) safeRedirect(d.url, nh, { t, siteLabel: SITE });
-                else { handleError('no URL in response', null); console.log('[ULB/khaddavi] API response:', d); }
-            } catch (err) { handleError('bypass failed', err); }
+                nh.update(`${SITE} — fetching link…`, 'loading', {
+                    site: SITE
+                });
+                const d = await fetchJSON('/api/go', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Idempotency-Key': r,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({
+                        key: k,
+                        size: `${(window.innerWidth + k) * 2}.${(window.innerHeight + k) * 2}`,
+                        _dvc: r
+                    }),
+                });
+
+                if(d.url) safeRedirect(d.url, nh, {
+                    t,
+                    siteLabel: SITE
+                });
+                else {
+                    handleError('no URL in response', null);
+                    console.log('[ULB/khaddavi] API response:', d);
+                }
+            } catch (err) {
+                handleError('bypass failed', err);
+            }
         })();
     }
 
@@ -2268,20 +3067,34 @@
     function runSflGlBypasser() {
         const SITE = 'sfl.gl';
         const t = makeTimer();
-        const nh = notify(`${SITE} — reading destination…`, 'loading', 0, { site: SITE });
+        const nh = notify(`${SITE} — reading destination…`, 'loading', 0, {
+            site: SITE
+        });
 
         const tryRedirect = () => {
             try {
-                for (const s of document.querySelectorAll('script:not([src])')) {
+                for(const s of document.querySelectorAll('script:not([src])')) {
                     const m = s.textContent.match(/window\.location\.href\s*=\s*"([^"]+)"/);
-                    if (!m) continue;
+                    if(!m) continue;
                     const url = m[1].replace(/\\\//g, '/');
-                    if (safeUrl(url)) { safeRedirect(url, nh, { t, siteLabel: SITE }); return true; }
+                    if(safeUrl(url)) {
+                        safeRedirect(url, nh, {
+                            t,
+                            siteLabel: SITE
+                        });
+                        return true;
+                    }
                 }
                 const m2 = document.documentElement.innerHTML.match(/window\.location\.href\s*=\s*"([^"]+)"/);
-                if (m2) {
+                if(m2) {
                     const url = m2[1].replace(/\\\//g, '/');
-                    if (safeUrl(url)) { safeRedirect(url, nh, { t, siteLabel: SITE }); return true; }
+                    if(safeUrl(url)) {
+                        safeRedirect(url, nh, {
+                            t,
+                            siteLabel: SITE
+                        });
+                        return true;
+                    }
                 }
             } catch (_) {}
             return false;
@@ -2302,12 +3115,17 @@
     function runButtonFinderBypasser() {
         const SITE = host.replace(/^www\./, '');
         const t = makeTimer();
-        const nh = notify(`${SITE} — detecting task…`, 'loading', 0, { site: SITE });
+        const nh = notify(`${SITE} — detecting task…`, 'loading', 0, {
+            site: SITE
+        });
 
         const detectTask = () => {
-            for (const el of document.querySelectorAll('font')) {
+            for(const el of document.querySelectorAll('font')) {
                 const m = el.textContent.match(/\b(\d+)\s*\/\s*(\d+)\b/);
-                if (m) return { current: parseInt(m[1], 10), total: parseInt(m[2], 10) };
+                if(m) return {
+                    current: parseInt(m[1], 10),
+                    total: parseInt(m[2], 10)
+                };
             }
             return null;
         };
@@ -2317,10 +3135,18 @@
         const tryRedirect = () => {
             const task = detectTask();
             const href = findHref();
-            if (task) {
-                nh.update(`${SITE} — Task ${task.current}/${task.total}${href ? ' — redirecting…' : ' — waiting for button…'}`, href ? 'success' : 'loading', { site: SITE });
+            if(task) {
+                nh.update(`${SITE} — Task ${task.current}/${task.total}${href ? ' — redirecting…' : ' — waiting for button…'}`, href ? 'success' : 'loading', {
+                    site: SITE
+                });
             }
-            if (href) { safeRedirect(href, nh, { t, siteLabel: SITE }); return true; }
+            if(href) {
+                safeRedirect(href, nh, {
+                    t,
+                    siteLabel: SITE
+                });
+                return true;
+            }
             return false;
         };
 
@@ -2336,37 +3162,53 @@
     // ── fluorine.s3ren1ty.xyz ──────────────────────────────────────────────
 
     function runFluorineBypasser() {
-        if (!path.startsWith('/getkey')) return;
+        if(!path.startsWith('/getkey')) return;
 
-        const SITE  = 'fluorine.s3ren1ty.xyz';
+        const SITE = 'fluorine.s3ren1ty.xyz';
         const timer = makeTimer();
-        const nh    = notify(`${SITE} — running key checkpoints…`, 'loading', 0, { site: SITE });
+        const nh = notify(`${SITE} — running key checkpoints…`, 'loading', 0, {
+            site: SITE
+        });
         const handleError = makeErrHandler(SITE, nh, 7000);
 
         const run = async () => {
             try {
                 let token = localStorage.getItem('provider_session');
-                if (!token) {
+                if(!token) {
                     token = `loot_${Date.now()}_${Math.random().toString(36).substr(2, 16)}`;
                     localStorage.setItem('provider_session', token);
                 }
 
-                for (let i = 1; i <= 2; i++) {
-                    nh.update(`${SITE} — checkpoint ${i}/2…`, 'loading', { site: SITE });
+                for(let i = 1; i <= 2; i++) {
+                    nh.update(`${SITE} — checkpoint ${i}/2…`, 'loading', {
+                        site: SITE
+                    });
                     await fetch('/api/loot/verify', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ token, checkpoint: i }),
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            token,
+                            checkpoint: i
+                        }),
                     });
                 }
 
-                nh.update(`${SITE} — finalising…`, 'loading', { site: SITE });
-                await fetch('/api/loot/create', { method: 'POST' });
+                nh.update(`${SITE} — finalising…`, 'loading', {
+                    site: SITE
+                });
+                await fetch('/api/loot/create', {
+                    method: 'POST'
+                });
 
                 const rParam = new URLSearchParams(location.search).get('r');
-                const dest   = rParam ? atob(rParam) : '/generate?suc=x1';
+                const dest = rParam ? atob(rParam) : '/generate?suc=x1';
 
-                nh.update(`${SITE} — done in ${timer.elapsed()}s`, 'success', { site: SITE, time: timer.elapsed() + 's' });
+                nh.update(`${SITE} — done in ${timer.elapsed()}s`, 'success', {
+                    site: SITE,
+                    time: timer.elapsed() + 's'
+                });
                 setTimeout(() => nh.remove(), CONFIG.autoDismissOnRedirect ? 500 : 2000);
                 location.href = dest;
             } catch (err) {
@@ -2389,20 +3231,31 @@
                 /window\.location\.href\s*=\s*['"`]([^'"`]+)['"`]/
             );
             const rawUrl = match?.[1];
-            if (!rawUrl) return false;
+            if(!rawUrl) return false;
 
             let dest;
             try {
                 const x = new URL(rawUrl);
                 const hwid = x.searchParams.get('hwid');
-                if (hwid) x.searchParams.set('hwid', hwid.replace('next', ''));
+                if(hwid) x.searchParams.set('hwid', hwid.replace('next', ''));
                 dest = x.toString();
-            } catch (e) { handleError('invalid redirect URL', e); return true; }
+            } catch (e) {
+                handleError('invalid redirect URL', e);
+                return true;
+            }
 
-            if (!safeUrl(dest)) { handleError('decoded URL is unsafe', null); return true; }
+            if(!safeUrl(dest)) {
+                handleError('decoded URL is unsafe', null);
+                return true;
+            }
 
-            const nh = notify(`${SITE} — skipping extra steps…`, 'loading', 0, { site: SITE });
-            nh.update(`${SITE} — done in ${t.elapsed()}s`, 'success', { site: SITE, time: t.elapsed() + 's' });
+            const nh = notify(`${SITE} — skipping extra steps…`, 'loading', 0, {
+                site: SITE
+            });
+            nh.update(`${SITE} — done in ${t.elapsed()}s`, 'success', {
+                site: SITE,
+                time: t.elapsed() + 's'
+            });
             setTimeout(() => nh.remove(), CONFIG.autoDismissOnRedirect ? 500 : 2000);
             location.href = dest;
             return true;
@@ -2410,9 +3263,12 @@
 
         const stripBlankOpens = () => {
             document.querySelectorAll('button[onclick]').forEach(btn => {
-                const orig    = btn.getAttribute('onclick');
+                const orig = btn.getAttribute('onclick');
                 const cleaned = orig.replace(/window\.open\s*\([^)]*['"]_blank['"]\s*\)\s*;?\s*/g, '').trim();
-                if (cleaned !== orig) { btn.setAttribute('onclick', cleaned); console.log('[ULB/hehehub] stripped _blank open from button:', btn.textContent.trim()); }
+                if(cleaned !== orig) {
+                    btn.setAttribute('onclick', cleaned);
+                    console.log('[ULB/hehehub] stripped _blank open from button:', btn.textContent.trim());
+                }
             });
         };
 
@@ -2420,10 +3276,18 @@
 
         const init = () => {
             stripBlankOpens();
-            blankObs.observe(document.body, { childList: true, subtree: true });
-            notify(`${SITE} — popup links removed from buttons`, 'info', undefined, { site: SITE });
+            blankObs.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+            notify(`${SITE} — popup links removed from buttons`, 'info', undefined, {
+                site: SITE
+            });
             pollUntil(trySkip, 200, 150)
-                .catch(() => { blankObs.disconnect(); handleError('redirect URL not found in page source', null); })
+                .catch(() => {
+                    blankObs.disconnect();
+                    handleError('redirect URL not found in page source', null);
+                })
                 .finally(() => blankObs.disconnect());
         };
         onReady(init);
@@ -2432,29 +3296,29 @@
     // ── getpolsec.com ──────────────────────────────────────────────────────
 
     function runGetPolSecBypasser() {
-        if (!path.startsWith('/ad/')) return;
+        if(!path.startsWith('/ad/')) return;
 
         const SITE = 'getpolsec.com';
         const t = makeTimer();
         const handleError = makeErrHandler(SITE, null, 7000);
 
         const isCaptchaPresent = () => {
-            if (document.querySelector('iframe[src*="hcaptcha.com"]')) return true;
-            if (document.querySelector('[name="h-captcha-response"]')) return true;
-            if (document.querySelector('[name="g-recaptcha-response"]')) return true;
-            for (const el of document.querySelectorAll('.mb-2.text-base.font-semibold, [class*="font-semibold"]')) {
-                if (el.textContent.trim() === 'Verify You Are Human') return true;
+            if(document.querySelector('iframe[src*="hcaptcha.com"]')) return true;
+            if(document.querySelector('[name="h-captcha-response"]')) return true;
+            if(document.querySelector('[name="g-recaptcha-response"]')) return true;
+            for(const el of document.querySelectorAll('.mb-2.text-base.font-semibold, [class*="font-semibold"]')) {
+                if(el.textContent.trim() === 'Verify You Are Human') return true;
             }
             return false;
         };
 
         const getHCaptchaToken = () => {
             const ta = document.querySelector('[name="h-captcha-response"]');
-            if (ta?.value?.length > 20) return ta.value;
+            if(ta?.value?.length > 20) return ta.value;
             try {
-                if (typeof unsafeWindow.hcaptcha?.getResponse === 'function') {
+                if(typeof unsafeWindow.hcaptcha?.getResponse === 'function') {
                     const r = unsafeWindow.hcaptcha.getResponse();
-                    if (r?.length > 20) return r;
+                    if(r?.length > 20) return r;
                 }
             } catch (_) {}
             return '';
@@ -2462,46 +3326,71 @@
 
         const runBypass = async nh => {
             const adSlug = path.split('/').filter(Boolean).pop();
-            nh.update(`${SITE} — fetching destination…`, 'loading', { site: SITE });
+            nh.update(`${SITE} — fetching destination…`, 'loading', {
+                site: SITE
+            });
             try {
-                const token   = getHCaptchaToken();
+                const token = getHCaptchaToken();
                 const headers = {};
-                if (token) headers['x-hcaptcha-response'] = token;
+                if(token) headers['x-hcaptcha-response'] = token;
 
-                const resp = await fetch(`https://api.getpolsec.com/ad/${adSlug}/linkvertise`, { headers });
-                const r    = await resp.json();
+                const resp = await fetch(`https://api.getpolsec.com/ad/${adSlug}/linkvertise`, {
+                    headers
+                });
+                const r = await resp.json();
 
-                if (r?.message?.url) {
+                if(r?.message?.url) {
                     let dest;
-                    try { dest = atob(new URL(r.message.url).searchParams.get('r')); }
-                    catch (e) {
+                    try {
+                        dest = atob(new URL(r.message.url).searchParams.get('r'));
+                    } catch (e) {
                         nh.update(`${SITE}: failed to decode destination URL`, 'error');
                         console.error('[ULB/getpolsec] atob decode failed:', e);
                         setTimeout(() => nh.remove(), 7000);
                         return;
                     }
-                    safeRedirect(dest, nh, { t, siteLabel: SITE });
+                    safeRedirect(dest, nh, {
+                        t,
+                        siteLabel: SITE
+                    });
                 } else {
                     console.log(`[ULB/${SITE}] API response:`, r);
-                    nh.update(`${SITE}: link is not bypassable — manual action required.`, 'warn', 0, { site: SITE });
+                    nh.update(`${SITE}: link is not bypassable — manual action required.`, 'warn', 0, {
+                        site: SITE
+                    });
                     setTimeout(() => nh.remove(), 7000);
                 }
-            } catch (err) { handleError('bypass failed', err); nh.remove(); }
+            } catch (err) {
+                handleError('bypass failed', err);
+                nh.remove();
+            }
         };
 
         const runCaptchaWait = nh => {
-            nh.update(`${SITE} — solve the hCaptcha to continue…`, 'warn', 0, { site: SITE });
+            nh.update(`${SITE} — solve the hCaptcha to continue…`, 'warn', 0, {
+                site: SITE
+            });
             let tries = 0;
             const iv = setInterval(() => {
                 const token = getHCaptchaToken();
-                if (token) { clearInterval(iv); console.log(`[ULB/${SITE}] hCaptcha solved — proceeding with bypass`); runBypass(nh); return; }
-                if (++tries > 600) { clearInterval(iv); handleError('timed out waiting for hCaptcha', null); }
+                if(token) {
+                    clearInterval(iv);
+                    console.log(`[ULB/${SITE}] hCaptcha solved — proceeding with bypass`);
+                    runBypass(nh);
+                    return;
+                }
+                if(++tries > 600) {
+                    clearInterval(iv);
+                    handleError('timed out waiting for hCaptcha', null);
+                }
             }, 100);
         };
 
         const init = () => {
-            const nh = notify(`${SITE} — checking…`, 'loading', 0, { site: SITE });
-            if (isCaptchaPresent()) runCaptchaWait(nh);
+            const nh = notify(`${SITE} — checking…`, 'loading', 0, {
+                site: SITE
+            });
+            if(isCaptchaPresent()) runCaptchaWait(nh);
             else runBypass(nh);
         };
         onReady(init);
@@ -2512,7 +3401,9 @@
     function runRekoniseBypasser() {
         const SITE = 'rekonise.com';
         const t = makeTimer();
-        const nh = notify(`${SITE} — waiting for page… (10s)`, 'loading', 0, { site: SITE });
+        const nh = notify(`${SITE} — waiting for page… (10s)`, 'loading', 0, {
+            site: SITE
+        });
         const handleError = makeErrHandler(SITE, nh, 7000);
 
         const run = () => {
@@ -2520,33 +3411,46 @@
             let rem = WAIT;
             const iv = setInterval(() => {
                 rem--;
-                if (rem > 0) nh.update(`${SITE} — waiting for page… (${rem}s)`, 'loading', { site: SITE });
-                else { clearInterval(iv); bypass(); }
+                if(rem > 0) nh.update(`${SITE} — waiting for page… (${rem}s)`, 'loading', {
+                    site: SITE
+                });
+                else {
+                    clearInterval(iv);
+                    bypass();
+                }
             }, 1000);
         };
 
         const bypass = async () => {
             try {
                 const ngStateEl = document.getElementById('ng-state');
-                if (!ngStateEl) throw new Error('ng-state element not found');
+                if(!ngStateEl) throw new Error('ng-state element not found');
 
                 let token;
                 const d = JSON.parse(ngStateEl.textContent);
-                for (const k in d) {
-                    if (d[k]?.b?.unlock_token) { token = d[k].b.unlock_token; break; }
+                for(const k in d) {
+                    if(d[k]?.b?.unlock_token) {
+                        token = d[k].b.unlock_token;
+                        break;
+                    }
                 }
-                if (!token) throw new Error('unlock_token not found in ng-state');
+                if(!token) throw new Error('unlock_token not found in ng-state');
 
-                nh.update(`${SITE} — fetching destination…`, 'loading', { site: SITE });
+                nh.update(`${SITE} — fetching destination…`, 'loading', {
+                    site: SITE
+                });
 
                 const slug = location.pathname.split('/').filter(Boolean).pop();
-                const url  = `https://api.rekonise.com/social-unlocks/${encodeURIComponent(slug)}/unlock?token=${encodeURIComponent(token)}`;
-                const j    = await fetchJSON(url);
+                const url = `https://api.rekonise.com/social-unlocks/${encodeURIComponent(slug)}/unlock?token=${encodeURIComponent(token)}`;
+                const j = await fetchJSON(url);
 
                 const dest = j.url ?? j;
-                if (!safeUrl(dest)) throw new Error('No valid URL in API response');
+                if(!safeUrl(dest)) throw new Error('No valid URL in API response');
 
-                safeRedirect(dest, nh, { t, siteLabel: SITE });
+                safeRedirect(dest, nh, {
+                    t,
+                    siteLabel: SITE
+                });
             } catch (err) {
                 handleError('bypass failed', err);
             }
@@ -2560,22 +3464,29 @@
     function runLinkifyRuBypasser() {
         const SITE = 'go.linkify.ru';
         const t = makeTimer();
-        const nh = notify(`${SITE} — detecting page…`, 'loading', 0, { site: SITE });
+        const nh = notify(`${SITE} — detecting page…`, 'loading', 0, {
+            site: SITE
+        });
         const handleError = makeErrHandler(SITE, nh, 7000);
 
         // Page B: /get/* — extract final URL from window.location.replace(...)
-        if (path.startsWith('/get/')) {
+        if(path.startsWith('/get/')) {
             const tryGetPage = () => {
                 try {
                     const m = document.documentElement.innerHTML.match(
                         /window\.location\.replace\(['"](.*?)['"]\)/
                     );
-                    if (!m) return false;
+                    if(!m) return false;
                     const dest = m[1];
                     console.log('[ULB/linkify.ru] Detected Link:', dest);
-                    safeRedirect(dest, nh, { t, siteLabel: SITE });
+                    safeRedirect(dest, nh, {
+                        t,
+                        siteLabel: SITE
+                    });
                     return true;
-                } catch (_) { return false; }
+                } catch (_) {
+                    return false;
+                }
             };
 
             const init = () => {
@@ -2593,12 +3504,17 @@
                 const m = document.documentElement.innerHTML.match(
                     /href="(https:\/\/go\.linkify\.ru\/get\/.*?)"/
                 );
-                if (!m) return false;
+                if(!m) return false;
                 const url = m[1];
                 console.log('[ULB/linkify.ru] Final Link:', url);
-                safeRedirect(url, nh, { t, siteLabel: SITE });
+                safeRedirect(url, nh, {
+                    t,
+                    siteLabel: SITE
+                });
                 return true;
-            } catch (_) { return false; }
+            } catch (_) {
+                return false;
+            }
         };
 
         const init = () => {
