@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Unknown Link Bypasser
 // @namespace    http://tampermonkey.net/
-// @version      6.7.3
-// @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live(SCAM WARNING) + go.yorurl.com + jankariweb + newsuchnaonline + bigcarinsurance + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + highlocus.shop + gplinks.co + powergam.online + getpolsec.com + hehehub + sub4unlock.co + app.khaddavi.net + sfl.gl + ytsubme.com + aylink.co + biplabtewary.com + mwgamesyt.com.br + topjogosvip.online + legacyagency.com.br + 4br.me + short-jambo.com/ink + fastcars + fluorine.s3ren1ty.xyz. Made by @Aro Moon
+// @version      6.7.4
+// @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live(SCAM WARNING) + go.yorurl.com + jankariweb + newsuchnaonline + bigcarinsurance + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + highlocus.shop + gplinks.co + powergam.online + getpolsec.com + hehehub + sub4unlock.co + app.khaddavi.net + sfl.gl + ytsubme.com + aylink.co + biplabtewary.com + mwgamesyt.com.br + topjogosvip.online + legacyagency.com.br + 4br.me + short-jambo.com/ink + fastcars + fluorine.s3ren1ty.xyz + rekonise.com. Made by @Aro Moon
 // @author       @Aro Moon
 // @include      /^https:\/\/mtc\d+\.[^/]+\.[a-z.]+\//
 // @include      /^https?:\/\/(?:\w+\.)?fastcars\d+\.com\//
@@ -52,6 +52,7 @@
 // @match        https://getpolsec.com/ad/*
 // @match        https://hehehub-acsu123.pythonanywhere.com/api/getkey*
 // @match        https://fluorine.s3ren1ty.xyz/getkey*
+// @match        https://rekonise.com/*
 // @grant        GM_addElement
 // @grant        unsafeWindow
 // @connect      challenges.cloudflare.com
@@ -1329,6 +1330,7 @@
             host.includes('topjogosvip.online') ||
             host.includes('legacyagency.com.br')
         ) runButtonFinderBypasser();
+        else if(host.includes('rekonise.com')) runRekoniseBypasser();
         else if(TPI_HOSTS.some(h => host.includes(h))) runTpiLiBypasser();
         else if(FORM_HOSTS.some(h => host.includes(h))) runFormBypasser();
         else runSafelinkBypasser();
@@ -3538,6 +3540,62 @@
             else runBypass(nh);
         };
         onReady(init);
+    }
+
+    // ── rekonise.com ───────────────────────────────────────────────────────
+
+    function runRekoniseBypasser() {
+        const SITE = 'rekonise.com';
+        const t = makeTimer();
+        const nh = notify(`${SITE} — waiting for page… (10s)`, 'loading', 0, { site: SITE });
+        const handleError = makeErrHandler(SITE, nh, 7000);
+
+        const run = () => {
+            // Countdown inside the notification while Angular hydrates ng-state
+            const WAIT = 10;
+            let rem = WAIT;
+            const iv = setInterval(() => {
+                rem--;
+                if (rem > 0) {
+                    nh.update(`${SITE} — waiting for page… (${rem}s)`, 'loading', { site: SITE });
+                } else {
+                    clearInterval(iv);
+                    bypass();
+                }
+            }, 1000);
+        };
+
+        const bypass = async () => {
+            try {
+                const ngStateEl = document.getElementById('ng-state');
+                if (!ngStateEl) throw new Error('ng-state element not found');
+
+                let token;
+                const d = JSON.parse(ngStateEl.textContent);
+                for (const k in d) {
+                    if (d[k]?.b?.unlock_token) {
+                        token = d[k].b.unlock_token;
+                        break;
+                    }
+                }
+                if (!token) throw new Error('unlock_token not found in ng-state');
+
+                nh.update(`${SITE} — fetching destination…`, 'loading', { site: SITE });
+
+                const slug = location.pathname.split('/').filter(Boolean).pop();
+                const url = `https://api.rekonise.com/social-unlocks/${encodeURIComponent(slug)}/unlock?token=${encodeURIComponent(token)}`;
+                const j = await fetchJSON(url);
+
+                const dest = j.url ?? j;
+                if (!safeUrl(dest)) throw new Error('No valid URL in API response');
+
+                safeRedirect(dest, nh, { t, siteLabel: SITE });
+            } catch (err) {
+                handleError('bypass failed', err);
+            }
+        };
+
+        onReady(run);
     }
 
 })();
