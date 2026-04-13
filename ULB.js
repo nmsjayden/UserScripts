@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Unknown Link Bypasser
 // @namespace    http://tampermonkey.net/
-// @version      6.8.2
-// @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live(SCAM WARNING) + go.yorurl.com + jankariweb + newsuchnaonline + bigcarinsurance + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + highlocus.shop + gplinks.co + powergam.online + getpolsec.com + hehehub + sub4unlock.co + app.khaddavi.net + sfl.gl + ytsubme.com + aylink.co + biplabtewary.com + mwgamesyt.com.br + topjogosvip.online + legacyagency.com.br + 4br.me + short-jambo.com/ink + fastcars + fluorine.s3ren1ty.xyz + rekonise.com + go.linkify.ru. Made by @Aro Moon
+// @version      6.8.6
+// @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live(SCAM WARNING) + go.yorurl.com + jankariweb + newsuchnaonline + bigcarinsurance + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + highlocus.shop + gplinks.co + powergam.online + getpolsec.com + hehehub + sub4unlock.co + app.khaddavi.net + sfl.gl + ytsubme.com + aylink.co + biplabtewary.com + mwgamesyt.com.br + topjogosvip.online + legacyagency.com.br + 4br.me + short-jambo.com/ink + fastcars + fluorine.s3ren1ty.xyz + rekonise.com + go.linkify.ru + arolinks.com. Made by @Aro Moon
 // @author       @Aro Moon
 // @include      /^https:\/\/mtc\d+\.[^/]+\.[a-z.]+\//
 // @include      /^https?:\/\/(?:\w+\.)?fastcars\d+\.com\//
@@ -54,6 +54,9 @@
 // @match        https://fluorine.s3ren1ty.xyz/getkey*
 // @match        https://rekonise.com/*
 // @match        https://go.linkify.ru/*
+// @match        https://arolinks.com/*
+// @match        https://apnahirework.com/*
+// @match        https://crimejasoos.in/*
 // @grant        GM_addElement
 // @grant        unsafeWindow
 // @connect      challenges.cloudflare.com
@@ -113,6 +116,10 @@
         // Set to false for a cleaner, minimal look.
         notifShowBranding: true,
 
+        // Show the script version (e.g. "v6.8.6") in the branding line.
+        // Only visible when notifShowBranding is also true.
+        notifShowVersion: true,
+
         // Show notifications while a bypass is in progress (loading state).
         notifShowOnLoading: true,
 
@@ -160,6 +167,7 @@
             'tournguide.com', 'dailyjobposting.xyz', 'stfly.biz',
             'gplinks.co', '4br.me',
             'short-jambo.com', 'short-jambo.ink',
+            'arolinks.com',
         ],
     };
 
@@ -170,6 +178,8 @@
     // ═══════════════════════════════════════════════════════════════════════
     // §1  CONSTANTS
     // ═══════════════════════════════════════════════════════════════════════
+
+    const VERSION = '6.8.6';
 
     const FORM_HOSTS = ['shrtslug.biz', 'biovetro.net', 'technons.com', 'tournguide.com', 'dailyjobposting.xyz', 'stfly.biz'];
     const TPI_HOSTS = ['tpi.li'];
@@ -513,7 +523,8 @@
         bodyEl.style.cssText = 'flex:1;min-width:0';
 
         if(!CONFIG.compactMode && CONFIG.notifShowBranding !== false) {
-            bodyEl.innerHTML = `<div style="${CSS_LABEL}:3px">Unknown Link Bypasser · @Aro Moon</div>`;
+            const versionTag = CONFIG.notifShowVersion !== false ? ` · v${VERSION}` : '';
+            bodyEl.innerHTML = `<div style="${CSS_LABEL}:3px">Unknown Link Bypasser · @Aro Moon${versionTag}</div>`;
         }
 
         const msgEl = document.createElement('div');
@@ -619,7 +630,7 @@
         const card = document.createElement('div');
         card.style.cssText = `${CSS_CARD_BASE};border-left:3px solid #4f8ef7;padding:14px 18px;min-width:min(240px,calc(100vw - 56px))`;
         card.innerHTML = `
-            <div style="${CSS_LABEL}:8px">Unknown Link Bypasser · @Aro Moon</div>
+            <div style="${CSS_LABEL}:8px">Unknown Link Bypasser · @Aro Moon${CONFIG.notifShowVersion !== false ? ` · v${VERSION}` : ''}</div>
             <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
                 <div class="__ulb_cn" style="font-size:30px;font-weight:700;color:#fff;line-height:1;min-width:44px">${seconds}</div>
                 <div style="color:#aaa;font-size:12px;line-height:1.5">
@@ -663,7 +674,7 @@
         const card = document.createElement('div');
         card.style.cssText = `${CSS_CARD_BASE};border-left:3px solid #22c55e;padding:14px 18px;min-width:min(240px,calc(100vw - 56px));max-width:min(320px,calc(100vw - 56px))`;
         card.innerHTML = `
-            <div style="${CSS_LABEL}:6px">Unknown Link Bypasser · @Aro Moon</div>
+            <div style="${CSS_LABEL}:6px">Unknown Link Bypasser · @Aro Moon${CONFIG.notifShowVersion !== false ? ` · v${VERSION}` : ''}</div>
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
                 <div class="__ulb_ri" style="font-size:15px;color:#22c55e;flex-shrink:0">✔</div>
                 <div class="__ulb_rm" style="font-size:13px;color:#e0e0e0">Redirecting now…</div>
@@ -696,7 +707,7 @@
         const card = document.createElement('div');
         card.style.cssText = `${CSS_CARD_BASE};border-left:3px solid #f59e0b;padding:14px 18px;min-width:min(260px,calc(100vw - 56px));max-width:min(340px,calc(100vw - 56px));position:relative`;
         card.innerHTML = `
-            <div style="${CSS_LABEL}:6px">Unknown Link Bypasser · @Aro Moon</div>
+            <div style="${CSS_LABEL}:6px">Unknown Link Bypasser · @Aro Moon${CONFIG.notifShowVersion !== false ? ` · v${VERSION}` : ''}</div>
             <div style="font-size:11px;color:#f59e0b;margin-bottom:10px;font-weight:600;letter-spacing:.5px">${subtitle}</div>
             <a href="${url}" target="_blank" rel="noopener"
                style="display:block;text-align:center;font-size:13px;font-weight:700;color:#fff;
@@ -800,7 +811,7 @@
 
             const footer = document.createElement('div');
             footer.style.cssText = 'font-size:10px;color:#334155;letter-spacing:1.2px;text-transform:uppercase;margin-top:4px';
-            footer.textContent = 'Unknown Link Bypasser · @Aro Moon';
+            footer.textContent = `Unknown Link Bypasser · @Aro Moon${CONFIG.notifShowVersion !== false ? ` · v${VERSION}` : ''}`;
 
             card.append(spinWrap, textWrap, widgetDiv, footer);
             overlay.appendChild(card);
@@ -1282,10 +1293,12 @@
         else if(host.includes('avnsgames.com')) runAvnsGamesInterstitial();
         else if(host.includes('lnbz.la')) runLnbzLaBypasser();
         else if(host.includes('bloxscript.live')) runBloxscriptScamWarning();
-        else if(
-            host.includes('jankariweb') ||
-            host.includes('newsuchnaonline.com')
-        ) runJoberBypasser();
+ else if(
+    host.includes('jankariweb') ||
+    host.includes('newsuchnaonline.com') ||
+    host.includes('crimejasoos.in') ||
+    host.includes('apnahirework.com')
+) runJoberBypasser();
         else if(host.includes('how2guidess.com')) runHow2GuidesBypasser();
         else if(host.includes('go.yorurl.com')) runYorurlBypasser();
         else if(
@@ -1325,6 +1338,7 @@
         ) runButtonFinderBypasser();
         else if(host.includes('rekonise.com')) runRekoniseBypasser();
         else if(host.includes('go.linkify.ru')) runLinkifyRuBypasser();
+        else if(host.includes('arolinks.com')) runArolinksBypasser();
         else if(TPI_HOSTS.some(h => host.includes(h))) runTpiLiBypasser();
         else if(FORM_HOSTS.some(h => host.includes(h))) runFormBypasser();
         else runSafelinkBypasser();
@@ -2394,11 +2408,159 @@
 
     // ── jankariweb / newsuchnaonline / bigcarinsurance ─────────────────────
 
-    function runJoberBypasser() {
-        const SITE = host.replace(/^www\./, '');
-        if(path !== '/') clickWhenReady('btn7', `${SITE} step 2`);
-        else clickWhenReady('notarobot', `${SITE} step 1`);
-    }
+function runJoberBypasser() {
+    document.cookie = "adcadg=1; path=/; max-age=600";
+    document.cookie = "_uocat=value; path=/; max-age=86400";
+
+    const SITE = host.replace(/^www\./, '');
+    const t = makeTimer();
+    const nh = notify(`${SITE} — detecting page…`, 'loading', 0, { site: SITE });
+    const handleError = makeErrHandler(SITE, nh, 7000);
+
+    // ── Helper: detect which step we're on (e.g. "1/3", "3/3") ──────────
+    const getStepInfo = () => {
+        const danger = document.querySelector('strong .text-danger, strong span.text-danger');
+        if (!danger) return null;
+        const m = danger.textContent.trim().match(/^(\d+)\/(\d+)$/);
+        if (!m) return null;
+        return { current: parseInt(m[1], 10), total: parseInt(m[2], 10) };
+    };
+
+    // ── Helper: check for the "aro link" Get Link anchor ─────────────────
+    const getAroLink = () => {
+        const a = document.getElementById('link1s');
+        return (a && a.href) ? a.href : null;
+    };
+
+    // ── Helper: check for the ad/countdown page (googletag + startCountdownBtn) ─
+    const isAdCountdownPage = () =>
+        !!document.getElementById('startCountdownBtn') &&
+        !!document.getElementById('link1s-wait1');
+
+    // ── Main logic ────────────────────────────────────────────────────────
+    const run = () => {
+
+        // Priority 0: if there's a direct "Get Link" aro anchor, just redirect
+        const aroHref = getAroLink();
+        if (aroHref) {
+            console.log('[ULB/jober] Detected aro Get Link — redirecting:', aroHref);
+            nh.update(`${SITE} — link found, redirecting…`, 'loading', { site: SITE });
+            safeRedirect(aroHref, nh, { t, siteLabel: SITE });
+            return;
+        }
+
+        // Priority 1: ad/countdown page (googletag + startCountdownBtn)
+        if (isAdCountdownPage()) {
+            console.log('[ULB/jober] Detected ad countdown page — running timer bypass');
+            nh.update(`${SITE} — bypassing ad countdown…`, 'loading', { site: SITE });
+            count = -1;
+            timer();
+            // After the timer, wait for either #cross-snp2 or #btn7 to become visible
+            const check = setInterval(() => {
+                const btn = document.getElementById('cross-snp2');
+                if (btn && btn.offsetParent !== null) {
+                    clearInterval(check);
+                    nh.update(`${SITE} — clicking continue…`, 'loading', { site: SITE });
+                    btn.click();
+                    return;
+                }
+                const btn7 = document.getElementById('btn7');
+                if (btn7 && btn7.offsetParent !== null) {
+                    clearInterval(check);
+                    nh.update(`${SITE} — clicking continue…`, 'loading', { site: SITE });
+                    btn7.click();
+                    return;
+                }
+            }, 500);
+            setTimeout(() => clearInterval(check), 60000);
+            return;
+        }
+
+        // Priority 2: step page detection
+        const step = getStepInfo();
+        if (step) {
+            // After timer runs, click whichever continue button appears
+            const waitAndClickContinue = () => {
+                const check = setInterval(() => {
+                    const btn = document.getElementById('cross-snp2');
+                    if (btn && btn.offsetParent !== null) {
+                        clearInterval(check);
+                        nh.update(`${SITE} — step ${step.current}/${step.total} — clicking continue…`, 'loading', { site: SITE });
+                        btn.click();
+                        return;
+                    }
+                    const btn7 = document.getElementById('btn7');
+                    if (btn7 && btn7.offsetParent !== null) {
+                        clearInterval(check);
+                        nh.update(`${SITE} — step ${step.current}/${step.total} — clicking continue…`, 'loading', { site: SITE });
+                        btn7.click();
+                        return;
+                    }
+                }, 500);
+                setTimeout(() => clearInterval(check), 60000);
+            };
+            if (step.current === step.total) {
+                // Last step — wait 33s then run timer bypass
+                console.log(`[ULB/jober] Step ${step.current}/${step.total} (last) — waiting 33s then bypassing`);
+                nh.update(`${SITE} — step ${step.current}/${step.total} (last) — waiting 33s…`, 'loading', { site: SITE });
+                setTimeout(() => {
+                    nh.update(`${SITE} — step ${step.current}/${step.total} — bypassing…`, 'loading', { site: SITE });
+                    count = -1;
+                    timer();
+                    waitAndClickContinue();
+                }, 33000);
+            } else {
+                // Any earlier step (e.g. 1/3, 2/3) — run timer bypass immediately
+                console.log(`[ULB/jober] Step ${step.current}/${step.total} — running timer bypass immediately`);
+                nh.update(`${SITE} — step ${step.current}/${step.total} — bypassing…`, 'loading', { site: SITE });
+                count = -1;
+                timer();
+                waitAndClickContinue();
+            }
+            return;
+        }
+
+        // Fallback: original click-based advance
+        const hasNextBtn = typeof nextbtn === 'function';
+        const tryAdvance = () => {
+            if (hasNextBtn) { nextbtn(); return true; }
+            const btn = document.getElementById('cross-snp2');
+            if (btn && btn.offsetParent !== null) { btn.click(); return true; }
+            window.location.href = '/readmore';
+            return true;
+        };
+
+        const hasCountdown = !!document.getElementById('link1s-time');
+        const isStepPage = path !== '/';
+
+        if (isStepPage) {
+            nh.update(`${SITE} — step 2 — waiting for button…`, 'loading', { site: SITE });
+            clickWhenReady('btn7', `${SITE} step 2`);
+        } else {
+            nh.update(`${SITE} — step 1 — clicking not-a-robot…`, 'loading', { site: SITE });
+            clickWhenReady('notarobot', `${SITE} step 1`);
+        }
+
+        if (hasCountdown) {
+            const check = setInterval(() => {
+                const btn = document.getElementById('cross-snp2');
+                if (btn && btn.offsetParent !== null) {
+                    clearInterval(check);
+                    nh.update(`${SITE} — advancing…`, 'loading', { site: SITE });
+                    tryAdvance();
+                }
+            }, 500);
+            setTimeout(() => clearInterval(check), 30000);
+        } else {
+            setTimeout(() => {
+                nh.update(`${SITE} — advancing…`, 'loading', { site: SITE });
+                tryAdvance();
+            }, 500);
+        }
+    };
+
+    onReady(run);
+}
 
     // ── how2guidess.com ────────────────────────────────────────────────────
 
@@ -3393,6 +3555,110 @@
             if(isCaptchaPresent()) runCaptchaWait(nh);
             else runBypass(nh);
         };
+        onReady(init);
+    }
+
+    // ── arolinks.com ───────────────────────────────────────────────────────
+    // Layout A: #link1s anchor is present → extract href and redirect to it
+    // Layout B: form/captcha page → /links/go POST (encurta.net platform)
+
+    function runArolinksBypasser() {
+        const SITE = 'arolinks.com';
+        const t = makeTimer();
+        const nh = notify(`${SITE} — detecting page…`, 'loading', 0, { site: SITE });
+        const handleError = makeErrHandler(SITE, nh, 7000);
+
+        const detect = () => {
+            // Layout A: "Get Link" button wrapped in #link1s anchor — just redirect
+            const a = document.getElementById('link1s');
+            if (a && a.href) {
+                console.log('[ULB/arolinks] Found #link1s — redirecting:', a.href);
+                safeRedirect(a.href, nh, { t, siteLabel: SITE });
+                return true;
+            }
+
+            // Layout B: ad_form_data hidden input → POST to /links/go
+            const adEl = document.querySelector('[name="ad_form_data"]');
+            if (adEl) {
+                nh.update(`${SITE} — reading countdown…`, 'loading', { site: SITE });
+                _lnbzWaitForAppVars(vars => {
+                    const secs = Math.max(1, parseInt(vars?.counter_value, 10) || 15);
+                    showCountdown(secs, async () => {
+                        try {
+                            const form = adEl.closest('form') || document.querySelector('form');
+                            let body;
+                            if (form) {
+                                const params = new URLSearchParams();
+                                form.querySelectorAll('input[type="hidden"]').forEach(inp => {
+                                    if (inp.name) params.append(inp.name, inp.value);
+                                });
+                                if (!params.has('_method')) params.set('_method', 'POST');
+                                body = params.toString();
+                            } else {
+                                body = '_method=POST&ad_form_data=' + encodeURIComponent(adEl.value);
+                            }
+                            const r = await fetch('/links/go', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                    'Accept': 'application/json, text/javascript, */*; q=0.01',
+                                },
+                                credentials: 'include',
+                                body,
+                            });
+                            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                            const d = await r.json();
+                            const dest = d.url || d.data;
+                            if (!dest) throw new Error('No destination URL in response');
+                            safeRedirect(dest, nh, { t, siteLabel: SITE });
+                        } catch (err) {
+                            handleError('go-link POST failed', err);
+                        }
+                    }, `${SITE} bypass`);
+                });
+                return true;
+            }
+
+            // Layout B (captcha step): form present but no ad_form_data yet — solve captcha
+            const form = document.getElementById('link-view') || document.querySelector('form');
+            if (form) {
+                nh.update(`${SITE} — solving captcha…`, 'loading', { site: SITE });
+                (async () => {
+                    try {
+                        const vars = await _lnbzWaitForAppVarsAsync(5000);
+                        const sitekey = vars?.turnstile_site_key || getSiteKey();
+                        if (!sitekey) { handleError('could not find Turnstile sitekey', null); return; }
+                        const token = await solveTurnstile(sitekey);
+                        let input = form.querySelector('[name="cf-turnstile-response"]');
+                        if (!input) {
+                            input = Object.assign(document.createElement('input'), { type: 'hidden', name: 'cf-turnstile-response' });
+                            form.appendChild(input);
+                        }
+                        input.value = token;
+                        const submitBtn = document.getElementById('invisibleCaptchaShortlink') ||
+                            form.querySelector('button[type="submit"][disabled], input[type="submit"][disabled]');
+                        if (submitBtn) submitBtn.disabled = false;
+                        nh.update(`${SITE} — submitting…`, 'loading', { site: SITE });
+                        try { if (typeof form.requestSubmit === 'function') form.requestSubmit(); else HTMLFormElement.prototype.submit.call(form); }
+                        catch { const b = form.querySelector('button[type="submit"],input[type="submit"]'); if (b) b.click(); }
+                    } catch (err) { handleError('captcha solve failed', err); }
+                })();
+                return true;
+            }
+
+            return false;
+        };
+
+        const init = () => {
+            if (detect()) return;
+            let tries = 0;
+            const iv = setInterval(() => {
+                if (detect()) { clearInterval(iv); return; }
+                if (++tries > 200) { clearInterval(iv); handleError('page structure not recognised after 20s', null); }
+            }, 100);
+        };
+
         onReady(init);
     }
 
