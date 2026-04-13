@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Unknown Link Bypasser
 // @namespace    http://tampermonkey.net/
-// @version      6.8.0
-// @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live(SCAM WARNING) + go.yorurl.com + jankariweb + newsuchnaonline + bigcarinsurance + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + highlocus.shop + gplinks.co + powergam.online + getpolsec.com + hehehub + sub4unlock.co + app.khaddavi.net + sfl.gl + ytsubme.com + aylink.co + biplabtewary.com + mwgamesyt.com.br + topjogosvip.online + legacyagency.com.br + 4br.me + short-jambo.com/ink + fastcars + fluorine.s3ren1ty.xyz + rekonise.com. Made by @Aro Moon
+// @version      6.8.1
+// @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live(SCAM WARNING) + go.yorurl.com + jankariweb + newsuchnaonline + bigcarinsurance + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + highlocus.shop + gplinks.co + powergam.online + getpolsec.com + hehehub + sub4unlock.co + app.khaddavi.net + sfl.gl + ytsubme.com + aylink.co + biplabtewary.com + mwgamesyt.com.br + topjogosvip.online + legacyagency.com.br + 4br.me + short-jambo.com/ink + fastcars + fluorine.s3ren1ty.xyz + rekonise.com + go.linkify.ru. Made by @Aro Moon
 // @author       @Aro Moon
 // @include      /^https:\/\/mtc\d+\.[^/]+\.[a-z.]+\//
 // @include      /^https?:\/\/(?:\w+\.)?fastcars\d+\.com\//
@@ -53,6 +53,7 @@
 // @match        https://hehehub-acsu123.pythonanywhere.com/api/getkey*
 // @match        https://fluorine.s3ren1ty.xyz/getkey*
 // @match        https://rekonise.com/*
+// @match        https://go.linkify.ru/*
 // @grant        GM_addElement
 // @grant        unsafeWindow
 // @connect      challenges.cloudflare.com
@@ -1093,6 +1094,7 @@
             host.includes('legacyagency.com.br')
         )                                                              runButtonFinderBypasser();
         else if (host.includes('rekonise.com'))                       runRekoniseBypasser();
+        else if (host.includes('go.linkify.ru'))                      runLinkifyRuBypasser();
         else if (TPI_HOSTS.some(h => host.includes(h)))              runTpiLiBypasser();
         else if (FORM_HOSTS.some(h => host.includes(h)))             runFormBypasser();
         else                                                           runSafelinkBypasser();
@@ -2551,6 +2553,60 @@
         };
 
         onReady(run);
+    }
+
+    // ── go.linkify.ru ──────────────────────────────────────────────────────
+
+    function runLinkifyRuBypasser() {
+        const SITE = 'go.linkify.ru';
+        const t = makeTimer();
+        const nh = notify(`${SITE} — detecting page…`, 'loading', 0, { site: SITE });
+        const handleError = makeErrHandler(SITE, nh, 7000);
+
+        // Page B: /get/* — extract final URL from window.location.replace(...)
+        if (path.startsWith('/get/')) {
+            const tryGetPage = () => {
+                try {
+                    const m = document.documentElement.innerHTML.match(
+                        /window\.location\.replace\(['"](.*?)['"]\)/
+                    );
+                    if (!m) return false;
+                    const dest = m[1];
+                    console.log('[ULB/linkify.ru] Detected Link:', dest);
+                    safeRedirect(dest, nh, { t, siteLabel: SITE });
+                    return true;
+                } catch (_) { return false; }
+            };
+
+            const init = () => {
+                pollUntil(tryGetPage, 200, 150).catch(() => {
+                    handleError('destination URL not found in /get/ page — unsupported layout', null);
+                });
+            };
+            onReady(init);
+            return;
+        }
+
+        // Page A: short link (e.g. /2DAN) — extract /get/ URL from href in page HTML
+        const tryShortPage = () => {
+            try {
+                const m = document.documentElement.innerHTML.match(
+                    /href="(https:\/\/go\.linkify\.ru\/get\/.*?)"/
+                );
+                if (!m) return false;
+                const url = m[1];
+                console.log('[ULB/linkify.ru] Final Link:', url);
+                safeRedirect(url, nh, { t, siteLabel: SITE });
+                return true;
+            } catch (_) { return false; }
+        };
+
+        const init = () => {
+            pollUntil(tryShortPage, 200, 150).catch(() => {
+                handleError('intermediate /get/ URL not found — unsupported layout', null);
+            });
+        };
+        onReady(init);
     }
 
 })();
