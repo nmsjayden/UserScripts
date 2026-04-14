@@ -111,7 +111,6 @@ Updated supported list (cleaned + only active/kept entries):
 ## Not Supported / Blocked / Removed
 - link4m.net (spam + brain hurty)
 - rblxscripthub.com (too much to do)
-- arolinks.com (not supported)
 - sub2unlock.netlify.app/unlock.html?id=ug5rx6ao?t=1749306458 (unknown / to bypass this, I would need a valid link which I have not received)
 - ouo.press (broken, leads to google.com)
 - scriptix.live (!!DISCORD TOKEN GRABBER!!)
