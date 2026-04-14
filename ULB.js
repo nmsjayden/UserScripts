@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Unknown Link Bypasser
 // @namespace    http://tampermonkey.net/
-// @version      6.8.8
-// @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live(SCAM WARNING) + go.yorurl.com + jankariweb + newsuchnaonline + bigcarinsurance + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + highlocus.shop + gplinks.co + powergam.online + getpolsec.com + hehehub + sub4unlock.co + app.khaddavi.net + sfl.gl + ytsubme.com + aylink.co + biplabtewary.com + mwgamesyt.com.br + topjogosvip.online + legacyagency.com.br + 4br.me + short-jambo.com/ink + fastcars + fluorine.s3ren1ty.xyz + rekonise.com + go.linkify.ru + arolinks.com + spdmteam.com. Made by @Aro Moon
+// @version      6.9.2
+// @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live(SCAM WARNING) + go.yorurl.com + jankariweb + newsuchnaonline + bigcarinsurance + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + highlocus.shop + gplinks.co + powergam.online + getpolsec.com + hehehub + sub4unlock.co + app.khaddavi.net + sfl.gl + ytsubme.com + aylink.co + biplabtewary.com + mwgamesyt.com.br + topjogosvip.online + legacyagency.com.br + 4br.me + short-jambo.com/ink + fastcars + fluorine.s3ren1ty.xyz + rekonise.com + go.linkify.ru + arolinks.com + spdmteam.com + linkunlocker.com. Made by @Aro Moon
 // @author       @Aro Moon
 // @include      /^https:\/\/mtc\d+\.[^/]+\.[a-z.]+\//
 // @include      /^https?:\/\/(?:\w+\.)?fastcars\d+\.com\//
@@ -14,7 +14,7 @@
 // @match        https://dailyjobposting.xyz/*
 // @match        https://tpi.li/*
 // @match        https://challenges.cloudflare.com/*
-// @match        https://airflowscript.com/key
+// @match        https://www.airflowscript.com/key
 // @match        https://stfly.biz/*
 // @match        https://bstlar.com/*
 // @match        https://wareguardv2.xyz/checkpoint*
@@ -58,6 +58,7 @@
 // @match        https://apnahirework.com/*
 // @match        https://crimejasoos.in/*
 // @match        https://spdmteam.com/social/*
+// @match        https://linkunlocker.com/*
 // @grant        GM_addElement
 // @grant        unsafeWindow
 // @connect      challenges.cloudflare.com
@@ -81,7 +82,48 @@
     const CONFIG = {
 
         // ┌─────────────────────────────────────────────────────────────────┐
-        // │  CAPTCHA                                                         │
+        // │  BYPASS CONFIRMATION                                            │
+        // └─────────────────────────────────────────────────────────────────┘
+
+        // Show a confirmation prompt before attempting to bypass a page.
+        // When true (default): a card asks "Bypass this page?" — clicking
+        //   "Yes" reloads the tab so the bypass can run; "Cancel" does nothing.
+        // When false: bypass runs instantly without asking.
+        askBeforeBypass: true,
+
+        // ┌─────────────────────────────────────────────────────────────────┐
+        // │  AUTO-BYPASS HOSTS                                              │
+        // │  Add site hostnames here to skip the "Bypass this page?" prompt │
+        // │  entirely for those sites — bypass runs immediately with no ask.│
+        // │  Use the bare hostname or a substring of it, e.g:               │
+        // │    'tpi.li', 'gplinks.co', 'go.caslinks.com'                    │
+        // └─────────────────────────────────────────────────────────────────┘
+        autoBypassHosts: [
+            'bloxscript.live', // (to instantly show the scam warning)
+            'avnsgames.com',
+            'rojgarhindi.in',
+            'newsuchnaonline.com',
+            'biovetro.net',
+            'technons.com',
+            'tournguide.com',
+            'dailyjobposting.xyz',
+            'tapvietcode.com',
+            'go.caslinks.com',
+            'apnahirework.com',
+            'gplinks.co',
+            'fastcars1.com',
+            'bigcarinsurance.com',
+            'short-jambo.ink',
+            'crimejasoos.in',
+            'mwgamesyt.com',
+            'biplabtewary.com',
+            'khaddavi.net',
+            'aylink.co',
+
+        ],
+
+        // ┌─────────────────────────────────────────────────────────────────┐
+        // │  CAPTCHA                                                        │
         // └─────────────────────────────────────────────────────────────────┘
 
         // Automatically solve Cloudflare Turnstile captchas.
@@ -90,7 +132,7 @@
         autoCaptcha: true,
 
         // ┌─────────────────────────────────────────────────────────────────┐
-        // │  NOTIFICATIONS                                                    │
+        // │  NOTIFICATIONS                                                  │
         // └─────────────────────────────────────────────────────────────────┘
 
         // Where toast notifications appear on screen.
@@ -141,7 +183,7 @@
         notifPauseOnHover: false,
 
         // ┌─────────────────────────────────────────────────────────────────┐
-        // │  SITE-SPECIFIC                                                    │
+        // │  SITE-SPECIFIC                                                  │
         // └─────────────────────────────────────────────────────────────────┘
 
         // dl.surf — automatically inject the download bypass button.
@@ -156,10 +198,10 @@
         phantomDirectUrl: 'https://pastefy.app/8PxwQFt8',
 
         // ┌─────────────────────────────────────────────────────────────────┐
-        // │  ADVANCED — Cloudflare allowed referrers                         │
-        // │  Add new safelink domains here if the CF auto-click stops        │
-        // │  working on a site.  Keep each entry in single quotes, comma-    │
-        // │  separated.                                                       │
+        // │  ADVANCED — Cloudflare allowed referrers                        │
+        // │  Add new safelink domains here if the CF auto-click stops       │
+        // │  working on a site.  Keep each entry in single quotes, comma-   │
+        // │  separated.                                                     │
         // └─────────────────────────────────────────────────────────────────┘
         cfAllowedRefs: [
             'airflowscript.com', 'dl.surf', 'tpi.li', 'lnbz.la',
@@ -180,7 +222,7 @@
     // §1  CONSTANTS
     // ═══════════════════════════════════════════════════════════════════════
 
-    const VERSION = '6.8.8';
+    const VERSION = '6.9.2';
 
     const FORM_HOSTS = ['shrtslug.biz', 'biovetro.net', 'technons.com', 'tournguide.com', 'dailyjobposting.xyz', 'stfly.biz'];
     const TPI_HOSTS = ['tpi.li'];
@@ -392,10 +434,18 @@
     function _posStyles() {
         const p = CONFIG.notifPosition || 'bottom-right';
         const [v, h] = p.split('-');
-        const vert = v === 'top' ? `top:calc(28px + env(safe-area-inset-top,0px))` : `bottom:calc(28px + env(safe-area-inset-bottom,0px))`;
-        const horiz = h === 'left' ? `left:calc(28px + env(safe-area-inset-left,0px))` : `right:calc(28px + env(safe-area-inset-right,0px))`;
+
+        const vert = v === 'top' ?
+            `top:calc(28px + env(safe-area-inset-top,0px))` :
+            `bottom:calc(28px + env(safe-area-inset-bottom,0px))`;
+
+        const horiz = h === 'left' ?
+            `left:calc(28px + env(safe-area-inset-left,0px))` :
+            `right:calc(28px + env(safe-area-inset-right,0px))`;
+
         const dir = v === 'top' ? 'column' : 'column-reverse';
         const slide = h === 'left' ? 'translateX(-20px)' : 'translateX(20px)';
+
         return {
             vert,
             horiz,
@@ -414,53 +464,126 @@
         'opacity:0',
         'transition:opacity .25s ease,transform .25s ease',
         'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif',
+        'transform:translate3d(0,0,0)',
     ].join(';');
 
-    const CSS_LABEL = 'font-size:10px;text-transform:uppercase;letter-spacing:1.4px;color:#555;margin-bottom';
+    const CSS_LABEL =
+        'font-size:10px;text-transform:uppercase;letter-spacing:1.4px;color:#555;margin-bottom';
 
+    let _host = null;
+    let _root = null;
     let _container = null;
+
+    /* =========================
+       CORE CONTAINER (SHADOW DOM)
+    ========================= */
 
     function getContainer() {
         if(_container?.isConnected) return _container;
+
         const {
             vert,
             horiz,
             dir
         } = _posStyles();
-        _container = Object.assign(document.createElement('div'), {
-            id: '__ulb_nc'
-        });
-        _container.style.cssText = [
-            'position:fixed', vert, horiz,
-            'z-index:2147483647',
-            `display:flex;flex-direction:${dir};gap:10px`,
-            'pointer-events:none',
-            'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif',
-        ].join(';');
-        document.body.appendChild(_container);
+
+        // Host
+        if(!_host || !_host.isConnected) {
+            _host = document.createElement('div');
+            _host.id = '__ulb_host';
+
+            _host.style.cssText = [
+                'all:initial',
+                'position:fixed',
+                'top:0',
+                'left:0',
+                'width:100vw',
+                'height:100vh',
+                'z-index:2147483646',
+                'pointer-events:none',
+                'contain:layout style paint',
+            ].join(';');
+
+            (document.documentElement || document.body).appendChild(_host);
+
+            _root = _host.attachShadow({
+                mode: 'open'
+            });
+
+            const style = document.createElement('style');
+            style.textContent = `
+            * { margin:0; padding:0; box-sizing:border-box; }
+            :host { all: initial; }
+            @keyframes __ulb_spin { to { transform: rotate(360deg); } }
+        `;
+            _root.appendChild(style);
+        }
+
+        // Container (ONLY ONE EVER)
+        if(!_container || !_container.isConnected) {
+            _container = document.createElement('div');
+            _container.id = '__ulb_nc';
+
+            _container.style.cssText = [
+                'position:fixed',
+                vert, horiz,
+                'display:flex',
+                `flex-direction:${dir}`,
+                'gap:10px',
+                'z-index:2147483646',
+                'pointer-events:none',
+                'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif',
+                'transform:translate3d(0,0,0)',
+                'will-change:transform',
+                'backface-visibility:hidden',
+                'perspective:1000px',
+                'isolation:isolate',
+            ].join(';');
+
+            _root.appendChild(_container);
+        }
+
         return _container;
     }
 
-    function ensureSpinStyle() {
-        if(!document.getElementById('__ulb_style')) {
-            const s = Object.assign(document.createElement('style'), {
-                id: '__ulb_style',
-                textContent: '@keyframes __ulb_spin{to{transform:rotate(360deg)}}',
-            });
-            document.head.appendChild(s);
+    /* =========================
+       SAFETY (DOM RESTORE)
+    ========================= */
+
+    const __ulbObserver = new MutationObserver(() => {
+        if(_host && !document.documentElement.contains(_host)) {
+            document.documentElement.appendChild(_host);
         }
+    });
+
+    __ulbObserver.observe(document.documentElement, {
+        childList: true,
+        subtree: true
+    });
+
+    /* =========================
+       HELPERS
+    ========================= */
+
+    function ensureSpinStyle() {
+        getContainer();
     }
 
     function mountCard(card) {
         const {
             slide
         } = _posStyles();
+
         card.style.transform = slide;
+        card.style.pointerEvents = 'auto';
+
         getContainer().appendChild(card);
+
         requestAnimationFrame(() => {
             card.style.opacity = '1';
             card.style.transform = 'translateX(0)';
         });
+
         return card;
     }
 
@@ -468,23 +591,19 @@
         const {
             slide
         } = _posStyles();
+
         card.style.opacity = '0';
         card.style.transform = slide;
+
         setTimeout(() => card.remove(), 280);
     }
 
-    /**
-     * Show a toast notification.
-     * @param {string}  message
-     * @param {'info'|'success'|'warn'|'error'|'loading'} [type='info']
-     * @param {number}  [duration]  Omit → CONFIG.notifDuration; 0 = persistent
-     * @param {object}  [opts]
-     * @param {string}  [opts.site]  Site label shown in footer
-     * @param {string}  [opts.time]  Elapsed time string (e.g. "1.3s")
-     * @returns {{ update(msg, type?, opts?):void, remove():void }}
-     */
+    /* =========================
+       MAIN NOTIFY SYSTEM
+    ========================= */
+
     function notify(message, type = 'info', duration, opts = {}) {
-        const dur = duration === undefined ? CONFIG.notifDuration : duration;
+        const dur = duration ?? CONFIG.notifDuration;
 
         if(!document.body) {
             const h = {
@@ -502,6 +621,7 @@
         }
 
         ensureSpinStyle();
+
         const {
             accent,
             icon
@@ -512,118 +632,77 @@
         const maxW = CONFIG.compactMode ? 'min(280px,calc(100vw - 56px))' : 'min(320px,calc(100vw - 56px))';
 
         const card = document.createElement('div');
-        card.style.cssText = `${CSS_CARD_BASE};border-left:3px solid ${accent};padding:${pad};min-width:${mw};max-width:${maxW};display:flex;align-items:flex-start;gap:10px`;
+        card.style.cssText =
+            `${CSS_CARD_BASE};border-left:3px solid ${accent};padding:${pad};min-width:${mw};max-width:${maxW};display:flex;align-items:flex-start;gap:10px`;
 
         const iconEl = document.createElement('div');
-        // display:inline-flex + fixed dimensions keep transform-origin centred on the
-        // visible glyph so the spin animation doesn't wobble off-axis.
-        iconEl.style.cssText = `font-size:${CONFIG.compactMode ? '13' : '15'}px;color:${accent};margin-top:1px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;width:1.1em;height:1.1em;line-height:1`;
+        iconEl.style.cssText =
+            `font-size:${CONFIG.compactMode ? '13' : '15'}px;color:${accent};margin-top:1px;flex-shrink:0;display:flex;align-items:center;justify-content:center;width:1.1em;height:1.1em`;
         iconEl.textContent = icon;
 
-        const bodyEl = document.createElement('div');
-        bodyEl.style.cssText = 'flex:1;min-width:0';
+        const body = document.createElement('div');
+        body.style.cssText = 'flex:1;min-width:0';
 
         if(!CONFIG.compactMode && CONFIG.notifShowBranding !== false) {
-            const versionTag = CONFIG.notifShowVersion !== false ? ` · v${VERSION}` : '';
-            bodyEl.innerHTML = `<div style="${CSS_LABEL}:3px">Unknown Link Bypasser · @Aro Moon${versionTag}</div>`;
+            const vtag = CONFIG.notifShowVersion !== false ? ` · v${VERSION}` : '';
+            body.innerHTML = `<div style="${CSS_LABEL}:3px">Unknown Link Bypasser · @Aro Moon${vtag}</div>`;
         }
 
-        const msgEl = document.createElement('div');
-        msgEl.style.cssText = `font-size:${CONFIG.compactMode ? '12' : '13'}px;line-height:1.4;color:#e0e0e0;word-break:break-word`;
-        msgEl.textContent = message;
-        bodyEl.appendChild(msgEl);
+        const msg = document.createElement('div');
+        msg.style.cssText =
+            `font-size:${CONFIG.compactMode ? '12' : '13'}px;line-height:1.4;color:#e0e0e0;word-break:break-word`;
+        msg.textContent = message;
 
-        const footerEl = document.createElement('div');
-        footerEl.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-top:4px;gap:8px';
+        body.appendChild(msg);
+        card.append(iconEl, body);
 
-        const siteEl = document.createElement('div');
-        siteEl.style.cssText = 'font-size:10px;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
-        if(CONFIG.showSiteLabel && opts.site) siteEl.textContent = opts.site;
-
-        const timeEl = document.createElement('div');
-        timeEl.style.cssText = 'font-size:10px;color:#3d8b40;font-variant-numeric:tabular-nums;white-space:nowrap;flex-shrink:0';
-        if(CONFIG.showBypassTime && opts.time) timeEl.textContent = `⏱ ${opts.time}`;
-
-        if(opts.site || opts.time) {
-            footerEl.append(siteEl, timeEl);
-            bodyEl.appendChild(footerEl);
-        }
-
-        card.append(iconEl, bodyEl);
         mountCard(card);
 
-        const setSpinning = on => {
-            iconEl.style.animation = (on && CONFIG.notifAnimateIcon !== false) ?
-                '1s linear 0s infinite normal none running __ulb_spin' :
-                '';
+        const setSpin = on => {
+            iconEl.style.animation =
+                on ? '1s linear infinite __ulb_spin' : '';
         };
-        if(type === 'loading') setSpinning(true);
+
+        if(type === 'loading') setSpin(true);
 
         let timer;
+
         const remove = () => {
             clearTimeout(timer);
             dismissCard(card);
         };
 
-        // update(newMsg, newType?, newDurOrOpts?, newOpts?)
-        // newDurOrOpts: number → overrides auto-dismiss (0 = persistent); object → treated as opts
-        const update = (newMsg, newType, newDurOrOpts, newOpts) => {
+        const update = (newMsg, newType, newDurOrOpts) => {
             clearTimeout(timer);
-            msgEl.textContent = newMsg;
-
-            let activeDur = dur;
-            let opts = {};
-            if(typeof newDurOrOpts === 'number') {
-                activeDur = newDurOrOpts;
-                opts = newOpts || {};
-            } else if(newDurOrOpts && typeof newDurOrOpts === 'object') {
-                opts = newDurOrOpts;
-            }
+            msg.textContent = newMsg;
 
             if(newType && NOTIFY_TYPES[newType]) {
                 const s = NOTIFY_TYPES[newType];
                 iconEl.textContent = s.icon;
                 iconEl.style.color = s.accent;
                 card.style.borderLeftColor = s.accent;
-                setSpinning(newType === 'loading');
+                setSpin(newType === 'loading');
             }
-            if(CONFIG.showSiteLabel && opts.site) siteEl.textContent = opts.site;
-            if(CONFIG.showBypassTime && opts.time) {
-                timeEl.textContent = `⏱ ${opts.time}`;
-                footerEl.append(siteEl, timeEl);
-                if(!footerEl.parentNode) bodyEl.appendChild(footerEl);
+
+            if(typeof newDurOrOpts === 'number' && newDurOrOpts > 0) {
+                timer = setTimeout(remove, newDurOrOpts);
             }
-            if(activeDur > 0) timer = setTimeout(remove, activeDur);
         };
+
         if(dur > 0) timer = setTimeout(remove, dur);
-
-        // notifClickToDismiss — tap card to close it
-        if(CONFIG.notifClickToDismiss) {
-            card.style.cursor = 'pointer';
-            card.addEventListener('click', remove, {
-                once: true
-            });
-        }
-
-        // notifPauseOnHover — pause auto-dismiss timer on hover
-        if(CONFIG.notifPauseOnHover && dur > 0) {
-            let remaining = dur,
-                hoverStart;
-            card.addEventListener('mouseenter', () => {
-                clearTimeout(timer);
-                hoverStart = Date.now();
-            });
-            card.addEventListener('mouseleave', () => {
-                remaining = Math.max(0, remaining - (Date.now() - hoverStart));
-                if(remaining > 0) timer = setTimeout(remove, remaining);
-                else remove();
-            });
-        }
 
         return {
             update,
             remove
         };
+    }
+
+    /* =========================
+       EXPORT CORE API
+    ========================= */
+
+    function ensureUI() {
+        getContainer();
     }
 
     /** Show a self-advancing countdown card, then call onDone. */
@@ -722,9 +801,136 @@
             style: 'position:absolute;top:8px;right:10px;font-size:14px;color:#555;cursor:pointer;padding:2px 5px;border-radius:4px',
             textContent: '✕',
         });
-        closeBtn.addEventListener('click', () => dismissCard(card));
+        const dismiss = () => dismissCard(card);
+        closeBtn.addEventListener('click', () => dismiss());
         card.appendChild(closeBtn);
         mountCard(card);
+    }
+
+    // ── §3.5  BYPASS CONFIRMATION PROMPT ──────────────────────────────────
+
+    /**
+     * Show a stylised confirmation card asking the user whether to bypass.
+     * onConfirm is called when "Yes" is clicked; onCancel when "Cancel" is clicked.
+     * @param {string}   siteLabel
+     * @param {Function} onConfirm
+     * @param {Function} [onCancel]
+     */
+    function showBypassPrompt(siteLabel, onConfirm, onCancel) {
+        if(!document.body) {
+            document.addEventListener('DOMContentLoaded', () => showBypassPrompt(siteLabel, onConfirm, onCancel), {
+                once: true
+            });
+            return;
+        }
+        ensureSpinStyle();
+
+        const card = document.createElement('div');
+        card.style.cssText = [
+            CSS_CARD_BASE,
+            'border-left:3px solid #4f8ef7',
+            'padding:14px 16px',
+            'min-width:min(260px,calc(100vw - 56px))',
+            'max-width:min(340px,calc(100vw - 56px))',
+        ].join(';');
+
+        const versionTag = CONFIG.notifShowVersion !== false ? ` · v${VERSION}` : '';
+        const brandLine = (!CONFIG.compactMode && CONFIG.notifShowBranding !== false) ?
+            `<div style="${CSS_LABEL}:6px">Unknown Link Bypasser · @Aro Moon${versionTag}</div>` :
+            '';
+
+        card.innerHTML = `
+            ${brandLine}
+            <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:12px">
+                <div style="font-size:18px;color:#4f8ef7;flex-shrink:0;margin-top:1px">🔗</div>
+                <div>
+                    <div style="font-size:13px;font-weight:600;color:#e0e0e0;margin-bottom:3px">Bypass this page?</div>
+                    <div style="font-size:11px;color:#888;line-height:1.4">${siteLabel || location.hostname}</div>
+                </div>
+            </div>
+            <div style="display:flex;gap:8px">
+                <button id="__ulb_ask_yes" style="
+                    flex:1;padding:9px 0;border:none;border-radius:7px;cursor:pointer;
+                    background:linear-gradient(135deg,#4f8ef7,#3b6fd4);color:#fff;
+                    font-size:12px;font-weight:700;letter-spacing:.3px;
+                    touch-action:manipulation;min-height:40px;
+                    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif">
+                    ✔ Yes, Bypass
+                </button>
+                <button id="__ulb_ask_no" style="
+                    flex:1;padding:9px 0;border:1px solid rgba(255,255,255,.1);border-radius:7px;cursor:pointer;
+                    background:rgba(255,255,255,.06);color:#aaa;
+                    font-size:12px;font-weight:600;letter-spacing:.3px;
+                    touch-action:manipulation;min-height:40px;
+                    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif">
+                    ✖ Cancel
+                </button>
+            </div>`;
+
+        mountCard(card);
+
+        const dismiss = () => dismissCard(card);
+
+        card.querySelector('#__ulb_ask_yes').addEventListener('click', () => {
+            dismiss();
+            onConfirm();
+        }, {
+            once: true
+        });
+
+        card.querySelector('#__ulb_ask_no').addEventListener('click', () => {
+            dismiss();
+            if(typeof onCancel === 'function') onCancel();
+        }, {
+            once: true
+        });
+    }
+
+
+    /**
+     * Gate function: shows a bypass confirmation prompt if CONFIG.askBeforeBypass
+     * is true, using sessionStorage to survive the reload.  If already confirmed
+     * (post-reload), askBeforeBypass is false, or the host is in autoBypassHosts,
+     * runs fn() immediately.
+     * @param {string}   siteLabel  Human-readable site name shown in the prompt.
+     * @param {Function} fn         The bypasser function to call.
+     */
+    function _gateBypass(siteLabel, fn) {
+        // Always run immediately when asking is disabled.
+        if(!CONFIG.askBeforeBypass) {
+            fn();
+            return;
+        }
+
+        // Auto-bypass for user-configured hosts — no session tracking needed.
+        if(CONFIG.autoBypassHosts?.some(h => host.includes(h))) {
+            fn();
+            return;
+        }
+
+        // Unique key per URL so different pages don't share confirmation state.
+        const key = '__ulb_ask_' + location.href.replace(/[^a-zA-Z0-9]/g, '').slice(0, 60);
+        try {
+            if(sessionStorage.getItem(key) === '1') {
+                sessionStorage.removeItem(key);
+                fn();
+                return;
+            }
+        } catch (_) {
+            fn();
+            return;
+        }
+        // Not yet confirmed — show the prompt.
+        const show = () => showBypassPrompt(siteLabel, () => {
+            try {
+                sessionStorage.setItem(key, '1');
+            } catch (_) {}
+            location.reload();
+        });
+        if(document.body) show();
+        else document.addEventListener('DOMContentLoaded', show, {
+            once: true
+        });
     }
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -1285,65 +1491,66 @@
     const path = location.pathname;
 
     try {
-        if(host.includes('dl.surf')) runDlSurf();
-        else if(host.includes('airflowscript.com')) runAirflowBypasser();
-        else if(host.includes('bstlar.com')) runBstlarBypasser();
-        else if(host.includes('wareguardv2.xyz')) runWareguardBypasser();
-        else if(host.includes('subnise.com')) runSubniseBypasser();
-        else if(host.includes('reshortfly.com')) runReshortflyBypasser();
-        else if(host.includes('avnsgames.com')) runAvnsGamesInterstitial();
-        else if(host.includes('lnbz.la')) runLnbzLaBypasser();
-        else if(host.includes('bloxscript.live')) runBloxscriptScamWarning();
+        if(host.includes('dl.surf')) _gateBypass('dl.surf', runDlSurf);
+        else if(host.includes('airflowscript.com')) _gateBypass('airflowscript.com', runAirflowBypasser);
+        else if(host.includes('bstlar.com')) _gateBypass('bstlar.com', runBstlarBypasser);
+        else if(host.includes('wareguardv2.xyz')) _gateBypass('wareguardv2.xyz', runWareguardBypasser);
+        else if(host.includes('subnise.com')) _gateBypass('subnise.com', runSubniseBypasser);
+        else if(host.includes('reshortfly.com')) _gateBypass('reshortfly.com', runReshortflyBypasser);
+        else if(host.includes('avnsgames.com')) _gateBypass('avnsgames.com', runAvnsGamesInterstitial);
+        else if(host.includes('lnbz.la')) _gateBypass('lnbz.la', runLnbzLaBypasser);
+        else if(host.includes('bloxscript.live')) _gateBypass('bloxscript.live', runBloxscriptScamWarning);
         else if(
             host.includes('jankariweb') ||
             host.includes('newsuchnaonline.com') ||
             host.includes('crimejasoos.in') ||
             host.includes('apnahirework.com')
-        ) runJoberBypasser();
-        else if(host.includes('how2guidess.com')) runHow2GuidesBypasser();
-        else if(host.includes('go.yorurl.com')) runYorurlBypasser();
+        ) _gateBypass(host, runJoberBypasser);
+        else if(host.includes('how2guidess.com')) _gateBypass('how2guidess.com', runHow2GuidesBypasser);
+        else if(host.includes('go.yorurl.com')) _gateBypass('go.yorurl.com', runYorurlBypasser);
         else if(
             host.includes('go.caslinks.com') ||
             host.includes('highlocus.shop')
-        ) runCasLinksBypasser();
-        else if(host.includes('gplinks.co')) runGpLinksBypasser();
-        else if(host.includes('powergam.online')) runPowergamBypasser();
-        else if(host.includes('4br.me')) run4BrMeBypasser();
-        else if(host.includes('rojgarhindi.in')) runRojgarhindiBypasser();
-        else if(host.includes('v0-phantomfluxkey.vercel.app')) runPhantomFluxKeyBypasser();
-        else if(host.includes('link-unlock.com')) runLinkUnlockBypasser();
-        else if(host.includes('link4sub.com')) runLink4SubBypasser();
-        else if(host.includes('tapvietcode.com')) runTapVietCodeBypasser();
-        else if(host.includes('short-jambo.ink')) runShortJamboInkBypasser();
-        else if(host.includes('short-jambo.com')) runShortJamboDotComBypasser();
+        ) _gateBypass(host, runCasLinksBypasser);
+        else if(host.includes('gplinks.co')) _gateBypass('gplinks.co', runGpLinksBypasser);
+        else if(host.includes('powergam.online')) _gateBypass('powergam.online', runPowergamBypasser);
+        else if(host.includes('4br.me')) _gateBypass('4br.me', run4BrMeBypasser);
+        else if(host.includes('rojgarhindi.in')) _gateBypass('rojgarhindi.in', runRojgarhindiBypasser);
+        else if(host.includes('v0-phantomfluxkey.vercel.app')) _gateBypass('phantomfluxkey', runPhantomFluxKeyBypasser);
+        else if(host.includes('link-unlock.com')) _gateBypass('link-unlock.com', runLinkUnlockBypasser);
+        else if(host.includes('link4sub.com')) _gateBypass('link4sub.com', runLink4SubBypasser);
+        else if(host.includes('tapvietcode.com')) _gateBypass('tapvietcode.com', runTapVietCodeBypasser);
+        else if(host.includes('short-jambo.ink')) _gateBypass('short-jambo.ink', runShortJamboInkBypasser);
+        else if(host.includes('short-jambo.com')) _gateBypass('short-jambo.com', runShortJamboDotComBypasser);
         else if(
             /fastcars\d*\.com/.test(host) ||
             host.includes('bigcarinsurance.com')
-        ) runFastcarsBypasser();
-        else if(host.includes('sub4unlock.co')) runSub4UnlockBypasser();
-        else if(host.includes('app.khaddavi.net')) runKhaddaviBypasser();
-        else if(host.includes('sfl.gl')) runSflGlBypasser();
-        else if(host.includes('ytsubme.com')) runYtSubMeBypasser();
-        else if(host.includes('aylink.co')) runAylinkBypasser();
+        ) _gateBypass(host, runFastcarsBypasser);
+        else if(host.includes('sub4unlock.co')) _gateBypass('sub4unlock.co', runSub4UnlockBypasser);
+        else if(host.includes('app.khaddavi.net')) _gateBypass('app.khaddavi.net', runKhaddaviBypasser);
+        else if(host.includes('sfl.gl')) _gateBypass('sfl.gl', runSflGlBypasser);
+        else if(host.includes('ytsubme.com')) _gateBypass('ytsubme.com', runYtSubMeBypasser);
+        else if(host.includes('aylink.co')) _gateBypass('aylink.co', runAylinkBypasser);
         else if(
             host.includes('hehehub-acsu123.pythonanywhere.com') &&
             /[?&]hwid=[\w.]+/.test(location.search)
-        ) runHehehubSkipper();
-        else if(host.includes('fluorine.s3ren1ty.xyz')) runFluorineBypasser();
-        else if(host.includes('getpolsec.com')) runGetPolSecBypasser();
+        ) _gateBypass('hehehub', runHehehubSkipper);
+        else if(host.includes('fluorine.s3ren1ty.xyz')) _gateBypass('fluorine.s3ren1ty.xyz', runFluorineBypasser);
+        else if(host.includes('getpolsec.com')) _gateBypass('getpolsec.com', runGetPolSecBypasser);
         else if(
             host.includes('biplabtewary.com') ||
             host.includes('mwgamesyt.com.br') ||
             host.includes('topjogosvip.online') ||
             host.includes('legacyagency.com.br')
-        ) runButtonFinderBypasser();
-        else if(host.includes('rekonise.com')) runRekoniseBypasser();
-        else if(host.includes('go.linkify.ru')) runLinkifyRuBypasser();
-        else if(host.includes('arolinks.com')) runArolinksBypasser();
-        else if(host.includes('spdmteam.com')) runSpdmTeamBypasser();
-        else if(TPI_HOSTS.some(h => host.includes(h))) runTpiLiBypasser();
-        else if(FORM_HOSTS.some(h => host.includes(h))) runFormBypasser();
-        else runSafelinkBypasser();
+        ) _gateBypass(host, runButtonFinderBypasser);
+        else if(host.includes('rekonise.com')) _gateBypass('rekonise.com', runRekoniseBypasser);
+        else if(host.includes('go.linkify.ru')) _gateBypass('go.linkify.ru', runLinkifyRuBypasser);
+        else if(host.includes('arolinks.com')) _gateBypass('arolinks.com', runArolinksBypasser);
+        else if(host.includes('spdmteam.com')) _gateBypass('spdmteam.com', runSpdmTeamBypasser);
+        else if(host.includes('linkunlocker.com')) _gateBypass('linkunlocker.com', runLinkUnlockerBypasser);
+        else if(TPI_HOSTS.some(h => host.includes(h))) _gateBypass(host, runTpiLiBypasser);
+        else if(FORM_HOSTS.some(h => host.includes(h))) _gateBypass(host, runFormBypasser);
+        else _gateBypass(host, runSafelinkBypasser);
     } catch (routerErr) {
         console.error('[ULB] Uncaught router error:', routerErr);
         notify(`ULB: unexpected error — ${routerErr.message}`, 'error', 8000);
@@ -3945,6 +4152,112 @@
             });
         };
         onReady(init);
+    }
+
+    // ── linkunlocker.com ───────────────────────────────────────────────────
+
+    function runLinkUnlockerBypasser() {
+        const SITE = 'linkunlocker.com';
+        const ACTION_FETCH = '40aefacb2f77a22354545aacbb194a03ebfedad72b';
+        const ACTION_UNLOCK = '403f66e55109b46b722c408c17a17267d20e0393c2';
+
+        const t = makeTimer();
+        const nh = notify(`${SITE} — extracting link data…`, 'loading', 0, {
+            site: SITE
+        });
+        const handleError = makeErrHandler(SITE, nh, 7000);
+
+        const run = async () => {
+            try {
+                // Build the Next.js router-state header using the current slug.
+                const slug = location.pathname.split('/').pop();
+                const nextState = JSON.stringify([
+                    '',
+                    {
+                        children: [
+                            ['slug', slug, 'd'],
+                            {
+                                children: ['__PAGE__', {}, null, null]
+                            },
+                            null, null
+                        ]
+                    },
+                    null, null, true
+                ]);
+                const headers = {
+                    'accept': 'text/x-component',
+                    'content-type': 'text/plain;charset=UTF-8',
+                    'next-router-state-tree': nextState,
+                };
+
+                // Step 1 — scrape _id and _secureTarget5 from inline Next.js scripts.
+                nh.update(`${SITE} — scanning page scripts…`, 'loading', {
+                    site: SITE
+                });
+                let raw = '';
+                document.querySelectorAll('script').forEach(s => {
+                    if(s.textContent.includes('next_f.push')) {
+                        const m = s.textContent.match(/push\(\[\d+,\s*"(.+)"\]\)/);
+                        if(m) raw += m[1].replace(/\\"/g, '"').replace(/\\n/g, '\n');
+                    }
+                });
+
+                const dataMatch = raw.match(/"_id":"([a-f0-9]{24})".*?"_secureTarget5":"([^"]+)"/);
+                if(!dataMatch) throw new Error('Could not find _id / _secureTarget5 in page scripts');
+                const [, id, secureTarget] = dataMatch;
+
+                // Step 2 — fetch request token.
+                nh.update(`${SITE} — fetching request token…`, 'loading', {
+                    site: SITE
+                });
+                const r1 = await fetch(location.href, {
+                    method: 'POST',
+                    headers: {
+                        ...headers,
+                        'next-action': ACTION_FETCH
+                    },
+                    body: JSON.stringify([id]),
+                });
+                if(!r1.ok) throw new Error(`Token request returned HTTP ${r1.status}`);
+                const t1 = await r1.text();
+                const tkM = t1.match(/"token":"([^"]+)"/);
+                if(!tkM) throw new Error('No token found in token-fetch response');
+                const token = tkM[1];
+
+                // Step 3 — unlock and get destination URL.
+                nh.update(`${SITE} — unlocking destination…`, 'loading', {
+                    site: SITE
+                });
+                const r2 = await fetch(location.href, {
+                    method: 'POST',
+                    headers: {
+                        ...headers,
+                        'next-action': ACTION_UNLOCK
+                    },
+                    body: JSON.stringify([{
+                        encryptedUrl: secureTarget,
+                        requestToken: token,
+                        unlockerId: id,
+                        useAdDestination: false,
+                        adDestination: null,
+                    }]),
+                });
+                if(!r2.ok) throw new Error(`Unlock request returned HTTP ${r2.status}`);
+                const t2 = await r2.text();
+                const urlM = t2.match(/"url":"([^"]+)"/);
+                if(!urlM) throw new Error('No URL found in unlock response');
+                const dest = urlM[1].replace(/\\/g, '');
+
+                safeRedirect(dest, nh, {
+                    t,
+                    siteLabel: SITE
+                });
+            } catch (err) {
+                handleError('bypass failed', err);
+            }
+        };
+
+        onReady(run);
     }
 
 })();
