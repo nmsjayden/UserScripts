@@ -104,6 +104,9 @@ Updated supported list (cleaned + only active/kept entries):
 * aylink.co
 * ytsubme.com
 * fluorine.s3ren1ty.xyz
+* go.linkify.ru 
+* arolinks.com 
+* spdmteam.com
 
 ## Not Supported / Blocked / Removed
 - link4m.net (spam + brain hurty)
