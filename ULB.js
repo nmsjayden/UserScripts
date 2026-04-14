@@ -117,7 +117,7 @@
         // Set to false for a cleaner, minimal look.
         notifShowBranding: true,
 
-        // Show the script version (e.g. "v6.8.6") in the branding line.
+        // Show the script version (e.g. "v6.8.8") in the branding line.
         // Only visible when notifShowBranding is also true.
         notifShowVersion: true,
 
@@ -180,7 +180,7 @@
     // §1  CONSTANTS
     // ═══════════════════════════════════════════════════════════════════════
 
-    const VERSION = '6.8.7';
+    const VERSION = '6.8.8';
 
     const FORM_HOSTS = ['shrtslug.biz', 'biovetro.net', 'technons.com', 'tournguide.com', 'dailyjobposting.xyz', 'stfly.biz'];
     const TPI_HOSTS = ['tpi.li'];
