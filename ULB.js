@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Unknown Link Bypasser
-// @version      6.9.3
+// @version      6.9.5
 // @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live(SCAM WARNING) + go.yorurl.com + jankariweb + newsuchnaonline + bigcarinsurance + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + highlocus.shop + gplinks.co + powergam.online + getpolsec.com + hehehub + sub4unlock.co + app.khaddavi.net + sfl.gl + ytsubme.com + aylink.co + biplabtewary.com + mwgamesyt.com.br + topjogosvip.online + legacyagency.com.br + 4br.me + short-jambo.com/ink + fastcars + fluorine.s3ren1ty.xyz + rekonise.com + go.linkify.ru + arolinks.com + spdmteam.com + linkunlocker.com. Made by @Aro Moon
 // @author       @Aro Moon
 // @include      /^https:\/\/mtc\d+\.[^/]+\.[a-z.]+\//
@@ -60,6 +60,7 @@
 // @match        https://linkunlocker.com/*
 // @match        https://bnty.nexusdevs.fun/getkey*
 // @match        https://*.nexusdevs.fun/getkey*
+// @match        https://lua-key-vault.vercel.app/*
 // @grant        GM_addElement
 // @grant        unsafeWindow
 // @connect      challenges.cloudflare.com
@@ -222,7 +223,7 @@
     // §1  CONSTANTS
     // ═══════════════════════════════════════════════════════════════════════
 
-    const VERSION = '6.9.3';
+    const VERSION = '6.9.5';
 
     const FORM_HOSTS = ['shrtslug.biz', 'biovetro.net', 'technons.com', 'tournguide.com', 'dailyjobposting.xyz', 'stfly.biz'];
     const TPI_HOSTS = ['tpi.li'];
@@ -807,7 +808,89 @@
         mountCard(card);
     }
 
-    // ── §3.5  BYPASS CONFIRMATION PROMPT ──────────────────────────────────
+    // ── §3.5  KEY CARD ────────────────────────────────────────────────────
+
+    /**
+     * Display a persistent, copyable key card for bypassers that generate
+     * access keys (e.g. nexusdevs.fun, lua-key-vault).
+     * Fires a ULB toast notification on successful clipboard copy.
+     *
+     * @param {string} key       The key string to display.
+     * @param {string} site      Site label shown in the card header.
+     * @param {object} [timer]   makeTimer() instance — used for the elapsed label.
+     * @param {number} [autoDismissMs=30000]  Auto-dismiss delay in ms.
+     */
+    function showKeyCard(key, site, timer, autoDismissMs = 30_000) {
+        const vTag  = CONFIG.notifShowVersion  !== false ? ` · v${VERSION}` : '';
+        const brand = (!CONFIG.compactMode && CONFIG.notifShowBranding !== false)
+            ? `<div style="${CSS_LABEL}:6px">Unknown Link Bypasser · @Aro Moon${vTag}</div>`
+            : '';
+        const timeLabel = timer ? timer.label() : '';
+
+        const card = document.createElement('div');
+        card.style.cssText = [
+            CSS_CARD_BASE,
+            'border-left:3px solid #22c55e',
+            'padding:14px 18px',
+            'min-width:min(280px,calc(100vw - 56px))',
+            'max-width:min(360px,calc(100vw - 56px))',
+        ].join(';');
+
+        card.innerHTML = `
+            ${brand}
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+                <div style="font-size:16px;color:#22c55e;flex-shrink:0">✔</div>
+                <div>
+                    <div style="font-size:13px;font-weight:600;color:#e0e0e0">Key retrieved — ${site}</div>
+                    ${timeLabel ? `<div style="font-size:10px;color:#888;margin-top:1px">${timeLabel}</div>` : ''}
+                </div>
+            </div>
+            <div class="__ulb_kc_key" style="
+                font-family:monospace;font-size:11px;color:#a5f3a0;
+                background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);
+                border-radius:6px;padding:8px 10px;word-break:break-all;
+                cursor:pointer;user-select:all;margin-bottom:8px;line-height:1.5"
+                title="Click to copy"></div>
+            <div class="__ulb_kc_hint" style="font-size:10px;color:#555;text-align:center">
+                tap to copy · auto-closes in ${Math.round(autoDismissMs / 1000)}s
+            </div>`;
+
+        const keyEl  = card.querySelector('.__ulb_kc_key');
+        const hintEl = card.querySelector('.__ulb_kc_hint');
+        keyEl.textContent = key;
+
+        mountCard(card);
+
+        keyEl.addEventListener('click', () => {
+            if(navigator.clipboard?.writeText) {
+                navigator.clipboard.writeText(key).then(() => {
+                    hintEl.textContent = '✔ Copied!';
+                    hintEl.style.color = '#22c55e';
+                    setTimeout(() => {
+                        hintEl.textContent = `tap to copy · auto-closes in ${Math.round(autoDismissMs / 1000)}s`;
+                        hintEl.style.color = '#555';
+                    }, 2000);
+                }).catch(() => {
+                    notify('Copy failed — select the key manually', 'warn', 3000);
+                    hintEl.textContent = 'Select all & copy manually';
+                    hintEl.style.color = '#f59e0b';
+                });
+            } else {
+                // Fallback: select all text in the element
+                const sel = window.getSelection();
+                const range = document.createRange();
+                range.selectNodeContents(keyEl);
+                sel.removeAllRanges();
+                sel.addRange(range);
+                notify('Text selected — press Ctrl+C / ⌘C to copy', 'info', 3000);
+            }
+        });
+
+        setTimeout(() => dismissCard(card), autoDismissMs);
+        console.log(`%c[ULB/${site}] Key:`, 'color:#22c55e;font-weight:bold', key);
+    }
+
+    // ── §3.6  BYPASS CONFIRMATION PROMPT ──────────────────────────────────
 
     /**
      * Show a stylised confirmation card asking the user whether to bypass.
@@ -1549,6 +1632,7 @@
         else if(host.includes('spdmteam.com')) _gateBypass('spdmteam.com', runSpdmTeamBypasser);
         else if(host.includes('linkunlocker.com')) _gateBypass('linkunlocker.com', runLinkUnlockerBypasser);
         else if(host.includes('nexusdevs.fun') && path.startsWith('/getkey')) _gateBypass('nexusdevs.fun', runNexusBypasser);
+        else if(host.includes('lua-key-vault.vercel.app')) _gateBypass('lua-key-vault', runLuaKeyVaultBypasser);
         else if(TPI_HOSTS.some(h => host.includes(h))) _gateBypass(host, runTpiLiBypasser);
         else if(FORM_HOSTS.some(h => host.includes(h))) _gateBypass(host, runFormBypasser);
         else _gateBypass(host, runSafelinkBypasser);
@@ -4158,7 +4242,7 @@
     // ── nexusdevs.fun ──────────────────────────────────────────────────────
     // Handles bnty.nexusdevs.fun/getkey?h=<hwid> (and any *.nexusdevs.fun/getkey*)
     // Runs the full init -> step loop -> key generation flow silently, then
-    // surfaces the key in a persistent ULB notification card.
+    // surfaces the key via the shared showKeyCard() utility.
 
     function runNexusBypasser() {
         const SITE = 'nexusdevs.fun';
@@ -4260,56 +4344,6 @@
             return data;
         };
 
-        /** Show the retrieved key in a persistent, copyable card. */
-        function showKeyCard(key) {
-            nh.remove();
-            const card = document.createElement('div');
-            card.style.cssText = `${CSS_CARD_BASE};border-left:3px solid #22c55e;padding:14px 18px;min-width:min(280px,calc(100vw - 56px));max-width:min(360px,calc(100vw - 56px))`;
-            const vTag  = CONFIG.notifShowVersion  !== false ? ` · v${VERSION}` : '';
-            const brand = (!CONFIG.compactMode && CONFIG.notifShowBranding !== false)
-                ? `<div style="${CSS_LABEL}:6px">Unknown Link Bypasser · @Aro Moon${vTag}</div>`
-                : '';
-            card.innerHTML = `
-                ${brand}
-                <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-                    <div style="font-size:16px;color:#22c55e;flex-shrink:0">✔</div>
-                    <div>
-                        <div style="font-size:13px;font-weight:600;color:#e0e0e0">Key retrieved — ${SITE}</div>
-                        <div style="font-size:10px;color:#888;margin-top:1px">${t.label()}</div>
-                    </div>
-                </div>
-                <div id="__ulb_nx_key" style="
-                    font-family:monospace;font-size:11px;color:#a5f3a0;
-                    background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);
-                    border-radius:6px;padding:8px 10px;word-break:break-all;
-                    cursor:pointer;user-select:all;margin-bottom:8px;line-height:1.5"
-                    title="Click to copy"></div>
-                <div id="__ulb_nx_hint" style="font-size:10px;color:#555;text-align:center">tap to copy · auto-closes in 30s</div>`;
-
-            card.querySelector('#__ulb_nx_key').textContent = key;
-            mountCard(card);
-
-            const keyEl = card.querySelector('#__ulb_nx_key');
-            const hint  = card.querySelector('#__ulb_nx_hint');
-
-            keyEl.addEventListener('click', () => {
-                navigator.clipboard?.writeText(key).then(() => {
-                    hint.textContent = '✔ Copied to clipboard!';
-                    hint.style.color = '#22c55e';
-                    setTimeout(() => {
-                        hint.textContent = 'tap to copy · auto-closes in 30s';
-                        hint.style.color = '#555';
-                    }, 2000);
-                }).catch(() => {
-                    hint.textContent = 'Select all & copy manually';
-                    hint.style.color = '#f59e0b';
-                });
-            });
-
-            setTimeout(() => dismissCard(card), 30_000);
-            console.log(`%c[ULB/${SITE}] Key:`, 'color:#22c55e;font-weight:bold', key);
-        }
-
         (async () => {
             try {
                 // 1. Init session
@@ -4383,7 +4417,8 @@
                     return;
                 }
 
-                showKeyCard(genData.code);
+                nh.remove();
+                showKeyCard(genData.code, SITE, t);
 
             } catch (err) {
                 handleError('unexpected error during key flow', err);
@@ -4495,6 +4530,67 @@
         };
 
         onReady(run);
+    }
+
+    // ── lua-key-vault.vercel.app ───────────────────────────────────────────
+    // Flow: POST /api/generate-key → get requestId
+    //       GET  /api/validate-key?requestId=<id> → get remainingTime
+    //       sleep(remainingTime + 200ms)
+    //       GET  /api/validate-key?requestId=<id> → get key
+    // Key is surfaced via the shared showKeyCard() utility.
+
+    function runLuaKeyVaultBypasser() {
+        const SITE = 'lua-key-vault';
+        const BASE = location.origin;
+
+        const t   = makeTimer();
+        const nh  = notify(`${SITE} — starting key generation…`, 'loading', 0);
+        const handleError = makeErrHandler(SITE, nh, 9000);
+
+        (async () => {
+            try {
+                // Step 1 — request key generation
+                nh.update(`${SITE} — requesting key…`, 'loading');
+                const genResp = await fetch(`${BASE}/api/generate-key`, { method: 'POST' });
+                if (!genResp.ok) throw new Error(`generate-key returned HTTP ${genResp.status}`);
+                const genData = await genResp.json();
+                const requestId = genData.requestId;
+                if (!requestId) throw new Error('No requestId in generate-key response');
+
+                const validateUrl = `${BASE}/api/validate-key?requestId=${encodeURIComponent(requestId)}`;
+
+                // Step 2 — poll once to learn remainingTime
+                nh.update(`${SITE} — checking wait time…`, 'loading');
+                const pollResp = await fetch(validateUrl);
+                if (!pollResp.ok) throw new Error(`validate-key poll returned HTTP ${pollResp.status}`);
+                const pollData = await pollResp.json();
+
+                const waitMs  = (typeof pollData.remainingTime === 'number' ? pollData.remainingTime : 180_000) + 200;
+                const waitSec = Math.ceil(waitMs / 1000);
+
+                // Step 3 — dismiss loading notif now that wait time is known, then show countdown
+                nh.remove();
+                showCountdown(waitSec, async () => {
+                    try {
+                        nh.update(`${SITE} — fetching key…`, 'loading');
+                        const keyResp = await fetch(validateUrl);
+                        if (!keyResp.ok) throw new Error(`validate-key final returned HTTP ${keyResp.status}`);
+                        const keyData = await keyResp.json();
+
+                        const key = keyData.key;
+                        if (!key) throw new Error('No key field in validate-key response');
+
+                        nh.remove();
+                        showKeyCard(key, SITE, t);
+                    } catch (err) {
+                        handleError('failed to fetch final key', err);
+                    }
+                }, `${SITE} key generation`);
+
+            } catch (err) {
+                handleError('key flow failed', err);
+            }
+        })();
     }
 
 })();
