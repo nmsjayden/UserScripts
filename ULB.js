@@ -1,7 +1,6 @@
 // ==UserScript==
 // @name         Unknown Link Bypasser
-// @namespace    http://tampermonkey.net/
-// @version      6.9.2
+// @version      6.9.3
 // @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live(SCAM WARNING) + go.yorurl.com + jankariweb + newsuchnaonline + bigcarinsurance + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + highlocus.shop + gplinks.co + powergam.online + getpolsec.com + hehehub + sub4unlock.co + app.khaddavi.net + sfl.gl + ytsubme.com + aylink.co + biplabtewary.com + mwgamesyt.com.br + topjogosvip.online + legacyagency.com.br + 4br.me + short-jambo.com/ink + fastcars + fluorine.s3ren1ty.xyz + rekonise.com + go.linkify.ru + arolinks.com + spdmteam.com + linkunlocker.com. Made by @Aro Moon
 // @author       @Aro Moon
 // @include      /^https:\/\/mtc\d+\.[^/]+\.[a-z.]+\//
@@ -59,6 +58,8 @@
 // @match        https://crimejasoos.in/*
 // @match        https://spdmteam.com/social/*
 // @match        https://linkunlocker.com/*
+// @match        https://bnty.nexusdevs.fun/getkey*
+// @match        https://*.nexusdevs.fun/getkey*
 // @grant        GM_addElement
 // @grant        unsafeWindow
 // @connect      challenges.cloudflare.com
@@ -119,7 +120,6 @@
             'biplabtewary.com',
             'khaddavi.net',
             'aylink.co',
-
         ],
 
         // ┌─────────────────────────────────────────────────────────────────┐
@@ -222,7 +222,7 @@
     // §1  CONSTANTS
     // ═══════════════════════════════════════════════════════════════════════
 
-    const VERSION = '6.9.2';
+    const VERSION = '6.9.3';
 
     const FORM_HOSTS = ['shrtslug.biz', 'biovetro.net', 'technons.com', 'tournguide.com', 'dailyjobposting.xyz', 'stfly.biz'];
     const TPI_HOSTS = ['tpi.li'];
@@ -1548,6 +1548,7 @@
         else if(host.includes('arolinks.com')) _gateBypass('arolinks.com', runArolinksBypasser);
         else if(host.includes('spdmteam.com')) _gateBypass('spdmteam.com', runSpdmTeamBypasser);
         else if(host.includes('linkunlocker.com')) _gateBypass('linkunlocker.com', runLinkUnlockerBypasser);
+        else if(host.includes('nexusdevs.fun') && path.startsWith('/getkey')) _gateBypass('nexusdevs.fun', runNexusBypasser);
         else if(TPI_HOSTS.some(h => host.includes(h))) _gateBypass(host, runTpiLiBypasser);
         else if(FORM_HOSTS.some(h => host.includes(h))) _gateBypass(host, runFormBypasser);
         else _gateBypass(host, runSafelinkBypasser);
@@ -4152,6 +4153,242 @@
             });
         };
         onReady(init);
+    }
+
+    // ── nexusdevs.fun ──────────────────────────────────────────────────────
+    // Handles bnty.nexusdevs.fun/getkey?h=<hwid> (and any *.nexusdevs.fun/getkey*)
+    // Runs the full init -> step loop -> key generation flow silently, then
+    // surfaces the key in a persistent ULB notification card.
+
+    function runNexusBypasser() {
+        const SITE = 'nexusdevs.fun';
+        const BASE = 'https://keyserver.nexusdevs.fun';
+        const JSON_HEADERS = { 'Content-Type': 'application/json' };
+
+        // ── Block report-adblock & hidaddy on unsafeWindow so the page's own
+        //    JS cannot fire these requests regardless of how they're made. ────
+        const _uw         = typeof unsafeWindow !== 'undefined' ? unsafeWindow : window;
+        const _nxBlocked  = (u) => {
+            const s = u ? String(typeof u === 'object' ? (u.url ?? u) : u) : '';
+            return s.includes('report-adblock') || s.includes('hidaddy');
+        };
+
+        // fetch
+        const _origFetch = _uw.fetch;
+        _uw.fetch = function(input, init) {
+            if (_nxBlocked(input)) return Promise.resolve(new Response(null, { status: 204 }));
+            return _origFetch.apply(this, arguments);
+        };
+
+        // XHR — patch the prototype on unsafeWindow's copy
+        const _XHR   = _uw.XMLHttpRequest;
+        const _xOpen = _XHR.prototype.open;
+        const _xSend = _XHR.prototype.send;
+        _XHR.prototype.open = function(method, url) {
+            this.__nxBlock = _nxBlocked(url);
+            return _xOpen.apply(this, arguments);
+        };
+        _XHR.prototype.send = function() {
+            if (this.__nxBlock) return;
+            return _xSend.apply(this, arguments);
+        };
+
+        // sendBeacon
+        const _origBeacon = _uw.navigator.sendBeacon.bind(_uw.navigator);
+        _uw.navigator.sendBeacon = (url, data) =>
+            _nxBlocked(url) ? true : _origBeacon(url, data);
+
+        // DOM — kill matching nodes as they appear and on load
+        new MutationObserver(ms => {
+            ms.forEach(m => m.addedNodes.forEach(n => {
+                if (n.nodeType === 1 && _nxBlocked(n.src || n.href)) { n.pause?.(); n.remove(); }
+            }));
+        }).observe(document.documentElement, { childList: true, subtree: true });
+        document.querySelectorAll('audio,source,script,img').forEach(e => {
+            if (_nxBlocked(e.src || e.href)) e.remove();
+        });
+        // ─────────────────────────────────────────────────────────────────────
+
+        const t  = makeTimer();
+        const nh = notify(`${SITE} — starting key flow…`, 'loading', 0);
+        const handleError = makeErrHandler(SITE, nh, 9000);
+
+        const params = new URLSearchParams(window.location.search);
+        const HWID   = params.get('h') || params.get('hwid');
+
+        if (!HWID) {
+            handleError('no HWID found in URL (?h= or ?hwid=)', null);
+            return;
+        }
+
+        /**
+         * POST to a keyserver endpoint with automatic blocked/rate-limited handling.
+         * • status:"blocked"      → wait remaining_ms then retry once
+         * • status:"rate_limited" → surface a persistent error, do not retry
+         */
+        const nxPost = async (endpoint, body, label) => {
+            const go = async () => {
+                const r = await fetch(`${BASE}${endpoint}`, {
+                    method: 'POST',
+                    headers: JSON_HEADERS,
+                    body: JSON.stringify(body),
+                });
+                return r.json().catch(() => ({}));
+            };
+
+            let data = await go();
+
+            if (data.status === 'rate_limited') {
+                handleError('rate limited — please wait a while and try again', null);
+                throw new Error('rate_limited');
+            }
+
+            if (data.status === 'blocked') {
+                const waitMs  = (data.remaining_ms ?? 5000) + 500;
+                const waitSec = Math.ceil(waitMs / 1000);
+                console.warn(`[ULB/nexus] ${label} — IP blocked (${data.reason ?? '?'}), waiting ${waitSec}s…`);
+                nh.update(`${SITE} — blocked (${data.reason ?? 'ad blocker detected'}), waiting ${waitSec}s…`, 'warn');
+                await sleep(waitMs);
+                nh.update(`${SITE} — retrying ${label}…`, 'loading');
+                data = await go();
+                if (data.status === 'rate_limited') {
+                    handleError('rate limited — please wait a while and try again', null);
+                    throw new Error('rate_limited');
+                }
+            }
+
+            return data;
+        };
+
+        /** Show the retrieved key in a persistent, copyable card. */
+        function showKeyCard(key) {
+            nh.remove();
+            const card = document.createElement('div');
+            card.style.cssText = `${CSS_CARD_BASE};border-left:3px solid #22c55e;padding:14px 18px;min-width:min(280px,calc(100vw - 56px));max-width:min(360px,calc(100vw - 56px))`;
+            const vTag  = CONFIG.notifShowVersion  !== false ? ` · v${VERSION}` : '';
+            const brand = (!CONFIG.compactMode && CONFIG.notifShowBranding !== false)
+                ? `<div style="${CSS_LABEL}:6px">Unknown Link Bypasser · @Aro Moon${vTag}</div>`
+                : '';
+            card.innerHTML = `
+                ${brand}
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+                    <div style="font-size:16px;color:#22c55e;flex-shrink:0">✔</div>
+                    <div>
+                        <div style="font-size:13px;font-weight:600;color:#e0e0e0">Key retrieved — ${SITE}</div>
+                        <div style="font-size:10px;color:#888;margin-top:1px">${t.label()}</div>
+                    </div>
+                </div>
+                <div id="__ulb_nx_key" style="
+                    font-family:monospace;font-size:11px;color:#a5f3a0;
+                    background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);
+                    border-radius:6px;padding:8px 10px;word-break:break-all;
+                    cursor:pointer;user-select:all;margin-bottom:8px;line-height:1.5"
+                    title="Click to copy"></div>
+                <div id="__ulb_nx_hint" style="font-size:10px;color:#555;text-align:center">tap to copy · auto-closes in 30s</div>`;
+
+            card.querySelector('#__ulb_nx_key').textContent = key;
+            mountCard(card);
+
+            const keyEl = card.querySelector('#__ulb_nx_key');
+            const hint  = card.querySelector('#__ulb_nx_hint');
+
+            keyEl.addEventListener('click', () => {
+                navigator.clipboard?.writeText(key).then(() => {
+                    hint.textContent = '✔ Copied to clipboard!';
+                    hint.style.color = '#22c55e';
+                    setTimeout(() => {
+                        hint.textContent = 'tap to copy · auto-closes in 30s';
+                        hint.style.color = '#555';
+                    }, 2000);
+                }).catch(() => {
+                    hint.textContent = 'Select all & copy manually';
+                    hint.style.color = '#f59e0b';
+                });
+            });
+
+            setTimeout(() => dismissCard(card), 30_000);
+            console.log(`%c[ULB/${SITE}] Key:`, 'color:#22c55e;font-weight:bold', key);
+        }
+
+        (async () => {
+            try {
+                // 1. Init session
+                nh.update(`${SITE} — initialising session…`, 'loading');
+
+                const initData = await nxPost('/api/getkey/init',
+                    { hwid_hash: HWID, timestamp: Date.now() },
+                    'init'
+                );
+
+                if (!initData?.token) {
+                    handleError('init failed — no token returned', null);
+                    return;
+                }
+
+                const token = initData.token;
+                const steps = Array.isArray(initData.steps) ? initData.steps : [];
+                const total = steps.length;
+
+                // 2. Walk each step
+                for (let i = 0; i < steps.length; i++) {
+                    const s       = steps[i];
+                    const stepNum = s.step || (i + 1);
+
+                    // Discord step — skip start-step and complete-step entirely
+                    if (s.type === 'discord') {
+                        nh.update(`${SITE} — step ${stepNum}/${total} (discord)…`, 'loading');
+                        await sleep(1500);
+                        await nxPost('/api/getkey/complete-discord', { token }, 'complete-discord').catch(() => {});
+                        await sleep(1200);
+                        continue;
+                    }
+
+                    nh.update(`${SITE} — step ${stepNum}/${total}…`, 'loading');
+
+                    const startData = await nxPost('/api/getkey/start-step',
+                        { token, step: stepNum },
+                        `start-step ${stepNum}`
+                    );
+
+                    if (startData.wait) {
+                        nh.update(`${SITE} — step ${stepNum}/${total} (waiting ${startData.wait}s)…`, 'loading');
+                        await sleep((startData.wait * 1000) + 800);
+                    }
+
+                    // complete-step — retry on too_fast, also handles blocked via nxPost
+                    let completeData;
+                    do {
+                        completeData = await nxPost('/api/getkey/complete-step',
+                            { token, step: stepNum },
+                            `complete-step ${stepNum}`
+                        );
+                        if (completeData.status === 'too_fast' && completeData.remaining) {
+                            const waitSec = Math.ceil(completeData.remaining / 1000) + 2;
+                            nh.update(`${SITE} — step ${stepNum}/${total} too fast, retrying in ${waitSec}s…`, 'loading');
+                            await sleep(waitSec * 1000);
+                        }
+                    } while (completeData.status === 'too_fast' && completeData.remaining);
+
+                    await sleep(1200);
+                }
+
+                // 3. Generate key
+                nh.update(`${SITE} — generating key…`, 'loading');
+                await sleep(2000);
+
+                const genData = await nxPost('/api/getkey/generate', { token }, 'generate');
+
+                if (!genData?.code) {
+                    handleError('key generation failed — no code in response', null);
+                    return;
+                }
+
+                showKeyCard(genData.code);
+
+            } catch (err) {
+                handleError('unexpected error during key flow', err);
+            }
+        })();
     }
 
     // ── linkunlocker.com ───────────────────────────────────────────────────
