@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Unknown Link Bypasser
-// @version      6.9.5
-// @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live(SCAM WARNING) + go.yorurl.com + jankariweb + newsuchnaonline + bigcarinsurance + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + highlocus.shop + gplinks.co + powergam.online + getpolsec.com + hehehub + sub4unlock.co + app.khaddavi.net + sfl.gl + ytsubme.com + aylink.co + biplabtewary.com + mwgamesyt.com.br + topjogosvip.online + legacyagency.com.br + 4br.me + short-jambo.com/ink + fastcars + fluorine.s3ren1ty.xyz + rekonise.com + go.linkify.ru + arolinks.com + spdmteam.com + linkunlocker.com. Made by @Aro Moon
+// @version      6.9.7
+// @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live(SCAM WARNING) + go.yorurl.com + jankariweb + newsuchnaonline + bigcarinsurance + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + highlocus.shop + gplinks.co + powergam.online + getpolsec.com + hehehub + sub4unlock.co + app.khaddavi.net + sfl.gl + ytsubme.com + aylink.co + biplabtewary.com + mwgamesyt.com.br + topjogosvip.online + legacyagency.com.br + 4br.me + short-jambo.com/ink + fastcars + fluorine.s3ren1ty.xyz + rekonise.com + go.linkify.ru + arolinks.com + spdmteam.com + linkunlocker.com + mboost.me + sub2unlock.netlify.app + krnl-ios.com + ouo.io. Made by @Aro Moon
 // @author       @Aro Moon
 // @include      /^https:\/\/mtc\d+\.[^/]+\.[a-z.]+\//
 // @include      /^https?:\/\/(?:\w+\.)?fastcars\d+\.com\//
@@ -61,8 +61,14 @@
 // @match        https://bnty.nexusdevs.fun/getkey*
 // @match        https://*.nexusdevs.fun/getkey*
 // @match        https://lua-key-vault.vercel.app/*
+// @match        https://mboost.me/*
+// @match        https://sub2unlock.netlify.app/*
+// @match        https://krnl-ios.com/ads.html*
+// @match        https://ouo.io/*
 // @grant        GM_addElement
 // @grant        unsafeWindow
+// @grant        GM_registerMenuCommand
+// @grant        GM_setClipboard
 // @connect      challenges.cloudflare.com
 // @run-at       document-start
 // @downloadURL  https://raw.githubusercontent.com/nmsjayden/UserScripts/main/ULB.js
@@ -121,6 +127,8 @@
             'biplabtewary.com',
             'khaddavi.net',
             'aylink.co',
+            'go.linkify.ru/get',
+            'ouo.io/go/',
         ],
 
         // ┌─────────────────────────────────────────────────────────────────┐
@@ -211,7 +219,7 @@
             'tournguide.com', 'dailyjobposting.xyz', 'stfly.biz',
             'gplinks.co', '4br.me',
             'short-jambo.com', 'short-jambo.ink',
-            'arolinks.com',
+            'arolinks.com', 'ouo.io',
         ],
     };
 
@@ -223,7 +231,15 @@
     // §1  CONSTANTS
     // ═══════════════════════════════════════════════════════════════════════
 
-    const VERSION = '6.9.5';
+    const VERSION = '6.9.7';
+
+    // ── Diagnostics log ───────────────────────────────────────────────────
+    // Captures errors/warnings for the Diagnostics menu command.
+    const _diagEntries = [];
+    const _origConsoleError = console.error.bind(console);
+    const _origConsoleWarn  = console.warn.bind(console);
+    console.error = (...args) => { _diagEntries.push({ level: 'ERROR', ts: Date.now(), msg: args.map(a => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' ') }); _origConsoleError(...args); };
+    console.warn  = (...args) => { _diagEntries.push({ level: 'WARN',  ts: Date.now(), msg: args.map(a => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' ') }); _origConsoleWarn(...args); };
 
     const FORM_HOSTS = ['shrtslug.biz', 'biovetro.net', 'technons.com', 'tournguide.com', 'dailyjobposting.xyz', 'stfly.biz'];
     const TPI_HOSTS = ['tpi.li'];
@@ -862,20 +878,14 @@
         mountCard(card);
 
         keyEl.addEventListener('click', () => {
-            if(navigator.clipboard?.writeText) {
-                navigator.clipboard.writeText(key).then(() => {
-                    hintEl.textContent = '✔ Copied!';
-                    hintEl.style.color = '#22c55e';
-                    setTimeout(() => {
-                        hintEl.textContent = `tap to copy · auto-closes in ${Math.round(autoDismissMs / 1000)}s`;
-                        hintEl.style.color = '#555';
-                    }, 2000);
-                }).catch(() => {
-                    notify('Copy failed — select the key manually', 'warn', 3000);
-                    hintEl.textContent = 'Select all & copy manually';
-                    hintEl.style.color = '#f59e0b';
-                });
-            } else {
+            _gmCopy(key).then(() => {
+                hintEl.textContent = '✔ Copied!';
+                hintEl.style.color = '#22c55e';
+                setTimeout(() => {
+                    hintEl.textContent = `tap to copy · auto-closes in ${Math.round(autoDismissMs / 1000)}s`;
+                    hintEl.style.color = '#555';
+                }, 2000);
+            }).catch(() => {
                 // Fallback: select all text in the element
                 const sel = window.getSelection();
                 const range = document.createRange();
@@ -883,7 +893,7 @@
                 sel.removeAllRanges();
                 sel.addRange(range);
                 notify('Text selected — press Ctrl+C / ⌘C to copy', 'info', 3000);
-            }
+            });
         });
 
         setTimeout(() => dismissCard(card), autoDismissMs);
@@ -986,7 +996,7 @@
         }
 
         // Auto-bypass for user-configured hosts — no session tracking needed.
-        if(CONFIG.autoBypassHosts?.some(h => host.includes(h))) {
+        if(CONFIG.autoBypassHosts?.some(h => host.includes(h) || (host + path).includes(h))) {
             fn();
             return;
         }
@@ -1045,6 +1055,15 @@
         if(!sitekey) return Promise.reject(new Error('[ULB/Turnstile] sitekey is required'));
         return new Promise((resolve, reject) => {
             const cbName = '__ulb_tsCb_' + generateId();
+
+            // Inject @keyframes into the main document so the overlay spinner works
+            // (the Shadow DOM keyframes are not accessible outside the shadow root).
+            if (!document.querySelector('style[data-ulb-spin]')) {
+                const ks = document.createElement('style');
+                ks.setAttribute('data-ulb-spin', '1');
+                ks.textContent = '@keyframes __ulb_spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }';
+                (document.head || document.documentElement).appendChild(ks);
+            }
 
             const overlay = document.createElement('div');
             overlay.id = '__ulb_ts_overlay';
@@ -1168,6 +1187,7 @@
                     ts.render(widgetDiv, {
                         sitekey,
                         theme: 'dark',
+                        size: 'normal',
                         callback: onToken
                     });
                     return true;
@@ -1573,6 +1593,88 @@
     const host = location.hostname;
     const path = location.pathname;
 
+    // ── Global: make invisible Turnstile widgets visible ──────────────────
+    // Runs at document-start so widgets are patched before the Turnstile
+    // script initialises them. Also watches for dynamically added widgets.
+    // This ensures any page using our captcha handler shows the widget.
+    (function _patchInvisibleTurnstiles() {
+        const patch = el => {
+            if (el.nodeType !== 1) return;
+            if (el.classList?.contains('cf-turnstile') && el.getAttribute('data-size') === 'invisible') {
+                el.setAttribute('data-size', 'normal');
+            }
+            el.querySelectorAll?.('.cf-turnstile[data-size="invisible"]').forEach(w => w.setAttribute('data-size', 'normal'));
+        };
+        patch(document.documentElement);
+        new MutationObserver(muts => {
+            for (const m of muts) m.addedNodes.forEach(patch);
+        }).observe(document.documentElement, { childList: true, subtree: true });
+    })();
+
+    // ── GM Clipboard helper (uses GM_setClipboard with navigator.clipboard fallback) ──
+    function _gmCopy(text) {
+        try {
+            GM_setClipboard(text, 'text');
+            return Promise.resolve();
+        } catch (_) {
+            return navigator.clipboard?.writeText(text) ?? Promise.reject(new Error('No clipboard API'));
+        }
+    }
+
+    // ── Diagnostics menu command ───────────────────────────────────────────
+    try {
+        GM_registerMenuCommand('ULB Diagnostics', () => {
+            const now = new Date();
+            const gmAvail = fn => { try { return typeof eval(fn) === 'function' ? '✔' : '✘'; } catch(_) { return '✘'; } };
+            const cfgLines = Object.entries(CONFIG)
+                .filter(([k]) => !['cfAllowedRefs','autoBypassHosts'].includes(k))
+                .map(([k,v]) => `  ${k}: ${JSON.stringify(v)}`)
+                .join('\n');
+            const hostLines = (CONFIG.autoBypassHosts || []).map(h => `  - ${h}`).join('\n');
+            const diagLines = _diagEntries.length
+                ? _diagEntries.slice(-30).map(e => `  [${e.level}] ${new Date(e.ts).toISOString().slice(11,19)} ${e.msg}`).join('\n')
+                : '  (none)';
+
+            const report = [
+                `╔══════════════════════════════════════════════╗`,
+                `║   Unknown Link Bypasser — Diagnostics        ║`,
+                `╚══════════════════════════════════════════════╝`,
+                `Generated : ${now.toISOString()}`,
+                `Version   : v${VERSION}`,
+                ``,
+                `── PAGE ─────────────────────────────────────`,
+                `URL       : ${location.href}`,
+                `Host      : ${host}`,
+                `Path      : ${path}`,
+                `Referrer  : ${document.referrer || '(none)'}`,
+                ``,
+                `── ENVIRONMENT ──────────────────────────────`,
+                `UserAgent : ${navigator.userAgent}`,
+                `GM_setClipboard      : ${gmAvail('GM_setClipboard')}`,
+                `GM_registerMenuCommand : ${gmAvail('GM_registerMenuCommand')}`,
+                `unsafeWindow         : ${typeof unsafeWindow !== 'undefined' ? '✔' : '✘'}`,
+                ``,
+                `── CONFIG ────────────────────────────────────`,
+                cfgLines,
+                ``,
+                `  autoBypassHosts:`,
+                hostLines || '  (empty)',
+                ``,
+                `── LOG (last 30 entries) ─────────────────────`,
+                diagLines,
+                ``,
+                `══════════════════════════════════════════════`,
+            ].join('\n');
+
+            _gmCopy(report).then(() => {
+                notify('Diagnostics copied to clipboard ✔', 'success', 3000);
+            }).catch(() => {
+                notify('Copy failed — check the browser console', 'error', 4000);
+                console.log('[ULB] Diagnostics report:\n', report);
+            });
+        });
+    } catch (_) { /* GM_registerMenuCommand not available (e.g. non-TM runner) */ }
+
     try {
         if(host.includes('dl.surf')) _gateBypass('dl.surf', runDlSurf);
         else if(host.includes('airflowscript.com')) _gateBypass('airflowscript.com', runAirflowBypasser);
@@ -1631,6 +1733,10 @@
         else if(host.includes('arolinks.com')) _gateBypass('arolinks.com', runArolinksBypasser);
         else if(host.includes('spdmteam.com')) _gateBypass('spdmteam.com', runSpdmTeamBypasser);
         else if(host.includes('linkunlocker.com')) _gateBypass('linkunlocker.com', runLinkUnlockerBypasser);
+        else if(host.includes('mboost.me')) _gateBypass('mboost.me', runMboostBypasser);
+        else if(host.includes('sub2unlock.netlify.app')) _gateBypass('sub2unlock', runSub2UnlockBypasser);
+        else if(host.includes('krnl-ios.com')) _gateBypass('krnl-ios.com', runKrnlIosBypasser);
+        else if(host.includes('ouo.io')) _gateBypass('ouo.io', runOuoBypasser);
         else if(host.includes('nexusdevs.fun') && path.startsWith('/getkey')) _gateBypass('nexusdevs.fun', runNexusBypasser);
         else if(host.includes('lua-key-vault.vercel.app')) _gateBypass('lua-key-vault', runLuaKeyVaultBypasser);
         else if(TPI_HOSTS.some(h => host.includes(h))) _gateBypass(host, runTpiLiBypasser);
@@ -4591,6 +4697,238 @@
                 handleError('key flow failed', err);
             }
         })();
+    }
+
+    // ── mboost.me ──────────────────────────────────────────────────────────
+    // The page embeds a JS object `data = { targeturl: "..." }`.
+    // We read it from unsafeWindow or parse inline scripts, then redirect.
+
+    function runMboostBypasser() {
+        const SITE = 'mboost.me';
+        const t = makeTimer();
+        const nh = notify(`${SITE} — extracting target URL…`, 'loading', 0, { site: SITE });
+        const handleError = makeErrHandler(SITE, nh, 7000);
+
+        const tryExtract = () => {
+            // Strategy 1: read from unsafeWindow.data.targeturl
+            try {
+                const d = unsafeWindow.data;
+                if (d && d.targeturl) {
+                    safeRedirect(d.targeturl, nh, { t, siteLabel: SITE });
+                    return true;
+                }
+            } catch (_) {}
+
+            // Strategy 2: scan inline <script> tags
+            for (const s of document.querySelectorAll('script:not([src])')) {
+                const m = s.textContent.match(/['"]{0,1}targeturl['"]{0,1}\s*:\s*['"]([^'"]+)['"]/);
+                if (m && m[1]) {
+                    safeRedirect(m[1], nh, { t, siteLabel: SITE });
+                    return true;
+                }
+            }
+            return false;
+        };
+
+        const init = () => {
+            if (tryExtract()) return;
+            // Scripts may still be executing — poll until data is available
+            pollUntil(tryExtract, 200, 150).catch(() => {
+                handleError('target URL not found in page', null);
+            });
+        };
+        onReady(init);
+    }
+
+    // ── sub2unlock.netlify.app ─────────────────────────────────────────────
+    // Hooks WebSocket at document-start so no messages are missed.
+    // Looks for the download URL at data.d.b.d.download in WS payloads.
+
+    function runSub2UnlockBypasser() {
+        const SITE = 'sub2unlock';
+        const t = makeTimer();
+        const nh = notify(`${SITE} — waiting for unlock signal…`, 'loading', 0, { site: SITE });
+
+        let redirected = false;
+
+        const W = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
+        const OrigWS = W.WebSocket;
+
+        W.WebSocket = function(u, p) {
+            const s = new OrigWS(u, p);
+            s.addEventListener('message', e => {
+                if (redirected) return;
+                try {
+                    const d = JSON.parse(e.data)?.d?.b?.d?.download;
+                    if (d) {
+                        redirected = true;
+                        safeRedirect(d, nh, { t, siteLabel: SITE });
+                    }
+                } catch (_) {}
+            });
+            return s;
+        };
+        W.WebSocket.prototype = OrigWS.prototype;
+    }
+
+    // ── krnl-ios.com ──────────────────────────────────────────────────────
+    // Destination URL is base64-encoded in the ?URL= query parameter.
+    // Decode and redirect immediately.
+
+    function runKrnlIosBypasser() {
+        const SITE = 'krnl-ios';
+        const t = makeTimer();
+        const nh = notify(`${SITE} — decoding URL…`, 'loading', 0, { site: SITE });
+        const handleError = makeErrHandler(SITE, nh, 5000);
+
+        const init = () => {
+            try {
+                const encoded = new URLSearchParams(location.search).get('URL');
+                if (!encoded) throw new Error('No ?URL= parameter found');
+                let dest;
+                try { dest = atob(encoded); } catch (e) { throw new Error('base64 decode failed — ' + e.message); }
+                if (!dest) throw new Error('Decoded URL is empty');
+                safeRedirect(dest, nh, { t, siteLabel: SITE });
+            } catch (err) {
+                handleError('decode failed', err);
+            }
+        };
+        onReady(init);
+    }
+
+    // ── ouo.io ─────────────────────────────────────────────────────────────
+    // Two-step flow:
+    //   Page A  ouo.io/<id>      — Turnstile (forced visible) → submit #form-captcha
+    //                              → server redirects to Page B
+    //   Page B  ouo.io/go/<id>  — wait for x-token to be populated → submit #form-go
+    //                              → server redirects to final destination
+    //
+    //  All .cf-turnstile[data-size="invisible"] widgets on the page are patched to
+    //  "normal" size globally (via _patchInvisibleTurnstiles at startup), so the
+    //  widget is always visible when autoCaptcha is false.
+
+    function runOuoBypasser() {
+        const SITE = 'ouo.io';
+        const TURNSTILE_SITEKEY = '0x4AAAAAAA77ZC8BklcfDJke';
+        const t = makeTimer();
+        const nh = notify(`${SITE} — detecting page…`, 'loading', 0, { site: SITE });
+        const handleError = makeErrHandler(SITE, nh, 10000);
+
+        const submitForm = (form) => {
+            try {
+                if (typeof form.requestSubmit === 'function') form.requestSubmit();
+                else HTMLFormElement.prototype.submit.call(form);
+            } catch (_) {
+                const btn = form.querySelector('button[type="submit"], input[type="submit"]');
+                if (btn) btn.click();
+            }
+        };
+
+        /**
+         * Wait up to maxMs for an input[name] on the form to have a non-empty value.
+         * Resolves immediately if already filled, or resolves after timeout (proceed anyway).
+         */
+        const waitForInput = (form, inputName, maxMs = 3000) => new Promise(resolve => {
+            const inp = form.querySelector(`[name="${inputName}"]`);
+            if (!inp || inp.value) return resolve();
+            const start = Date.now();
+            const iv = setInterval(() => {
+                if (inp.value || Date.now() - start >= maxMs) {
+                    clearInterval(iv);
+                    resolve();
+                }
+            }, 80);
+        });
+
+        const init = async () => {
+            try {
+                // ── Page B: /go/<id> — wait for hidden inputs then submit #form-go ──
+                if (path.startsWith('/go/')) {
+                    nh.update(`${SITE} — waiting for form tokens…`, 'loading', { site: SITE });
+
+                    const form = await (async () => {
+                        // Try to find form-go immediately, or wait up to 3s for it
+                        const found = document.getElementById('form-go') || document.querySelector('form#form-go') || document.querySelector('form');
+                        if (found) return found;
+                        return new Promise(resolve => {
+                            const obs = new MutationObserver(() => {
+                                const f = document.getElementById('form-go') || document.querySelector('form');
+                                if (f) { obs.disconnect(); resolve(f); }
+                            });
+                            obs.observe(document.body || document.documentElement, { childList: true, subtree: true });
+                            setTimeout(() => { obs.disconnect(); resolve(null); }, 3000);
+                        });
+                    })();
+
+                    if (!form) throw new Error('#form-go not found on /go/ page');
+
+                    // Wait for x-token to be filled in by the page's own JS (or timeout and proceed)
+                    await waitForInput(form, 'x-token', 2500);
+
+                    nh.update(`${SITE} — submitting go-form…`, 'loading', { site: SITE });
+                    submitForm(form);
+                    nh.update(`${SITE} — submitted, awaiting final redirect…`, 'loading', { site: SITE });
+                    setTimeout(() => nh.remove(), 8000);
+                    return;
+                }
+
+                // ── Page A: /<id> — solve Turnstile (visible) → submit #form-captcha ──
+                if (!CONFIG.autoCaptcha) {
+                    // Make the page's own widget visible so the user can interact with it
+                    document.querySelectorAll('.cf-turnstile').forEach(el => {
+                        el.setAttribute('data-size', 'normal');
+                        el.style.cssText = 'display:block!important;visibility:visible!important;opacity:1!important';
+                    });
+                    nh.update(`${SITE} — solve the Turnstile to continue…`, 'warn', 0, { site: SITE });
+                    return;
+                }
+
+                nh.update(`${SITE} — solving Turnstile captcha…`, 'loading', { site: SITE });
+
+                let token;
+                try {
+                    token = await solveTurnstile(TURNSTILE_SITEKEY);
+                } catch (e) {
+                    handleError('Turnstile solve failed', e);
+                    return;
+                }
+
+                const form = document.getElementById('form-captcha') || document.querySelector('form');
+                if (!form) throw new Error('#form-captcha not found');
+
+                // Inject resolved token into the form's cf-turnstile-response field
+                let cfInput = form.querySelector('[name="cf-turnstile-response"]');
+                if (!cfInput) {
+                    cfInput = Object.assign(document.createElement('input'), {
+                        type: 'hidden', name: 'cf-turnstile-response'
+                    });
+                    form.appendChild(cfInput);
+                }
+                cfInput.value = token;
+
+                // Also attempt to fill the shadow-DOM widget's own response field
+                try {
+                    const widgetInput = document.querySelector('[id$="_response"]');
+                    if (widgetInput && widgetInput !== cfInput) widgetInput.value = token;
+                } catch (_) {}
+
+                // Enable any disabled submit button
+                const btn = document.getElementById('btn-main') ||
+                    form.querySelector('button[type="submit"][disabled], input[type="submit"][disabled]');
+                if (btn) btn.disabled = false;
+
+                nh.update(`${SITE} — submitting captcha form…`, 'loading', { site: SITE });
+                submitForm(form);
+
+                nh.update(`${SITE} — captcha submitted, loading go-page…`, 'loading', { site: SITE });
+                setTimeout(() => nh.remove(), 8000);
+
+            } catch (err) {
+                handleError('bypass failed', err);
+            }
+        };
+
+        onReady(init);
     }
 
 })();
