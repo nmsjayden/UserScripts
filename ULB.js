@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Unknown Link Bypasser
-// @version      6.9.7
+// @version      6.7.0
 // @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live(SCAM WARNING) + go.yorurl.com + jankariweb + newsuchnaonline + bigcarinsurance + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + highlocus.shop + gplinks.co + powergam.online + getpolsec.com + hehehub + sub4unlock.co + app.khaddavi.net + sfl.gl + ytsubme.com + aylink.co + biplabtewary.com + mwgamesyt.com.br + topjogosvip.online + legacyagency.com.br + 4br.me + short-jambo.com/ink + fastcars + fluorine.s3ren1ty.xyz + rekonise.com + go.linkify.ru + arolinks.com + spdmteam.com + linkunlocker.com + mboost.me + sub2unlock.netlify.app + krnl-ios.com + ouo.io. Made by @Aro Moon
 // @author       @Aro Moon
 // @include      /^https:\/\/mtc\d+\.[^/]+\.[a-z.]+\//
@@ -56,6 +56,7 @@
 // @match        https://arolinks.com/*
 // @match        https://apnahirework.com/*
 // @match        https://crimejasoos.in/*
+// @match        https://jober.factwiz.online/*
 // @match        https://spdmteam.com/social/*
 // @match        https://linkunlocker.com/*
 // @match        https://bnty.nexusdevs.fun/getkey*
@@ -65,6 +66,7 @@
 // @match        https://sub2unlock.netlify.app/*
 // @match        https://krnl-ios.com/ads.html*
 // @match        https://ouo.io/*
+// @match        https://ouo.press/*
 // @grant        GM_addElement
 // @grant        unsafeWindow
 // @grant        GM_registerMenuCommand
@@ -129,6 +131,13 @@
             'aylink.co',
             'go.linkify.ru/get',
             'ouo.io/go/',
+            'sfl.gl/ready/go',
+            'topjogosvip.online',
+            'legacyagency.com.br',
+            '4br.me',
+            'jober.factwiz.online',
+            'v0-phantomfluxkey.vercel.app',
+            'go.yorurl.com',
         ],
 
         // ┌─────────────────────────────────────────────────────────────────┐
@@ -219,7 +228,7 @@
             'tournguide.com', 'dailyjobposting.xyz', 'stfly.biz',
             'gplinks.co', '4br.me',
             'short-jambo.com', 'short-jambo.ink',
-            'arolinks.com', 'ouo.io',
+            'arolinks.com', 'ouo.io', 'ouo.press',
         ],
     };
 
@@ -231,7 +240,7 @@
     // §1  CONSTANTS
     // ═══════════════════════════════════════════════════════════════════════
 
-    const VERSION = '6.9.7';
+    const VERSION = '6.9.9';
 
     // ── Diagnostics log ───────────────────────────────────────────────────
     // Captures errors/warnings for the Diagnostics menu command.
@@ -1685,12 +1694,11 @@
         else if(host.includes('avnsgames.com')) _gateBypass('avnsgames.com', runAvnsGamesInterstitial);
         else if(host.includes('lnbz.la')) _gateBypass('lnbz.la', runLnbzLaBypasser);
         else if(host.includes('bloxscript.live')) _gateBypass('bloxscript.live', runBloxscriptScamWarning);
-        else if(
-            host.includes('jankariweb') ||
-            host.includes('newsuchnaonline.com') ||
-            host.includes('crimejasoos.in') ||
-            host.includes('apnahirework.com')
-        ) _gateBypass(host, runJoberBypasser);
+        else if(host.includes('jankariweb')) _gateBypass(host, runJoberBypasser);
+        else if(host.includes('apnahirework.com')) _gateBypass('apnahirework.com', runApnahireworkBypasser);
+        else if(host.includes('crimejasoos.in')) _gateBypass('crimejasoos.in', runCrimejasoosBypasser);
+        else if(host.includes('newsuchnaonline.com')) _gateBypass('newsuchnaonline.com', runNewsuchnaonlineBypasser);
+        else if(host.includes('jober.factwiz.online')) _gateBypass('jober.factwiz.online', runJoberFacwizBypasser);
         else if(host.includes('how2guidess.com')) _gateBypass('how2guidess.com', runHow2GuidesBypasser);
         else if(host.includes('go.yorurl.com')) _gateBypass('go.yorurl.com', runYorurlBypasser);
         else if(
@@ -1736,7 +1744,9 @@
         else if(host.includes('mboost.me')) _gateBypass('mboost.me', runMboostBypasser);
         else if(host.includes('sub2unlock.netlify.app')) _gateBypass('sub2unlock', runSub2UnlockBypasser);
         else if(host.includes('krnl-ios.com')) _gateBypass('krnl-ios.com', runKrnlIosBypasser);
-        else if(host.includes('ouo.io')) _gateBypass('ouo.io', runOuoBypasser);
+        else if(host.includes('ouo.io') ||
+                host.includes('ouo.press')
+        ) _gateBypass(host, runOuoBypasser);
         else if(host.includes('nexusdevs.fun') && path.startsWith('/getkey')) _gateBypass('nexusdevs.fun', runNexusBypasser);
         else if(host.includes('lua-key-vault.vercel.app')) _gateBypass('lua-key-vault', runLuaKeyVaultBypasser);
         else if(TPI_HOSTS.some(h => host.includes(h))) _gateBypass(host, runTpiLiBypasser);
@@ -3021,6 +3031,262 @@
         onReady(run);
     }
 
+    // ── apnahirework.com ────────────────────────────────────────────────────
+    // Three variants can appear on this domain:
+    //   A) #tp-snp2 Continue button          → click directly
+    //   B) startCountdownBtn ad countdown    → bypass timer → #cross-snp2 or #btn7
+    //   C) step counter div#stick (1/N etc.) → bypass timer → wait for #btn7
+
+    function runApnahireworkBypasser() {
+        const SITE = 'apnahirework.com';
+        const t = makeTimer();
+        const nh = notify(`${SITE} — detecting page…`, 'loading', 0, { site: SITE });
+        const handleError = makeErrHandler(SITE, nh, 7000);
+
+        const waitForContinue = (label) => {
+            const check = setInterval(() => {
+                const cross = document.getElementById('cross-snp2');
+                if (cross && cross.offsetParent !== null) {
+                    clearInterval(check);
+                    nh.update(`${SITE} — ${label} — clicking Continue…`, 'loading', { site: SITE });
+                    cross.click();
+                    return;
+                }
+                const b7 = document.getElementById('btn7');
+                if (b7 && b7.offsetParent !== null) {
+                    clearInterval(check);
+                    nh.update(`${SITE} — ${label} — clicking Continue…`, 'loading', { site: SITE });
+                    b7.click();
+                }
+            }, 500);
+            setTimeout(() => clearInterval(check), 60000);
+        };
+
+        const run = () => {
+            // Variant A: #tp-snp2 "Continue" link button — direct click
+            const tpBtn = document.getElementById('tp-snp2');
+            if (tpBtn) {
+                nh.update(`${SITE} — clicking Continue…`, 'loading', { site: SITE });
+                safeRedirect(tpBtn.href || tpBtn.getAttribute('href'), nh, { t, siteLabel: SITE });
+                if (!tpBtn.href) tpBtn.click();
+                return;
+            }
+
+            // Variant B: startCountdownBtn ad-countdown page
+            if (document.getElementById('startCountdownBtn')) {
+                nh.update(`${SITE} — bypassing ad countdown…`, 'loading', { site: SITE });
+                count = -1;
+                timer();
+                waitForContinue('countdown');
+                return;
+            }
+
+            // Variant C: step counter (div#stick / span.text-danger)
+            const stepDanger = document.querySelector('strong .text-danger, strong span.text-danger');
+            if (stepDanger) {
+                const m = stepDanger.textContent.trim().match(/^(\d+)\/(\d+)$/);
+                if (m) {
+                    const step = { current: parseInt(m[1], 10), total: parseInt(m[2], 10) };
+                    nh.update(`${SITE} — step ${step.current}/${step.total} — bypassing…`, 'loading', { site: SITE });
+                    count = -1;
+                    timer();
+                    waitForContinue(`step ${step.current}/${step.total}`);
+                    return;
+                }
+            }
+
+            handleError('unrecognised page layout', null);
+        };
+
+        onReady(run);
+    }
+
+    // ── crimejasoos.in ──────────────────────────────────────────────────────
+    // Same three variants as apnahirework (it is the same platform), but
+    // btn7 may carry a full URL (chart 1) or relative /readmore (chart 2).
+    // Clicking the element works either way.
+
+    function runCrimejasoosBypasser() {
+        const SITE = 'crimejasoos.in';
+        const t = makeTimer();
+        const nh = notify(`${SITE} — detecting page…`, 'loading', 0, { site: SITE });
+        const handleError = makeErrHandler(SITE, nh, 7000);
+
+        const waitForContinue = (label) => {
+            const check = setInterval(() => {
+                const cross = document.getElementById('cross-snp2');
+                if (cross && cross.offsetParent !== null) {
+                    clearInterval(check);
+                    nh.update(`${SITE} — ${label} — clicking Continue…`, 'loading', { site: SITE });
+                    cross.click();
+                    return;
+                }
+                const b7 = document.getElementById('btn7');
+                if (b7 && b7.offsetParent !== null) {
+                    clearInterval(check);
+                    nh.update(`${SITE} — ${label} — clicking Continue…`, 'loading', { site: SITE });
+                    b7.click();
+                }
+            }, 500);
+            setTimeout(() => clearInterval(check), 60000);
+        };
+
+        const run = () => {
+            // Variant A: #tp-snp2 "Continue" link button — direct
+            const tpBtn = document.getElementById('tp-snp2');
+            if (tpBtn) {
+                nh.update(`${SITE} — clicking Continue…`, 'loading', { site: SITE });
+                if (tpBtn.href) safeRedirect(tpBtn.href, nh, { t, siteLabel: SITE });
+                else tpBtn.click();
+                return;
+            }
+
+            // Variant B: startCountdownBtn ad-countdown page
+            if (document.getElementById('startCountdownBtn')) {
+                nh.update(`${SITE} — bypassing ad countdown…`, 'loading', { site: SITE });
+                count = -1;
+                timer();
+                waitForContinue('countdown');
+                return;
+            }
+
+            // Variant C: step counter (div#stick / span.text-danger)
+            const stepDanger = document.querySelector('strong .text-danger, strong span.text-danger');
+            if (stepDanger) {
+                const m = stepDanger.textContent.trim().match(/^(\d+)\/(\d+)$/);
+                if (m) {
+                    const step = { current: parseInt(m[1], 10), total: parseInt(m[2], 10) };
+                    if (step.current === step.total) {
+                        // Last step — wait 15s * total steps before bypassing
+                        const waitSec = 15 * step.total;
+                        nh.update(`${SITE} — step ${step.current}/${step.total} (last) — waiting ${waitSec}s…`, 'loading', { site: SITE });
+                        setTimeout(() => {
+                            nh.update(`${SITE} — step ${step.current}/${step.total} — bypassing…`, 'loading', { site: SITE });
+                            count = -1;
+                            timer();
+                            waitForContinue(`step ${step.current}/${step.total}`);
+                        }, waitSec * 1000);
+                    } else {
+                        nh.update(`${SITE} — step ${step.current}/${step.total} — bypassing…`, 'loading', { site: SITE });
+                        count = -1;
+                        timer();
+                        waitForContinue(`step ${step.current}/${step.total}`);
+                    }
+                    return;
+                }
+            }
+
+            handleError('unrecognised page layout', null);
+        };
+
+        onReady(run);
+    }
+
+    // ── newsuchnaonline.com ─────────────────────────────────────────────────
+    // Two variants:
+    //   A) #notarobot button (enableBtn flow) — click it, then wait for #btn7
+    //   B) #getlink button  (getlink() flow)  — click it, then wait for #btn7
+    //      #btn7 carries href to jober.factwiz.online — click to navigate there
+
+    function runNewsuchnaonlineBypasser() {
+        const SITE = 'newsuchnaonline.com';
+        const t = makeTimer();
+        const nh = notify(`${SITE} — detecting page…`, 'loading', 0, { site: SITE });
+        const handleError = makeErrHandler(SITE, nh, 7000);
+
+        const waitForBtn7 = (label) => {
+            const check = setInterval(() => {
+                const b7 = document.getElementById('btn7');
+                // btn7 starts hidden (display:none) — wait until it becomes visible
+                if (b7 && getComputedStyle(b7).display !== 'none' && b7.offsetParent !== null) {
+                    clearInterval(check);
+                    nh.update(`${SITE} — ${label} — navigating to next step…`, 'loading', { site: SITE });
+                    b7.click();
+                }
+            }, 300);
+            setTimeout(() => clearInterval(check), 30000);
+        };
+
+        const run = () => {
+            // Variant B: #getlink button (dual-tap style)
+            // Use count = -1; timer() so the get-link button appears instantly
+            const getlinkBtn = document.getElementById('getlink');
+            if (getlinkBtn) {
+                nh.update(`${SITE} — clicking Get Link…`, 'loading', { site: SITE });
+                count = -1;
+                timer();
+                getlinkBtn.click();
+                waitForBtn7('get-link');
+                return;
+            }
+
+            // Variant A: #notarobot verify button
+            const notarobot = document.getElementById('notarobot');
+            if (notarobot) {
+                nh.update(`${SITE} — clicking verify…`, 'loading', { site: SITE });
+                notarobot.click();
+                waitForBtn7('notarobot');
+                return;
+            }
+
+            handleError('unrecognised layout', null);
+        };
+
+        onReady(run);
+    }
+
+    // ── jober.factwiz.online ────────────────────────────────────────────────
+    // Intermediate landing page in the phantomfluxkey chain.
+    // The #ca anchor wraps a continue image and its href points to
+    // go.yorurl.com — extract and redirect immediately.
+
+function runJoberFacwizBypasser() {
+    const SITE = 'jober.factwiz.online';
+    const t = makeTimer();
+    const nh = notify(`${SITE} — reading page delay…`, 'loading', 0, { site: SITE });
+    const handleError = makeErrHandler(SITE, nh, 7000);
+
+    const init = () => {
+        // Mirror the snippet: scan all inline scripts for the page's own
+        // setTimeout delay so we wait for the tp= cookie to be written.
+        const allScriptText = [...document.scripts]
+            .map(s => s.textContent)
+            .join('');
+        const delayMatch = allScriptText.match(/setTimeout\([^,]+,\s*(\d+)\)/);
+        const delay = delayMatch ? +delayMatch[1] : 0;
+
+        nh.update(`${SITE} — waiting ${delay}ms for cookie…`, 'loading', { site: SITE });
+
+        setTimeout(() => {
+            try {
+                const cookie = document.cookie
+                    .split(';')
+                    .map(c => c.trim())
+                    .find(c => c.startsWith('tp='));
+
+                const value = cookie ? cookie.split('=')[1] : '';
+
+                if (!value) {
+                    handleError('#tp cookie not found after delay', null);
+                    return;
+                }
+
+                const finalUrl = 'https://go.yorurl.com/' + value;
+                safeRedirect(finalUrl, nh, { t, siteLabel: SITE });
+            } catch (err) {
+                handleError('bypass failed', err);
+            }
+        }, delay);
+    };
+
+    // Wait for full page load so all inline scripts are present before scanning.
+    if (document.readyState === 'complete') {
+        init();
+    } else {
+        window.addEventListener('load', init, { once: true });
+    }
+}
+
     // ── how2guidess.com ────────────────────────────────────────────────────
 
     function runHow2GuidesBypasser() {
@@ -4054,6 +4320,59 @@
         const handleError = makeErrHandler(SITE, nh, 7000);
 
         const detect = () => {
+            // ── Jober-style step counter (btn6 + btn7) ─────────────────────
+            const stepDanger = document.querySelector('strong .text-danger, strong span.text-danger');
+            if (stepDanger) {
+                const m = stepDanger.textContent.trim().match(/^(\d+)\/(\d+)$/);
+                if (m) {
+                    const step = { current: parseInt(m[1], 10), total: parseInt(m[2], 10) };
+                    nh.update(`${SITE} — step ${step.current}/${step.total} — bypassing…`, 'loading', { site: SITE });
+                    count = -1;
+                    timer();
+                    const check = setInterval(() => {
+                        const b7 = document.getElementById('btn7');
+                        if (b7 && b7.offsetParent !== null) {
+                            clearInterval(check);
+                            nh.update(`${SITE} — clicking Continue…`, 'loading', { site: SITE });
+                            b7.click();
+                            return;
+                        }
+                        const cross = document.getElementById('cross-snp2');
+                        if (cross && cross.offsetParent !== null) {
+                            clearInterval(check);
+                            nh.update(`${SITE} — clicking Continue…`, 'loading', { site: SITE });
+                            cross.click();
+                        }
+                    }, 500);
+                    setTimeout(() => clearInterval(check), 60000);
+                    return true;
+                }
+            }
+
+            // ── Jober-style startCountdownBtn ────────────────────────────────
+            if (document.getElementById('startCountdownBtn')) {
+                nh.update(`${SITE} — bypassing ad countdown…`, 'loading', { site: SITE });
+                count = -1;
+                timer();
+                const check = setInterval(() => {
+                    const cross = document.getElementById('cross-snp2');
+                    if (cross && cross.offsetParent !== null) {
+                        clearInterval(check);
+                        nh.update(`${SITE} — clicking Continue…`, 'loading', { site: SITE });
+                        cross.click();
+                        return;
+                    }
+                    const b7 = document.getElementById('btn7');
+                    if (b7 && b7.offsetParent !== null) {
+                        clearInterval(check);
+                        nh.update(`${SITE} — clicking Continue…`, 'loading', { site: SITE });
+                        b7.click();
+                    }
+                }, 500);
+                setTimeout(() => clearInterval(check), 60000);
+                return true;
+            }
+
             // Layout A: "Get Link" button wrapped in #link1s anchor — just redirect
             const a = document.getElementById('link1s');
             if(a && a.href) {
