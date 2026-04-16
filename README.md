@@ -107,6 +107,7 @@ Updated supported list (cleaned + only active/kept entries):
 * go.linkify.ru 
 * arolinks.com 
 * spdmteam.com
+* and a ton others!..
 
 ## Not Supported / Blocked / Removed
 - link4m.net (spam + brain hurty)
