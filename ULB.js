@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Unknown Link Bypasser
-// @version      6.7.1
+// @version      6.7.2
 // @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live(SCAM WARNING) + go.yorurl.com + jankariweb + newsuchnaonline + bigcarinsurance + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + highlocus.shop + gplinks.co + powergam.online + getpolsec.com + hehehub + sub4unlock.co + app.khaddavi.net + sfl.gl + ytsubme.com + aylink.co + biplabtewary.com + mwgamesyt.com.br + topjogosvip.online + legacyagency.com.br + 4br.me + short-jambo.com/ink + fastcars + fluorine.s3ren1ty.xyz + rekonise.com + go.linkify.ru + arolinks.com + spdmteam.com + linkunlocker.com + mboost.me + sub2unlock.netlify.app + krnl-ios.com + ouo.io. Made by @Aro Moon
 // @author       @Aro Moon
 // @include      /^https:\/\/mtc\d+\.[^/]+\.[a-z.]+\//
@@ -60,7 +60,10 @@
 // @match        https://spdmteam.com/social/*
 // @match        https://linkunlocker.com/*
 // @match        https://bnty.nexusdevs.fun/getkey*
+// @match        https://bnty.nexusdevs.fun/*
 // @match        https://*.nexusdevs.fun/getkey*
+// @match        https://encurtai.online/*
+// @match        https://new.pandadevelopment.net/getkey/*
 // @match        https://lua-key-vault.vercel.app/*
 // @match        https://mboost.me/*
 // @match        https://sub2unlock.netlify.app/*
@@ -243,29 +246,15 @@
     // §1  CONSTANTS
     // ═══════════════════════════════════════════════════════════════════════
 
-    const VERSION = '6.7.1';
+    const VERSION = '6.7.2';
 
     // ── Diagnostics log ───────────────────────────────────────────────────
     // Captures errors/warnings for the Diagnostics menu command.
     const _diagEntries = [];
     const _origConsoleError = console.error.bind(console);
-    const _origConsoleWarn = console.warn.bind(console);
-    console.error = (...args) => {
-        _diagEntries.push({
-            level: 'ERROR',
-            ts: Date.now(),
-            msg: args.map(a => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' ')
-        });
-        _origConsoleError(...args);
-    };
-    console.warn = (...args) => {
-        _diagEntries.push({
-            level: 'WARN',
-            ts: Date.now(),
-            msg: args.map(a => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' ')
-        });
-        _origConsoleWarn(...args);
-    };
+    const _origConsoleWarn  = console.warn.bind(console);
+    console.error = (...args) => { _diagEntries.push({ level: 'ERROR', ts: Date.now(), msg: args.map(a => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' ') }); _origConsoleError(...args); };
+    console.warn  = (...args) => { _diagEntries.push({ level: 'WARN',  ts: Date.now(), msg: args.map(a => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' ') }); _origConsoleWarn(...args); };
 
     const FORM_HOSTS = ['shrtslug.biz', 'biovetro.net', 'technons.com', 'tournguide.com', 'dailyjobposting.xyz', 'stfly.biz'];
     const TPI_HOSTS = ['tpi.li'];
@@ -863,10 +852,10 @@
      * @param {number} [autoDismissMs=30000]  Auto-dismiss delay in ms.
      */
     function showKeyCard(key, site, timer, autoDismissMs = 30_000) {
-        const vTag = CONFIG.notifShowVersion !== false ? ` · v${VERSION}` : '';
-        const brand = (!CONFIG.compactMode && CONFIG.notifShowBranding !== false) ?
-            `<div style="${CSS_LABEL}:6px">Unknown Link Bypasser · @Aro Moon${vTag}</div>` :
-            '';
+        const vTag  = CONFIG.notifShowVersion  !== false ? ` · v${VERSION}` : '';
+        const brand = (!CONFIG.compactMode && CONFIG.notifShowBranding !== false)
+            ? `<div style="${CSS_LABEL}:6px">Unknown Link Bypasser · @Aro Moon${vTag}</div>`
+            : '';
         const timeLabel = timer ? timer.label() : '';
 
         const card = document.createElement('div');
@@ -897,7 +886,7 @@
                 tap to copy · auto-closes in ${Math.round(autoDismissMs / 1000)}s
             </div>`;
 
-        const keyEl = card.querySelector('.__ulb_kc_key');
+        const keyEl  = card.querySelector('.__ulb_kc_key');
         const hintEl = card.querySelector('.__ulb_kc_hint');
         keyEl.textContent = key;
 
@@ -1084,7 +1073,7 @@
 
             // Inject @keyframes into the main document so the overlay spinner works
             // (the Shadow DOM keyframes are not accessible outside the shadow root).
-            if(!document.querySelector('style[data-ulb-spin]')) {
+            if (!document.querySelector('style[data-ulb-spin]')) {
                 const ks = document.createElement('style');
                 ks.setAttribute('data-ulb-spin', '1');
                 ks.textContent = '@keyframes __ulb_spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }';
@@ -1625,19 +1614,16 @@
     // This ensures any page using our captcha handler shows the widget.
     (function _patchInvisibleTurnstiles() {
         const patch = el => {
-            if(el.nodeType !== 1) return;
-            if(el.classList?.contains('cf-turnstile') && el.getAttribute('data-size') === 'invisible') {
+            if (el.nodeType !== 1) return;
+            if (el.classList?.contains('cf-turnstile') && el.getAttribute('data-size') === 'invisible') {
                 el.setAttribute('data-size', 'normal');
             }
             el.querySelectorAll?.('.cf-turnstile[data-size="invisible"]').forEach(w => w.setAttribute('data-size', 'normal'));
         };
         patch(document.documentElement);
         new MutationObserver(muts => {
-            for(const m of muts) m.addedNodes.forEach(patch);
-        }).observe(document.documentElement, {
-            childList: true,
-            subtree: true
-        });
+            for (const m of muts) m.addedNodes.forEach(patch);
+        }).observe(document.documentElement, { childList: true, subtree: true });
     })();
 
     // ── GM Clipboard helper (uses GM_setClipboard with navigator.clipboard fallback) ──
@@ -1654,21 +1640,15 @@
     try {
         GM_registerMenuCommand('ULB Diagnostics', () => {
             const now = new Date();
-            const gmAvail = fn => {
-                try {
-                    return typeof eval(fn) === 'function' ? '✔' : '✘';
-                } catch (_) {
-                    return '✘';
-                }
-            };
+            const gmAvail = fn => { try { return typeof eval(fn) === 'function' ? '✔' : '✘'; } catch(_) { return '✘'; } };
             const cfgLines = Object.entries(CONFIG)
-                .filter(([k]) => !['cfAllowedRefs', 'autoBypassHosts'].includes(k))
-                .map(([k, v]) => `  ${k}: ${JSON.stringify(v)}`)
+                .filter(([k]) => !['cfAllowedRefs','autoBypassHosts'].includes(k))
+                .map(([k,v]) => `  ${k}: ${JSON.stringify(v)}`)
                 .join('\n');
             const hostLines = (CONFIG.autoBypassHosts || []).map(h => `  - ${h}`).join('\n');
-            const diagLines = _diagEntries.length ?
-                _diagEntries.slice(-30).map(e => `  [${e.level}] ${new Date(e.ts).toISOString().slice(11,19)} ${e.msg}`).join('\n') :
-                '  (none)';
+            const diagLines = _diagEntries.length
+                ? _diagEntries.slice(-30).map(e => `  [${e.level}] ${new Date(e.ts).toISOString().slice(11,19)} ${e.msg}`).join('\n')
+                : '  (none)';
 
             const report = [
                 `╔══════════════════════════════════════════════╗`,
@@ -1708,8 +1688,7 @@
                 console.log('[ULB] Diagnostics report:\n', report);
             });
         });
-    } catch (_) {
-        /* GM_registerMenuCommand not available (e.g. non-TM runner) */ }
+    } catch (_) { /* GM_registerMenuCommand not available (e.g. non-TM runner) */ }
 
     try {
         if(host.includes('dl.surf')) _gateBypass('dl.surf', runDlSurf);
@@ -1773,9 +1752,11 @@
         else if(host.includes('krnl-ios.com')) _gateBypass('krnl-ios.com', runKrnlIosBypasser);
         else if(host.includes('scoplidrop.com')) _gateBypass('scoplidrop.com', runScoplidropBypasser);
         else if(host.includes('ouo.io') ||
-            host.includes('ouo.press')
+                host.includes('ouo.press')
         ) _gateBypass(host, runOuoBypasser);
-        else if(host.includes('nexusdevs.fun') && path.startsWith('/getkey')) _gateBypass('nexusdevs.fun', runNexusBypasser);
+        else if(host.includes('nexusdevs.fun') && (path.startsWith('/getkey') || /[?&]h=/.test(location.search) || /[?&]hwid=/.test(location.search))) _gateBypass('nexusdevs.fun', runNexusBypasser);
+        else if(host.includes('encurtai.online')) _gateBypass('encurtai.online', runEncurtaiBypasser);
+        else if(host.includes('pandadevelopment.net') && path.includes('/getkey/')) _gateBypass('pandadevelopment.net', runPandaDevelopmentBypasser);
         else if(host.includes('lua-key-vault.vercel.app')) _gateBypass('lua-key-vault', runLuaKeyVaultBypasser);
         else if(TPI_HOSTS.some(h => host.includes(h))) _gateBypass(host, runTpiLiBypasser);
         else if(FORM_HOSTS.some(h => host.includes(h))) _gateBypass(host, runFormBypasser);
@@ -3068,28 +3049,22 @@
     function runApnahireworkBypasser() {
         const SITE = 'apnahirework.com';
         const t = makeTimer();
-        const nh = notify(`${SITE} — detecting page…`, 'loading', 0, {
-            site: SITE
-        });
+        const nh = notify(`${SITE} — detecting page…`, 'loading', 0, { site: SITE });
         const handleError = makeErrHandler(SITE, nh, 7000);
 
         const waitForContinue = (label) => {
             const check = setInterval(() => {
                 const cross = document.getElementById('cross-snp2');
-                if(cross && cross.offsetParent !== null) {
+                if (cross && cross.offsetParent !== null) {
                     clearInterval(check);
-                    nh.update(`${SITE} — ${label} — clicking Continue…`, 'loading', {
-                        site: SITE
-                    });
+                    nh.update(`${SITE} — ${label} — clicking Continue…`, 'loading', { site: SITE });
                     cross.click();
                     return;
                 }
                 const b7 = document.getElementById('btn7');
-                if(b7 && b7.offsetParent !== null) {
+                if (b7 && b7.offsetParent !== null) {
                     clearInterval(check);
-                    nh.update(`${SITE} — ${label} — clicking Continue…`, 'loading', {
-                        site: SITE
-                    });
+                    nh.update(`${SITE} — ${label} — clicking Continue…`, 'loading', { site: SITE });
                     b7.click();
                 }
             }, 500);
@@ -3099,23 +3074,16 @@
         const run = () => {
             // Variant A: #tp-snp2 "Continue" link button — direct click
             const tpBtn = document.getElementById('tp-snp2');
-            if(tpBtn) {
-                nh.update(`${SITE} — clicking Continue…`, 'loading', {
-                    site: SITE
-                });
-                safeRedirect(tpBtn.href || tpBtn.getAttribute('href'), nh, {
-                    t,
-                    siteLabel: SITE
-                });
-                if(!tpBtn.href) tpBtn.click();
+            if (tpBtn) {
+                nh.update(`${SITE} — clicking Continue…`, 'loading', { site: SITE });
+                safeRedirect(tpBtn.href || tpBtn.getAttribute('href'), nh, { t, siteLabel: SITE });
+                if (!tpBtn.href) tpBtn.click();
                 return;
             }
 
             // Variant B: startCountdownBtn ad-countdown page
-            if(document.getElementById('startCountdownBtn')) {
-                nh.update(`${SITE} — bypassing ad countdown…`, 'loading', {
-                    site: SITE
-                });
+            if (document.getElementById('startCountdownBtn')) {
+                nh.update(`${SITE} — bypassing ad countdown…`, 'loading', { site: SITE });
                 count = -1;
                 timer();
                 waitForContinue('countdown');
@@ -3124,16 +3092,11 @@
 
             // Variant C: step counter (div#stick / span.text-danger)
             const stepDanger = document.querySelector('strong .text-danger, strong span.text-danger');
-            if(stepDanger) {
+            if (stepDanger) {
                 const m = stepDanger.textContent.trim().match(/^(\d+)\/(\d+)$/);
-                if(m) {
-                    const step = {
-                        current: parseInt(m[1], 10),
-                        total: parseInt(m[2], 10)
-                    };
-                    nh.update(`${SITE} — step ${step.current}/${step.total} — bypassing…`, 'loading', {
-                        site: SITE
-                    });
+                if (m) {
+                    const step = { current: parseInt(m[1], 10), total: parseInt(m[2], 10) };
+                    nh.update(`${SITE} — step ${step.current}/${step.total} — bypassing…`, 'loading', { site: SITE });
                     count = -1;
                     timer();
                     waitForContinue(`step ${step.current}/${step.total}`);
@@ -3156,28 +3119,22 @@
         const SITE = 'crimejasoos.in';
         const STEP_WAIT_SEC = 35;
         const t = makeTimer();
-        const nh = notify(`${SITE} — detecting page…`, 'loading', 0, {
-            site: SITE
-        });
+        const nh = notify(`${SITE} — detecting page…`, 'loading', 0, { site: SITE });
         const handleError = makeErrHandler(SITE, nh, 7000);
 
         const waitForContinue = (label) => {
             const check = setInterval(() => {
                 const cross = document.getElementById('cross-snp2');
-                if(cross && cross.offsetParent !== null) {
+                if (cross && cross.offsetParent !== null) {
                     clearInterval(check);
-                    nh.update(`${SITE} — ${label} — clicking Continue…`, 'loading', {
-                        site: SITE
-                    });
+                    nh.update(`${SITE} — ${label} — clicking Continue…`, 'loading', { site: SITE });
                     cross.click();
                     return;
                 }
                 const b7 = document.getElementById('btn7');
-                if(b7 && b7.offsetParent !== null) {
+                if (b7 && b7.offsetParent !== null) {
                     clearInterval(check);
-                    nh.update(`${SITE} — ${label} — clicking Continue…`, 'loading', {
-                        site: SITE
-                    });
+                    nh.update(`${SITE} — ${label} — clicking Continue…`, 'loading', { site: SITE });
                     b7.click();
                 }
             }, 500);
@@ -3187,23 +3144,16 @@
         const run = () => {
             // Variant A: #tp-snp2 "Continue" link button — direct
             const tpBtn = document.getElementById('tp-snp2');
-            if(tpBtn) {
-                nh.update(`${SITE} — clicking Continue…`, 'loading', {
-                    site: SITE
-                });
-                if(tpBtn.href) safeRedirect(tpBtn.href, nh, {
-                    t,
-                    siteLabel: SITE
-                });
+            if (tpBtn) {
+                nh.update(`${SITE} — clicking Continue…`, 'loading', { site: SITE });
+                if (tpBtn.href) safeRedirect(tpBtn.href, nh, { t, siteLabel: SITE });
                 else tpBtn.click();
                 return;
             }
 
             // Variant B: startCountdownBtn ad-countdown page
-            if(document.getElementById('startCountdownBtn')) {
-                nh.update(`${SITE} — bypassing ad countdown…`, 'loading', {
-                    site: SITE
-                });
+            if (document.getElementById('startCountdownBtn')) {
+                nh.update(`${SITE} — bypassing ad countdown…`, 'loading', { site: SITE });
                 count = -1;
                 timer();
                 waitForContinue('countdown');
@@ -3213,37 +3163,27 @@
             // Variant C: step counter (div#stick / span.text-danger)
             // Every step now waits 15 s with a visible countdown before bypassing.
             const stepDanger = document.querySelector('strong .text-danger, strong span.text-danger');
-            if(stepDanger) {
+            if (stepDanger) {
                 const m = stepDanger.textContent.trim().match(/^(\d+)\/(\d+)$/);
-                if(m) {
-                    const step = {
-                        current: parseInt(m[1], 10),
-                        total: parseInt(m[2], 10)
-                    };
+                if (m) {
+                    const step = { current: parseInt(m[1], 10), total: parseInt(m[2], 10) };
                     const label = `step ${step.current}/${step.total}`;
                     const isLast = step.current === step.total;
-                    const subtitle = isLast ?
-                        `crimejasoos.in — ${label} (last)` :
-                        `crimejasoos.in — ${label}`;
-                    nh.update(`${SITE} — ${label}${isLast ? ' (last)' : ''} — waiting ${STEP_WAIT_SEC}s…`, 'loading', {
-                        site: SITE
-                    });
+                    const subtitle = isLast
+                        ? `crimejasoos.in — ${label} (last)`
+                        : `crimejasoos.in — ${label}`;
+                    nh.update(`${SITE} — ${label}${isLast ? ' (last)' : ''} — waiting ${STEP_WAIT_SEC}s…`, 'loading', { site: SITE });
                     // Spoof document.visibilityState as hidden before countdown so
                     // the page's ad timer thinks the tab is backgrounded.
                     const _cjVisDesc = Object.getOwnPropertyDescriptor(Document.prototype, 'visibilityState');
-                    Object.defineProperty(document, 'visibilityState', {
-                        get: () => 'hidden',
-                        configurable: true
-                    });
+                    Object.defineProperty(document, 'visibilityState', { get: () => 'hidden', configurable: true });
                     document.dispatchEvent(new Event('visibilitychange'));
                     showCountdown(STEP_WAIT_SEC, () => {
                         // Restore real visibilityState once countdown is over.
                         delete document.visibilityState;
-                        if(_cjVisDesc) Object.defineProperty(Document.prototype, 'visibilityState', _cjVisDesc);
+                        if (_cjVisDesc) Object.defineProperty(Document.prototype, 'visibilityState', _cjVisDesc);
                         document.dispatchEvent(new Event('visibilitychange'));
-                        nh.update(`${SITE} — ${label} — bypassing…`, 'loading', {
-                            site: SITE
-                        });
+                        nh.update(`${SITE} — ${label} — bypassing…`, 'loading', { site: SITE });
                         count = -1;
                         timer();
                         waitForContinue(label);
@@ -3267,20 +3207,16 @@
     function runNewsuchnaonlineBypasser() {
         const SITE = 'newsuchnaonline.com';
         const t = makeTimer();
-        const nh = notify(`${SITE} — detecting page…`, 'loading', 0, {
-            site: SITE
-        });
+        const nh = notify(`${SITE} — detecting page…`, 'loading', 0, { site: SITE });
         const handleError = makeErrHandler(SITE, nh, 7000);
 
         const waitForBtn7 = (label) => {
             const check = setInterval(() => {
                 const b7 = document.getElementById('btn7');
                 // btn7 starts hidden (display:none) — wait until it becomes visible
-                if(b7 && getComputedStyle(b7).display !== 'none' && b7.offsetParent !== null) {
+                if (b7 && getComputedStyle(b7).display !== 'none' && b7.offsetParent !== null) {
                     clearInterval(check);
-                    nh.update(`${SITE} — ${label} — navigating to next step…`, 'loading', {
-                        site: SITE
-                    });
+                    nh.update(`${SITE} — ${label} — navigating to next step…`, 'loading', { site: SITE });
                     b7.click();
                 }
             }, 300);
@@ -3291,10 +3227,8 @@
             // Variant B: #getlink button (dual-tap style)
             // Use count = -1; timer() so the get-link button appears instantly
             const getlinkBtn = document.getElementById('getlink');
-            if(getlinkBtn) {
-                nh.update(`${SITE} — clicking Get Link…`, 'loading', {
-                    site: SITE
-                });
+            if (getlinkBtn) {
+                nh.update(`${SITE} — clicking Get Link…`, 'loading', { site: SITE });
                 count = -1;
                 timer();
                 getlinkBtn.click();
@@ -3304,10 +3238,8 @@
 
             // Variant A: #notarobot verify button
             const notarobot = document.getElementById('notarobot');
-            if(notarobot) {
-                nh.update(`${SITE} — clicking verify…`, 'loading', {
-                    site: SITE
-                });
+            if (notarobot) {
+                nh.update(`${SITE} — clicking verify…`, 'loading', { site: SITE });
                 notarobot.click();
                 waitForBtn7('notarobot');
                 return;
@@ -3324,74 +3256,62 @@
     // The #ca anchor wraps a continue image and its href points to
     // go.yorurl.com — extract and redirect immediately.
 
-    function runJoberFacwizBypasser() {
-        const SITE = 'jober.factwiz.online';
-        const t = makeTimer();
-        const nh = notify(`${SITE} — reading page delay…`, 'loading', 0, {
-            site: SITE
-        });
-        const handleError = makeErrHandler(SITE, nh, 7000);
+function runJoberFacwizBypasser() {
+    const SITE = 'jober.factwiz.online';
+    const t = makeTimer();
+    const nh = notify(`${SITE} — reading page delay…`, 'loading', 0, { site: SITE });
+    const handleError = makeErrHandler(SITE, nh, 7000);
 
-        const init = () => {
-            // Mirror the snippet: scan all inline scripts for the page's own
-            // setTimeout delay so we wait for the tp= cookie to be written.
-            const allScriptText = [...document.scripts]
-                .map(s => s.textContent)
-                .join('');
-            const delayMatch = allScriptText.match(/setTimeout\([^,]+,\s*(\d+)\)/);
-            const delay = delayMatch ? +delayMatch[1] : 0;
+    const init = () => {
+        // Mirror the snippet: scan all inline scripts for the page's own
+        // setTimeout delay so we wait for the tp= cookie to be written.
+        const allScriptText = [...document.scripts]
+            .map(s => s.textContent)
+            .join('');
+        const delayMatch = allScriptText.match(/setTimeout\([^,]+,\s*(\d+)\)/);
+        const delay = delayMatch ? +delayMatch[1] : 0;
 
-            nh.update(`${SITE} — waiting ${delay}ms for cookie…`, 'loading', {
-                site: SITE
-            });
+        nh.update(`${SITE} — waiting ${delay}ms for cookie…`, 'loading', { site: SITE });
 
-            // Spoof document.visibilityState as hidden while waiting for the tp= cookie
-            // so the page's ad/timer logic thinks the tab is backgrounded.
-            const _jbVisDesc = Object.getOwnPropertyDescriptor(Document.prototype, 'visibilityState');
-            Object.defineProperty(document, 'visibilityState', {
-                get: () => 'hidden',
-                configurable: true
-            });
+        // Spoof document.visibilityState as hidden while waiting for the tp= cookie
+        // so the page's ad/timer logic thinks the tab is backgrounded.
+        const _jbVisDesc = Object.getOwnPropertyDescriptor(Document.prototype, 'visibilityState');
+        Object.defineProperty(document, 'visibilityState', { get: () => 'hidden', configurable: true });
+        document.dispatchEvent(new Event('visibilitychange'));
+
+        setTimeout(() => {
+            // Restore real visibilityState before reading the cookie.
+            delete document.visibilityState;
+            if (_jbVisDesc) Object.defineProperty(Document.prototype, 'visibilityState', _jbVisDesc);
             document.dispatchEvent(new Event('visibilitychange'));
+            try {
+                const cookie = document.cookie
+                    .split(';')
+                    .map(c => c.trim())
+                    .find(c => c.startsWith('tp='));
 
-            setTimeout(() => {
-                // Restore real visibilityState before reading the cookie.
-                delete document.visibilityState;
-                if(_jbVisDesc) Object.defineProperty(Document.prototype, 'visibilityState', _jbVisDesc);
-                document.dispatchEvent(new Event('visibilitychange'));
-                try {
-                    const cookie = document.cookie
-                        .split(';')
-                        .map(c => c.trim())
-                        .find(c => c.startsWith('tp='));
+                const value = cookie ? cookie.split('=')[1] : '';
 
-                    const value = cookie ? cookie.split('=')[1] : '';
-
-                    if(!value) {
-                        handleError('#tp cookie not found after delay', null);
-                        return;
-                    }
-
-                    const finalUrl = 'https://go.yorurl.com/' + value;
-                    safeRedirect(finalUrl, nh, {
-                        t,
-                        siteLabel: SITE
-                    });
-                } catch (err) {
-                    handleError('bypass failed', err);
+                if (!value) {
+                    handleError('#tp cookie not found after delay', null);
+                    return;
                 }
-            }, delay);
-        };
 
-        // Wait for full page load so all inline scripts are present before scanning.
-        if(document.readyState === 'complete') {
-            init();
-        } else {
-            window.addEventListener('load', init, {
-                once: true
-            });
-        }
+                const finalUrl = 'https://go.yorurl.com/' + value;
+                safeRedirect(finalUrl, nh, { t, siteLabel: SITE });
+            } catch (err) {
+                handleError('bypass failed', err);
+            }
+        }, delay);
+    };
+
+    // Wait for full page load so all inline scripts are present before scanning.
+    if (document.readyState === 'complete') {
+        init();
+    } else {
+        window.addEventListener('load', init, { once: true });
     }
+}
 
     // ── how2guidess.com ────────────────────────────────────────────────────
 
@@ -4428,34 +4348,25 @@
         const detect = () => {
             // ── Jober-style step counter (btn6 + btn7) ─────────────────────
             const stepDanger = document.querySelector('strong .text-danger, strong span.text-danger');
-            if(stepDanger) {
+            if (stepDanger) {
                 const m = stepDanger.textContent.trim().match(/^(\d+)\/(\d+)$/);
-                if(m) {
-                    const step = {
-                        current: parseInt(m[1], 10),
-                        total: parseInt(m[2], 10)
-                    };
-                    nh.update(`${SITE} — step ${step.current}/${step.total} — bypassing…`, 'loading', {
-                        site: SITE
-                    });
+                if (m) {
+                    const step = { current: parseInt(m[1], 10), total: parseInt(m[2], 10) };
+                    nh.update(`${SITE} — step ${step.current}/${step.total} — bypassing…`, 'loading', { site: SITE });
                     count = -1;
                     timer();
                     const check = setInterval(() => {
                         const b7 = document.getElementById('btn7');
-                        if(b7 && b7.offsetParent !== null) {
+                        if (b7 && b7.offsetParent !== null) {
                             clearInterval(check);
-                            nh.update(`${SITE} — clicking Continue…`, 'loading', {
-                                site: SITE
-                            });
+                            nh.update(`${SITE} — clicking Continue…`, 'loading', { site: SITE });
                             b7.click();
                             return;
                         }
                         const cross = document.getElementById('cross-snp2');
-                        if(cross && cross.offsetParent !== null) {
+                        if (cross && cross.offsetParent !== null) {
                             clearInterval(check);
-                            nh.update(`${SITE} — clicking Continue…`, 'loading', {
-                                site: SITE
-                            });
+                            nh.update(`${SITE} — clicking Continue…`, 'loading', { site: SITE });
                             cross.click();
                         }
                     }, 500);
@@ -4465,28 +4376,22 @@
             }
 
             // ── Jober-style startCountdownBtn ────────────────────────────────
-            if(document.getElementById('startCountdownBtn')) {
-                nh.update(`${SITE} — bypassing ad countdown…`, 'loading', {
-                    site: SITE
-                });
+            if (document.getElementById('startCountdownBtn')) {
+                nh.update(`${SITE} — bypassing ad countdown…`, 'loading', { site: SITE });
                 count = -1;
                 timer();
                 const check = setInterval(() => {
                     const cross = document.getElementById('cross-snp2');
-                    if(cross && cross.offsetParent !== null) {
+                    if (cross && cross.offsetParent !== null) {
                         clearInterval(check);
-                        nh.update(`${SITE} — clicking Continue…`, 'loading', {
-                            site: SITE
-                        });
+                        nh.update(`${SITE} — clicking Continue…`, 'loading', { site: SITE });
                         cross.click();
                         return;
                     }
                     const b7 = document.getElementById('btn7');
-                    if(b7 && b7.offsetParent !== null) {
+                    if (b7 && b7.offsetParent !== null) {
                         clearInterval(check);
-                        nh.update(`${SITE} — clicking Continue…`, 'loading', {
-                            site: SITE
-                        });
+                        nh.update(`${SITE} — clicking Continue…`, 'loading', { site: SITE });
                         b7.click();
                     }
                 }, 500);
@@ -4793,37 +4698,33 @@
     function runNexusBypasser() {
         const SITE = 'nexusdevs.fun';
         const BASE = 'https://keyserver.nexusdevs.fun';
-        const JSON_HEADERS = {
-            'Content-Type': 'application/json'
-        };
+        const JSON_HEADERS = { 'Content-Type': 'application/json' };
 
         // ── Block report-adblock & hidaddy on unsafeWindow so the page's own
         //    JS cannot fire these requests regardless of how they're made. ────
-        const _uw = typeof unsafeWindow !== 'undefined' ? unsafeWindow : window;
-        const _nxBlocked = (u) => {
+        const _uw         = typeof unsafeWindow !== 'undefined' ? unsafeWindow : window;
+        const _nxBlocked  = (u) => {
             const s = u ? String(typeof u === 'object' ? (u.url ?? u) : u) : '';
             return s.includes('report-adblock') || s.includes('hidaddy');
         };
 
         // fetch
         const _origFetch = _uw.fetch;
-        _uw.fetch = function (input, init) {
-            if(_nxBlocked(input)) return Promise.resolve(new Response(null, {
-                status: 204
-            }));
+        _uw.fetch = function(input, init) {
+            if (_nxBlocked(input)) return Promise.resolve(new Response(null, { status: 204 }));
             return _origFetch.apply(this, arguments);
         };
 
         // XHR — patch the prototype on unsafeWindow's copy
-        const _XHR = _uw.XMLHttpRequest;
+        const _XHR   = _uw.XMLHttpRequest;
         const _xOpen = _XHR.prototype.open;
         const _xSend = _XHR.prototype.send;
-        _XHR.prototype.open = function (method, url) {
+        _XHR.prototype.open = function(method, url) {
             this.__nxBlock = _nxBlocked(url);
             return _xOpen.apply(this, arguments);
         };
-        _XHR.prototype.send = function () {
-            if(this.__nxBlock) return;
+        _XHR.prototype.send = function() {
+            if (this.__nxBlock) return;
             return _xSend.apply(this, arguments);
         };
 
@@ -4835,28 +4736,22 @@
         // DOM — kill matching nodes as they appear and on load
         new MutationObserver(ms => {
             ms.forEach(m => m.addedNodes.forEach(n => {
-                if(n.nodeType === 1 && _nxBlocked(n.src || n.href)) {
-                    n.pause?.();
-                    n.remove();
-                }
+                if (n.nodeType === 1 && _nxBlocked(n.src || n.href)) { n.pause?.(); n.remove(); }
             }));
-        }).observe(document.documentElement, {
-            childList: true,
-            subtree: true
-        });
+        }).observe(document.documentElement, { childList: true, subtree: true });
         document.querySelectorAll('audio,source,script,img').forEach(e => {
-            if(_nxBlocked(e.src || e.href)) e.remove();
+            if (_nxBlocked(e.src || e.href)) e.remove();
         });
         // ─────────────────────────────────────────────────────────────────────
 
-        const t = makeTimer();
+        const t  = makeTimer();
         const nh = notify(`${SITE} — starting key flow…`, 'loading', 0);
         const handleError = makeErrHandler(SITE, nh, 9000);
 
         const params = new URLSearchParams(window.location.search);
-        const HWID = params.get('h') || params.get('hwid');
+        const HWID   = params.get('h') || params.get('hwid');
 
-        if(!HWID) {
+        if (!HWID) {
             handleError('no HWID found in URL (?h= or ?hwid=)', null);
             return;
         }
@@ -4878,20 +4773,20 @@
 
             let data = await go();
 
-            if(data.status === 'rate_limited') {
+            if (data.status === 'rate_limited') {
                 handleError('rate limited — please wait a while and try again', null);
                 throw new Error('rate_limited');
             }
 
-            if(data.status === 'blocked') {
-                const waitMs = (data.remaining_ms ?? 5000) + 500;
+            if (data.status === 'blocked') {
+                const waitMs  = (data.remaining_ms ?? 5000) + 500;
                 const waitSec = Math.ceil(waitMs / 1000);
                 console.warn(`[ULB/nexus] ${label} — IP blocked (${data.reason ?? '?'}), waiting ${waitSec}s…`);
                 nh.update(`${SITE} — blocked (${data.reason ?? 'ad blocker detected'}), waiting ${waitSec}s…`, 'warn');
                 await sleep(waitMs);
                 nh.update(`${SITE} — retrying ${label}…`, 'loading');
                 data = await go();
-                if(data.status === 'rate_limited') {
+                if (data.status === 'rate_limited') {
                     handleError('rate limited — please wait a while and try again', null);
                     throw new Error('rate_limited');
                 }
@@ -4905,14 +4800,12 @@
                 // 1. Init session
                 nh.update(`${SITE} — initialising session…`, 'loading');
 
-                const initData = await nxPost('/api/getkey/init', {
-                        hwid_hash: HWID,
-                        timestamp: Date.now()
-                    },
+                const initData = await nxPost('/api/getkey/init',
+                    { hwid_hash: HWID, timestamp: Date.now() },
                     'init'
                 );
 
-                if(!initData?.token) {
+                if (!initData?.token) {
                     handleError('init failed — no token returned', null);
                     return;
                 }
@@ -4922,31 +4815,27 @@
                 const total = steps.length;
 
                 // 2. Walk each step
-                for(let i = 0; i < steps.length; i++) {
-                    const s = steps[i];
+                for (let i = 0; i < steps.length; i++) {
+                    const s       = steps[i];
                     const stepNum = s.step || (i + 1);
 
                     // Discord step — skip start-step and complete-step entirely
-                    if(s.type === 'discord') {
+                    if (s.type === 'discord') {
                         nh.update(`${SITE} — step ${stepNum}/${total} (discord)…`, 'loading');
                         await sleep(1500);
-                        await nxPost('/api/getkey/complete-discord', {
-                            token
-                        }, 'complete-discord').catch(() => {});
+                        await nxPost('/api/getkey/complete-discord', { token }, 'complete-discord').catch(() => {});
                         await sleep(1200);
                         continue;
                     }
 
                     nh.update(`${SITE} — step ${stepNum}/${total}…`, 'loading');
 
-                    const startData = await nxPost('/api/getkey/start-step', {
-                            token,
-                            step: stepNum
-                        },
+                    const startData = await nxPost('/api/getkey/start-step',
+                        { token, step: stepNum },
                         `start-step ${stepNum}`
                     );
 
-                    if(startData.wait) {
+                    if (startData.wait) {
                         nh.update(`${SITE} — step ${stepNum}/${total} (waiting ${startData.wait}s)…`, 'loading');
                         await sleep((startData.wait * 1000) + 800);
                     }
@@ -4954,18 +4843,16 @@
                     // complete-step — retry on too_fast, also handles blocked via nxPost
                     let completeData;
                     do {
-                        completeData = await nxPost('/api/getkey/complete-step', {
-                                token,
-                                step: stepNum
-                            },
+                        completeData = await nxPost('/api/getkey/complete-step',
+                            { token, step: stepNum },
                             `complete-step ${stepNum}`
                         );
-                        if(completeData.status === 'too_fast' && completeData.remaining) {
+                        if (completeData.status === 'too_fast' && completeData.remaining) {
                             const waitSec = Math.ceil(completeData.remaining / 1000) + 2;
                             nh.update(`${SITE} — step ${stepNum}/${total} too fast, retrying in ${waitSec}s…`, 'loading');
                             await sleep(waitSec * 1000);
                         }
-                    } while(completeData.status === 'too_fast' && completeData.remaining);
+                    } while (completeData.status === 'too_fast' && completeData.remaining);
 
                     await sleep(1200);
                 }
@@ -4974,11 +4861,9 @@
                 nh.update(`${SITE} — generating key…`, 'loading');
                 await sleep(2000);
 
-                const genData = await nxPost('/api/getkey/generate', {
-                    token
-                }, 'generate');
+                const genData = await nxPost('/api/getkey/generate', { token }, 'generate');
 
-                if(!genData?.code) {
+                if (!genData?.code) {
                     handleError('key generation failed — no code in response', null);
                     return;
                 }
@@ -4990,6 +4875,120 @@
                 handleError('unexpected error during key flow', err);
             }
         })();
+    }
+
+    // ── encurtai.online ────────────────────────────────────────────────────
+    // Fetches the real destination URL from the sbxebooks public-link API
+    // using the last path segment as the slug, then redirects immediately.
+
+    function runEncurtaiBypasser() {
+        const SITE = 'encurtai.online';
+        const t = makeTimer();
+        const nh = notify(`${SITE} — fetching destination…`, 'loading', 0, { site: SITE });
+        const handleError = makeErrHandler(SITE, nh, 7000);
+
+        const run = async () => {
+            try {
+                const slug = location.pathname.split('/').filter(Boolean).pop();
+                if (!slug) throw new Error('Could not extract slug from URL path');
+
+                nh.update(`${SITE} — resolving link…`, 'loading', { site: SITE });
+
+                const resp = await fetch(
+                    `https://sbxebooks.online/ADMINFLUENCERSTESTER/api.php?resource=public_link&slug=${encodeURIComponent(slug)}`
+                );
+                if (!resp.ok) throw new Error(`API returned HTTP ${resp.status}`);
+
+                const data = await resp.json();
+                if (!data?.url) throw new Error('No URL in API response');
+
+                safeRedirect(data.url, nh, { t, siteLabel: SITE });
+            } catch (err) {
+                handleError('bypass failed', err);
+            }
+        };
+
+        onReady(run);
+    }
+
+    // ── new.pandadevelopment.net ───────────────────────────────────────────
+    // Path: /getkey/<keyId>?hwid=<hwid>
+    // Flow:
+    //   1. GET  /api/v1/public/getkey/<keyId>?hwid=<hwid>&_t=<now>
+    //      → returns session, checkpoints, settings
+    //   2. If checkpoints not yet completed:
+    //      POST /api/v1/public/getkey/<keyId>/revenue-link  {sessionId, provider flags}
+    //      → returns the revenue/link-wall URL → redirect there
+
+    function runPandaDevelopmentBypasser() {
+        const SITE = 'pandadevelopment.net';
+        const t = makeTimer();
+        const nh = notify(`${SITE} — starting key flow…`, 'loading', 0, { site: SITE });
+        const handleError = makeErrHandler(SITE, nh, 10000);
+
+        const run = async () => {
+            try {
+                // Extract keyId from /getkey/<keyId>
+                const keyId = location.pathname.split('/getkey/')[1];
+                if (!keyId) throw new Error('Could not extract key ID from URL path');
+
+                const hwid = new URLSearchParams(location.search).get('hwid') || '';
+
+                // Step 1 — fetch session info
+                nh.update(`${SITE} — fetching session…`, 'loading', { site: SITE });
+                const infoResp = await fetch(
+                    `/api/v1/public/getkey/${encodeURIComponent(keyId)}?hwid=${encodeURIComponent(hwid)}&_t=${Date.now()}`,
+                    { credentials: 'include' }
+                );
+                if (!infoResp.ok) throw new Error(`Session fetch returned HTTP ${infoResp.status}`);
+                const info = await infoResp.json();
+
+                if (!info.success) throw new Error('Session init unsuccessful — ' + (info.message || 'unknown error'));
+
+                const sessionId  = info.data.sessionId;
+                const checkpoints = info.data.checkpoints;
+
+                // If all checkpoints are already done, nothing to bypass
+                if (checkpoints.completed >= checkpoints.total) {
+                    nh.update(`${SITE} — checkpoints already complete`, 'success', { site: SITE });
+                    setTimeout(() => nh.remove(), 3000);
+                    return;
+                }
+
+                const settings = info.data.settings;
+                const customProvider = settings.selectedCustomProvider ?? settings.revenueMode;
+
+                // Step 2 — request revenue link
+                nh.update(`${SITE} — requesting revenue link…`, 'loading', { site: SITE });
+                const linkBody = {
+                    sessionId,
+                    useSecondary: settings.secondaryRevenueMode !== 'NONE',
+                    useTertiary:  settings.tertiaryRevenueMode  !== 'NONE',
+                    ...(customProvider ? { customProvider } : {}),
+                };
+
+                const linkResp = await fetch(
+                    `/api/v1/public/getkey/${encodeURIComponent(keyId)}/revenue-link`,
+                    {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(linkBody),
+                        credentials: 'include',
+                    }
+                );
+                if (!linkResp.ok) throw new Error(`Revenue-link fetch returned HTTP ${linkResp.status}`);
+                const linkData = await linkResp.json();
+
+                if (!linkData.success || !linkData.data?.link)
+                    throw new Error('Revenue link not returned — ' + (linkData.message || 'unknown error'));
+
+                safeRedirect(linkData.data.link, nh, { t, siteLabel: SITE });
+            } catch (err) {
+                handleError('bypass failed', err);
+            }
+        };
+
+        onReady(run);
     }
 
     // ── linkunlocker.com ───────────────────────────────────────────────────
@@ -5109,31 +5108,29 @@
         const SITE = 'lua-key-vault';
         const BASE = location.origin;
 
-        const t = makeTimer();
-        const nh = notify(`${SITE} — starting key generation…`, 'loading', 0);
+        const t   = makeTimer();
+        const nh  = notify(`${SITE} — starting key generation…`, 'loading', 0);
         const handleError = makeErrHandler(SITE, nh, 9000);
 
         (async () => {
             try {
                 // Step 1 — request key generation
                 nh.update(`${SITE} — requesting key…`, 'loading');
-                const genResp = await fetch(`${BASE}/api/generate-key`, {
-                    method: 'POST'
-                });
-                if(!genResp.ok) throw new Error(`generate-key returned HTTP ${genResp.status}`);
+                const genResp = await fetch(`${BASE}/api/generate-key`, { method: 'POST' });
+                if (!genResp.ok) throw new Error(`generate-key returned HTTP ${genResp.status}`);
                 const genData = await genResp.json();
                 const requestId = genData.requestId;
-                if(!requestId) throw new Error('No requestId in generate-key response');
+                if (!requestId) throw new Error('No requestId in generate-key response');
 
                 const validateUrl = `${BASE}/api/validate-key?requestId=${encodeURIComponent(requestId)}`;
 
                 // Step 2 — poll once to learn remainingTime
                 nh.update(`${SITE} — checking wait time…`, 'loading');
                 const pollResp = await fetch(validateUrl);
-                if(!pollResp.ok) throw new Error(`validate-key poll returned HTTP ${pollResp.status}`);
+                if (!pollResp.ok) throw new Error(`validate-key poll returned HTTP ${pollResp.status}`);
                 const pollData = await pollResp.json();
 
-                const waitMs = (typeof pollData.remainingTime === 'number' ? pollData.remainingTime : 180_000) + 200;
+                const waitMs  = (typeof pollData.remainingTime === 'number' ? pollData.remainingTime : 180_000) + 200;
                 const waitSec = Math.ceil(waitMs / 1000);
 
                 // Step 3 — dismiss loading notif now that wait time is known, then show countdown
@@ -5142,11 +5139,11 @@
                     try {
                         nh.update(`${SITE} — fetching key…`, 'loading');
                         const keyResp = await fetch(validateUrl);
-                        if(!keyResp.ok) throw new Error(`validate-key final returned HTTP ${keyResp.status}`);
+                        if (!keyResp.ok) throw new Error(`validate-key final returned HTTP ${keyResp.status}`);
                         const keyData = await keyResp.json();
 
                         const key = keyData.key;
-                        if(!key) throw new Error('No key field in validate-key response');
+                        if (!key) throw new Error('No key field in validate-key response');
 
                         nh.remove();
                         showKeyCard(key, SITE, t);
@@ -5168,32 +5165,24 @@
     function runMboostBypasser() {
         const SITE = 'mboost.me';
         const t = makeTimer();
-        const nh = notify(`${SITE} — extracting target URL…`, 'loading', 0, {
-            site: SITE
-        });
+        const nh = notify(`${SITE} — extracting target URL…`, 'loading', 0, { site: SITE });
         const handleError = makeErrHandler(SITE, nh, 7000);
 
         const tryExtract = () => {
             // Strategy 1: read from unsafeWindow.data.targeturl
             try {
                 const d = unsafeWindow.data;
-                if(d && d.targeturl) {
-                    safeRedirect(d.targeturl, nh, {
-                        t,
-                        siteLabel: SITE
-                    });
+                if (d && d.targeturl) {
+                    safeRedirect(d.targeturl, nh, { t, siteLabel: SITE });
                     return true;
                 }
             } catch (_) {}
 
             // Strategy 2: scan inline <script> tags
-            for(const s of document.querySelectorAll('script:not([src])')) {
+            for (const s of document.querySelectorAll('script:not([src])')) {
                 const m = s.textContent.match(/['"]{0,1}targeturl['"]{0,1}\s*:\s*['"]([^'"]+)['"]/);
-                if(m && m[1]) {
-                    safeRedirect(m[1], nh, {
-                        t,
-                        siteLabel: SITE
-                    });
+                if (m && m[1]) {
+                    safeRedirect(m[1], nh, { t, siteLabel: SITE });
                     return true;
                 }
             }
@@ -5201,7 +5190,7 @@
         };
 
         const init = () => {
-            if(tryExtract()) return;
+            if (tryExtract()) return;
             // Scripts may still be executing — poll until data is available
             pollUntil(tryExtract, 200, 150).catch(() => {
                 handleError('target URL not found in page', null);
@@ -5217,27 +5206,22 @@
     function runSub2UnlockBypasser() {
         const SITE = 'sub2unlock';
         const t = makeTimer();
-        const nh = notify(`${SITE} — waiting for unlock signal…`, 'loading', 0, {
-            site: SITE
-        });
+        const nh = notify(`${SITE} — waiting for unlock signal…`, 'loading', 0, { site: SITE });
 
         let redirected = false;
 
         const W = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
         const OrigWS = W.WebSocket;
 
-        W.WebSocket = function (u, p) {
+        W.WebSocket = function(u, p) {
             const s = new OrigWS(u, p);
             s.addEventListener('message', e => {
-                if(redirected) return;
+                if (redirected) return;
                 try {
                     const d = JSON.parse(e.data)?.d?.b?.d?.download;
-                    if(d) {
+                    if (d) {
                         redirected = true;
-                        safeRedirect(d, nh, {
-                            t,
-                            siteLabel: SITE
-                        });
+                        safeRedirect(d, nh, { t, siteLabel: SITE });
                     }
                 } catch (_) {}
             });
@@ -5261,9 +5245,7 @@
         const SITE = 'scoplidrop.com';
         const WAIT_SEC = 15;
         const t = makeTimer();
-        const nh = notify(`${SITE} — reading code…`, 'loading', 0, {
-            site: SITE
-        });
+        const nh = notify(`${SITE} — reading code…`, 'loading', 0, { site: SITE });
         const handleError = makeErrHandler(SITE, nh, 10000);
 
         const run = async () => {
@@ -5271,67 +5253,57 @@
                 // Step 1 — resolve code
                 const code = new URLSearchParams(location.search).get('code') ||
                     prompt('scoplidrop — Enter your entry code:');
-                if(!code) throw new Error('No code provided');
+                if (!code) throw new Error('No code provided');
 
                 // Step 2 — exchange code for token
-                nh.update(`${SITE} — fetching token…`, 'loading', {
-                    site: SITE
-                });
+                nh.update(`${SITE} — fetching token…`, 'loading', { site: SITE });
                 const tokRes = await fetch(
                     `https://www.scoplidrop.com/api/tokens?code=${encodeURIComponent(code)}`
                 );
-                if(!tokRes.ok) throw new Error(`Token fetch HTTP ${tokRes.status}`);
+                if (!tokRes.ok) throw new Error(`Token fetch HTTP ${tokRes.status}`);
                 const tokData = await tokRes.json();
                 const token = tokData.token;
-                if(!token) throw new Error('Token missing in response');
+                if (!token) throw new Error('Token missing in response');
 
                 // Step 3 — fetch giveaway + entry data
-                nh.update(`${SITE} — fetching giveaway data…`, 'loading', {
-                    site: SITE
-                });
+                nh.update(`${SITE} — fetching giveaway data…`, 'loading', { site: SITE });
                 const entRes = await fetch(
                     `https://www.scoplidrop.com/api/entry/giveaway?token=${encodeURIComponent(token)}`
                 );
-                if(!entRes.ok) throw new Error(`Giveaway fetch HTTP ${entRes.status}`);
+                if (!entRes.ok) throw new Error(`Giveaway fetch HTTP ${entRes.status}`);
                 const data = await entRes.json();
-                if(!data || !data.giveaway) throw new Error('Invalid giveaway response');
+                if (!data || !data.giveaway) throw new Error('Invalid giveaway response');
 
                 const giveawayId = data.giveaway.id;
                 const userId = data.user?.id || data.entry?.user_id;
-                if(!userId) throw new Error('User ID not found in response');
+                if (!userId) throw new Error('User ID not found in response');
 
                 const tasks = data.giveaway.tasks || [];
                 const completions = data.entry?.task_completions || {};
 
                 // Step 4 — collect incomplete custom-task indices
                 const incomplete = [];
-                for(let i = 0; i < tasks.length; i++) {
-                    if(tasks[i].id === 'custom-task' && !completions[`custom-task_${i}`]?.completed) {
+                for (let i = 0; i < tasks.length; i++) {
+                    if (tasks[i].id === 'custom-task' && !completions[`custom-task_${i}`]?.completed) {
                         incomplete.push(i);
                     }
                 }
 
-                if(!incomplete.length) {
-                    nh.update(`${SITE} — all tasks already completed!`, 'success', 5000, {
-                        site: SITE
-                    });
+                if (!incomplete.length) {
+                    nh.update(`${SITE} — all tasks already completed!`, 'success', 5000, { site: SITE });
                     return;
                 }
 
                 nh.update(
                     `${SITE} — starting ${incomplete.length} task(s)…`,
-                    'loading', {
-                        site: SITE
-                    }
+                    'loading', { site: SITE }
                 );
 
                 // Step 5 — start all incomplete tasks
                 const startTask = (taskIndex) =>
                     fetch('https://www.scoplidrop.com/api/task/start', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
+                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             taskId: 'custom-task',
                             taskIndex,
@@ -5346,9 +5318,7 @@
                 const verifyTask = (taskIndex) =>
                     fetch('https://www.scoplidrop.com/api/task/verify', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
+                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             taskId: 'custom-task',
                             taskIndex,
@@ -5361,23 +5331,16 @@
                 await Promise.all(incomplete.map(startTask));
 
                 // Step 6 — 15 s countdown, then verify
-                nh.update(`${SITE} — waiting ${WAIT_SEC}s before verifying…`, 'loading', {
-                    site: SITE
-                });
+                nh.update(`${SITE} — waiting ${WAIT_SEC}s before verifying…`, 'loading', { site: SITE });
                 await new Promise(resolve =>
                     showCountdown(WAIT_SEC, resolve, `${SITE} — verifying tasks`)
                 );
 
-                nh.update(`${SITE} — verifying ${incomplete.length} task(s)…`, 'loading', {
-                    site: SITE
-                });
+                nh.update(`${SITE} — verifying ${incomplete.length} task(s)…`, 'loading', { site: SITE });
                 await Promise.all(incomplete.map(verifyTask));
 
                 // Step 7 — done
-                safeRedirect(location.href, nh, {
-                    t,
-                    siteLabel: SITE
-                });
+                safeRedirect(location.href, nh, { t, siteLabel: SITE });
 
             } catch (err) {
                 handleError('bypass failed', err);
@@ -5394,26 +5357,17 @@
     function runKrnlIosBypasser() {
         const SITE = 'krnl-ios';
         const t = makeTimer();
-        const nh = notify(`${SITE} — decoding URL…`, 'loading', 0, {
-            site: SITE
-        });
+        const nh = notify(`${SITE} — decoding URL…`, 'loading', 0, { site: SITE });
         const handleError = makeErrHandler(SITE, nh, 5000);
 
         const init = () => {
             try {
                 const encoded = new URLSearchParams(location.search).get('URL');
-                if(!encoded) throw new Error('No ?URL= parameter found');
+                if (!encoded) throw new Error('No ?URL= parameter found');
                 let dest;
-                try {
-                    dest = atob(encoded);
-                } catch (e) {
-                    throw new Error('base64 decode failed — ' + e.message);
-                }
-                if(!dest) throw new Error('Decoded URL is empty');
-                safeRedirect(dest, nh, {
-                    t,
-                    siteLabel: SITE
-                });
+                try { dest = atob(encoded); } catch (e) { throw new Error('base64 decode failed — ' + e.message); }
+                if (!dest) throw new Error('Decoded URL is empty');
+                safeRedirect(dest, nh, { t, siteLabel: SITE });
             } catch (err) {
                 handleError('decode failed', err);
             }
@@ -5436,18 +5390,16 @@
         const SITE = 'ouo.io';
         const TURNSTILE_SITEKEY = '0x4AAAAAAA77ZC8BklcfDJke';
         const t = makeTimer();
-        const nh = notify(`${SITE} — detecting page…`, 'loading', 0, {
-            site: SITE
-        });
+        const nh = notify(`${SITE} — detecting page…`, 'loading', 0, { site: SITE });
         const handleError = makeErrHandler(SITE, nh, 10000);
 
         const submitForm = (form) => {
             try {
-                if(typeof form.requestSubmit === 'function') form.requestSubmit();
+                if (typeof form.requestSubmit === 'function') form.requestSubmit();
                 else HTMLFormElement.prototype.submit.call(form);
             } catch (_) {
                 const btn = form.querySelector('button[type="submit"], input[type="submit"]');
-                if(btn) btn.click();
+                if (btn) btn.click();
             }
         };
 
@@ -5457,10 +5409,10 @@
          */
         const waitForInput = (form, inputName, maxMs = 3000) => new Promise(resolve => {
             const inp = form.querySelector(`[name="${inputName}"]`);
-            if(!inp || inp.value) return resolve();
+            if (!inp || inp.value) return resolve();
             const start = Date.now();
             const iv = setInterval(() => {
-                if(inp.value || Date.now() - start >= maxMs) {
+                if (inp.value || Date.now() - start >= maxMs) {
                     clearInterval(iv);
                     resolve();
                 }
@@ -5470,66 +5422,47 @@
         const init = async () => {
             try {
                 // ── Page B: /go/<id> — wait for hidden inputs then submit #form-go ──
-                if(path.startsWith('/go/')) {
-                    nh.update(`${SITE} — waiting for form tokens…`, 'loading', {
-                        site: SITE
-                    });
+                if (path.startsWith('/go/')) {
+                    nh.update(`${SITE} — waiting for form tokens…`, 'loading', { site: SITE });
 
                     const form = await (async () => {
                         // Try to find form-go immediately, or wait up to 3s for it
                         const found = document.getElementById('form-go') || document.querySelector('form#form-go') || document.querySelector('form');
-                        if(found) return found;
+                        if (found) return found;
                         return new Promise(resolve => {
                             const obs = new MutationObserver(() => {
                                 const f = document.getElementById('form-go') || document.querySelector('form');
-                                if(f) {
-                                    obs.disconnect();
-                                    resolve(f);
-                                }
+                                if (f) { obs.disconnect(); resolve(f); }
                             });
-                            obs.observe(document.body || document.documentElement, {
-                                childList: true,
-                                subtree: true
-                            });
-                            setTimeout(() => {
-                                obs.disconnect();
-                                resolve(null);
-                            }, 3000);
+                            obs.observe(document.body || document.documentElement, { childList: true, subtree: true });
+                            setTimeout(() => { obs.disconnect(); resolve(null); }, 3000);
                         });
                     })();
 
-                    if(!form) throw new Error('#form-go not found on /go/ page');
+                    if (!form) throw new Error('#form-go not found on /go/ page');
 
                     // Wait for x-token to be filled in by the page's own JS (or timeout and proceed)
                     await waitForInput(form, 'x-token', 2500);
 
-                    nh.update(`${SITE} — submitting go-form…`, 'loading', {
-                        site: SITE
-                    });
+                    nh.update(`${SITE} — submitting go-form…`, 'loading', { site: SITE });
                     submitForm(form);
-                    nh.update(`${SITE} — submitted, awaiting final redirect…`, 'loading', {
-                        site: SITE
-                    });
+                    nh.update(`${SITE} — submitted, awaiting final redirect…`, 'loading', { site: SITE });
                     setTimeout(() => nh.remove(), 8000);
                     return;
                 }
 
                 // ── Page A: /<id> — solve Turnstile (visible) → submit #form-captcha ──
-                if(!CONFIG.autoCaptcha) {
+                if (!CONFIG.autoCaptcha) {
                     // Make the page's own widget visible so the user can interact with it
                     document.querySelectorAll('.cf-turnstile').forEach(el => {
                         el.setAttribute('data-size', 'normal');
                         el.style.cssText = 'display:block!important;visibility:visible!important;opacity:1!important';
                     });
-                    nh.update(`${SITE} — solve the Turnstile to continue…`, 'warn', 0, {
-                        site: SITE
-                    });
+                    nh.update(`${SITE} — solve the Turnstile to continue…`, 'warn', 0, { site: SITE });
                     return;
                 }
 
-                nh.update(`${SITE} — solving Turnstile captcha…`, 'loading', {
-                    site: SITE
-                });
+                nh.update(`${SITE} — solving Turnstile captcha…`, 'loading', { site: SITE });
 
                 let token;
                 try {
@@ -5540,14 +5473,13 @@
                 }
 
                 const form = document.getElementById('form-captcha') || document.querySelector('form');
-                if(!form) throw new Error('#form-captcha not found');
+                if (!form) throw new Error('#form-captcha not found');
 
                 // Inject resolved token into the form's cf-turnstile-response field
                 let cfInput = form.querySelector('[name="cf-turnstile-response"]');
-                if(!cfInput) {
+                if (!cfInput) {
                     cfInput = Object.assign(document.createElement('input'), {
-                        type: 'hidden',
-                        name: 'cf-turnstile-response'
+                        type: 'hidden', name: 'cf-turnstile-response'
                     });
                     form.appendChild(cfInput);
                 }
@@ -5556,22 +5488,18 @@
                 // Also attempt to fill the shadow-DOM widget's own response field
                 try {
                     const widgetInput = document.querySelector('[id$="_response"]');
-                    if(widgetInput && widgetInput !== cfInput) widgetInput.value = token;
+                    if (widgetInput && widgetInput !== cfInput) widgetInput.value = token;
                 } catch (_) {}
 
                 // Enable any disabled submit button
                 const btn = document.getElementById('btn-main') ||
                     form.querySelector('button[type="submit"][disabled], input[type="submit"][disabled]');
-                if(btn) btn.disabled = false;
+                if (btn) btn.disabled = false;
 
-                nh.update(`${SITE} — submitting captcha form…`, 'loading', {
-                    site: SITE
-                });
+                nh.update(`${SITE} — submitting captcha form…`, 'loading', { site: SITE });
                 submitForm(form);
 
-                nh.update(`${SITE} — captcha submitted, loading go-page…`, 'loading', {
-                    site: SITE
-                });
+                nh.update(`${SITE} — captcha submitted, loading go-page…`, 'loading', { site: SITE });
                 setTimeout(() => nh.remove(), 8000);
 
             } catch (err) {
