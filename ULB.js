@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Unknown Link Bypasser
-// @version      6.7.2
-// @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live(SCAM WARNING) + go.yorurl.com + jankariweb + newsuchnaonline + bigcarinsurance + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + highlocus.shop + gplinks.co + powergam.online + getpolsec.com + hehehub + sub4unlock.co + app.khaddavi.net + sfl.gl + ytsubme.com + aylink.co + biplabtewary.com + mwgamesyt.com.br + topjogosvip.online + legacyagency.com.br + 4br.me + short-jambo.com/ink + fastcars + fluorine.s3ren1ty.xyz + rekonise.com + go.linkify.ru + arolinks.com + spdmteam.com + linkunlocker.com + mboost.me + sub2unlock.netlify.app + krnl-ios.com + ouo.io. Made by @Aro Moon
+// @version      6.7.3
+// @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live(SCAM WARNING) + go.yorurl.com + jankariweb + newsuchnaonline + bigcarinsurance + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + highlocus.shop + gplinks.co + powergam.online + getpolsec.com + hehehub + sub4unlock.co + app.khaddavi.net + sfl.gl + ytsubme.com + aylink.co + biplabtewary.com + mwgamesyt.com.br + topjogosvip.online + legacyagency.com.br + 4br.me + short-jambo.com/ink + fastcars + fluorine.s3ren1ty.xyz + go.linkify.ru + arolinks.com + spdmteam.com + linkunlocker.com + mboost.me + sub2unlock.netlify.app + krnl-ios.com + ouo.io + start-get-key.pages.dev + bstshrt.com. Made by @Aro Moon
 // @author       @Aro Moon
 // @include      /^https:\/\/mtc\d+\.[^/]+\.[a-z.]+\//
 // @include      /^https?:\/\/(?:\w+\.)?fastcars\d+\.com\//
@@ -51,7 +51,6 @@
 // @match        https://getpolsec.com/ad/*
 // @match        https://hehehub-acsu123.pythonanywhere.com/api/getkey*
 // @match        https://fluorine.s3ren1ty.xyz/getkey*
-// @match        https://rekonise.com/*
 // @match        https://go.linkify.ru/*
 // @match        https://arolinks.com/*
 // @match        https://apnahirework.com/*
@@ -70,6 +69,8 @@
 // @match        https://krnl-ios.com/ads.html*
 // @match        https://ouo.io/*
 // @match        https://ouo.press/*
+// @match        https://start-get-key.pages.dev/
+// @match        https://bstshrt.com/u/*
 // @grant        GM_addElement
 // @grant        unsafeWindow
 // @grant        GM_registerMenuCommand
@@ -144,6 +145,7 @@
             'v0-phantomfluxkey.vercel.app',
             'go.yorurl.com',
             'scoplidrop.com',
+            'lnbz.la',
         ],
 
         // ┌─────────────────────────────────────────────────────────────────┐
@@ -246,7 +248,7 @@
     // §1  CONSTANTS
     // ═══════════════════════════════════════════════════════════════════════
 
-    const VERSION = '6.7.2';
+    const VERSION = '6.7.3';
 
     // ── Diagnostics log ───────────────────────────────────────────────────
     // Captures errors/warnings for the Diagnostics menu command.
@@ -459,6 +461,65 @@
         return r.json();
     }
 
+    // ─── submitForm ───────────────────────────────────────────────────────
+    /**
+     * Submit a form robustly: tries requestSubmit() first, falls back to
+     * the prototype submit, then to clicking the first visible submit button.
+     * @param {HTMLFormElement} form
+     */
+    function submitForm(form) {
+        try {
+            if (typeof form.requestSubmit === 'function') form.requestSubmit();
+            else HTMLFormElement.prototype.submit.call(form);
+        } catch (_) {
+            const btn = form.querySelector('button[type="submit"], input[type="submit"]');
+            if (btn) btn.click();
+        }
+    }
+
+    // ─── spoofVisibilityHidden ────────────────────────────────────────────
+    /**
+     * Temporarily spoof document.visibilityState as 'hidden' so that ad
+     * timers think the tab is backgrounded. Returns a restore() function.
+     * Dispatches visibilitychange on both spoof and restore.
+     * @returns {Function} restore — call when the spoof is no longer needed.
+     */
+    function spoofVisibilityHidden() {
+        const desc = Object.getOwnPropertyDescriptor(Document.prototype, 'visibilityState');
+        Object.defineProperty(document, 'visibilityState', { get: () => 'hidden', configurable: true });
+        document.dispatchEvent(new Event('visibilitychange'));
+        return function restore() {
+            try { delete document.visibilityState; } catch (_) {}
+            if (desc) Object.defineProperty(Document.prototype, 'visibilityState', desc);
+            document.dispatchEvent(new Event('visibilitychange'));
+        };
+    }
+
+    // ─── waitForContinueBtn ───────────────────────────────────────────────
+    /**
+     * Polls every 500 ms for #cross-snp2 or #btn7 to become visible, then
+     * clicks whichever appears first. Used by the apnahirework / crimejasoos
+     * / newsuchnaonline family of bypassers.
+     * @param {string} label       — Step label shown in the notification.
+     * @param {object} nh          — Notification handle from notify().
+     * @param {string} SITE        — Site label for the notification text.
+     * @param {number} [timeoutMs] — Give up after this many ms (default 60 s).
+     */
+    function waitForContinueBtn(label, nh, SITE, timeoutMs = 60_000) {
+        const check = setInterval(() => {
+            for (const id of ['cross-snp2', 'btn7']) {
+                const el = document.getElementById(id);
+                if (el && el.offsetParent !== null) {
+                    clearInterval(check);
+                    if (nh) nh.update(`${SITE} — ${label} — clicking Continue…`, 'loading', { site: SITE });
+                    el.click();
+                    return;
+                }
+            }
+        }, 500);
+        setTimeout(() => clearInterval(check), timeoutMs);
+    }
+
     // ═══════════════════════════════════════════════════════════════════════
     // §3  NOTIFICATION SYSTEM
     // ═══════════════════════════════════════════════════════════════════════
@@ -500,7 +561,7 @@
     ].join(';');
 
     const CSS_LABEL =
-        'font-size:10px;text-transform:uppercase;letter-spacing:1.4px;color:#555;margin-bottom';
+        'font-size:10px;text-transform:uppercase;letter-spacing:1.4px;color:#555;margin-bottom:4px;display:block';
 
     let _host = null;
     let _root = null;
@@ -1560,12 +1621,11 @@
             });
 
             try {
-                if(typeof form.requestSubmit === 'function') form.requestSubmit();
-                else HTMLFormElement.prototype.submit.call(form);
+                submitForm(form);
             } catch (e) {
                 console.warn('[ULB/lnbz] form submit failed, trying click fallback:', e);
                 const btn2 = form.querySelector('button[type="submit"], input[type="submit"]');
-                if(btn2) btn2.click();
+                if (btn2) btn2.click();
             }
         };
 
@@ -1758,6 +1818,8 @@
         else if(host.includes('encurtai.online')) _gateBypass('encurtai.online', runEncurtaiBypasser);
         else if(host.includes('pandadevelopment.net') && path.includes('/getkey/')) _gateBypass('pandadevelopment.net', runPandaDevelopmentBypasser);
         else if(host.includes('lua-key-vault.vercel.app')) _gateBypass('lua-key-vault', runLuaKeyVaultBypasser);
+        else if(host.includes('start-get-key.pages.dev')) _gateBypass('start-get-key.pages.dev', runStartGetKeyBypasser);
+        else if(host.includes('bstshrt.com')) _gateBypass('bstshrt.com', runBstshrtBypasser);
         else if(TPI_HOSTS.some(h => host.includes(h))) _gateBypass(host, runTpiLiBypasser);
         else if(FORM_HOSTS.some(h => host.includes(h))) _gateBypass(host, runFormBypasser);
         else _gateBypass(host, runSafelinkBypasser);
@@ -1771,6 +1833,10 @@
     // ═══════════════════════════════════════════════════════════════════════
 
     // ── PhantomFluxKey ─────────────────────────────────────────────────────
+    // v0-phantomfluxkey.vercel.app hosts a multi-step key system that
+    // cannot be automatically bypassed end-to-end. Instead, a persistent
+    // card is shown with a direct link to the raw key paste (CONFIG.phantomDirectUrl),
+    // letting the user grab the key without completing the ad steps.
 
     function runPhantomFluxKeyBypasser() {
         notify('PhantomFluxKey detected — showing direct bypass…', 'info', undefined, {
@@ -1781,6 +1847,14 @@
 
 
     // ── dl.surf ────────────────────────────────────────────────────────────
+    // dl.surf/f/<slug> is a file-hosting front-end that requires solving a
+    // Turnstile captcha before issuing a download URL. This bypasser:
+    //   1. Injects a "Download via Bypasser" button in place of the normal one.
+    //   2. On click: GET /api/file/request-download/file/<slug>/ → download token.
+    //   3. Solve Turnstile automatically using the site's own sitekey.
+    //   4. POST /api/file/new-download-file/ {token, captcha_token} → real URL.
+    //   5. Trigger download via <a download> (plus window.open on iOS).
+    // Also watches for SPA navigation and re-injects the button after URL changes.
 
     function runDlSurf() {
         const API = 'https://backendapi.dl.surf/api/file';
@@ -1954,9 +2028,13 @@
     }
 
     // ── airflowscript.com ──────────────────────────────────────────────────
+    // airflowscript.com/key gates access behind a "join our Discord" step
+    // that sets a localStorage flag before proceeding. This bypasser fakes
+    // that flag (airflow_discord_done = true) and reloads, causing the site
+    // to believe the Discord step was already completed and skip it.
 
     function runAirflowBypasser() {
-        const KEY = 'rinku_step1_done';
+        const KEY = 'airflow_discord_done';
         if(localStorage.getItem(KEY) === 'true') return;
         notify('Bypassing Discord requirement…', 'loading', 3000, {
             site: 'airflowscript.com'
@@ -1966,6 +2044,11 @@
     }
 
     // ── bstlar.com ─────────────────────────────────────────────────────────
+    // bstlar.com wraps destination URLs behind a two-step JSON API:
+    //   1. GET  /api/link?url=<slug>&link_action_id=<id>  → { id, ... }
+    //   2. POST /api/link-completed { link_id, link_action_id } → { destination_url }
+    // The link_action_id is embedded in a hidden element on the page.
+    // We call both endpoints immediately on page load and redirect to destination_url.
 
     function runBstlarBypasser() {
         const SITE = 'bstlar.com';
@@ -2009,6 +2092,11 @@
     }
 
     // ── wareguardv2.xyz ────────────────────────────────────────────────────
+    // wareguardv2.xyz/checkpoint shows a "Continue" anchor whose href carries
+    // a base64 + URL-encoded destination in the ?r= query parameter.
+    // This bypasser reads #continueBtn.href, extracts ?r=, decodes it with
+    // atob(decodeURIComponent(...)), validates the result, then redirects
+    // after a 1-second countdown.
 
     function runWareguardBypasser() {
         const SITE = 'wareguardv2.xyz';
@@ -2060,6 +2148,10 @@
     }
 
     // ── subnise.com ────────────────────────────────────────────────────────
+    // subnise.com/link/<id> exposes a public REST endpoint at /api/links/<id>
+    // that returns the destination URL directly in response.url — no captcha
+    // or ad wait required. We fetch it immediately and redirect after a short
+    // 1-second countdown so the user can see what's happening.
 
     function runSubniseBypasser() {
         const SITE = 'subnise.com';
@@ -2093,6 +2185,12 @@
     }
 
     // ── tpi.li ─────────────────────────────────────────────────────────────
+    // tpi.li encodes the destination URL as a base64 string inside a hidden
+    // input[name=token] on the page. The encoded value always starts with
+    // "aHR0cHM6Ly8" (the base64 prefix for "https://"). This bypasser
+    // watches for that input to be populated via MutationObserver + polling,
+    // extracts the token, decodes it with atob(), validates it, then shows a
+    // 3-second countdown before redirecting.
 
     function runTpiLiBypasser() {
         const SITE = 'tpi.li';
@@ -2182,6 +2280,19 @@
     }
 
     // ── safelink (generic) ─────────────────────────────────────────────────
+    // Handles any safelink-platform site not covered by a more specific
+    // bypasser (shrtslug.biz, biovetro.net, technons.com, tournguide.com,
+    // dailyjobposting.xyz, stfly.biz — plus dozens of mtc*.* domains).
+    //
+    // The safelink platform uses a JavaScript variable (app_vars / safelink_vars)
+    // to expose the encoded destination. Three extraction strategies are tried:
+    //   1. unsafeWindow.app_vars / safelink_vars direct read
+    //   2. Regex-parse the first matching inline <script> block
+    //   3. Brute-force scan of all inline scripts for known key names
+    // Once a URL is found it is base64-decoded (atob) and validated.
+    // Ads and ad scripts are stripped from the DOM if CONFIG.blockAds is true.
+    // A MutationObserver watches for dynamically injected scripts in case the
+    // vars aren't present at DOMContentLoaded.
 
     function runSafelinkBypasser() {
         let scheduled = false;
@@ -2315,6 +2426,21 @@
     }
 
     // ── form-based bypasser ────────────────────────────────────────────────
+    // Handles sites that use a form POST to api-endpoint/verify to unlock the
+    // destination URL (shrtslug.biz, biovetro.net, technons.com, tournguide.com,
+    // dailyjobposting.xyz, stfly.biz).
+    //
+    // Flow:
+    //   1. Patch Document.prototype.querySelector to neutralise an anti-bypass
+    //      detector that looks for a class name containing "eecdbd".
+    //   2. Wait for form[action*="api-endpoint/verify"] to appear.
+    //   3. Read the action field: "countdown" → 5 s wait, "captcha" → solve
+    //      Turnstile, otherwise read progress_original from inline scripts.
+    //   4. POST the form's hidden fields + optional captcha token.
+    //   5. On success: redirect to result.data.final, or POST the speed_token
+    //      to result.data.next_page for multi-step flows.
+    //   6. On network error: increment an extra-delay counter in sessionStorage
+    //      and reload (retries up to N times with growing delays).
 
     function runFormBypasser() {
         const _qs = Document.prototype.querySelector;
@@ -2417,6 +2543,13 @@
     }
 
     // ── reshortfly.com ─────────────────────────────────────────────────────
+    // reshortfly.com is an encurta.net-platform shortener whose go-page
+    // (#go-link form) reveals the destination after a countdown. This bypasser:
+    //   1. Waits for app_vars.counter_value to appear (MutationObserver + timeout).
+    //   2. Shows a visible countdown for that many seconds.
+    //   3. POST /links/go with the form's hidden fields → JSON response.
+    //   4. Extracts the URL from response.url, or base64-decodes response.data,
+    //      or regex-scans the raw text as a last resort.
 
     function runReshortflyBypasser() {
         const SITE = 'reshortfly.com';
@@ -2470,6 +2603,11 @@
     }
 
     // ── avnsgames.com interstitial ─────────────────────────────────────────
+    // avnsgames.com shows an interstitial page between ad clicks that contains
+    // a hidden form (#go_d2) which, when submitted, completes the ad impression
+    // and redirects the browser to the real destination. This bypasser polls
+    // for that form and submits it immediately without waiting for the page's
+    // own timer to fire.
 
     function runAvnsGamesInterstitial() {
         const SITE = 'avnsgames.com';
@@ -2486,7 +2624,7 @@
                     time: t.elapsed() + 's'
                 });
                 setTimeout(() => nh.remove(), 1500);
-                HTMLFormElement.prototype.submit.call(f);
+                submitForm(f);
                 return true;
             }
             return false;
@@ -2503,6 +2641,15 @@
     }
 
     // ── lnbz.la / go.yorurl.com / go.caslinks.com / highlocus.shop ─────────
+    // All four sites run the same encurta.net shortener platform handled by
+    // _runLinksGoBypasser(). Two pages can appear:
+    //   Page A (captcha)   — Turnstile widget, no ad_form_data yet →
+    //                        auto-solve captcha → submit form → Page B
+    //   Page B (go-link)   — hidden input[name="ad_form_data"] present →
+    //                        read countdown from app_vars.counter_value →
+    //                        show countdown → POST /links/go → redirect
+    // lnbz.la, go.yorurl.com, go.caslinks.com and highlocus.shop pass no
+    // hardcoded sitekey (it is read dynamically from app_vars or the DOM).
 
     function runLnbzLaBypasser() {
         _runLinksGoBypasser('lnbz.la', null);
@@ -2512,17 +2659,29 @@
         _runLinksGoBypasser('go.yorurl.com', null);
     }
 
+    // go.caslinks.com and highlocus.shop are additional encurta.net-platform
+    // shorteners identical in structure to lnbz.la — captcha Page A flows into
+    // go-link Page B. The host is passed dynamically since both domains share
+    // this function via the router.
     function runCasLinksBypasser() {
         _runLinksGoBypasser(host, null);
     }
 
     // ── 4br.me ─────────────────────────────────────────────────────────────
+    // Same encurta.net platform as lnbz.la (see above), but 4br.me uses a
+    // hardcoded Turnstile sitekey instead of embedding it in app_vars.
+    // The sitekey is passed directly to _runLinksGoBypasser so captcha
+    // solving can start without waiting for the page's JS to initialise.
 
     function run4BrMeBypasser() {
         _runLinksGoBypasser('4br.me', '0x4AAAAAAA9NLL_co1eXbypf');
     }
 
     // ── short-jambo.com / short-jambo.ink ──────────────────────────────────
+    // Both short-jambo domains run the same encurta.net platform as lnbz.la.
+    // They share identical page structure (captcha Page A → go-link Page B)
+    // and are handled by _runLinksGoBypasser() with the sitekey read
+    // dynamically from app_vars or the DOM at runtime.
 
     function runShortJamboDotComBypasser() {
         _runLinksGoBypasser('short-jambo.com', null);
@@ -2532,7 +2691,13 @@
         _runLinksGoBypasser('short-jambo.ink', null);
     }
 
-    // ── fastcars*.com ──────────────────────────────────────────────────────
+    // ── fastcars*.com / bigcarinsurance.com ────────────────────────────────
+    // These sites show an ad page then reveal a "Continue" anchor (#yuidea-btmbtn)
+    // whose href is the final destination. The page also runs a scroll-animation
+    // function (yuideascrolldown) to make the button visible. This bypasser:
+    //   1. Calls yuideascrolldown() if present (so any position checks pass).
+    //   2. Reads #yuidea-btmbtn.href and redirects immediately.
+    //   3. Polls every 100 ms for up to 30 s waiting for the element to appear.
 
     function runFastcarsBypasser() {
         const siteLabel = host;
@@ -2845,6 +3010,16 @@
     }
 
     // ── jankariweb / newsuchnaonline / bigcarinsurance ─────────────────────
+    // A family of Indian job-portal shortener sites (jankariweb.online,
+    // newsuchnaonline.com, bigcarinsurance.com) that share the same
+    // multi-step ad platform. Two anti-bot cookies are set upfront
+    // (adcadg, _uocat) to satisfy server-side checks. Four page variants:
+    //   0. #link1s "Get Link" anchor present → extract href, redirect directly.
+    //   1. Ad-countdown page (startCountdownBtn + googletag) → spoof the
+    //      step counter, bypass the timer, click #cross-snp2 or #btn7.
+    //   2. Step counter (e.g. "1/3") → read and display step progress,
+    //      spoof the counter, wait for #cross-snp2 / #btn7 to become visible.
+    //   3. Generic "Get Link" button (#getlink) → click it, wait for #btn7.
 
     function runJoberBypasser() {
         document.cookie = "adcadg=1; path=/; max-age=600";
@@ -3052,25 +3227,6 @@
         const nh = notify(`${SITE} — detecting page…`, 'loading', 0, { site: SITE });
         const handleError = makeErrHandler(SITE, nh, 7000);
 
-        const waitForContinue = (label) => {
-            const check = setInterval(() => {
-                const cross = document.getElementById('cross-snp2');
-                if (cross && cross.offsetParent !== null) {
-                    clearInterval(check);
-                    nh.update(`${SITE} — ${label} — clicking Continue…`, 'loading', { site: SITE });
-                    cross.click();
-                    return;
-                }
-                const b7 = document.getElementById('btn7');
-                if (b7 && b7.offsetParent !== null) {
-                    clearInterval(check);
-                    nh.update(`${SITE} — ${label} — clicking Continue…`, 'loading', { site: SITE });
-                    b7.click();
-                }
-            }, 500);
-            setTimeout(() => clearInterval(check), 60000);
-        };
-
         const run = () => {
             // Variant A: #tp-snp2 "Continue" link button — direct click
             const tpBtn = document.getElementById('tp-snp2');
@@ -3086,7 +3242,7 @@
                 nh.update(`${SITE} — bypassing ad countdown…`, 'loading', { site: SITE });
                 count = -1;
                 timer();
-                waitForContinue('countdown');
+                waitForContinueBtn('countdown', nh, SITE);
                 return;
             }
 
@@ -3099,7 +3255,7 @@
                     nh.update(`${SITE} — step ${step.current}/${step.total} — bypassing…`, 'loading', { site: SITE });
                     count = -1;
                     timer();
-                    waitForContinue(`step ${step.current}/${step.total}`);
+                    waitForContinueBtn(`step ${step.current}/${step.total}`, nh, SITE);
                     return;
                 }
             }
@@ -3122,25 +3278,6 @@
         const nh = notify(`${SITE} — detecting page…`, 'loading', 0, { site: SITE });
         const handleError = makeErrHandler(SITE, nh, 7000);
 
-        const waitForContinue = (label) => {
-            const check = setInterval(() => {
-                const cross = document.getElementById('cross-snp2');
-                if (cross && cross.offsetParent !== null) {
-                    clearInterval(check);
-                    nh.update(`${SITE} — ${label} — clicking Continue…`, 'loading', { site: SITE });
-                    cross.click();
-                    return;
-                }
-                const b7 = document.getElementById('btn7');
-                if (b7 && b7.offsetParent !== null) {
-                    clearInterval(check);
-                    nh.update(`${SITE} — ${label} — clicking Continue…`, 'loading', { site: SITE });
-                    b7.click();
-                }
-            }, 500);
-            setTimeout(() => clearInterval(check), 60000);
-        };
-
         const run = () => {
             // Variant A: #tp-snp2 "Continue" link button — direct
             const tpBtn = document.getElementById('tp-snp2');
@@ -3156,12 +3293,12 @@
                 nh.update(`${SITE} — bypassing ad countdown…`, 'loading', { site: SITE });
                 count = -1;
                 timer();
-                waitForContinue('countdown');
+                waitForContinueBtn('countdown', nh, SITE);
                 return;
             }
 
             // Variant C: step counter (div#stick / span.text-danger)
-            // Every step now waits 15 s with a visible countdown before bypassing.
+            // Every step waits STEP_WAIT_SEC s with a visible countdown before bypassing.
             const stepDanger = document.querySelector('strong .text-danger, strong span.text-danger');
             if (stepDanger) {
                 const m = stepDanger.textContent.trim().match(/^(\d+)\/(\d+)$/);
@@ -3169,24 +3306,15 @@
                     const step = { current: parseInt(m[1], 10), total: parseInt(m[2], 10) };
                     const label = `step ${step.current}/${step.total}`;
                     const isLast = step.current === step.total;
-                    const subtitle = isLast
-                        ? `crimejasoos.in — ${label} (last)`
-                        : `crimejasoos.in — ${label}`;
+                    const subtitle = `crimejasoos.in — ${label}${isLast ? ' (last)' : ''}`;
                     nh.update(`${SITE} — ${label}${isLast ? ' (last)' : ''} — waiting ${STEP_WAIT_SEC}s…`, 'loading', { site: SITE });
-                    // Spoof document.visibilityState as hidden before countdown so
-                    // the page's ad timer thinks the tab is backgrounded.
-                    const _cjVisDesc = Object.getOwnPropertyDescriptor(Document.prototype, 'visibilityState');
-                    Object.defineProperty(document, 'visibilityState', { get: () => 'hidden', configurable: true });
-                    document.dispatchEvent(new Event('visibilitychange'));
+                    const restore = spoofVisibilityHidden();
                     showCountdown(STEP_WAIT_SEC, () => {
-                        // Restore real visibilityState once countdown is over.
-                        delete document.visibilityState;
-                        if (_cjVisDesc) Object.defineProperty(Document.prototype, 'visibilityState', _cjVisDesc);
-                        document.dispatchEvent(new Event('visibilitychange'));
+                        restore();
                         nh.update(`${SITE} — ${label} — bypassing…`, 'loading', { site: SITE });
                         count = -1;
                         timer();
-                        waitForContinue(label);
+                        waitForContinueBtn(label, nh, SITE);
                     }, subtitle);
                     return;
                 }
@@ -3210,29 +3338,15 @@
         const nh = notify(`${SITE} — detecting page…`, 'loading', 0, { site: SITE });
         const handleError = makeErrHandler(SITE, nh, 7000);
 
-        const waitForBtn7 = (label) => {
-            const check = setInterval(() => {
-                const b7 = document.getElementById('btn7');
-                // btn7 starts hidden (display:none) — wait until it becomes visible
-                if (b7 && getComputedStyle(b7).display !== 'none' && b7.offsetParent !== null) {
-                    clearInterval(check);
-                    nh.update(`${SITE} — ${label} — navigating to next step…`, 'loading', { site: SITE });
-                    b7.click();
-                }
-            }, 300);
-            setTimeout(() => clearInterval(check), 30000);
-        };
-
         const run = () => {
             // Variant B: #getlink button (dual-tap style)
-            // Use count = -1; timer() so the get-link button appears instantly
             const getlinkBtn = document.getElementById('getlink');
             if (getlinkBtn) {
                 nh.update(`${SITE} — clicking Get Link…`, 'loading', { site: SITE });
                 count = -1;
                 timer();
                 getlinkBtn.click();
-                waitForBtn7('get-link');
+                waitForContinueBtn('get-link', nh, SITE, 30_000);
                 return;
             }
 
@@ -3241,7 +3355,7 @@
             if (notarobot) {
                 nh.update(`${SITE} — clicking verify…`, 'loading', { site: SITE });
                 notarobot.click();
-                waitForBtn7('notarobot');
+                waitForContinueBtn('notarobot', nh, SITE, 30_000);
                 return;
             }
 
@@ -3263,8 +3377,6 @@ function runJoberFacwizBypasser() {
     const handleError = makeErrHandler(SITE, nh, 7000);
 
     const init = () => {
-        // Mirror the snippet: scan all inline scripts for the page's own
-        // setTimeout delay so we wait for the tp= cookie to be written.
         const allScriptText = [...document.scripts]
             .map(s => s.textContent)
             .join('');
@@ -3273,17 +3385,10 @@ function runJoberFacwizBypasser() {
 
         nh.update(`${SITE} — waiting ${delay}ms for cookie…`, 'loading', { site: SITE });
 
-        // Spoof document.visibilityState as hidden while waiting for the tp= cookie
-        // so the page's ad/timer logic thinks the tab is backgrounded.
-        const _jbVisDesc = Object.getOwnPropertyDescriptor(Document.prototype, 'visibilityState');
-        Object.defineProperty(document, 'visibilityState', { get: () => 'hidden', configurable: true });
-        document.dispatchEvent(new Event('visibilitychange'));
+        const restore = spoofVisibilityHidden();
 
         setTimeout(() => {
-            // Restore real visibilityState before reading the cookie.
-            delete document.visibilityState;
-            if (_jbVisDesc) Object.defineProperty(Document.prototype, 'visibilityState', _jbVisDesc);
-            document.dispatchEvent(new Event('visibilitychange'));
+            restore();
             try {
                 const cookie = document.cookie
                     .split(';')
@@ -3314,6 +3419,11 @@ function runJoberFacwizBypasser() {
 }
 
     // ── how2guidess.com ────────────────────────────────────────────────────
+    // how2guidess.com hides the destination behind two sequential button
+    // clicks: first #gi (the "Get Link" initiator), then #ci (the actual
+    // confirmation). This bypasser polls for each button in order, clicks
+    // them with a 500 ms gap between steps, and reports progress via the
+    // notification card.
 
     function runHow2GuidesBypasser() {
         const SITE = 'how2guidess.com';
@@ -3360,6 +3470,13 @@ function runJoberFacwizBypasser() {
     }
 
     // ── link-unlock.com ────────────────────────────────────────────────────
+    // link-unlock.com uses a two-call REST API to unlock links:
+    //   1. GET  https://api.link-unlock.com/u/<slug>
+    //      → returns unlock config including an array of step IDs.
+    //   2. POST https://api.link-unlock.com/u/<slug>/complete  { steps: [...] }
+    //      → returns { destinationUrl } when all steps are marked complete.
+    // By passing all step IDs in the POST body at once we skip every
+    // individual ad/social step the site would normally require.
 
     function runLinkUnlockBypasser() {
         const SITE = 'link-unlock.com';
@@ -3409,6 +3526,10 @@ function runJoberFacwizBypasser() {
     }
 
     // ── link4sub.com ───────────────────────────────────────────────────────
+    // link4sub.com links redirect the browser to tapvietcode.com after the
+    // user completes a subscription step. The actual bypass logic lives in
+    // runTapVietCodeBypasser() — this stub just shows an informational toast
+    // so the user knows the script is active while the redirect loads.
 
     function runLink4SubBypasser() {
         notify('link4sub.com — following redirect to tapvietcode.com…', 'info', undefined, {
@@ -3417,6 +3538,16 @@ function runJoberFacwizBypasser() {
     }
 
     // ── tapvietcode.com ────────────────────────────────────────────────────
+    // tapvietcode.com has two sub-domains with different page structures:
+    //
+    //   blog.tapvietcode.com — Shows a "Continue" button (#continueBtn) that
+    //     becomes enabled after a delay. This bypasser polls for the button,
+    //     reads its href, and redirects immediately without waiting.
+    //
+    //   (other subdomains) — Uses a form-based flow: polls for either a
+    //     direct href on #btn6, or a named form (name matches /^tp\d*$/i).
+    //     On match: submits the form via submitForm() to trigger the server
+    //     redirect to the real destination.
 
     function runTapVietCodeBypasser() {
         const SITE = 'tapvietcode.com';
@@ -3491,6 +3622,16 @@ function runJoberFacwizBypasser() {
     }
 
     // ── gplinks.co ─────────────────────────────────────────────────────────
+    // gplinks.co protects links with a Cloudflare Turnstile captcha embedded
+    // inside an iframe. The sitekey is not in a data-sitekey attribute — it
+    // is encoded in the iframe src path (e.g. /challenges.cloudflare.com/.../<key>/...).
+    // This bypasser:
+    //   1. Extracts the sitekey from the iframe src using a regex on the 20+
+    //      character path segment, falling back to getSiteKey() if not found.
+    //   2. Waits up to 5 s for app_vars to appear as a secondary sitekey source.
+    //   3. Solves the Turnstile automatically via solveTurnstile().
+    //   4. Injects the token into [name="cf-turnstile-response"] and submits
+    //      the form, which the server validates before issuing the redirect.
 
     function runGpLinksBypasser() {
         const SITE = 'gplinks.co';
@@ -3576,6 +3717,15 @@ function runJoberFacwizBypasser() {
     }
 
     // ── powergam.online ────────────────────────────────────────────────────
+    // powergam.online is a multi-step ad-locker that tracks progress through
+    // cookies (imps, lid, pages, pid, step_count, vid) and requires the
+    // browser to POST to each step endpoint in sequence. This bypasser:
+    //   1. Reads the required cookies from document.cookie.
+    //   2. Verifies all six required keys are present; if not, waits for the
+    //      page to set them (polls via MutationObserver on document.cookie).
+    //   3. Iterates through every step (1..pages), POSTing the step data with
+    //      the correct Referer header to simulate a real page visit.
+    //   4. Reads the finalURL from cookies after all steps complete and redirects.
 
     function runPowergamBypasser() {
         const SITE = 'powergam.online';
@@ -3651,6 +3801,13 @@ function runJoberFacwizBypasser() {
     }
 
     // ── rojgarhindi.in ─────────────────────────────────────────────────────
+    // rojgarhindi.in shares the same ad platform as tapvietcode.com.
+    // Two page variants are handled:
+    //   A) #btn6 anchor — href contains the final destination URL directly.
+    //      Redirects immediately once the element appears.
+    //   B) A named form matching /^tp\d*$/i — submitted via submitForm() to
+    //      trigger the server-side redirect to the real destination.
+    // Both are found by polling every 200 ms for up to 30 s.
 
     function runRojgarhindiBypasser() {
         const SITE = 'rojgarhindi.in';
@@ -3676,7 +3833,7 @@ function runJoberFacwizBypasser() {
                     time: t.elapsed() + 's'
                 });
                 setTimeout(() => nh.remove(), 2000);
-                HTMLFormElement.prototype.submit.call(form);
+                submitForm(form);
                 return true;
             }
             return false;
@@ -3691,6 +3848,19 @@ function runJoberFacwizBypasser() {
     }
 
     // ── aylink.co ──────────────────────────────────────────────────────────
+    // aylink.co has two page types detected at runtime:
+    //
+    //   Captcha page — .cf-turnstile[data-sitekey] is present.
+    //     Solves the Turnstile, fills [name="cf-turnstile-response"], fires
+    //     the site's own callback (data-callback) if defined, then submits
+    //     the form. The server validates the token and redirects.
+    //
+    //   Link page — no Turnstile widget. Uses a three-variable auth flow:
+    //     1. Read _a, _t, _d from unsafeWindow or inline scripts.
+    //     2. POST /get/tk {_a, _t, _d} → { status, th } (session token).
+    //     3. POST /links/go2 {alias, csrf, tkn} → { url } (final destination).
+    //     Link page is delayed by 1 s to allow the page's own JS to populate
+    //     the auth variables before we try to read them.
 
     function runAylinkBypasser() {
         const SITE = 'aylink.co';
@@ -3729,9 +3899,7 @@ function runJoberFacwizBypasser() {
 
             const form = document.querySelector('form');
             if(form) {
-                try {
-                    HTMLFormElement.prototype.submit.call(form);
-                } catch (_) {}
+                try { submitForm(form); } catch (_) {}
             }
 
             nh.update(`${SITE} — captcha done, waiting for redirect…`, 'success', {
@@ -3826,6 +3994,13 @@ function runJoberFacwizBypasser() {
     }
 
     // ── ytsubme.com ────────────────────────────────────────────────────────
+    // ytsubme.com/s2u/* completes a subscribe-to-unlock flow via XHR/fetch.
+    // The final destination URL is returned by the API calls matching
+    // s2u_links.php or s2uGetLink in their URL. This bypasser intercepts
+    // both fetch() and XMLHttpRequest at the unsafeWindow level so it catches
+    // whichever transport the page uses, parses the JSON response, and extracts
+    // return_url (or msg.target). The real URL is read passively — no API
+    // calls are made by ULB itself; we simply observe the page's own traffic.
 
     function runYtSubMeBypasser() {
         const SITE = 'ytsubme.com';
@@ -3888,6 +4063,11 @@ function runJoberFacwizBypasser() {
     }
 
     // ── sub4unlock.co ──────────────────────────────────────────────────────
+    // sub4unlock.co is built with Inertia.js (Laravel + Vue). The full page
+    // state — including the destination URL — is serialised as JSON into the
+    // data-page attribute of the root #app element at page load. This bypasser
+    // parses that JSON, reads props.link.url, and redirects immediately without
+    // waiting for any JavaScript framework to boot or ads to load.
 
     function runSub4UnlockBypasser() {
         const SITE = 'sub4unlock.co';
@@ -3920,6 +4100,14 @@ function runJoberFacwizBypasser() {
     }
 
     // ── app.khaddavi.net ───────────────────────────────────────────────────
+    // app.khaddavi.net uses a two-step JSON API with a lightweight proof-of-work
+    // scheme to rate-limit automated clients:
+    //   1. POST /api/verify  { _a: 0 }  — registers the session (fire-and-forget).
+    //   2. POST /api/go  { key, size, _dvc }  → { url }
+    //      key  = random integer 0–999
+    //      size = "<(innerWidth+key)*2>.<(innerHeight+key)*2>"  (device fingerprint)
+    //      _dvc = random hex string (idempotency / dedup key sent as header too)
+    // The destination URL is returned directly in response.url.
 
     function runKhaddaviBypasser() {
         const SITE = 'app.khaddavi.net';
@@ -3976,6 +4164,13 @@ function runJoberFacwizBypasser() {
     }
 
     // ── sfl.gl ─────────────────────────────────────────────────────────────
+    // sfl.gl/ready/go* embeds the destination URL as a literal JavaScript
+    // assignment inside an inline <script> tag:
+    //   window.location.href = "https://...";
+    // This bypasser scans all inline scripts for that pattern, unescapes any
+    // forward-slash escapes (\/  →  /), validates the result with safeUrl(),
+    // and redirects. Falls back to scanning the full page HTML if the script
+    // tags are not yet present when the DOM fires.
 
     function runSflGlBypasser() {
         const SITE = 'sfl.gl';
@@ -4024,6 +4219,15 @@ function runJoberFacwizBypasser() {
 
     // ── Button-Finder sites ────────────────────────────────────────────────
     // biplabtewary.com, mwgamesyt.com.br, topjogosvip.online, legacyagency.com.br
+    //
+    // These sites share a common page structure: a <font> element displays the
+    // current step as "N/M" (e.g. "1/3"), and the real destination is the href
+    // of an <a> element that wraps a <button>. This bypasser:
+    //   1. Scans all <font> elements for the N/M step pattern and shows it in
+    //      the notification card so the user knows which step they're on.
+    //   2. Simultaneously looks for the first <a href> that contains a <button>
+    //      child — that href is the next step or final destination.
+    //   3. Redirects the moment that href is found; polls every 200 ms otherwise.
 
     function runButtonFinderBypasser() {
         const SITE = host.replace(/^www\./, '');
@@ -4073,6 +4277,15 @@ function runJoberFacwizBypasser() {
     }
 
     // ── fluorine.s3ren1ty.xyz ──────────────────────────────────────────────
+    // fluorine.s3ren1ty.xyz/getkey* is a Loot-Link-style key system with two
+    // sequential checkpoint endpoints. Flow:
+    //   1. Generate or retrieve a session token from localStorage
+    //      (provider_session) — format: "loot_<timestamp>_<random>".
+    //   2. Loop checkpoints 1 and 2:
+    //      POST /api/checkpoint/<n>  { token }  — marks the checkpoint complete.
+    //      A 2 s sleep between checkpoints mimics human timing.
+    //   3. POST /api/getkey  { token }  → { key } — generates the access key.
+    //   4. Display the key via showKeyCard() for easy clipboard copy.
 
     function runFluorineBypasser() {
         if(!path.startsWith('/getkey')) return;
@@ -4133,6 +4346,13 @@ function runJoberFacwizBypasser() {
     }
 
     // ── hehehub-acsu123.pythonanywhere.com ────────────────────────────────
+    // hehehub serves a /api/getkey?hwid=<hwid> page that inlines a
+    // window.location.href = "<url>" assignment somewhere in the page body.
+    // The URL may contain invisible Unicode characters (zero-width spaces,
+    // BOM) that break URL parsing — these are stripped before validation.
+    // The bypasser also handles a secondary pattern where the URL is wrapped
+    // in a safeRedirect() call within the inline script. Falls back to a
+    // direct-bypass button if no extractable URL is found.
 
     function runHehehubSkipper() {
         const SITE = 'hehehub';
@@ -4231,6 +4451,18 @@ function runJoberFacwizBypasser() {
     }
 
     // ── getpolsec.com ──────────────────────────────────────────────────────
+    // getpolsec.com/ad/* shows an ad page that may or may not include a
+    // human-verification captcha (hCaptcha, reCAPTCHA, or a text prompt).
+    // Two variants are handled:
+    //
+    //   Captcha present — detected by checking for hcaptcha/recaptcha iframes
+    //     or a "Verify You Are Human" heading. A manual-bypass button is shown
+    //     since these captcha types are not auto-solvable by ULB.
+    //
+    //   No captcha — The destination URL is embedded directly in a
+    //     window.location or meta-refresh on the page, or is returned by a
+    //     fetch() the page makes. Scans inline scripts for the URL and
+    //     redirects immediately once found.
 
     function runGetPolSecBypasser() {
         if(!path.startsWith('/ad/')) return;
@@ -4488,12 +4720,8 @@ function runJoberFacwizBypasser() {
                         nh.update(`${SITE} — submitting…`, 'loading', {
                             site: SITE
                         });
-                        try {
-                            if(typeof form.requestSubmit === 'function') form.requestSubmit();
-                            else HTMLFormElement.prototype.submit.call(form);
-                        } catch {
-                            const b = form.querySelector('button[type="submit"],input[type="submit"]');
-                            if(b) b.click();
+                        try { submitForm(form); } catch (err) {
+                            handleError('captcha solve failed', err);
                         }
                     } catch (err) {
                         handleError('captcha solve failed', err);
@@ -4524,6 +4752,11 @@ function runJoberFacwizBypasser() {
     }
 
     // ── spdmteam.com ───────────────────────────────────────────────────────
+    // spdmteam.com/social/* pages have a mirror API endpoint at
+    // /api/social/* that returns a JSON object { script: "<url>" }
+    // containing the final destination. This bypasser rewrites the current
+    // URL to the API path, fetches it, validates response.script with
+    // safeUrl(), and redirects — skipping the entire social-task UI.
 
     function runSpdmTeamBypasser() {
         const SITE = 'spdmteam.com';
@@ -4562,6 +4795,14 @@ function runJoberFacwizBypasser() {
     }
 
     // ── rekonise.com ───────────────────────────────────────────────────────
+    // rekonise.com is an Angular universal app. The full page state — including
+    // an unlock_token — is serialised into a #ng-state <script> element by the
+    // server-side renderer. This bypasser:
+    //   1. Waits 10 s for Angular to hydrate (the token is not in the DOM at
+    //      document-start; the SSR JSON must be parsed from #ng-state).
+    //   2. Parses the ng-state JSON, iterates its keys and finds .b.unlock_token.
+    //   3. GET https://api.rekonise.com/social-unlocks/<slug>/unlock?token=<tok>
+    //      → { url } — the final destination returned directly by the API.
 
     function runRekoniseBypasser() {
         const SITE = 'rekonise.com';
@@ -4625,6 +4866,18 @@ function runJoberFacwizBypasser() {
     }
 
     // ── go.linkify.ru ──────────────────────────────────────────────────────
+    // go.linkify.ru uses a two-page redirect chain:
+    //
+    //   Page A  go.linkify.ru/<code>  — short-link landing page. The HTML
+    //     contains an anchor whose href points to go.linkify.ru/get/<token>.
+    //     Extracted via regex on the full page HTML and redirected to immediately.
+    //
+    //   Page B  go.linkify.ru/get/*  — intermediate resolver page. Contains an
+    //     inline script with window.location.replace('<finalUrl>'). Extracted
+    //     via regex and used as the final redirect destination.
+    //
+    // Both pages are handled by polling the raw innerHTML until the pattern
+    // appears, covering both server-rendered and dynamically injected content.
 
     function runLinkifyRuBypasser() {
         const SITE = 'go.linkify.ru';
@@ -4992,6 +5245,15 @@ function runJoberFacwizBypasser() {
     }
 
     // ── linkunlocker.com ───────────────────────────────────────────────────
+    // linkunlocker.com is a Next.js app. The page state is serialised across
+    // multiple inline self.next_f.push([...]) script tags. This bypasser:
+    //   1. Concatenates all next_f push payloads, unescaping \" and \n.
+    //   2. Regex-extracts _id (the link's MongoDB ObjectId) and
+    //      _secureTarget5 (an obfuscated destination token) from the JSON blob.
+    //   3. Builds a Next.js router-state-tree header for the current slug.
+    //   4. POST ?__nextpstate=<ACTION_FETCH> { _id } → fetches the link record.
+    //   5. POST ?__nextpstate=<ACTION_UNLOCK> { _id, _secureTarget5 } → unlocks
+    //      the link and returns { destinationUrl } as the final destination.
 
     function runLinkUnlockerBypasser() {
         const SITE = 'linkunlocker.com';
@@ -5384,7 +5646,7 @@ function runJoberFacwizBypasser() {
     //
     //  All .cf-turnstile[data-size="invisible"] widgets on the page are patched to
     //  "normal" size globally (via _patchInvisibleTurnstiles at startup), so the
-    //  widget is always visible when autoCaptcha is false.
+    //  widget is always visible when autoCaptcha is false. (it was mainly a test)
 
     function runOuoBypasser() {
         const SITE = 'ouo.io';
@@ -5392,16 +5654,6 @@ function runJoberFacwizBypasser() {
         const t = makeTimer();
         const nh = notify(`${SITE} — detecting page…`, 'loading', 0, { site: SITE });
         const handleError = makeErrHandler(SITE, nh, 10000);
-
-        const submitForm = (form) => {
-            try {
-                if (typeof form.requestSubmit === 'function') form.requestSubmit();
-                else HTMLFormElement.prototype.submit.call(form);
-            } catch (_) {
-                const btn = form.querySelector('button[type="submit"], input[type="submit"]');
-                if (btn) btn.click();
-            }
-        };
 
         /**
          * Wait up to maxMs for an input[name] on the form to have a non-empty value.
@@ -5505,6 +5757,78 @@ function runJoberFacwizBypasser() {
             } catch (err) {
                 handleError('bypass failed', err);
             }
+        };
+
+        onReady(init);
+    }
+
+    // ── start-get-key.pages.dev ────────────────────────────────────────────
+    // Probes the three keysystem worker endpoints in order and redirects to
+    // /make on whichever responds first.  Falls back to worker 3352 if all
+    // probes fail.
+
+    function runStartGetKeyBypasser() {
+        const SITE = 'start-get-key';
+        const t = makeTimer();
+        const nh = notify(`${SITE} — probing keysystem workers…`, 'loading', 0, { site: SITE });
+        const handleError = makeErrHandler(SITE, nh, 8000);
+
+        (async () => {
+            try {
+                const workers = ['352', '2352', '3352'];
+                for (const n of workers) {
+                    try {
+                        await fetch(`https://get-key.keysystem${n}.workers.dev/status`);
+                        nh.update(`${SITE} — worker ${n} alive, redirecting…`, 'loading', { site: SITE });
+                        safeRedirect(
+                            `https://get-key.keysystem${n}.workers.dev/make`,
+                            nh,
+                            { t, siteLabel: SITE }
+                        );
+                        return;
+                    } catch (_) {
+                        // this worker is down — try the next one
+                    }
+                }
+                // All probes failed — fall back to the last worker as the original snippet does
+                nh.update(`${SITE} — all probes failed, using fallback worker…`, 'loading', { site: SITE });
+                safeRedirect(
+                    'https://get-key.keysystem3352.workers.dev/make',
+                    nh,
+                    { t, siteLabel: SITE }
+                );
+            } catch (err) {
+                handleError('worker probe failed', err);
+            }
+        })();
+    }
+
+    // ── bstshrt.com/u/* ────────────────────────────────────────────────────
+    // The final destination URL is embedded in the page's inline scripts as
+    //   finalUrl\":\"https://...\"
+    // We scan every script tag for that pattern and redirect immediately.
+
+    function runBstshrtBypasser() {
+        const SITE = 'bstshrt.com';
+        const t = makeTimer();
+        const nh = notify(`${SITE} — scanning for final URL…`, 'loading', 0, { site: SITE });
+        const handleError = makeErrHandler(SITE, nh, 7000);
+
+        const tryExtract = () => {
+            const allScripts = [...document.scripts].map(s => s.innerHTML).join('');
+            const m = allScripts.match(/finalUrl\\":\\"(https?:\/\/[^\\"]+)/);
+            if (m && m[1]) {
+                safeRedirect(m[1], nh, { t, siteLabel: SITE });
+                return true;
+            }
+            return false;
+        };
+
+        const init = () => {
+            if (tryExtract()) return;
+            pollUntil(tryExtract, 200, 100).catch(() => {
+                handleError('finalUrl not found in page scripts', null);
+            });
         };
 
         onReady(init);
