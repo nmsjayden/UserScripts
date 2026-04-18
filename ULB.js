@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Unknown Link Bypasser
-// @version      6.7.3
+// @version      6.7.4
 // @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live(SCAM WARNING) + go.yorurl.com + jankariweb + newsuchnaonline + bigcarinsurance + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + highlocus.shop + gplinks.co + powergam.online + getpolsec.com + hehehub + sub4unlock.co + app.khaddavi.net + sfl.gl + ytsubme.com + aylink.co + biplabtewary.com + mwgamesyt.com.br + topjogosvip.online + legacyagency.com.br + 4br.me + short-jambo.com/ink + fastcars + fluorine.s3ren1ty.xyz + go.linkify.ru + arolinks.com + spdmteam.com + linkunlocker.com + mboost.me + sub2unlock.netlify.app + krnl-ios.com + ouo.io + start-get-key.pages.dev + bstshrt.com. Made by @Aro Moon
 // @author       @Aro Moon
 // @include      /^https:\/\/mtc\d+\.[^/]+\.[a-z.]+\//
@@ -71,11 +71,11 @@
 // @match        https://ouo.press/*
 // @match        https://start-get-key.pages.dev/
 // @match        https://bstshrt.com/u/*
+// @match        https://www.scoplidrop.com/entry*
 // @grant        GM_addElement
 // @grant        unsafeWindow
 // @grant        GM_registerMenuCommand
 // @grant        GM_setClipboard
-// @match        https://www.scoplidrop.com/entry*
 // @connect      challenges.cloudflare.com
 // @connect      www.scoplidrop.com
 // @run-at       document-start
@@ -248,15 +248,48 @@
     // §1  CONSTANTS
     // ═══════════════════════════════════════════════════════════════════════
 
-    const VERSION = '6.7.3';
+    const VERSION = '6.7.4';
 
     // ── Diagnostics log ───────────────────────────────────────────────────
     // Captures errors/warnings for the Diagnostics menu command.
     const _diagEntries = [];
     const _origConsoleError = console.error.bind(console);
     const _origConsoleWarn  = console.warn.bind(console);
-    console.error = (...args) => { _diagEntries.push({ level: 'ERROR', ts: Date.now(), msg: args.map(a => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' ') }); _origConsoleError(...args); };
-    console.warn  = (...args) => { _diagEntries.push({ level: 'WARN',  ts: Date.now(), msg: args.map(a => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' ') }); _origConsoleWarn(...args); };
+
+    /** Serialize any value to a readable string for the diagnostics log. */
+    function _diagSerialize(a) {
+        if (a === null) return 'null';
+        if (a === undefined) return 'undefined';
+        if (typeof a === 'string') return a;
+        if (typeof a !== 'object' && typeof a !== 'function') return String(a);
+        // Error objects — JSON.stringify gives "{}" so handle them explicitly
+        if (a instanceof Error) {
+            const parts = [`${a.name}: ${a.message}`];
+            if (a.cause) parts.push(`  cause: ${_diagSerialize(a.cause)}`);
+            if (a.stack) parts.push(`  stack: ${a.stack.split('\n').slice(0, 4).join(' | ')}`);
+            return parts.join('\n');
+        }
+        // Response objects
+        if (typeof Response !== 'undefined' && a instanceof Response) {
+            return `Response { status: ${a.status}, url: ${a.url} }`;
+        }
+        // Plain object / array — safe stringify with circular guard
+        try {
+            const seen = new WeakSet();
+            return JSON.stringify(a, (_k, v) => {
+                if (typeof v === 'object' && v !== null) {
+                    if (seen.has(v)) return '[Circular]';
+                    seen.add(v);
+                }
+                return v;
+            });
+        } catch (_) {
+            return String(a);
+        }
+    }
+
+    console.error = (...args) => { _diagEntries.push({ level: 'ERROR', ts: Date.now(), msg: args.map(_diagSerialize).join(' ') }); _origConsoleError(...args); };
+    console.warn  = (...args) => { _diagEntries.push({ level: 'WARN',  ts: Date.now(), msg: args.map(_diagSerialize).join(' ') }); _origConsoleWarn(...args); };
 
     const FORM_HOSTS = ['shrtslug.biz', 'biovetro.net', 'technons.com', 'tournguide.com', 'dailyjobposting.xyz', 'stfly.biz'];
     const TPI_HOSTS = ['tpi.li'];
@@ -442,6 +475,19 @@
         /iP(hone|ad|od)/.test(navigator.userAgent) ||
         (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
+    /**
+     * Returns true on narrow viewports (phones / small tablets).
+     * Uses matchMedia so it updates correctly after orientation changes.
+     */
+    const _isMobile = (() => {
+        try {
+            const mq = window.matchMedia('(max-width: 540px)');
+            return () => mq.matches;
+        } catch (_) {
+            return () => (window.innerWidth || screen.width || 999) <= 540;
+        }
+    })();
+
     /** High-resolution timer with elapsed() helper. */
     function makeTimer() {
         const start = performance.now();
@@ -457,8 +503,35 @@
      */
     async function fetchJSON(url, opts = {}) {
         const r = await fetch(url, opts);
-        if(!r.ok) throw new Error(`HTTP ${r.status}${r.statusText ? ' ' + r.statusText : ''}`);
+        if(!r.ok) throw _httpError(r, 'Request');
         return r.json();
+    }
+
+    /**
+     * Build a human-readable error message for a failed HTTP response.
+     * Adds a plain-English explanation for common error codes.
+     * @param {Response} r
+     * @param {string}   [context]  — optional label like 'API' or '/links/go'
+     * @returns {Error}
+     */
+    function _httpError(r, context = 'Request') {
+        const STATUS_TEXT = {
+            400: 'Bad Request — the server rejected our data',
+            401: 'Unauthorised — session may have expired',
+            403: 'Forbidden — access denied by server',
+            404: 'Not Found — endpoint no longer exists',
+            405: 'Method Not Allowed',
+            408: 'Request Timed Out',
+            429: 'Rate-Limited, wait before retyring.',
+            500: 'Internal Server Error — site-side problem',
+            502: 'Bad Gateway — site server is unreachable',
+            503: 'Service Unavailable — site is down or overloaded',
+            504: 'Gateway Timeout — site took too long to respond',
+        };
+        const friendly = STATUS_TEXT[r.status] || r.statusText || 'Unknown Error';
+        const err = new Error(`${context} returned ${r.status}: ${friendly}`);
+        err._isHttp = true;
+        return err;
     }
 
     // ─── submitForm ───────────────────────────────────────────────────────
@@ -527,17 +600,19 @@
     function _posStyles() {
         const p = CONFIG.notifPosition || 'bottom-right';
         const [v, h] = p.split('-');
+        const mobile = _isMobile();
+        const margin = mobile ? '10px' : '28px';
 
         const vert = v === 'top' ?
-            `top:calc(28px + env(safe-area-inset-top,0px))` :
-            `bottom:calc(28px + env(safe-area-inset-bottom,0px))`;
+            `top:calc(${margin} + env(safe-area-inset-top,0px))` :
+            `bottom:calc(${margin} + env(safe-area-inset-bottom,0px))`;
 
         const horiz = h === 'left' ?
-            `left:calc(28px + env(safe-area-inset-left,0px))` :
-            `right:calc(28px + env(safe-area-inset-right,0px))`;
+            `left:calc(${margin} + env(safe-area-inset-left,0px))` :
+            `right:calc(${margin} + env(safe-area-inset-right,0px))`;
 
         const dir = v === 'top' ? 'column' : 'column-reverse';
-        const slide = h === 'left' ? 'translateX(-20px)' : 'translateX(20px)';
+        const slide = h === 'left' ? 'translateX(-14px)' : 'translateX(14px)';
 
         return {
             vert,
@@ -561,7 +636,7 @@
     ].join(';');
 
     const CSS_LABEL =
-        'font-size:10px;text-transform:uppercase;letter-spacing:1.4px;color:#555;margin-bottom:4px;display:block';
+        'font-size:10px;text-transform:uppercase;letter-spacing:1.4px;color:#555;display:block';
 
     let _host = null;
     let _root = null;
@@ -608,6 +683,10 @@
             * { margin:0; padding:0; box-sizing:border-box; }
             :host { all: initial; }
             @keyframes __ulb_spin { to { transform: rotate(360deg); } }
+            @media (prefers-reduced-motion: reduce) {
+                * { animation-duration:0.01ms!important; transition-duration:0.01ms!important; }
+            }
+            button, a { -webkit-tap-highlight-color: transparent; }
         `;
             _root.appendChild(style);
         }
@@ -617,12 +696,13 @@
             _container = document.createElement('div');
             _container.id = '__ulb_nc';
 
+            const mobile = _isMobile();
             _container.style.cssText = [
                 'position:fixed',
                 vert, horiz,
                 'display:flex',
                 `flex-direction:${dir}`,
-                'gap:10px',
+                `gap:${mobile ? '7px' : '10px'}`,
                 'z-index:2147483646',
                 'pointer-events:none',
                 'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif',
@@ -631,6 +711,7 @@
                 'backface-visibility:hidden',
                 'perspective:1000px',
                 'isolation:isolate',
+                `max-width:${mobile ? 'calc(100vw - 20px)' : 'calc(100vw - 56px)'}`,
             ].join(';');
 
             _root.appendChild(_container);
@@ -663,32 +744,50 @@
     }
 
     function mountCard(card) {
-        const {
-            slide
-        } = _posStyles();
+        const { slide } = _posStyles();
+
+        // ── Height-animate wrapper so existing cards glide when a new one arrives ──
+        const wrap = document.createElement('div');
+        wrap.style.cssText = 'max-height:0px;overflow:visible;transition:max-height .22s cubic-bezier(.4,0,.2,1)';
+        card._ulbWrap = wrap;
 
         card.style.transform = slide;
+        card.style.opacity = '0';
         card.style.pointerEvents = 'auto';
 
-        getContainer().appendChild(card);
+        wrap.appendChild(card);
+        getContainer().appendChild(wrap);
 
         requestAnimationFrame(() => {
-            card.style.opacity = '1';
-            card.style.transform = 'translateX(0)';
+            // offsetHeight is valid now that card is in the DOM
+            const h = card.offsetHeight || 200;
+            wrap.style.maxHeight = (h + 20) + 'px'; // +20 covers the inter-card gap
+            requestAnimationFrame(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateX(0)';
+            });
         });
 
         return card;
     }
 
     function dismissCard(card) {
-        const {
-            slide
-        } = _posStyles();
-
+        const { slide } = _posStyles();
         card.style.opacity = '0';
         card.style.transform = slide;
 
-        setTimeout(() => card.remove(), 280);
+        // After the card fades out, collapse the wrapper so siblings animate back
+        setTimeout(() => {
+            const wrap = card._ulbWrap;
+            if (wrap && wrap.isConnected) {
+                wrap.style.overflow = 'hidden';
+                wrap.style.transition = 'max-height .2s ease';
+                wrap.style.maxHeight = '0px';
+                setTimeout(() => wrap.remove(), 220);
+            } else {
+                card.remove();
+            }
+        }, 250);
     }
 
     /* =========================
@@ -697,6 +796,12 @@
 
     function notify(message, type = 'info', duration, opts = {}) {
         const dur = duration ?? CONFIG.notifDuration;
+
+        // ── Respect show/hide flags ───────────────────────────────────────
+        const _showFlag = { loading: 'notifShowOnLoading', success: 'notifShowOnSuccess', error: 'notifShowOnError' };
+        if (_showFlag[type] && CONFIG[_showFlag[type]] === false) {
+            return { update: () => {}, remove: () => {} };
+        }
 
         if(!document.body) {
             const h = {
@@ -715,35 +820,44 @@
 
         ensureSpinStyle();
 
+        const mobile = _isMobile();
+        const compact = CONFIG.compactMode || mobile;
+
         const {
             accent,
             icon
         } = NOTIFY_TYPES[type] || NOTIFY_TYPES.info;
 
-        const pad = CONFIG.compactMode ? '8px 12px' : '12px 16px';
-        const mw = CONFIG.compactMode ? 'min(200px,calc(100vw - 56px))' : 'min(240px,calc(100vw - 56px))';
-        const maxW = CONFIG.compactMode ? 'min(280px,calc(100vw - 56px))' : 'min(320px,calc(100vw - 56px))';
+        const pad   = mobile ? '6px 10px'
+                     : CONFIG.compactMode ? '8px 12px'
+                     : '12px 16px';
+        const mw    = mobile ? 'min(170px,calc(100vw - 28px))'
+                     : CONFIG.compactMode ? 'min(200px,calc(100vw - 56px))'
+                     : 'min(240px,calc(100vw - 56px))';
+        const maxW  = mobile ? 'min(210px,calc(100vw - 28px))'
+                     : CONFIG.compactMode ? 'min(280px,calc(100vw - 56px))'
+                     : 'min(320px,calc(100vw - 56px))';
 
         const card = document.createElement('div');
         card.style.cssText =
-            `${CSS_CARD_BASE};border-left:3px solid ${accent};padding:${pad};min-width:${mw};max-width:${maxW};display:flex;align-items:flex-start;gap:10px`;
+            `${CSS_CARD_BASE};border-left:3px solid ${accent};padding:${pad};min-width:${mw};max-width:${maxW};display:flex;align-items:flex-start;gap:${mobile ? '8px' : '10px'}`;
 
         const iconEl = document.createElement('div');
         iconEl.style.cssText =
-            `font-size:${CONFIG.compactMode ? '13' : '15'}px;color:${accent};margin-top:1px;flex-shrink:0;display:flex;align-items:center;justify-content:center;width:1.1em;height:1.1em`;
+            `font-size:${mobile ? '12' : compact ? '13' : '15'}px;color:${accent};margin-top:1px;flex-shrink:0;display:flex;align-items:center;justify-content:center;width:1.1em;height:1.1em`;
         iconEl.textContent = icon;
 
         const body = document.createElement('div');
         body.style.cssText = 'flex:1;min-width:0';
 
-        if(!CONFIG.compactMode && CONFIG.notifShowBranding !== false) {
+        if(!compact && CONFIG.notifShowBranding !== false) {
             const vtag = CONFIG.notifShowVersion !== false ? ` · v${VERSION}` : '';
-            body.innerHTML = `<div style="${CSS_LABEL}:3px">Unknown Link Bypasser · @Aro Moon${vtag}</div>`;
+            body.innerHTML = `<div style="${CSS_LABEL};margin-bottom:3px">Unknown Link Bypasser · @Aro Moon${vtag}</div>`;
         }
 
         const msg = document.createElement('div');
         msg.style.cssText =
-            `font-size:${CONFIG.compactMode ? '12' : '13'}px;line-height:1.4;color:#e0e0e0;word-break:break-word`;
+            `font-size:${mobile ? '11' : compact ? '12' : '13'}px;line-height:1.4;color:#e0e0e0;word-break:break-word`;
         msg.textContent = message;
 
         body.appendChild(msg);
@@ -752,21 +866,53 @@
         mountCard(card);
 
         const setSpin = on => {
-            iconEl.style.animation =
-                on ? '1s linear infinite __ulb_spin' : '';
+            iconEl.style.animation = CONFIG.notifAnimateIcon !== false && on
+                ? '1s linear infinite __ulb_spin' : '';
         };
 
         if(type === 'loading') setSpin(true);
 
         let timer;
+        let paused = false;
+        let remaining = dur;
+        let startedAt = dur > 0 ? Date.now() : null;
 
         const remove = () => {
             clearTimeout(timer);
             dismissCard(card);
         };
 
+        const startTimer = (ms) => {
+            if (ms <= 0) return;
+            startedAt = Date.now();
+            remaining = ms;
+            timer = setTimeout(remove, ms);
+        };
+
+        // ── notifClickToDismiss ──────────────────────────────────────────
+        if (CONFIG.notifClickToDismiss) {
+            card.style.cursor = 'pointer';
+            card.addEventListener('click', remove, { once: true });
+        }
+
+        // ── notifPauseOnHover ────────────────────────────────────────────
+        if (CONFIG.notifPauseOnHover && dur > 0) {
+            card.addEventListener('mouseenter', () => {
+                if (paused) return;
+                paused = true;
+                clearTimeout(timer);
+                remaining = Math.max(0, remaining - (Date.now() - (startedAt || Date.now())));
+            });
+            card.addEventListener('mouseleave', () => {
+                if (!paused) return;
+                paused = false;
+                startTimer(remaining);
+            });
+        }
+
         const update = (newMsg, newType, newDurOrOpts) => {
             clearTimeout(timer);
+            paused = false;
             msg.textContent = newMsg;
 
             if(newType && NOTIFY_TYPES[newType]) {
@@ -778,16 +924,13 @@
             }
 
             if(typeof newDurOrOpts === 'number' && newDurOrOpts > 0) {
-                timer = setTimeout(remove, newDurOrOpts);
+                startTimer(newDurOrOpts);
             }
         };
 
-        if(dur > 0) timer = setTimeout(remove, dur);
+        if(dur > 0) startTimer(dur);
 
-        return {
-            update,
-            remove
-        };
+        return { update, remove };
     }
 
     /* =========================
@@ -800,15 +943,19 @@
 
     /** Show a self-advancing countdown card, then call onDone. */
     function showCountdown(seconds, onDone, subtitle = 'Redirect queued') {
+        const mobile = _isMobile();
+        const mw = mobile ? 'min(190px,calc(100vw - 28px))' : 'min(240px,calc(100vw - 56px))';
+        const pad = mobile ? '10px 12px' : '14px 18px';
+        const numSz = mobile ? '22px' : '30px';
         const card = document.createElement('div');
-        card.style.cssText = `${CSS_CARD_BASE};border-left:3px solid #4f8ef7;padding:14px 18px;min-width:min(240px,calc(100vw - 56px))`;
+        card.style.cssText = `${CSS_CARD_BASE};border-left:3px solid #4f8ef7;padding:${pad};min-width:${mw}`;
         card.innerHTML = `
-            <div style="${CSS_LABEL}:8px">Unknown Link Bypasser · @Aro Moon${CONFIG.notifShowVersion !== false ? ` · v${VERSION}` : ''}</div>
-            <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-                <div class="__ulb_cn" style="font-size:30px;font-weight:700;color:#fff;line-height:1;min-width:44px">${seconds}</div>
-                <div style="color:#aaa;font-size:12px;line-height:1.5">
+            ${(!mobile && CONFIG.notifShowBranding !== false) ? `<div style="${CSS_LABEL};margin-bottom:${mobile ? '4px' : '8px'}">Unknown Link Bypasser · @Aro Moon${CONFIG.notifShowVersion !== false ? ` · v${VERSION}` : ''}</div>` : ''}
+            <div style="display:flex;align-items:center;gap:${mobile ? '8px' : '12px'};margin-bottom:${mobile ? '7px' : '10px'}">
+                <div class="__ulb_cn" style="font-size:${numSz};font-weight:700;color:#fff;line-height:1;min-width:${mobile ? '32px' : '44px'}">${seconds}</div>
+                <div style="color:#aaa;font-size:${mobile ? '10px' : '12px'};line-height:1.5">
                     <div class="__ulb_cs">seconds remaining</div>
-                    <div style="color:#555;font-size:10px;margin-top:2px">${subtitle}</div>
+                    <div style="color:#555;font-size:${mobile ? '9px' : '10px'};margin-top:2px">${subtitle}</div>
                 </div>
             </div>
             <div style="background:rgba(255,255,255,.07);border-radius:999px;height:3px;overflow:hidden">
@@ -844,15 +991,19 @@
 
     /** Show a persistent success card with a manual fallback tap-link. */
     function showRedirectNotif(dest) {
+        const mobile = _isMobile();
+        const mw  = mobile ? 'min(190px,calc(100vw - 28px))' : 'min(240px,calc(100vw - 56px))';
+        const mxw = mobile ? 'min(220px,calc(100vw - 28px))' : 'min(320px,calc(100vw - 56px))';
+        const pad = mobile ? '10px 12px' : '14px 18px';
         const card = document.createElement('div');
-        card.style.cssText = `${CSS_CARD_BASE};border-left:3px solid #22c55e;padding:14px 18px;min-width:min(240px,calc(100vw - 56px));max-width:min(320px,calc(100vw - 56px))`;
+        card.style.cssText = `${CSS_CARD_BASE};border-left:3px solid #22c55e;padding:${pad};min-width:${mw};max-width:${mxw}`;
         card.innerHTML = `
-            <div style="${CSS_LABEL}:6px">Unknown Link Bypasser · @Aro Moon${CONFIG.notifShowVersion !== false ? ` · v${VERSION}` : ''}</div>
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-                <div class="__ulb_ri" style="font-size:15px;color:#22c55e;flex-shrink:0">✔</div>
-                <div class="__ulb_rm" style="font-size:13px;color:#e0e0e0">Redirecting now…</div>
+            ${(!mobile && CONFIG.notifShowBranding !== false) ? `<div style="${CSS_LABEL};margin-bottom:6px">Unknown Link Bypasser · @Aro Moon${CONFIG.notifShowVersion !== false ? ` · v${VERSION}` : ''}</div>` : ''}
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:${mobile ? '7px' : '10px'}">
+                <div class="__ulb_ri" style="font-size:${mobile ? '13px' : '15px'};color:#22c55e;flex-shrink:0">✔</div>
+                <div class="__ulb_rm" style="font-size:${mobile ? '11px' : '13px'};color:#e0e0e0">Redirecting now…</div>
             </div>
-            <a href="${dest}" style="display:block;text-align:center;font-size:12px;color:#22c55e;text-decoration:none;padding:8px 12px;border:1px solid rgba(34,197,94,.35);border-radius:7px;background:rgba(34,197,94,.08);font-weight:600">
+            <a href="${dest}" style="display:flex;align-items:center;justify-content:center;text-align:center;font-size:${mobile ? '11px' : '12px'};color:#22c55e;text-decoration:none;padding:${mobile ? '0 10px' : '0 12px'};border:1px solid rgba(34,197,94,.35);border-radius:7px;background:rgba(34,197,94,.08);font-weight:600;touch-action:manipulation;min-height:44px;-webkit-tap-highlight-color:transparent">
                 Tap here if nothing happens
             </a>`;
         mountCard(card);
@@ -877,17 +1028,23 @@
             return;
         }
         ensureSpinStyle();
+        const mobile = _isMobile();
+        const mw  = mobile ? 'min(190px,calc(100vw - 28px))' : 'min(260px,calc(100vw - 56px))';
+        const mxw = mobile ? 'min(220px,calc(100vw - 28px))' : 'min(340px,calc(100vw - 56px))';
+        const pad = mobile ? '10px 12px' : '14px 18px';
         const card = document.createElement('div');
-        card.style.cssText = `${CSS_CARD_BASE};border-left:3px solid #f59e0b;padding:14px 18px;min-width:min(260px,calc(100vw - 56px));max-width:min(340px,calc(100vw - 56px));position:relative`;
+        card.style.cssText = `${CSS_CARD_BASE};border-left:3px solid #f59e0b;padding:${pad};min-width:${mw};max-width:${mxw};position:relative`;
         card.innerHTML = `
-            <div style="${CSS_LABEL}:6px">Unknown Link Bypasser · @Aro Moon${CONFIG.notifShowVersion !== false ? ` · v${VERSION}` : ''}</div>
-            <div style="font-size:11px;color:#f59e0b;margin-bottom:10px;font-weight:600;letter-spacing:.5px">${subtitle}</div>
+            ${(!mobile && CONFIG.notifShowBranding !== false) ? `<div style="${CSS_LABEL};margin-bottom:6px">Unknown Link Bypasser · @Aro Moon${CONFIG.notifShowVersion !== false ? ` · v${VERSION}` : ''}</div>` : ''}
+            <div style="font-size:${mobile ? '10px' : '11px'};color:#f59e0b;margin-bottom:${mobile ? '7px' : '10px'};font-weight:600;letter-spacing:.5px">${subtitle}</div>
             <a href="${url}" target="_blank" rel="noopener"
-               style="display:block;text-align:center;font-size:13px;font-weight:700;color:#fff;
-                      text-decoration:none;padding:10px 14px;border-radius:8px;
+               style="display:flex;align-items:center;justify-content:center;text-align:center;
+                      font-size:${mobile ? '12px' : '13px'};font-weight:700;color:#fff;
+                      text-decoration:none;padding:0 ${mobile ? '10px' : '14px'};border-radius:8px;
                       background:linear-gradient(135deg,#f59e0b,#d97706);
                       box-shadow:0 2px 10px rgba(245,158,11,.35);
-                      touch-action:manipulation;min-height:44px;line-height:24px">
+                      touch-action:manipulation;min-height:44px;
+                      -webkit-tap-highlight-color:transparent">
                 ⚡ ${label}
             </a>`;
         const closeBtn = Object.assign(document.createElement('div'), {
@@ -913,37 +1070,42 @@
      * @param {number} [autoDismissMs=30000]  Auto-dismiss delay in ms.
      */
     function showKeyCard(key, site, timer, autoDismissMs = 30_000) {
+        const mobile = _isMobile();
         const vTag  = CONFIG.notifShowVersion  !== false ? ` · v${VERSION}` : '';
-        const brand = (!CONFIG.compactMode && CONFIG.notifShowBranding !== false)
-            ? `<div style="${CSS_LABEL}:6px">Unknown Link Bypasser · @Aro Moon${vTag}</div>`
+        const brand = (!mobile && !CONFIG.compactMode && CONFIG.notifShowBranding !== false)
+            ? `<div style="${CSS_LABEL};margin-bottom:6px">Unknown Link Bypasser · @Aro Moon${vTag}</div>`
             : '';
         const timeLabel = timer ? timer.label() : '';
+        const mw  = mobile ? 'min(190px,calc(100vw - 28px))' : 'min(280px,calc(100vw - 56px))';
+        const mxw = mobile ? 'min(220px,calc(100vw - 28px))' : 'min(360px,calc(100vw - 56px))';
+        const pad = mobile ? '10px 12px' : '14px 18px';
 
         const card = document.createElement('div');
         card.style.cssText = [
             CSS_CARD_BASE,
             'border-left:3px solid #22c55e',
-            'padding:14px 18px',
-            'min-width:min(280px,calc(100vw - 56px))',
-            'max-width:min(360px,calc(100vw - 56px))',
+            `padding:${pad}`,
+            `min-width:${mw}`,
+            `max-width:${mxw}`,
         ].join(';');
 
         card.innerHTML = `
             ${brand}
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-                <div style="font-size:16px;color:#22c55e;flex-shrink:0">✔</div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:${mobile ? '7px' : '10px'}">
+                <div style="font-size:${mobile ? '13px' : '16px'};color:#22c55e;flex-shrink:0">✔</div>
                 <div>
-                    <div style="font-size:13px;font-weight:600;color:#e0e0e0">Key retrieved — ${site}</div>
-                    ${timeLabel ? `<div style="font-size:10px;color:#888;margin-top:1px">${timeLabel}</div>` : ''}
+                    <div style="font-size:${mobile ? '11px' : '13px'};font-weight:600;color:#e0e0e0">Key retrieved — ${site}</div>
+                    ${timeLabel ? `<div style="font-size:${mobile ? '9px' : '10px'};color:#888;margin-top:1px">${timeLabel}</div>` : ''}
                 </div>
             </div>
             <div class="__ulb_kc_key" style="
-                font-family:monospace;font-size:11px;color:#a5f3a0;
+                font-family:monospace;font-size:${mobile ? '10px' : '11px'};color:#a5f3a0;
                 background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);
-                border-radius:6px;padding:8px 10px;word-break:break-all;
-                cursor:pointer;user-select:all;margin-bottom:8px;line-height:1.5"
-                title="Click to copy"></div>
-            <div class="__ulb_kc_hint" style="font-size:10px;color:#555;text-align:center">
+                border-radius:6px;padding:${mobile ? '7px 8px' : '8px 10px'};word-break:break-all;
+                cursor:pointer;user-select:all;margin-bottom:${mobile ? '6px' : '8px'};line-height:1.5;
+                touch-action:manipulation;min-height:44px;display:flex;align-items:center"
+                title="Tap to copy"></div>
+            <div class="__ulb_kc_hint" style="font-size:${mobile ? '9px' : '10px'};color:#555;text-align:center">
                 tap to copy · auto-closes in ${Math.round(autoDismissMs / 1000)}s
             </div>`;
 
@@ -994,43 +1156,50 @@
         }
         ensureSpinStyle();
 
+        const mobile = _isMobile();
+        const mw  = mobile ? 'min(190px,calc(100vw - 28px))' : 'min(260px,calc(100vw - 56px))';
+        const mxw = mobile ? 'min(220px,calc(100vw - 28px))' : 'min(340px,calc(100vw - 56px))';
+        const pad = mobile ? '10px 12px' : '14px 16px';
+
         const card = document.createElement('div');
         card.style.cssText = [
             CSS_CARD_BASE,
             'border-left:3px solid #4f8ef7',
-            'padding:14px 16px',
-            'min-width:min(260px,calc(100vw - 56px))',
-            'max-width:min(340px,calc(100vw - 56px))',
+            `padding:${pad}`,
+            `min-width:${mw}`,
+            `max-width:${mxw}`,
         ].join(';');
 
         const versionTag = CONFIG.notifShowVersion !== false ? ` · v${VERSION}` : '';
-        const brandLine = (!CONFIG.compactMode && CONFIG.notifShowBranding !== false) ?
-            `<div style="${CSS_LABEL}:6px">Unknown Link Bypasser · @Aro Moon${versionTag}</div>` :
+        const brandLine = (!mobile && !CONFIG.compactMode && CONFIG.notifShowBranding !== false) ?
+            `<div style="${CSS_LABEL};margin-bottom:6px">Unknown Link Bypasser · @Aro Moon${versionTag}</div>` :
             '';
 
         card.innerHTML = `
             ${brandLine}
-            <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:12px">
-                <div style="font-size:18px;color:#4f8ef7;flex-shrink:0;margin-top:1px">🔗</div>
+            <div style="display:flex;align-items:flex-start;gap:${mobile ? '8px' : '10px'};margin-bottom:${mobile ? '9px' : '12px'}">
+                <div style="font-size:${mobile ? '15px' : '18px'};color:#4f8ef7;flex-shrink:0;margin-top:1px">🔗</div>
                 <div>
-                    <div style="font-size:13px;font-weight:600;color:#e0e0e0;margin-bottom:3px">Bypass this page?</div>
-                    <div style="font-size:11px;color:#888;line-height:1.4">${siteLabel || location.hostname}</div>
+                    <div style="font-size:${mobile ? '12px' : '13px'};font-weight:600;color:#e0e0e0;margin-bottom:3px">Bypass this page?</div>
+                    <div style="font-size:${mobile ? '10px' : '11px'};color:#888;line-height:1.4">${siteLabel || location.hostname}</div>
                 </div>
             </div>
-            <div style="display:flex;gap:8px">
+            <div style="display:flex;gap:7px">
                 <button id="__ulb_ask_yes" style="
-                    flex:1;padding:9px 0;border:none;border-radius:7px;cursor:pointer;
+                    flex:1;display:flex;align-items:center;justify-content:center;
+                    padding:0;border:none;border-radius:7px;cursor:pointer;
                     background:linear-gradient(135deg,#4f8ef7,#3b6fd4);color:#fff;
-                    font-size:12px;font-weight:700;letter-spacing:.3px;
-                    touch-action:manipulation;min-height:40px;
+                    font-size:${mobile ? '11px' : '12px'};font-weight:700;letter-spacing:.3px;
+                    touch-action:manipulation;min-height:44px;-webkit-tap-highlight-color:transparent;
                     font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif">
-                    ✔ Yes, Bypass
+                    ✔ Yes
                 </button>
                 <button id="__ulb_ask_no" style="
-                    flex:1;padding:9px 0;border:1px solid rgba(255,255,255,.1);border-radius:7px;cursor:pointer;
+                    flex:1;display:flex;align-items:center;justify-content:center;
+                    padding:0;border:1px solid rgba(255,255,255,.1);border-radius:7px;cursor:pointer;
                     background:rgba(255,255,255,.06);color:#aaa;
-                    font-size:12px;font-weight:600;letter-spacing:.3px;
-                    touch-action:manipulation;min-height:40px;
+                    font-size:${mobile ? '11px' : '12px'};font-weight:600;letter-spacing:.3px;
+                    touch-action:manipulation;min-height:44px;-webkit-tap-highlight-color:transparent;
                     font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif">
                     ✖ Cancel
                 </button>
@@ -1380,14 +1549,16 @@
     function makeErrHandler(siteLabel, nh, msClose = 6000) {
         return (label, err) => {
             console.error(`[ULB/${siteLabel}] ${label}`, err ?? '');
-            const msg = `${siteLabel}: ${label}${err?.message ? ` — ${err.message}` : ''}`;
+            // HTTP errors already contain the full human-readable description —
+            // showing them directly is cleaner than prepending "site: label —".
+            const msg = err?._isHttp
+                ? err.message
+                : `${siteLabel}: ${label}${err?.message ? ` — ${err.message}` : ''}`;
             if(nh) {
                 nh.update(msg, 'error');
                 setTimeout(() => nh.remove(), msClose);
             } else {
-                notify(msg, 'error', msClose, {
-                    site: siteLabel
-                });
+                notify(msg, 'error', msClose, { site: siteLabel });
             }
         };
     }
@@ -1537,7 +1708,7 @@
                     credentials: 'include',
                     body,
                 });
-                if(!r.ok) throw new Error(`HTTP ${r.status}`);
+                if(!r.ok) throw _httpError(r, '/links/go');
                 let d;
                 try {
                     d = await r.json();
@@ -1863,7 +2034,7 @@
 
         const dlFetch = async (url, opts) => {
             const r = await fetch(url, opts);
-            if(!r.ok) throw new Error(`HTTP ${r.status}`);
+            if(!r.ok) throw _httpError(r, 'dl.surf API');
             const j = await r.json();
             if(j.status !== 'success') throw new Error(j.message || 'API error');
             return j.data;
@@ -2063,7 +2234,7 @@
                 const el = document.getElementById('link_action_id');
                 const link_action_id = el ? (el.value ?? el.textContent) : null;
                 const r1 = await fetch(`/api/link?url=${encodeURIComponent(path.slice(1))}&link_action_id=${link_action_id}`);
-                if(!r1.ok) throw new Error(`/api/link returned HTTP ${r1.status}`);
+                if(!r1.ok) throw _httpError(r1, '/api/link');
                 const linkData = await r1.json();
 
                 const r2 = await fetch('/api/link-completed', {
@@ -2076,7 +2247,7 @@
                         link_action_id
                     }),
                 });
-                if(!r2.ok) throw new Error(`/api/link-completed returned HTTP ${r2.status}`);
+                if(!r2.ok) throw _httpError(r2, '/api/link-completed');
                 const result = await r2.json();
                 if(!result.destination_url) throw new Error('No destination_url in response');
 
@@ -2166,7 +2337,7 @@
                 const id = path.split('/').pop();
                 if(!id) throw new Error('Could not extract link ID from URL');
                 const r = await fetch(`/api/links/${id}`);
-                if(!r.ok) throw new Error(`API returned HTTP ${r.status}`);
+                if(!r.ok) throw _httpError(r, 'API');
                 const data = await r.json();
                 if(!data.url) throw new Error('No URL in API response');
 
@@ -3078,8 +3249,8 @@
                 nh.update(`${SITE} — bypassing ad countdown…`, 'loading', {
                     site: SITE
                 });
-                count = -1;
-                timer();
+                unsafeWindow.count = -1;
+                unsafeWindow.timer?.();
                 // After the timer, wait for either #cross-snp2 or #btn7 to become visible
                 const check = setInterval(() => {
                     const btn = document.getElementById('cross-snp2');
@@ -3142,8 +3313,8 @@
                         nh.update(`${SITE} — step ${step.current}/${step.total} — bypassing…`, 'loading', {
                             site: SITE
                         });
-                        count = -1;
-                        timer();
+                        unsafeWindow.count = -1;
+                        unsafeWindow.timer?.();
                         waitAndClickContinue();
                     }, 33000);
                 } else {
@@ -3152,18 +3323,18 @@
                     nh.update(`${SITE} — step ${step.current}/${step.total} — bypassing…`, 'loading', {
                         site: SITE
                     });
-                    count = -1;
-                    timer();
+                    unsafeWindow.count = -1;
+                    unsafeWindow.timer?.();
                     waitAndClickContinue();
                 }
                 return;
             }
 
             // Fallback: original click-based advance
-            const hasNextBtn = typeof nextbtn === 'function';
+            const hasNextBtn = typeof unsafeWindow.nextbtn === 'function';
             const tryAdvance = () => {
                 if(hasNextBtn) {
-                    nextbtn();
+                    unsafeWindow.nextbtn();
                     return true;
                 }
                 const btn = document.getElementById('cross-snp2');
@@ -3240,8 +3411,8 @@
             // Variant B: startCountdownBtn ad-countdown page
             if (document.getElementById('startCountdownBtn')) {
                 nh.update(`${SITE} — bypassing ad countdown…`, 'loading', { site: SITE });
-                count = -1;
-                timer();
+                unsafeWindow.count = -1;
+                unsafeWindow.timer?.();
                 waitForContinueBtn('countdown', nh, SITE);
                 return;
             }
@@ -3253,8 +3424,8 @@
                 if (m) {
                     const step = { current: parseInt(m[1], 10), total: parseInt(m[2], 10) };
                     nh.update(`${SITE} — step ${step.current}/${step.total} — bypassing…`, 'loading', { site: SITE });
-                    count = -1;
-                    timer();
+                    unsafeWindow.count = -1;
+                    unsafeWindow.timer?.();
                     waitForContinueBtn(`step ${step.current}/${step.total}`, nh, SITE);
                     return;
                 }
@@ -3291,8 +3462,8 @@
             // Variant B: startCountdownBtn ad-countdown page
             if (document.getElementById('startCountdownBtn')) {
                 nh.update(`${SITE} — bypassing ad countdown…`, 'loading', { site: SITE });
-                count = -1;
-                timer();
+                unsafeWindow.count = -1;
+                unsafeWindow.timer?.();
                 waitForContinueBtn('countdown', nh, SITE);
                 return;
             }
@@ -3312,8 +3483,8 @@
                     showCountdown(STEP_WAIT_SEC, () => {
                         restore();
                         nh.update(`${SITE} — ${label} — bypassing…`, 'loading', { site: SITE });
-                        count = -1;
-                        timer();
+                        unsafeWindow.count = -1;
+                        unsafeWindow.timer?.();
                         waitForContinueBtn(label, nh, SITE);
                     }, subtitle);
                     return;
@@ -4674,7 +4845,7 @@ function runJoberFacwizBypasser() {
                                 credentials: 'include',
                                 body,
                             });
-                            if(!r.ok) throw new Error(`HTTP ${r.status}`);
+                            if(!r.ok) throw _httpError(r, '/links/go');
                             const d = await r.json();
                             const dest = d.url || d.data;
                             if(!dest) throw new Error('No destination URL in response');
@@ -4773,7 +4944,7 @@ function runJoberFacwizBypasser() {
                     site: SITE
                 });
                 const r = await fetch(apiUrl);
-                if(!r.ok) throw new Error(`HTTP ${r.status}${r.statusText ? ' ' + r.statusText : ''}`);
+                if(!r.ok) throw _httpError(r, 'API');
                 let d;
                 try {
                     d = await r.json();
@@ -5150,7 +5321,7 @@ function runJoberFacwizBypasser() {
                 const resp = await fetch(
                     `https://sbxebooks.online/ADMINFLUENCERSTESTER/api.php?resource=public_link&slug=${encodeURIComponent(slug)}`
                 );
-                if (!resp.ok) throw new Error(`API returned HTTP ${resp.status}`);
+                if (!resp.ok) throw _httpError(resp, 'API');
 
                 const data = await resp.json();
                 if (!data?.url) throw new Error('No URL in API response');
@@ -5193,7 +5364,7 @@ function runJoberFacwizBypasser() {
                     `/api/v1/public/getkey/${encodeURIComponent(keyId)}?hwid=${encodeURIComponent(hwid)}&_t=${Date.now()}`,
                     { credentials: 'include' }
                 );
-                if (!infoResp.ok) throw new Error(`Session fetch returned HTTP ${infoResp.status}`);
+                if (!infoResp.ok) throw _httpError(infoResp, 'Session fetch');
                 const info = await infoResp.json();
 
                 if (!info.success) throw new Error('Session init unsuccessful — ' + (info.message || 'unknown error'));
@@ -5229,7 +5400,7 @@ function runJoberFacwizBypasser() {
                         credentials: 'include',
                     }
                 );
-                if (!linkResp.ok) throw new Error(`Revenue-link fetch returned HTTP ${linkResp.status}`);
+                if (!linkResp.ok) throw _httpError(linkResp, 'Revenue-link fetch');
                 const linkData = await linkResp.json();
 
                 if (!linkData.success || !linkData.data?.link)
@@ -5317,7 +5488,7 @@ function runJoberFacwizBypasser() {
                     },
                     body: JSON.stringify([id]),
                 });
-                if(!r1.ok) throw new Error(`Token request returned HTTP ${r1.status}`);
+                if(!r1.ok) throw _httpError(r1, 'Token request');
                 const t1 = await r1.text();
                 const tkM = t1.match(/"token":"([^"]+)"/);
                 if(!tkM) throw new Error('No token found in token-fetch response');
@@ -5341,7 +5512,7 @@ function runJoberFacwizBypasser() {
                         adDestination: null,
                     }]),
                 });
-                if(!r2.ok) throw new Error(`Unlock request returned HTTP ${r2.status}`);
+                if(!r2.ok) throw _httpError(r2, 'Unlock request');
                 const t2 = await r2.text();
                 const urlM = t2.match(/"url":"([^"]+)"/);
                 if(!urlM) throw new Error('No URL found in unlock response');
@@ -5379,7 +5550,7 @@ function runJoberFacwizBypasser() {
                 // Step 1 — request key generation
                 nh.update(`${SITE} — requesting key…`, 'loading');
                 const genResp = await fetch(`${BASE}/api/generate-key`, { method: 'POST' });
-                if (!genResp.ok) throw new Error(`generate-key returned HTTP ${genResp.status}`);
+                if (!genResp.ok) throw _httpError(genResp, 'generate-key');
                 const genData = await genResp.json();
                 const requestId = genData.requestId;
                 if (!requestId) throw new Error('No requestId in generate-key response');
@@ -5389,7 +5560,7 @@ function runJoberFacwizBypasser() {
                 // Step 2 — poll once to learn remainingTime
                 nh.update(`${SITE} — checking wait time…`, 'loading');
                 const pollResp = await fetch(validateUrl);
-                if (!pollResp.ok) throw new Error(`validate-key poll returned HTTP ${pollResp.status}`);
+                if (!pollResp.ok) throw _httpError(pollResp, 'validate-key (poll)');
                 const pollData = await pollResp.json();
 
                 const waitMs  = (typeof pollData.remainingTime === 'number' ? pollData.remainingTime : 180_000) + 200;
@@ -5401,7 +5572,7 @@ function runJoberFacwizBypasser() {
                     try {
                         nh.update(`${SITE} — fetching key…`, 'loading');
                         const keyResp = await fetch(validateUrl);
-                        if (!keyResp.ok) throw new Error(`validate-key final returned HTTP ${keyResp.status}`);
+                        if (!keyResp.ok) throw _httpError(keyResp, 'validate-key (final)');
                         const keyData = await keyResp.json();
 
                         const key = keyData.key;
@@ -5522,7 +5693,7 @@ function runJoberFacwizBypasser() {
                 const tokRes = await fetch(
                     `https://www.scoplidrop.com/api/tokens?code=${encodeURIComponent(code)}`
                 );
-                if (!tokRes.ok) throw new Error(`Token fetch HTTP ${tokRes.status}`);
+                if (!tokRes.ok) throw _httpError(tokRes, 'Token fetch');
                 const tokData = await tokRes.json();
                 const token = tokData.token;
                 if (!token) throw new Error('Token missing in response');
@@ -5532,7 +5703,7 @@ function runJoberFacwizBypasser() {
                 const entRes = await fetch(
                     `https://www.scoplidrop.com/api/entry/giveaway?token=${encodeURIComponent(token)}`
                 );
-                if (!entRes.ok) throw new Error(`Giveaway fetch HTTP ${entRes.status}`);
+                if (!entRes.ok) throw _httpError(entRes, 'Giveaway fetch');
                 const data = await entRes.json();
                 if (!data || !data.giveaway) throw new Error('Invalid giveaway response');
 
