@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Unknown Link Bypasser
-// @version      6.7.4
-// @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live(SCAM WARNING) + go.yorurl.com + jankariweb + newsuchnaonline + bigcarinsurance + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + highlocus.shop + gplinks.co + powergam.online + getpolsec.com + hehehub + sub4unlock.co + app.khaddavi.net + sfl.gl + ytsubme.com + aylink.co + biplabtewary.com + mwgamesyt.com.br + topjogosvip.online + legacyagency.com.br + 4br.me + short-jambo.com/ink + fastcars + fluorine.s3ren1ty.xyz + go.linkify.ru + arolinks.com + spdmteam.com + linkunlocker.com + mboost.me + sub2unlock.netlify.app + krnl-ios.com + ouo.io + start-get-key.pages.dev + bstshrt.com. Made by @Aro Moon
+// @version      6.7.7
+// @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live(SCAM WARNING) + go.yorurl.com + jankariweb + newsuchnaonline + bigcarinsurance + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + highlocus.shop + gplinks.co + powergam.online + getpolsec.com + hehehub + sub4unlock.co + app.khaddavi.net + sfl.gl + ytsubme.com + aylink.co + biplabtewary.com + mwgamesyt.com.br + topjogosvip.online + legacyagency.com.br + 4br.me + short-jambo.com/ink + fastcars + fluorine.s3ren1ty.xyz + go.linkify.ru + arolinks.com + spdmteam.com + linkunlocker.com + mboost.me + sub2unlock.netlify.app + krnl-ios.com + ouo.io + start-get-key.pages.dev + bstshrt.com + rekonise.com + boblox-script.com + dusarisalary.com + sub2unlock.io. Made by @Aro Moon
 // @author       @Aro Moon
 // @include      /^https:\/\/mtc\d+\.[^/]+\.[a-z.]+\//
 // @include      /^https?:\/\/(?:\w+\.)?fastcars\d+\.com\//
@@ -71,13 +71,19 @@
 // @match        https://ouo.press/*
 // @match        https://start-get-key.pages.dev/
 // @match        https://bstshrt.com/u/*
+// @match        https://upfilesgo.com/*
 // @match        https://www.scoplidrop.com/entry*
+// @match        https://rekonise.com/*
+// @match        https://boblox-script.com/get-key*
+// @match        https://dusarisalary.com/*
+// @match        https://sub2unlock.io/*
 // @grant        GM_addElement
 // @grant        unsafeWindow
 // @grant        GM_registerMenuCommand
 // @grant        GM_setClipboard
 // @connect      challenges.cloudflare.com
 // @connect      www.scoplidrop.com
+// @connect      boblox-script.com
 // @run-at       document-start
 // @downloadURL  https://raw.githubusercontent.com/nmsjayden/UserScripts/main/ULB.js
 // @updateURL    https://raw.githubusercontent.com/nmsjayden/UserScripts/main/ULB.js
@@ -248,7 +254,7 @@
     // §1  CONSTANTS
     // ═══════════════════════════════════════════════════════════════════════
 
-    const VERSION = '6.7.4';
+    const VERSION = '6.7.7';
 
     // ── Diagnostics log ───────────────────────────────────────────────────
     // Captures errors/warnings for the Diagnostics menu command.
@@ -1382,11 +1388,13 @@
                 once: true
             });
 
+            // Trigger the CF-hook inside the freshly added Turnstile iframe via
+            // postMessage (cross-origin safe).  This covers sites that are NOT in
+            // cfAllowedRefs and would otherwise get no auto-click.
             const autoClickObs = new MutationObserver(() => {
                 overlay.querySelectorAll('iframe').forEach(fr => {
                     try {
-                        const cb = fr.contentDocument?.querySelector('input[type=checkbox]');
-                        if(cb && !cb.checked) cb.click();
+                        fr.contentWindow?.postMessage({ __ulb_triggerClick: true }, '*');
                     } catch (_) {}
                 });
             });
@@ -1400,17 +1408,26 @@
                 reject(new Error('[ULB/Turnstile] timed out after 60s'));
             }, 60_000);
 
+            // Polling fallback: if a debugger statement pauses JS at the moment
+            // Turnstile fires its callback the promise would never resolve.
+            // We independently poll getResponse() and the hidden input so a solve
+            // is detected even if the callback was missed.
+            let _pollInterval = null;
+            let _tokenFired   = false;
+            let _widgetId     = null;
+
             function cleanup() {
                 clearTimeout(timeout);
+                if (_pollInterval) { clearInterval(_pollInterval); _pollInterval = null; }
                 autoClickObs.disconnect();
-                try {
-                    delete unsafeWindow[cbName];
-                } catch (_) {}
+                try { delete unsafeWindow[cbName]; } catch (_) {}
                 overlay.style.opacity = '0';
                 setTimeout(() => overlay.remove(), 350);
             }
 
             const onToken = token => {
+                if (_tokenFired) return;   // guard: only fire once
+                _tokenFired = true;
                 const sub2 = overlay.querySelector('#__ulb_ts_sub');
                 if(sub2) sub2.textContent = 'Solved ✓ — redirecting…';
                 const ring = overlay.querySelector('#__ulb_ts_ring');
@@ -1425,16 +1442,47 @@
             };
             unsafeWindow[cbName] = onToken;
 
+            function _startSolvePoll() {
+                if (_pollInterval) return;
+                _pollInterval = setInterval(() => {
+                    if (_tokenFired) { clearInterval(_pollInterval); return; }
+                    const ts = unsafeWindow.turnstile;
+                    // Method 1 — turnstile.getResponse() API (works even when callback was skipped)
+                    try {
+                        const resp = (_widgetId != null)
+                            ? ts?.getResponse?.(_widgetId)
+                            : ts?.getResponse?.();
+                        if (resp && typeof resp === 'string' && resp.length > 20) {
+                            onToken(resp);
+                            return;
+                        }
+                    } catch (_) {}
+                    // Method 2 — the hidden input Turnstile fills after a solve
+                    const inp = widgetDiv.querySelector('[name="cf-turnstile-response"]');
+                    if (inp?.value?.length > 20) {
+                        onToken(inp.value);
+                    }
+                }, 300);
+            }
+
             const tryRenderApi = () => {
                 const ts = unsafeWindow.turnstile;
                 if(!ts?.render) return false;
                 try {
-                    ts.render(widgetDiv, {
+                    _widgetId = ts.render(widgetDiv, {
                         sitekey,
                         theme: 'dark',
                         size: 'normal',
-                        callback: onToken
+                        callback: onToken,
+                        'expired-callback': () => {
+                            _tokenFired = false;
+                            if (_widgetId != null) ts.reset?.(_widgetId);
+                        },
+                        'error-callback': () => {
+                            if (_widgetId != null) ts.reset?.(_widgetId);
+                        }
                     });
+                    _startSolvePoll();
                     return true;
                 } catch (e) {
                     console.warn('[ULB/Turnstile] turnstile.render() threw:', e);
@@ -1448,11 +1496,11 @@
                         src: 'https://challenges.cloudflare.com/turnstile/v0/api.js',
                         async: true,
                     });
-                    s.onload = () => tryRenderApi();
+                    s.onload = () => { tryRenderApi(); _startSolvePoll(); };
                     document.head.appendChild(s);
                 } else {
                     const poll = setInterval(() => {
-                        if(tryRenderApi()) clearInterval(poll);
+                        if(tryRenderApi()) { clearInterval(poll); _startSolvePoll(); }
                     }, 150);
                     setTimeout(() => clearInterval(poll), 10_000);
                 }
@@ -1463,79 +1511,81 @@
     // ── Cloudflare Challenge Frame Hook ────────────────────────────────────
 
     function _runCfHook() {
-        const spoofEvt = (e, props) => new Proxy(e, {
-            get: (t, p) => p in props ? props[p] : t[p]
-        });
+        // Proxy isTrusted=true on every event so CF sees a real interaction
         const _origAdd = EventTarget.prototype.addEventListener;
         EventTarget.prototype.addEventListener = function (type, listener, options) {
             return _origAdd.call(this, type, function (e) {
-                const props = {
-                    isTrusted: true
-                };
-                if(location.hash.includes('origin='))
-                    props.origin = decodeURIComponent(location.hash.split('origin=')[1]);
-                return listener.call(this, spoofEvt(e, props));
+                return listener.call(this, new Proxy(e, {
+                    get(t, p) {
+                        if (p === 'isTrusted') return true;
+                        if (p === 'origin' && location.hash.includes('origin='))
+                            return decodeURIComponent(location.hash.split('origin=')[1]);
+                        const v = t[p];
+                        return typeof v === 'function' ? v.bind(t) : v;
+                    }
+                }));
             }, options);
         };
 
-        const tryClick = (root, frameId) => {
-            const cb = root.querySelector('input[type=checkbox]');
-            if(cb && !cb.checked) {
-                try {
-                    window.parent.postMessage({
-                        __ulb: true,
-                        __ulb_clicked: true,
-                        id: frameId || ''
-                    }, '*');
-                } catch (_) {}
-                cb.click();
-            }
-        };
-
         const frameId = (location.hash.match(/[#&]ulbid=([^&]+)/) || [])[1] || '';
+        let _clicked = false;
+
+        function clickCheckbox(cb) {
+            if (!cb || cb.checked) return;
+            _clicked = true;
+            try { window.parent.postMessage({ __ulb: true, __ulb_clicked: true, id: frameId }, '*'); } catch (_) {}
+
+            // Fire the full mouse event chain CF expects, then call .click()
+            const rect = cb.getBoundingClientRect();
+            const cx = rect.left + rect.width / 2;
+            const cy = rect.top  + rect.height / 2;
+            const evOpts = { bubbles: true, cancelable: true, view: window, clientX: cx, clientY: cy };
+            ['mouseover', 'mousemove', 'mousedown', 'mouseup', 'click'].forEach(type =>
+                cb.dispatchEvent(new MouseEvent(type, evOpts))
+            );
+            cb.click();
+        }
+
+        function tryClick(root) {
+            const cb = root.querySelector('input[type=checkbox]');
+            if (cb && !cb.checked) clickCheckbox(cb);
+        }
+
+        // Intercept attachShadow so we observe every shadow root CF creates
         const shadowObs = new MutationObserver(muts => {
-            for(const m of muts)
+            for (const m of muts)
                 m.addedNodes.forEach(n => {
-                    if(n.nodeType !== 1) return;
+                    if (n.nodeType !== 1) return;
                     const cb = n.matches?.('input[type=checkbox]') ? n : n.querySelector('input[type=checkbox]');
-                    if(cb && !cb.checked) {
-                        try {
-                            window.parent.postMessage({
-                                __ulb: true,
-                                __ulb_clicked: true,
-                                id: frameId
-                            }, '*');
-                        } catch (_) {}
-                        cb.click();
-                    }
+                    if (cb && !cb.checked) clickCheckbox(cb);
                 });
         });
 
         const _origShadow = Element.prototype.attachShadow;
         Element.prototype.attachShadow = function (opt) {
             const root = _origShadow.call(this, opt);
-            shadowObs.observe(root, {
-                childList: true,
-                subtree: true
-            });
-            Promise.resolve().then(() => tryClick(root, frameId));
+            shadowObs.observe(root, { childList: true, subtree: true });
+            Promise.resolve().then(() => tryClick(root));
             return root;
         };
 
+        // Also scan any shadow roots already present at run time
         document.querySelectorAll('*').forEach(el => {
-            if(el.shadowRoot) {
-                shadowObs.observe(el.shadowRoot, {
-                    childList: true,
-                    subtree: true
-                });
-                tryClick(el.shadowRoot, frameId);
-            }
+            if (el.shadowRoot) { shadowObs.observe(el.shadowRoot, { childList: true, subtree: true }); tryClick(el.shadowRoot); }
         });
+
+        // Retry every 200 ms in case the checkbox appears after we ran
+        const retry = setInterval(() => {
+            if (_clicked) { clearInterval(retry); return; }
+            tryClick(document);
+            document.querySelectorAll('*').forEach(el => { if (el.shadowRoot) tryClick(el.shadowRoot); });
+        }, 200);
+        setTimeout(() => clearInterval(retry), 30_000);
     }
 
     // Early return: only the CF hook runs inside challenge iframes.
     if(location.hostname === 'challenges.cloudflare.com') {
-        if(CONFIG.cfAllowedRefs.some(h => document.referrer.includes(h))) _runCfHook();
+        _runCfHook();   // run unconditionally — referrer gate was too restrictive
         return;
     }
 
@@ -1991,6 +2041,11 @@
         else if(host.includes('lua-key-vault.vercel.app')) _gateBypass('lua-key-vault', runLuaKeyVaultBypasser);
         else if(host.includes('start-get-key.pages.dev')) _gateBypass('start-get-key.pages.dev', runStartGetKeyBypasser);
         else if(host.includes('bstshrt.com')) _gateBypass('bstshrt.com', runBstshrtBypasser);
+        else if(host.includes('upfilesgo.com')) _gateBypass('upfilesgo.com', runUpfilesGoBypasser);
+        else if(host.includes('boblox-script.com')) _gateBypass('boblox-script.com', runBobloxScriptBypasser);
+        else if(host.includes('dusarisalary.com')) _gateBypass(host, runUnlockLinkFinderBypasser);
+        else if(host.includes('sub2unlock.io') && path.length > 1) _gateBypass(host, runUnlockLinkFinderBypasser);
+        else if(host.includes('sub2unlock.io')) { /* homepage — do nothing */ }
         else if(TPI_HOSTS.some(h => host.includes(h))) _gateBypass(host, runTpiLiBypasser);
         else if(FORM_HOSTS.some(h => host.includes(h))) _gateBypass(host, runFormBypasser);
         else _gateBypass(host, runSafelinkBypasser);
@@ -3541,53 +3596,53 @@
     // The #ca anchor wraps a continue image and its href points to
     // go.yorurl.com — extract and redirect immediately.
 
-function runJoberFacwizBypasser() {
-    const SITE = 'jober.factwiz.online';
-    const t = makeTimer();
-    const nh = notify(`${SITE} — reading page delay…`, 'loading', 0, { site: SITE });
-    const handleError = makeErrHandler(SITE, nh, 7000);
+    function runJoberFacwizBypasser() {
+        const SITE = 'jober.factwiz.online';
+        const t = makeTimer();
+        const nh = notify(`${SITE} — reading page delay…`, 'loading', 0, { site: SITE });
+        const handleError = makeErrHandler(SITE, nh, 7000);
 
-    const init = () => {
-        const allScriptText = [...document.scripts]
-            .map(s => s.textContent)
-            .join('');
-        const delayMatch = allScriptText.match(/setTimeout\([^,]+,\s*(\d+)\)/);
-        const delay = delayMatch ? +delayMatch[1] : 0;
+        const init = () => {
+            const allScriptText = [...document.scripts]
+                .map(s => s.textContent)
+                .join('');
+            const delayMatch = allScriptText.match(/setTimeout\([^,]+,\s*(\d+)\)/);
+            const delay = delayMatch ? +delayMatch[1] : 0;
 
-        nh.update(`${SITE} — waiting ${delay}ms for cookie…`, 'loading', { site: SITE });
+            nh.update(`${SITE} — waiting ${delay}ms for cookie…`, 'loading', { site: SITE });
 
-        const restore = spoofVisibilityHidden();
+            const restore = spoofVisibilityHidden();
 
-        setTimeout(() => {
-            restore();
-            try {
-                const cookie = document.cookie
-                    .split(';')
-                    .map(c => c.trim())
-                    .find(c => c.startsWith('tp='));
+            setTimeout(() => {
+                restore();
+                try {
+                    const cookie = document.cookie
+                        .split(';')
+                        .map(c => c.trim())
+                        .find(c => c.startsWith('tp='));
 
-                const value = cookie ? cookie.split('=')[1] : '';
+                    const value = cookie ? cookie.split('=')[1] : '';
 
-                if (!value) {
-                    handleError('#tp cookie not found after delay', null);
-                    return;
+                    if (!value) {
+                        handleError('#tp cookie not found after delay', null);
+                        return;
+                    }
+
+                    const finalUrl = 'https://go.yorurl.com/' + value;
+                    safeRedirect(finalUrl, nh, { t, siteLabel: SITE });
+                } catch (err) {
+                    handleError('bypass failed', err);
                 }
+            }, delay);
+        };
 
-                const finalUrl = 'https://go.yorurl.com/' + value;
-                safeRedirect(finalUrl, nh, { t, siteLabel: SITE });
-            } catch (err) {
-                handleError('bypass failed', err);
-            }
-        }, delay);
-    };
-
-    // Wait for full page load so all inline scripts are present before scanning.
-    if (document.readyState === 'complete') {
-        init();
-    } else {
-        window.addEventListener('load', init, { once: true });
+        // Wait for full page load so all inline scripts are present before scanning.
+        if (document.readyState === 'complete') {
+            init();
+        } else {
+            window.addEventListener('load', init, { once: true });
+        }
     }
-}
 
     // ── how2guidess.com ────────────────────────────────────────────────────
     // how2guidess.com hides the destination behind two sequential button
@@ -4966,71 +5021,62 @@ function runJoberFacwizBypasser() {
     }
 
     // ── rekonise.com ───────────────────────────────────────────────────────
-    // rekonise.com is an Angular universal app. The full page state — including
-    // an unlock_token — is serialised into a #ng-state <script> element by the
-    // server-side renderer. This bypasser:
-    //   1. Waits 10 s for Angular to hydrate (the token is not in the DOM at
-    //      document-start; the SSR JSON must be parsed from #ng-state).
-    //   2. Parses the ng-state JSON, iterates its keys and finds .b.unlock_token.
+    // rekonise.com is an Angular universal app. The unlock token is embedded
+    // in a #ng-state <script> element by the server-side renderer.
+    //   1. Waits 5 s for Angular to hydrate so the SSR JSON is in the DOM.
+    //   2. Parses #ng-state JSON and extracts .b.unlock_token.
     //   3. GET https://api.rekonise.com/social-unlocks/<slug>/unlock?token=<tok>
-    //      → { url } — the final destination returned directly by the API.
+    //      → { url } — if the API doesn't return the unlocked URL, it retries every 1s
+    //      for up to 30s until it does.
 
     function runRekoniseBypasser() {
         const SITE = 'rekonise.com';
         const t = makeTimer();
-        const nh = notify(`${SITE} — waiting for page… (10s)`, 'loading', 0, {
-            site: SITE
-        });
+        const nh = notify(`${SITE} — Unlocking…`, 'loading', 0, { site: SITE });
         const handleError = makeErrHandler(SITE, nh, 7000);
 
         const run = () => {
-            const WAIT = 10;
-            let rem = WAIT;
-            const iv = setInterval(() => {
-                rem--;
-                if(rem > 0) nh.update(`${SITE} — waiting for page… (${rem}s)`, 'loading', {
-                    site: SITE
-                });
-                else {
-                    clearInterval(iv);
-                    bypass();
-                }
-            }, 1000);
+            // Wait 5 s for Angular to hydrate, then attempt unlock with 1 s retries
+            setTimeout(attempt, 5000);
         };
 
-        const bypass = async () => {
-            try {
+        const attempt = async () => {
+
+            const tryOnce = async () => {
                 const ngStateEl = document.getElementById('ng-state');
-                if(!ngStateEl) throw new Error('ng-state element not found');
-
+                if (!ngStateEl) return null;
                 let token;
-                const d = JSON.parse(ngStateEl.textContent);
-                for(const k in d) {
-                    if(d[k]?.b?.unlock_token) {
-                        token = d[k].b.unlock_token;
-                        break;
+                try {
+                    const d = JSON.parse(ngStateEl.textContent);
+                    for (const k in d) {
+                        if (d[k]?.b?.unlock_token) { token = d[k].b.unlock_token; break; }
                     }
-                }
-                if(!token) throw new Error('unlock_token not found in ng-state');
-
-                nh.update(`${SITE} — fetching destination…`, 'loading', {
-                    site: SITE
-                });
-
+                } catch (_) { return null; }
+                if (!token) return null;
                 const slug = location.pathname.split('/').filter(Boolean).pop();
-                const url = `https://api.rekonise.com/social-unlocks/${encodeURIComponent(slug)}/unlock?token=${encodeURIComponent(token)}`;
-                const j = await fetchJSON(url);
+                const url  = `https://api.rekonise.com/social-unlocks/${encodeURIComponent(slug)}/unlock?token=${encodeURIComponent(token)}`;
+                try {
+                    const j = await fetchJSON(url);
+                    const dest = j.url ?? j;
+                    if (safeUrl(dest)) return dest;
+                } catch (_) {}
+                return null;
+            };
 
-                const dest = j.url ?? j;
-                if(!safeUrl(dest)) throw new Error('No valid URL in API response');
+            // First attempt immediately after the 5 s wait
+            let dest = await tryOnce();
+            if (dest) { safeRedirect(dest, nh, { t, siteLabel: SITE }); return; }
 
-                safeRedirect(dest, nh, {
-                    t,
-                    siteLabel: SITE
-                });
-            } catch (err) {
-                handleError('bypass failed', err);
-            }
+            // Retry every 1 s until the API returns a valid URL
+            let attempts = 1;
+            const retry = setInterval(async () => {
+                attempts++;
+                dest = await tryOnce();
+                if (dest) { clearInterval(retry); safeRedirect(dest, nh, { t, siteLabel: SITE }); }
+            }, 1000);
+
+            // Give up after 60 s of retrying
+            setTimeout(() => { clearInterval(retry); if (!dest) handleError('unlock URL not returned after 30s', null); }, 30_000);
         };
 
         onReady(run);
@@ -5974,6 +6020,96 @@ function runJoberFacwizBypasser() {
         })();
     }
 
+    // ── boblox-script.com/get-key* ─────────────────────────────────────────
+    // Solves the Cloudflare Turnstile widget, then POSTs the token to the
+    // key-generation API.  The response JSON contains the key which is then
+    // displayed in a copyable key-card using the built-in showKeyCard() helper.
+    //
+    //   POST https://boblox-script.com/api/generate-key
+    //     { token: <turnstile-token> }
+    //   Response: { message: "Key Generated Successfully!!", key: "<key>" }
+
+    function runBobloxScriptBypasser() {
+        const SITE = 'boblox-script.com';
+        const TURNSTILE_SITEKEY = '0x4AAAAAABik-QUxiaALrsZ3';
+        const API_URL = 'https://boblox-script.com/api/generate-key';
+        const t = makeTimer();
+        const nh = notify(`${SITE} — solving Turnstile…`, 'loading', 0, { site: SITE });
+        const handleError = makeErrHandler(SITE, nh, 8000);
+
+        const init = async () => {
+            try {
+                if (!CONFIG.autoCaptcha) {
+                    document.querySelectorAll('.cf-turnstile').forEach(el => {
+                        el.setAttribute('data-size', 'normal');
+                        el.style.cssText = 'display:block!important;visibility:visible!important;opacity:1!important';
+                    });
+                    nh.update(`${SITE} — solve the Turnstile to continue…`, 'warn', 0, { site: SITE });
+                    return;
+                }
+
+                let turnstileToken;
+                try {
+                    turnstileToken = await solveTurnstile(TURNSTILE_SITEKEY);
+                } catch (e) {
+                    handleError('Turnstile solve failed', e);
+                    return;
+                }
+
+                nh.update(`${SITE} — requesting key…`, 'loading', { site: SITE });
+
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: turnstileToken }),
+                    credentials: 'same-origin',
+                });
+
+                if (!res.ok) throw new Error(`Key API returned HTTP ${res.status}`);
+
+                const data = await res.json();
+                const key = data.key;
+                if (!key) throw new Error('No key field in API response');
+
+                nh.remove();
+                showKeyCard(key, SITE, t, 30_000);
+
+            } catch (err) {
+                handleError('bypass failed', err);
+            }
+        };
+
+        onReady(init);
+    }
+
+    // ── dusarisalary.com / sub2unlock.io ──────────────────────────────────
+    // Both hosts share the same layout: a page full of links where the real
+    // destination is exposed as an anchor whose text contains "Unlock Link".
+    // We find that anchor and redirect to its href immediately.
+
+    function runUnlockLinkFinderBypasser() {
+        const SITE = location.hostname;
+        const t = makeTimer();
+        const nh = notify(`${SITE} — finding unlock link…`, 'loading', 0, { site: SITE });
+        const handleError = makeErrHandler(SITE, nh, 7000);
+
+        const tryFind = () => {
+            const a = [...document.querySelectorAll('a')].find(el => el.textContent.includes('Unlock Link'));
+            if (!a || !a.href) return false;
+            safeRedirect(a.href, nh, { t, siteLabel: SITE });
+            return true;
+        };
+
+        const init = () => {
+            if (tryFind()) return;
+            pollUntil(tryFind, 200, 100).catch(() => {
+                handleError('"Unlock Link" anchor not found on page', null);
+            });
+        };
+
+        onReady(init);
+    }
+
     // ── bstshrt.com/u/* ────────────────────────────────────────────────────
     // The final destination URL is embedded in the page's inline scripts as
     //   finalUrl\":\"https://...\"
@@ -6000,6 +6136,62 @@ function runJoberFacwizBypasser() {
             pollUntil(tryExtract, 200, 100).catch(() => {
                 handleError('finalUrl not found in page scripts', null);
             });
+        };
+
+        onReady(init);
+    }
+
+    // ── upfilesgo.com ─────────────────────────────────────────────────────
+    // Reads _token from the CSRF meta tag, solves Turnstile with the site's
+    // own sitekey, then constructs and POSTs the captcha form ourselves.
+
+    function runUpfilesGoBypasser() {
+        const SITE        = 'upfilesgo.com';
+        const SITEKEY     = '0x4AAAAAACOs2qXUfX8e7LFB';
+        const t           = makeTimer();
+        const nh          = notify(`${SITE} — Unlocking…`, 'loading', 0, { site: SITE });
+        const handleError = makeErrHandler(SITE, nh, 8000);
+
+        const init = async () => {
+            try {
+                const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+                if (!csrfMeta) { handleError('csrf-token meta not found', null); return; }
+                const csrfToken = csrfMeta.content;
+
+                let turnstileToken;
+                try {
+                    turnstileToken = await solveTurnstile(SITEKEY);
+                } catch (e) {
+                    handleError('Turnstile solve failed', e);
+                    return;
+                }
+
+                const body = new URLSearchParams();
+                body.set('_token',                csrfToken);
+                body.set('action',                'captcha');
+                body.set('cf-turnstile-response', turnstileToken);
+
+                const res = await fetch(location.href, {
+                    method:  'POST',
+                    body:    body.toString(),
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRF-TOKEN': csrfToken,
+                    },
+                });
+
+                if (!res.ok) { handleError(`POST returned HTTP ${res.status}`, null); return; }
+
+                const html = await res.text();
+
+                document.open();
+                document.write(html);
+                document.close();
+
+            } catch (err) {
+                handleError('bypass failed', err);
+            }
         };
 
         onReady(init);
