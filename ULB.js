@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Unknown Link Bypasser
-// @version      6.7.7
+// @version      6.7.8
 // @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live(SCAM WARNING) + go.yorurl.com + jankariweb + newsuchnaonline + bigcarinsurance + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + highlocus.shop + gplinks.co + powergam.online + getpolsec.com + hehehub + sub4unlock.co + app.khaddavi.net + sfl.gl + ytsubme.com + aylink.co + biplabtewary.com + mwgamesyt.com.br + topjogosvip.online + legacyagency.com.br + 4br.me + short-jambo.com/ink + fastcars + fluorine.s3ren1ty.xyz + go.linkify.ru + arolinks.com + spdmteam.com + linkunlocker.com + mboost.me + sub2unlock.netlify.app + krnl-ios.com + ouo.io + start-get-key.pages.dev + bstshrt.com + rekonise.com + boblox-script.com + dusarisalary.com + sub2unlock.io. Made by @Aro Moon
 // @author       @Aro Moon
 // @include      /^https:\/\/mtc\d+\.[^/]+\.[a-z.]+\//
@@ -528,7 +528,7 @@
             404: 'Not Found — endpoint no longer exists',
             405: 'Method Not Allowed',
             408: 'Request Timed Out',
-            429: 'Rate-Limited, wait before retyring.',
+            429: 'Rate-Limited — please wait before retrying.',
             500: 'Internal Server Error — site-side problem',
             502: 'Bad Gateway — site server is unreachable',
             503: 'Service Unavailable — site is down or overloaded',
@@ -2065,7 +2065,7 @@
     // letting the user grab the key without completing the ad steps.
 
     function runPhantomFluxKeyBypasser() {
-        notify('PhantomFluxKey detected — showing direct bypass…', 'info', undefined, {
+        notify('PhantomFluxKey — direct key link ready', 'info', undefined, {
             site: 'phantomfluxkey'
         });
         showDirectBypassBtn('Direct Bypass — Get Key', CONFIG.phantomDirectUrl, 'PhantomFluxKey Direct Bypass');
@@ -2150,13 +2150,13 @@
                 });
                 document.body.appendChild(btn);
             }
-            notify('dl.surf detected — bypasser ready.', 'info', undefined, {
+            notify('dl.surf — bypass button ready, click to download', 'info', undefined, {
                 site: 'dl.surf'
             });
         }
 
         if(!CONFIG.dlSurfAutoInject) {
-            notify('dl.surf — auto-inject disabled in config.', 'info', undefined, {
+            notify('dl.surf — auto-inject is disabled in CONFIG.dlSurfAutoInject', 'info', undefined, {
                 site: 'dl.surf'
             });
             return;
@@ -2262,7 +2262,7 @@
     function runAirflowBypasser() {
         const KEY = 'airflow_discord_done';
         if(localStorage.getItem(KEY) === 'true') return;
-        notify('Bypassing Discord requirement…', 'loading', 3000, {
+        notify('airflowscript.com — faking Discord step, reloading…', 'loading', 3000, {
             site: 'airflowscript.com'
         });
         localStorage.setItem(KEY, 'true');
@@ -2279,7 +2279,7 @@
     function runBstlarBypasser() {
         const SITE = 'bstlar.com';
         const t = makeTimer();
-        const nh = notify(`${SITE} detected — bypassing…`, 'loading', 0, {
+        const nh = notify(`${SITE} — fetching destination…`, 'loading', 0, {
             site: SITE
         });
         const handleError = makeErrHandler(SITE, nh);
@@ -2327,7 +2327,7 @@
     function runWareguardBypasser() {
         const SITE = 'wareguardv2.xyz';
         const t = makeTimer();
-        const nh = notify('wareguardv2 checkpoint — bypassing…', 'loading', 0, {
+        const nh = notify(`${SITE} — decoding redirect URL…`, 'loading', 0, {
             site: SITE
         });
         const handleError = makeErrHandler(SITE, nh);
@@ -2359,13 +2359,10 @@
                     return;
                 }
 
-                nh.update('Redirecting in 1s…', 'info', {
-                    site: SITE
-                });
                 showCountdown(1, () => safeRedirect(dest, nh, {
                     t,
                     siteLabel: SITE
-                }), 'wareguardv2 bypass');
+                }), `${SITE} — redirecting`);
             } catch (err) {
                 handleError('unexpected error', err);
             }
@@ -2382,7 +2379,7 @@
     function runSubniseBypasser() {
         const SITE = 'subnise.com';
         const t = makeTimer();
-        const nh = notify(`${SITE} detected — bypassing…`, 'loading', 0, {
+        const nh = notify(`${SITE} — fetching destination URL…`, 'loading', 0, {
             site: SITE
         });
         const handleError = makeErrHandler(SITE, nh);
@@ -2396,13 +2393,10 @@
                 const data = await r.json();
                 if(!data.url) throw new Error('No URL in API response');
 
-                nh.update('Redirecting in 1s…', 'info', {
-                    site: SITE
-                });
                 showCountdown(1, () => safeRedirect(data.url, nh, {
                     t,
                     siteLabel: SITE
-                }), 'subnise bypass');
+                }), `${SITE} — redirecting`);
             } catch (err) {
                 handleError('bypass failed', err);
             }
@@ -2593,18 +2587,16 @@
             const data = extract();
             if(!data?.dest) return;
             scheduled = true;
-            notify(`Safelink decoded. Redirecting in ${data.delay}s.`, 'info', 5000, {
-                site: host
-            });
+            if (data.delay > 0) notify(`${host} — safelink decoded, redirecting in ${data.delay}s…`, 'info', 5000, { site: host });
             const startCountdown = () => {
                 showCountdown(data.delay, () => {
-                    notify('Safelink bypassed!', 'success', undefined, {
+                    notify(`${host} — safelink bypassed!`, 'success', undefined, {
                         site: host,
                         time: t.elapsed() + 's'
                     });
                     showRedirectNotif(data.dest);
                     window.location.replace(data.dest);
-                }, CONFIG.blockAds ? 'Ads blocked' : 'Redirecting');
+                }, CONFIG.blockAds ? `${host} — ads blocked` : `${host} — redirecting`);
             };
             if(document.readyState === 'complete') startCountdown();
             else window.addEventListener('load', startCountdown, {
@@ -2630,7 +2622,7 @@
         }
 
         function init() {
-            notify('Unknown Link Bypasser active — scanning…', 'loading', 3000, {
+            notify(`${host} — decoding safelink…`, 'loading', 3000, {
                 site: host
             });
             _cleanAds();
@@ -2660,7 +2652,8 @@
     //   1. Patch Document.prototype.querySelector to neutralise an anti-bypass
     //      detector that looks for a class name containing "eecdbd".
     //   2. Wait for form[action*="api-endpoint/verify"] to appear.
-    //   3. Read the action field: "countdown" → 5 s wait, "captcha" → solve
+    //   3. Read the action field: "progressbar" → 10 s wait, "countdown"
+    //        → 5 s wait, "captcha" → solve
     //      Turnstile, otherwise read progress_original from inline scripts.
     //   4. POST the form's hidden fields + optional captcha token.
     //   5. On success: redirect to result.data.final, or POST the speed_token
@@ -2680,7 +2673,7 @@
         const t = makeTimer();
 
         notify(
-            extraDelaySec > 0 ? `Retry #${extraDelaySec} — adding ${extraDelaySec}s extra delay…` : 'Form bypasser active — waiting for page…',
+            extraDelaySec > 0 ? `Retry #${extraDelaySec} — adding ${extraDelaySec}s extra delay…` : `${host} — detecting bypass form…`,
             extraDelaySec > 0 ? 'warn' : 'loading',
             extraDelaySec > 0 ? 4000 : 3000, {
                 site: host
@@ -2690,7 +2683,7 @@
         waitForEl('form[action*="api-endpoint/verify"]').then(async form => {
             const action = form.querySelector('input[name="action"]')?.value;
             const progressMatch = [...document.querySelectorAll('script')].map(s => s.textContent.match(/progress_original\s*=\s*(\d+)/)).find(Boolean);
-            const baseDelay = action === 'countdown' ? 5000 : progressMatch ? +progressMatch[1] * 1000 : 0;
+            const baseDelay = action === 'countdown' ? 5000 : action === 'progressbar' ? 10000 : progressMatch ? +progressMatch[1] * 1000 : 0;
             const delay = baseDelay + extraDelaySec * 1000;
             const seconds = Math.ceil(delay / 1000);
             await waitBody();
@@ -2780,7 +2773,7 @@
     function runReshortflyBypasser() {
         const SITE = 'reshortfly.com';
         const t = makeTimer();
-        const nh = notify(`${SITE} detected — waiting…`, 'loading', 0, {
+        const nh = notify(`${SITE} — reading countdown timer…`, 'loading', 0, {
             site: SITE
         });
         const handleError = makeErrHandler(SITE, nh);
@@ -2823,7 +2816,7 @@
                 nh.update(`${SITE} — redirecting in ${secs}s…`, 'loading', {
                     site: SITE
                 });
-                showCountdown(secs, doFetch, 'reshortfly bypass');
+                showCountdown(secs, doFetch, `${SITE} — fetching download link`);
             }, 5000);
         });
     }
@@ -4995,9 +4988,6 @@
         const run = async () => {
             try {
                 const apiUrl = location.href.replace('/social/', '/api/social/');
-                nh.update(`${SITE} — calling API…`, 'loading', {
-                    site: SITE
-                });
                 const r = await fetch(apiUrl);
                 if(!r.ok) throw _httpError(r, 'API');
                 let d;
