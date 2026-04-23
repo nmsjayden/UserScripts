@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Unknown Link Bypasser
-// @version      6.7.8
+// @version      6.8.0
 // @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live(SCAM WARNING) + go.yorurl.com + jankariweb + newsuchnaonline + bigcarinsurance + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + highlocus.shop + gplinks.co + powergam.online + getpolsec.com + hehehub + sub4unlock.co + app.khaddavi.net + sfl.gl + ytsubme.com + aylink.co + biplabtewary.com + mwgamesyt.com.br + topjogosvip.online + legacyagency.com.br + 4br.me + short-jambo.com/ink + fastcars + fluorine.s3ren1ty.xyz + go.linkify.ru + arolinks.com + spdmteam.com + linkunlocker.com + mboost.me + sub2unlock.netlify.app + krnl-ios.com + ouo.io + start-get-key.pages.dev + bstshrt.com + rekonise.com + boblox-script.com + dusarisalary.com + sub2unlock.io. Made by @Aro Moon
 // @author       @Aro Moon
 // @include      /^https:\/\/mtc\d+\.[^/]+\.[a-z.]+\//
@@ -77,10 +77,13 @@
 // @match        https://boblox-script.com/get-key*
 // @match        https://dusarisalary.com/*
 // @match        https://sub2unlock.io/*
+// @match        https://socialwolvez.com/app/l/*
 // @grant        GM_addElement
 // @grant        unsafeWindow
 // @grant        GM_registerMenuCommand
 // @grant        GM_setClipboard
+// @grant        GM_getValue
+// @grant        GM_setValue
 // @connect      challenges.cloudflare.com
 // @connect      www.scoplidrop.com
 // @connect      boblox-script.com
@@ -143,6 +146,7 @@
             'aylink.co',
             'go.linkify.ru/get',
             'ouo.io/go/',
+            'ouo.press/go/',
             'sfl.gl/ready/go',
             'topjogosvip.online',
             'legacyagency.com.br',
@@ -246,6 +250,442 @@
         ],
     };
 
+    // ── Load persisted config overrides ──────────────────────────────────
+    try {
+        const _saved = GM_getValue('ulb_config', null);
+        if (_saved) {
+            const _parsed = JSON.parse(_saved);
+            for (const [k, v] of Object.entries(_parsed)) {
+                if (k in CONFIG) CONFIG[k] = v;
+            }
+        }
+    } catch (_) { /* storage not available or corrupt — use defaults */ }
+
+    // ── Config menu UI ────────────────────────────────────────────────────
+    // Shadow DOM host for the config overlay (created once, reused)
+    let _cfgHost = null;
+    let _cfgRoot = null;
+    let _cfgObserver = null;
+
+    function _showConfigMenu() {
+        // Toggle: close if already open
+        if (_cfgHost && _cfgHost.isConnected && _cfgRoot.getElementById('ulb-config-overlay')) {
+            _cfgHost.remove();
+            _cfgHost = null;
+            _cfgRoot = null;
+            return;
+        }
+
+        // Build isolated shadow host
+        _cfgHost = document.createElement('div');
+        _cfgHost.id = '__ulb_cfg_host';
+        _cfgHost.style.cssText = [
+            'all:initial',
+            'position:fixed','top:0','left:0',
+            'width:100vw','height:100vh',
+            'z-index:2147483647',
+            'contain:layout style paint',
+        ].join(';');
+
+        (document.documentElement || document.body).appendChild(_cfgHost);
+
+        _cfgRoot = _cfgHost.attachShadow({ mode: 'open' });
+
+        // Inject a style reset + our own CSS inside the shadow root
+        const shadowStyle = document.createElement('style');
+        shadowStyle.textContent = `
+            *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+            :host { all: initial; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+            input, select, textarea, button { font-family: inherit; }
+            input[type=number]::-webkit-inner-spin-button,
+            input[type=number]::-webkit-outer-spin-button { opacity: 1; }
+            ::-webkit-scrollbar { width: 6px; }
+            ::-webkit-scrollbar-track { background: #0f0f1e; }
+            ::-webkit-scrollbar-thumb { background: #3b3b6b; border-radius: 3px; }
+        `;
+        _cfgRoot.appendChild(shadowStyle);
+
+        // MutationObserver: re-attach host if the page rips it out
+        if (_cfgObserver) _cfgObserver.disconnect();
+        _cfgObserver = new MutationObserver(() => {
+            if (_cfgHost && !document.documentElement.contains(_cfgHost)) {
+                document.documentElement.appendChild(_cfgHost);
+            }
+        });
+        _cfgObserver.observe(document.documentElement, { childList: true, subtree: true });
+
+        const OVERLAY_ID = 'ulb-config-overlay';
+
+        const DEFAULTS = {
+            askBeforeBypass:      true,
+            autoCaptcha:          true,
+            notifPosition:        'bottom-right',
+            notifDuration:        4000,
+            showBypassTime:       true,
+            showSiteLabel:        true,
+            compactMode:          false,
+            autoDismissOnRedirect:true,
+            notifShowBranding:    true,
+            notifShowVersion:     true,
+            notifShowOnLoading:   true,
+            notifShowOnSuccess:   true,
+            notifShowOnError:     true,
+            notifClickToDismiss:  false,
+            notifAnimateIcon:     true,
+            notifPauseOnHover:    false,
+            dlSurfAutoInject:     true,
+            blockAds:             true,
+            phantomDirectUrl:     'https://pastefy.app/8PxwQFt8',
+            autoBypassHosts:      [],
+            cfAllowedRefs:        [],
+        };
+
+        const overlay = document.createElement('div');
+        overlay.id = OVERLAY_ID;
+        overlay.style.cssText = [
+            'position:fixed','top:0','left:0','width:100%','height:100%',
+            'z-index:2147483647','background:rgba(0,0,0,0.82)',
+            'display:flex','align-items:center','justify-content:center',
+            'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif',
+            'box-sizing:border-box',
+        ].join(';');
+
+        const panel = document.createElement('div');
+        panel.style.cssText = [
+            'background:#1a1a2e','color:#e2e2f0',
+            'border:1px solid #3b3b6b','border-radius:12px',
+            'width:min(680px,96vw)','max-height:90vh',
+            'display:flex','flex-direction:column',
+            'box-shadow:0 24px 60px rgba(0,0,0,0.7)',
+            'overflow:hidden',
+        ].join(';');
+
+        // Header
+        const header = document.createElement('div');
+        header.style.cssText = [
+            'display:flex','align-items:center','justify-content:space-between',
+            'padding:16px 20px','border-bottom:1px solid #2e2e52',
+            'background:#16162a','flex-shrink:0',
+        ].join(';');
+        header.innerHTML = `
+            <div style="display:flex;align-items:center;gap:10px">
+                <span style="font-size:20px">⏣</span>
+                <span style="font-size:16px;font-weight:700;letter-spacing:.3px">ULB Config</span>
+                <span style="font-size:11px;color:#7070a0;background:#0f0f1e;border:1px solid #2e2e52;
+                    border-radius:4px;padding:2px 7px">v${typeof VERSION !== 'undefined' ? VERSION : ''}</span>
+            </div>
+            <button id="ulb-cfg-close" style="background:none;border:none;color:#7070a0;font-size:20px;
+                cursor:pointer;line-height:1;padding:2px 6px;border-radius:5px;transition:color .15s"
+                title="Close">✕</button>`;
+
+        // Body (scrollable)
+        const body = document.createElement('div');
+        body.style.cssText = 'padding:20px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:20px';
+
+        // Footer
+        const footer = document.createElement('div');
+        footer.style.cssText = [
+            'padding:14px 20px','border-top:1px solid #2e2e52',
+            'background:#16162a','display:flex','align-items:center',
+            'justify-content:space-between','flex-shrink:0','gap:10px',
+        ].join(';');
+        footer.innerHTML = `
+            <button id="ulb-cfg-reset" style="background:#1e1e38;border:1px solid #3b3b6b;color:#9090c0;
+                font-size:13px;padding:8px 16px;border-radius:7px;cursor:pointer">
+                Reset to defaults
+            </button>
+            <div style="display:flex;gap:10px">
+                <button id="ulb-cfg-cancel" style="background:#1e1e38;border:1px solid #3b3b6b;
+                    color:#9090c0;font-size:13px;padding:8px 18px;border-radius:7px;cursor:pointer">
+                    Cancel
+                </button>
+                <button id="ulb-cfg-save" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);
+                    border:none;color:#fff;font-size:13px;font-weight:600;padding:8px 22px;
+                    border-radius:7px;cursor:pointer;box-shadow:0 2px 10px rgba(99,102,241,.4)">
+                    Save &amp; Reload
+                </button>
+            </div>`;
+
+        // ── Section builder helpers ──────────────────────────────────────
+        const mkSection = (title) => {
+            const sec = document.createElement('div');
+            const lbl = document.createElement('div');
+            lbl.style.cssText = 'font-size:11px;font-weight:700;text-transform:uppercase;' +
+                'letter-spacing:.8px;color:#6060a0;margin-bottom:12px;padding-bottom:6px;' +
+                'border-bottom:1px solid #2a2a4a';
+            lbl.textContent = title;
+            sec.appendChild(lbl);
+            return sec;
+        };
+
+        const mkRow = (labelText, desc) => {
+            const row = document.createElement('div');
+            row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;' +
+                'padding:8px 0;gap:12px';
+            const info = document.createElement('div');
+            info.style.cssText = 'flex:1;min-width:0';
+            info.innerHTML = `<div style="font-size:13px;font-weight:500;color:#d0d0ee">${labelText}</div>` +
+                (desc ? `<div style="font-size:11px;color:#6060a0;margin-top:2px">${desc}</div>` : '');
+            row.appendChild(info);
+            return row;
+        };
+
+        const mkToggle = (key) => {
+            const wrap = document.createElement('label');
+            wrap.style.cssText = 'position:relative;display:inline-block;width:40px;height:22px;flex-shrink:0;cursor:pointer';
+            const inp = document.createElement('input');
+            inp.type = 'checkbox';
+            inp.dataset.key = key;
+            inp.checked = !!CONFIG[key];
+            inp.style.cssText = 'opacity:0;width:0;height:0;position:absolute';
+            const span = document.createElement('span');
+            span.style.cssText = [
+                'position:absolute','inset:0','border-radius:22px',
+                'transition:background .2s',
+                `background:${inp.checked ? '#6366f1' : '#2e2e52'}`,
+                'cursor:pointer',
+            ].join(';');
+            const knob = document.createElement('span');
+            knob.style.cssText = [
+                'position:absolute','width:16px','height:16px','border-radius:50%',
+                'background:#fff','top:3px','transition:left .2s',
+                `left:${inp.checked ? '21px' : '3px'}`,
+            ].join(';');
+            span.appendChild(knob);
+            inp.addEventListener('change', () => {
+                span.style.background = inp.checked ? '#6366f1' : '#2e2e52';
+                knob.style.left = inp.checked ? '21px' : '3px';
+            });
+            wrap.appendChild(inp);
+            wrap.appendChild(span);
+            return wrap;
+        };
+
+        const mkText = (key, placeholder = '') => {
+            const inp = document.createElement('input');
+            inp.type = 'text';
+            inp.dataset.key = key;
+            inp.value = CONFIG[key] ?? '';
+            inp.placeholder = placeholder;
+            inp.style.cssText = [
+                'background:#0f0f1e','border:1px solid #3b3b6b','color:#d0d0ee',
+                'font-size:13px','padding:6px 10px','border-radius:6px',
+                'width:220px','flex-shrink:0','outline:none',
+                'transition:border-color .15s',
+            ].join(';');
+            inp.addEventListener('focus', () => inp.style.borderColor = '#6366f1');
+            inp.addEventListener('blur',  () => inp.style.borderColor = '#3b3b6b');
+            return inp;
+        };
+
+        const mkNumber = (key, min, max) => {
+            const inp = document.createElement('input');
+            inp.type = 'number';
+            inp.dataset.key = key;
+            inp.value = CONFIG[key] ?? 0;
+            if (min !== undefined) inp.min = min;
+            if (max !== undefined) inp.max = max;
+            inp.style.cssText = [
+                'background:#0f0f1e','border:1px solid #3b3b6b','color:#d0d0ee',
+                'font-size:13px','padding:6px 10px','border-radius:6px',
+                'width:100px','flex-shrink:0','outline:none',
+                'transition:border-color .15s',
+            ].join(';');
+            inp.addEventListener('focus', () => inp.style.borderColor = '#6366f1');
+            inp.addEventListener('blur',  () => inp.style.borderColor = '#3b3b6b');
+            return inp;
+        };
+
+        const mkSelect = (key, options) => {
+            const sel = document.createElement('select');
+            sel.dataset.key = key;
+            sel.style.cssText = [
+                'background:#0f0f1e','border:1px solid #3b3b6b','color:#d0d0ee',
+                'font-size:13px','padding:6px 10px','border-radius:6px',
+                'flex-shrink:0','outline:none','cursor:pointer',
+                'transition:border-color .15s',
+            ].join(';');
+            for (const [val, label] of options) {
+                const opt = document.createElement('option');
+                opt.value = val;
+                opt.textContent = label;
+                if (CONFIG[key] === val) opt.selected = true;
+                sel.appendChild(opt);
+            }
+            sel.addEventListener('focus', () => sel.style.borderColor = '#6366f1');
+            sel.addEventListener('blur',  () => sel.style.borderColor = '#3b3b6b');
+            return sel;
+        };
+
+        const mkTextarea = (key, placeholder = '') => {
+            const ta = document.createElement('textarea');
+            ta.dataset.key = key;
+            ta.value = (CONFIG[key] || []).join('\n');
+            ta.placeholder = placeholder;
+            ta.rows = 5;
+            ta.style.cssText = [
+                'background:#0f0f1e','border:1px solid #3b3b6b','color:#d0d0ee',
+                'font-size:12px','font-family:monospace','padding:8px 10px',
+                'border-radius:6px','width:100%','box-sizing:border-box',
+                'resize:vertical','outline:none','margin-top:8px',
+                'transition:border-color .15s','line-height:1.5',
+            ].join(';');
+            ta.addEventListener('focus', () => ta.style.borderColor = '#6366f1');
+            ta.addEventListener('blur',  () => ta.style.borderColor = '#3b3b6b');
+            return ta;
+        };
+
+        // ── Build sections ───────────────────────────────────────────────
+
+        // BYPASS
+        const secBypass = mkSection('Bypass Behaviour');
+        const rowAsk = mkRow('Ask before bypass', 'Show a confirmation card before running any bypass');
+        rowAsk.appendChild(mkToggle('askBeforeBypass'));
+        const rowCaptcha = mkRow('Auto-solve captchas', 'Automatically solve Cloudflare Turnstile captchas');
+        rowCaptcha.appendChild(mkToggle('autoCaptcha'));
+        secBypass.appendChild(rowAsk);
+        secBypass.appendChild(rowCaptcha);
+
+        // NOTIFICATIONS
+        const secNotif = mkSection('Notifications');
+
+        const rowPos = mkRow('Position', 'Where toast notifications appear on screen');
+        rowPos.appendChild(mkSelect('notifPosition', [
+            ['bottom-right','Bottom Right'],['bottom-left','Bottom Left'],
+            ['top-right','Top Right'],['top-left','Top Left'],
+        ]));
+
+        const rowDur = mkRow('Duration (ms)', 'How long a notification stays on screen. 0 = until clicked');
+        rowDur.appendChild(mkNumber('notifDuration', 0));
+
+        const rowTime  = mkRow('Show bypass time', 'Display "Done in 1.3s" in the success notification');
+        rowTime.appendChild(mkToggle('showBypassTime'));
+        const rowLabel = mkRow('Show site label', 'Show which bypasser handled the page in the footer');
+        rowLabel.appendChild(mkToggle('showSiteLabel'));
+        const rowCompact = mkRow('Compact mode', 'Smaller, less detailed notification cards');
+        rowCompact.appendChild(mkToggle('compactMode'));
+        const rowDismiss = mkRow('Auto-dismiss on redirect', 'Remove the notification the moment navigation starts');
+        rowDismiss.appendChild(mkToggle('autoDismissOnRedirect'));
+        const rowBrand = mkRow('Show branding', 'Show "Unknown Link Bypasser · @Aro Moon" in cards');
+        rowBrand.appendChild(mkToggle('notifShowBranding'));
+        const rowVer = mkRow('Show version in branding', 'Show script version in the branding line');
+        rowVer.appendChild(mkToggle('notifShowVersion'));
+        const rowLoad = mkRow('Show on loading', 'Show notification while a bypass is in progress');
+        rowLoad.appendChild(mkToggle('notifShowOnLoading'));
+        const rowSucc = mkRow('Show on success', 'Show notification on a successful bypass');
+        rowSucc.appendChild(mkToggle('notifShowOnSuccess'));
+        const rowErr  = mkRow('Show on error', 'Show notification when an error occurs');
+        rowErr.appendChild(mkToggle('notifShowOnError'));
+        const rowClick = mkRow('Click to dismiss', 'Click anywhere on a notification card to dismiss it early');
+        rowClick.appendChild(mkToggle('notifClickToDismiss'));
+        const rowAnim = mkRow('Animate icon', 'Spin animation on the loading icon while bypassing');
+        rowAnim.appendChild(mkToggle('notifAnimateIcon'));
+        const rowHover = mkRow('Pause on hover', 'Pause the auto-dismiss countdown while hovering over the card');
+        rowHover.appendChild(mkToggle('notifPauseOnHover'));
+
+        [rowPos,rowDur,rowTime,rowLabel,rowCompact,rowDismiss,rowBrand,rowVer,
+         rowLoad,rowSucc,rowErr,rowClick,rowAnim,rowHover].forEach(r => secNotif.appendChild(r));
+
+        // SITE-SPECIFIC
+        const secSite = mkSection('Site-Specific');
+        const rowDlSurf = mkRow('dl.surf auto-inject', 'Automatically inject the download bypass button on dl.surf');
+        rowDlSurf.appendChild(mkToggle('dlSurfAutoInject'));
+        const rowAds = mkRow('Block ads (safelink)', 'Remove ads on safelink pages');
+        rowAds.appendChild(mkToggle('blockAds'));
+        const rowPhantom = mkRow('PhantomFluxKey URL', 'URL opened when "Get Key" is clicked');
+        rowPhantom.appendChild(mkText('phantomDirectUrl', 'https://...'));
+        [rowDlSurf, rowAds, rowPhantom].forEach(r => secSite.appendChild(r));
+
+        // AUTO-BYPASS HOSTS
+        const secHosts = mkSection('Auto-Bypass Hosts');
+        const hostNote = document.createElement('div');
+        hostNote.style.cssText = 'font-size:11px;color:#6060a0;margin-bottom:4px';
+        hostNote.textContent = 'One hostname or substring per line — these sites skip the "Bypass this page?" prompt entirely.';
+        const taHosts = mkTextarea('autoBypassHosts', 'e.g. tpi.li\ngplinks.co');
+        secHosts.appendChild(hostNote);
+        secHosts.appendChild(taHosts);
+
+        // CF ALLOWED REFS
+        const secCf = mkSection('Cloudflare Allowed Referrers');
+        const cfNote = document.createElement('div');
+        cfNote.style.cssText = 'font-size:11px;color:#6060a0;margin-bottom:4px';
+        cfNote.textContent = 'Add new safelink domains here if CF auto-click stops working on a site. One entry per line.';
+        const taCf = mkTextarea('cfAllowedRefs', 'e.g. airflowscript.com\ndl.surf');
+        secCf.appendChild(cfNote);
+        secCf.appendChild(taCf);
+
+        [secBypass, secNotif, secSite, secHosts, secCf].forEach(s => body.appendChild(s));
+
+        panel.appendChild(header);
+        panel.appendChild(body);
+        panel.appendChild(footer);
+        overlay.appendChild(panel);
+        _cfgRoot.appendChild(overlay);
+
+        // ── Event wiring ─────────────────────────────────────────────────
+        const closeMenu = () => {
+            if (_cfgObserver) { _cfgObserver.disconnect(); _cfgObserver = null; }
+            _cfgHost.remove();
+            _cfgHost = null;
+            _cfgRoot = null;
+        };
+
+        _cfgRoot.getElementById('ulb-cfg-close').onclick   = closeMenu;
+        _cfgRoot.getElementById('ulb-cfg-cancel').onclick  = closeMenu;
+        overlay.addEventListener('click', e => { if (e.target === overlay) closeMenu(); });
+
+        _cfgRoot.getElementById('ulb-cfg-reset').onclick = () => {
+            if (!confirm('Reset all settings to their defaults?')) return;
+            GM_setValue('ulb_config', null);
+            closeMenu();
+            location.reload();
+        };
+
+        _cfgRoot.getElementById('ulb-cfg-save').onclick = () => {
+            const overrides = {};
+
+            // Checkboxes / toggles
+            panel.querySelectorAll('input[type="checkbox"][data-key]').forEach(inp => {
+                overrides[inp.dataset.key] = inp.checked;
+            });
+
+            // Text inputs
+            panel.querySelectorAll('input[type="text"][data-key]').forEach(inp => {
+                overrides[inp.dataset.key] = inp.value.trim();
+            });
+
+            // Number inputs
+            panel.querySelectorAll('input[type="number"][data-key]').forEach(inp => {
+                overrides[inp.dataset.key] = Number(inp.value);
+            });
+
+            // Selects
+            panel.querySelectorAll('select[data-key]').forEach(sel => {
+                overrides[sel.dataset.key] = sel.value;
+            });
+
+            // Textareas (arrays)
+            panel.querySelectorAll('textarea[data-key]').forEach(ta => {
+                overrides[ta.dataset.key] = ta.value
+                    .split('\n')
+                    .map(l => l.trim())
+                    .filter(Boolean);
+            });
+
+            try { GM_setValue('ulb_config', JSON.stringify(overrides)); } catch (_) {}
+            closeMenu();
+            location.reload();
+        };
+
+        // Hover effects for buttons
+        ['ulb-cfg-close','ulb-cfg-cancel','ulb-cfg-reset'].forEach(id => {
+            const btn = _cfgRoot.getElementById(id);
+            if (!btn) return;
+            btn.addEventListener('mouseenter', () => btn.style.color = '#d0d0ee');
+            btn.addEventListener('mouseleave', () => btn.style.color = id === 'ulb-cfg-close' ? '#7070a0' : '#9090c0');
+        });
+    }
+
     // ╔══════════════════════════════════════════════════════════════════════╗
     // ║                    INTERNAL CODE — DO NOT EDIT                       ║
     // ╚══════════════════════════════════════════════════════════════════════╝
@@ -254,7 +694,7 @@
     // §1  CONSTANTS
     // ═══════════════════════════════════════════════════════════════════════
 
-    const VERSION = '6.7.7';
+    const VERSION = '6.8.0';
 
     // ── Diagnostics log ───────────────────────────────────────────────────
     // Captures errors/warnings for the Diagnostics menu command.
@@ -1917,6 +2357,11 @@
         }
     }
 
+    // ── Config menu command ────────────────────────────────────────────────
+    try {
+        GM_registerMenuCommand('Config', _showConfigMenu);
+    } catch (_) { /* GM_registerMenuCommand not available */ }
+
     // ── Diagnostics menu command ───────────────────────────────────────────
     try {
         GM_registerMenuCommand('ULB Diagnostics', () => {
@@ -2046,6 +2491,7 @@
         else if(host.includes('dusarisalary.com')) _gateBypass(host, runUnlockLinkFinderBypasser);
         else if(host.includes('sub2unlock.io') && path.length > 1) _gateBypass(host, runUnlockLinkFinderBypasser);
         else if(host.includes('sub2unlock.io')) { /* homepage — do nothing */ }
+        else if(host.includes('socialwolvez.com')) _gateBypass('socialwolvez.com', runSocialWolvezBypasser);
         else if(TPI_HOSTS.some(h => host.includes(h))) _gateBypass(host, runTpiLiBypasser);
         else if(FORM_HOSTS.some(h => host.includes(h))) _gateBypass(host, runFormBypasser);
         else _gateBypass(host, runSafelinkBypasser);
@@ -5856,8 +6302,8 @@
     //  widget is always visible when autoCaptcha is false. (it was mainly a test)
 
     function runOuoBypasser() {
-        const SITE = 'ouo.io';
-        const TURNSTILE_SITEKEY = '0x4AAAAAAA77ZC8BklcfDJke';
+        const SITE = location.hostname; // dynamic: works for both ouo.io and ouo.press
+        const TURNSTILE_SITEKEY = getSiteKey('0x4AAAAAAA77ZC8BklcfDJke'); // fall back to hardcoded key if page doesn't expose one
         const t = makeTimer();
         const nh = notify(`${SITE} — detecting page…`, 'loading', 0, { site: SITE });
         const handleError = makeErrHandler(SITE, nh, 10000);
@@ -6182,6 +6628,42 @@
             } catch (err) {
                 handleError('bypass failed', err);
             }
+        };
+
+        onReady(init);
+    }
+
+    // ── socialwolvez.com/app/l/* ───────────────────────────────────────────
+    // Next.js streams server data into self.__next_f (an array of strings).
+    // The destination URL is embedded in that payload as "url":"<href>".
+    // We poll until the array is populated, extract the first match, and
+    // redirect — identical logic to the one-liner below, fully integrated:
+    //   location.href=((self.__next_f||[]).join("").match(/"url":"(.*?)"/)||[])[1]
+
+    function runSocialWolvezBypasser() {
+        const SITE = 'socialwolvez.com';
+        const t = makeTimer();
+        const nh = notify(`${SITE} — reading Next.js payload…`, 'loading', 0, { site: SITE });
+        const handleError = makeErrHandler(SITE, nh, 7000);
+
+        const tryExtract = () => {
+            const raw = (unsafeWindow.self.__next_f || []).join('');
+            if (!raw) return false;
+            const m = raw.match(/"url":"(.*?)"/);
+            // Unescape any Unicode escape sequences Next.js may encode (e.g. \u002F → /)
+            const url = m && m[1] ? m[1].replace(/\\u([\dA-Fa-f]{4})/g, (_, h) => String.fromCharCode(parseInt(h, 16))) : null;
+            if (url && safeUrl(url)) {
+                safeRedirect(url, nh, { t, siteLabel: SITE });
+                return true;
+            }
+            return false;
+        };
+
+        const init = () => {
+            if (tryExtract()) return;
+            pollUntil(tryExtract, 150, 100).catch(() => {
+                handleError('"url" key not found in Next.js payload (__next_f)', null);
+            });
         };
 
         onReady(init);
