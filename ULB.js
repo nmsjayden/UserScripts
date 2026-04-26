@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Unknown Link Bypasser
-// @version      6.8.0
-// @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live(SCAM WARNING) + go.yorurl.com + jankariweb + newsuchnaonline + bigcarinsurance + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + highlocus.shop + gplinks.co + powergam.online + getpolsec.com + hehehub + sub4unlock.co + app.khaddavi.net + sfl.gl + ytsubme.com + aylink.co + biplabtewary.com + mwgamesyt.com.br + topjogosvip.online + legacyagency.com.br + 4br.me + short-jambo.com/ink + fastcars + fluorine.s3ren1ty.xyz + go.linkify.ru + arolinks.com + spdmteam.com + linkunlocker.com + mboost.me + sub2unlock.netlify.app + krnl-ios.com + ouo.io + start-get-key.pages.dev + bstshrt.com + rekonise.com + boblox-script.com + dusarisalary.com + sub2unlock.io. Made by @Aro Moon
+// @version      6.8.2
+// @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live(SCAM WARNING) + go.yorurl.com + jankariweb + newsuchnaonline + bigcarinsurance + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + highlocus.shop + gplinks.co + powergam.online + getpolsec.com + hehehub + sub4unlock.co + app.khaddavi.net + sfl.gl + ytsubme.com + aylink.co + biplabtewary.com + mwgamesyt.com.br + topjogosvip.online + legacyagency.com.br + 4br.me + short-jambo.com/ink + fastcars + fluorine.s3ren1ty.xyz + go.linkify.ru + arolinks.com + spdmteam.com + linkunlocker.com + mboost.me + sub2unlock.netlify.app + krnl-ios.com + ouo.io + start-get-key.pages.dev + bstshrt.com + rekonise.com + boblox-script.com + dusarisalary.com + sub2unlock.io + checkpoint2keyhub.vercel.app + checkpoint3keyhub.vercel.app. Made by @Aro Moon
 // @author       @Aro Moon
 // @include      /^https:\/\/mtc\d+\.[^/]+\.[a-z.]+\//
 // @include      /^https?:\/\/(?:\w+\.)?fastcars\d+\.com\//
@@ -13,6 +13,8 @@
 // @match        https://dailyjobposting.xyz/*
 // @match        https://tpi.li/*
 // @match        https://challenges.cloudflare.com/*
+// @match        https://www.google.com/recaptcha/*
+// @match        https://recaptcha.net/recaptcha/*
 // @match        https://www.airflowscript.com/key
 // @match        https://stfly.biz/*
 // @match        https://bstlar.com/*
@@ -78,7 +80,10 @@
 // @match        https://dusarisalary.com/*
 // @match        https://sub2unlock.io/*
 // @match        https://socialwolvez.com/app/l/*
+// @match        https://checkpoint2keyhub.vercel.app/*
+// @match        https://checkpoint3keyhub.vercel.app/*
 // @grant        GM_addElement
+// @grant        GM_xmlhttpRequest
 // @grant        unsafeWindow
 // @grant        GM_registerMenuCommand
 // @grant        GM_setClipboard
@@ -87,6 +92,9 @@
 // @connect      challenges.cloudflare.com
 // @connect      www.scoplidrop.com
 // @connect      boblox-script.com
+// @connect      key-system-hub.vercel.app
+// @connect      engageub.pythonanywhere.com
+// @connect      engageub1.pythonanywhere.com
 // @run-at       document-start
 // @downloadURL  https://raw.githubusercontent.com/nmsjayden/UserScripts/main/ULB.js
 // @updateURL    https://raw.githubusercontent.com/nmsjayden/UserScripts/main/ULB.js
@@ -156,6 +164,8 @@
             'go.yorurl.com',
             'scoplidrop.com',
             'lnbz.la',
+            'checkpoint2keyhub.vercel.app',
+            'checkpoint3keyhub.vercel.app',
         ],
 
         // ┌─────────────────────────────────────────────────────────────────┐
@@ -166,6 +176,12 @@
         // Set to false to solve them yourself; the /links/go step is still
         // automated regardless of this setting.
         autoCaptcha: true,
+
+        // Automatically solve reCAPTCHA v2 challenges using an audio bypass.
+        // Works by switching to the audio challenge and sending the audio clip
+        // to a transcription service (engageub.pythonanywhere.com).
+        // Set to false to disable auto-solving and handle reCAPTCHAs manually.
+        autoRecaptcha: true,
 
         // ┌─────────────────────────────────────────────────────────────────┐
         // │  NOTIFICATIONS                                                  │
@@ -253,438 +269,14 @@
     // ── Load persisted config overrides ──────────────────────────────────
     try {
         const _saved = GM_getValue('ulb_config', null);
-        if (_saved) {
+        if(_saved) {
             const _parsed = JSON.parse(_saved);
-            for (const [k, v] of Object.entries(_parsed)) {
-                if (k in CONFIG) CONFIG[k] = v;
+            for(const [k, v] of Object.entries(_parsed)) {
+                if(k in CONFIG) CONFIG[k] = v;
             }
         }
-    } catch (_) { /* storage not available or corrupt — use defaults */ }
-
-    // ── Config menu UI ────────────────────────────────────────────────────
-    // Shadow DOM host for the config overlay (created once, reused)
-    let _cfgHost = null;
-    let _cfgRoot = null;
-    let _cfgObserver = null;
-
-    function _showConfigMenu() {
-        // Toggle: close if already open
-        if (_cfgHost && _cfgHost.isConnected && _cfgRoot.getElementById('ulb-config-overlay')) {
-            _cfgHost.remove();
-            _cfgHost = null;
-            _cfgRoot = null;
-            return;
-        }
-
-        // Build isolated shadow host
-        _cfgHost = document.createElement('div');
-        _cfgHost.id = '__ulb_cfg_host';
-        _cfgHost.style.cssText = [
-            'all:initial',
-            'position:fixed','top:0','left:0',
-            'width:100vw','height:100vh',
-            'z-index:2147483647',
-            'contain:layout style paint',
-        ].join(';');
-
-        (document.documentElement || document.body).appendChild(_cfgHost);
-
-        _cfgRoot = _cfgHost.attachShadow({ mode: 'open' });
-
-        // Inject a style reset + our own CSS inside the shadow root
-        const shadowStyle = document.createElement('style');
-        shadowStyle.textContent = `
-            *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-            :host { all: initial; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-            input, select, textarea, button { font-family: inherit; }
-            input[type=number]::-webkit-inner-spin-button,
-            input[type=number]::-webkit-outer-spin-button { opacity: 1; }
-            ::-webkit-scrollbar { width: 6px; }
-            ::-webkit-scrollbar-track { background: #0f0f1e; }
-            ::-webkit-scrollbar-thumb { background: #3b3b6b; border-radius: 3px; }
-        `;
-        _cfgRoot.appendChild(shadowStyle);
-
-        // MutationObserver: re-attach host if the page rips it out
-        if (_cfgObserver) _cfgObserver.disconnect();
-        _cfgObserver = new MutationObserver(() => {
-            if (_cfgHost && !document.documentElement.contains(_cfgHost)) {
-                document.documentElement.appendChild(_cfgHost);
-            }
-        });
-        _cfgObserver.observe(document.documentElement, { childList: true, subtree: true });
-
-        const OVERLAY_ID = 'ulb-config-overlay';
-
-        const DEFAULTS = {
-            askBeforeBypass:      true,
-            autoCaptcha:          true,
-            notifPosition:        'bottom-right',
-            notifDuration:        4000,
-            showBypassTime:       true,
-            showSiteLabel:        true,
-            compactMode:          false,
-            autoDismissOnRedirect:true,
-            notifShowBranding:    true,
-            notifShowVersion:     true,
-            notifShowOnLoading:   true,
-            notifShowOnSuccess:   true,
-            notifShowOnError:     true,
-            notifClickToDismiss:  false,
-            notifAnimateIcon:     true,
-            notifPauseOnHover:    false,
-            dlSurfAutoInject:     true,
-            blockAds:             true,
-            phantomDirectUrl:     'https://pastefy.app/8PxwQFt8',
-            autoBypassHosts:      [],
-            cfAllowedRefs:        [],
-        };
-
-        const overlay = document.createElement('div');
-        overlay.id = OVERLAY_ID;
-        overlay.style.cssText = [
-            'position:fixed','top:0','left:0','width:100%','height:100%',
-            'z-index:2147483647','background:rgba(0,0,0,0.82)',
-            'display:flex','align-items:center','justify-content:center',
-            'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif',
-            'box-sizing:border-box',
-        ].join(';');
-
-        const panel = document.createElement('div');
-        panel.style.cssText = [
-            'background:#1a1a2e','color:#e2e2f0',
-            'border:1px solid #3b3b6b','border-radius:12px',
-            'width:min(680px,96vw)','max-height:90vh',
-            'display:flex','flex-direction:column',
-            'box-shadow:0 24px 60px rgba(0,0,0,0.7)',
-            'overflow:hidden',
-        ].join(';');
-
-        // Header
-        const header = document.createElement('div');
-        header.style.cssText = [
-            'display:flex','align-items:center','justify-content:space-between',
-            'padding:16px 20px','border-bottom:1px solid #2e2e52',
-            'background:#16162a','flex-shrink:0',
-        ].join(';');
-        header.innerHTML = `
-            <div style="display:flex;align-items:center;gap:10px">
-                <span style="font-size:20px">⏣</span>
-                <span style="font-size:16px;font-weight:700;letter-spacing:.3px">ULB Config</span>
-                <span style="font-size:11px;color:#7070a0;background:#0f0f1e;border:1px solid #2e2e52;
-                    border-radius:4px;padding:2px 7px">v${typeof VERSION !== 'undefined' ? VERSION : ''}</span>
-            </div>
-            <button id="ulb-cfg-close" style="background:none;border:none;color:#7070a0;font-size:20px;
-                cursor:pointer;line-height:1;padding:2px 6px;border-radius:5px;transition:color .15s"
-                title="Close">✕</button>`;
-
-        // Body (scrollable)
-        const body = document.createElement('div');
-        body.style.cssText = 'padding:20px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:20px';
-
-        // Footer
-        const footer = document.createElement('div');
-        footer.style.cssText = [
-            'padding:14px 20px','border-top:1px solid #2e2e52',
-            'background:#16162a','display:flex','align-items:center',
-            'justify-content:space-between','flex-shrink:0','gap:10px',
-        ].join(';');
-        footer.innerHTML = `
-            <button id="ulb-cfg-reset" style="background:#1e1e38;border:1px solid #3b3b6b;color:#9090c0;
-                font-size:13px;padding:8px 16px;border-radius:7px;cursor:pointer">
-                Reset to defaults
-            </button>
-            <div style="display:flex;gap:10px">
-                <button id="ulb-cfg-cancel" style="background:#1e1e38;border:1px solid #3b3b6b;
-                    color:#9090c0;font-size:13px;padding:8px 18px;border-radius:7px;cursor:pointer">
-                    Cancel
-                </button>
-                <button id="ulb-cfg-save" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);
-                    border:none;color:#fff;font-size:13px;font-weight:600;padding:8px 22px;
-                    border-radius:7px;cursor:pointer;box-shadow:0 2px 10px rgba(99,102,241,.4)">
-                    Save &amp; Reload
-                </button>
-            </div>`;
-
-        // ── Section builder helpers ──────────────────────────────────────
-        const mkSection = (title) => {
-            const sec = document.createElement('div');
-            const lbl = document.createElement('div');
-            lbl.style.cssText = 'font-size:11px;font-weight:700;text-transform:uppercase;' +
-                'letter-spacing:.8px;color:#6060a0;margin-bottom:12px;padding-bottom:6px;' +
-                'border-bottom:1px solid #2a2a4a';
-            lbl.textContent = title;
-            sec.appendChild(lbl);
-            return sec;
-        };
-
-        const mkRow = (labelText, desc) => {
-            const row = document.createElement('div');
-            row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;' +
-                'padding:8px 0;gap:12px';
-            const info = document.createElement('div');
-            info.style.cssText = 'flex:1;min-width:0';
-            info.innerHTML = `<div style="font-size:13px;font-weight:500;color:#d0d0ee">${labelText}</div>` +
-                (desc ? `<div style="font-size:11px;color:#6060a0;margin-top:2px">${desc}</div>` : '');
-            row.appendChild(info);
-            return row;
-        };
-
-        const mkToggle = (key) => {
-            const wrap = document.createElement('label');
-            wrap.style.cssText = 'position:relative;display:inline-block;width:40px;height:22px;flex-shrink:0;cursor:pointer';
-            const inp = document.createElement('input');
-            inp.type = 'checkbox';
-            inp.dataset.key = key;
-            inp.checked = !!CONFIG[key];
-            inp.style.cssText = 'opacity:0;width:0;height:0;position:absolute';
-            const span = document.createElement('span');
-            span.style.cssText = [
-                'position:absolute','inset:0','border-radius:22px',
-                'transition:background .2s',
-                `background:${inp.checked ? '#6366f1' : '#2e2e52'}`,
-                'cursor:pointer',
-            ].join(';');
-            const knob = document.createElement('span');
-            knob.style.cssText = [
-                'position:absolute','width:16px','height:16px','border-radius:50%',
-                'background:#fff','top:3px','transition:left .2s',
-                `left:${inp.checked ? '21px' : '3px'}`,
-            ].join(';');
-            span.appendChild(knob);
-            inp.addEventListener('change', () => {
-                span.style.background = inp.checked ? '#6366f1' : '#2e2e52';
-                knob.style.left = inp.checked ? '21px' : '3px';
-            });
-            wrap.appendChild(inp);
-            wrap.appendChild(span);
-            return wrap;
-        };
-
-        const mkText = (key, placeholder = '') => {
-            const inp = document.createElement('input');
-            inp.type = 'text';
-            inp.dataset.key = key;
-            inp.value = CONFIG[key] ?? '';
-            inp.placeholder = placeholder;
-            inp.style.cssText = [
-                'background:#0f0f1e','border:1px solid #3b3b6b','color:#d0d0ee',
-                'font-size:13px','padding:6px 10px','border-radius:6px',
-                'width:220px','flex-shrink:0','outline:none',
-                'transition:border-color .15s',
-            ].join(';');
-            inp.addEventListener('focus', () => inp.style.borderColor = '#6366f1');
-            inp.addEventListener('blur',  () => inp.style.borderColor = '#3b3b6b');
-            return inp;
-        };
-
-        const mkNumber = (key, min, max) => {
-            const inp = document.createElement('input');
-            inp.type = 'number';
-            inp.dataset.key = key;
-            inp.value = CONFIG[key] ?? 0;
-            if (min !== undefined) inp.min = min;
-            if (max !== undefined) inp.max = max;
-            inp.style.cssText = [
-                'background:#0f0f1e','border:1px solid #3b3b6b','color:#d0d0ee',
-                'font-size:13px','padding:6px 10px','border-radius:6px',
-                'width:100px','flex-shrink:0','outline:none',
-                'transition:border-color .15s',
-            ].join(';');
-            inp.addEventListener('focus', () => inp.style.borderColor = '#6366f1');
-            inp.addEventListener('blur',  () => inp.style.borderColor = '#3b3b6b');
-            return inp;
-        };
-
-        const mkSelect = (key, options) => {
-            const sel = document.createElement('select');
-            sel.dataset.key = key;
-            sel.style.cssText = [
-                'background:#0f0f1e','border:1px solid #3b3b6b','color:#d0d0ee',
-                'font-size:13px','padding:6px 10px','border-radius:6px',
-                'flex-shrink:0','outline:none','cursor:pointer',
-                'transition:border-color .15s',
-            ].join(';');
-            for (const [val, label] of options) {
-                const opt = document.createElement('option');
-                opt.value = val;
-                opt.textContent = label;
-                if (CONFIG[key] === val) opt.selected = true;
-                sel.appendChild(opt);
-            }
-            sel.addEventListener('focus', () => sel.style.borderColor = '#6366f1');
-            sel.addEventListener('blur',  () => sel.style.borderColor = '#3b3b6b');
-            return sel;
-        };
-
-        const mkTextarea = (key, placeholder = '') => {
-            const ta = document.createElement('textarea');
-            ta.dataset.key = key;
-            ta.value = (CONFIG[key] || []).join('\n');
-            ta.placeholder = placeholder;
-            ta.rows = 5;
-            ta.style.cssText = [
-                'background:#0f0f1e','border:1px solid #3b3b6b','color:#d0d0ee',
-                'font-size:12px','font-family:monospace','padding:8px 10px',
-                'border-radius:6px','width:100%','box-sizing:border-box',
-                'resize:vertical','outline:none','margin-top:8px',
-                'transition:border-color .15s','line-height:1.5',
-            ].join(';');
-            ta.addEventListener('focus', () => ta.style.borderColor = '#6366f1');
-            ta.addEventListener('blur',  () => ta.style.borderColor = '#3b3b6b');
-            return ta;
-        };
-
-        // ── Build sections ───────────────────────────────────────────────
-
-        // BYPASS
-        const secBypass = mkSection('Bypass Behaviour');
-        const rowAsk = mkRow('Ask before bypass', 'Show a confirmation card before running any bypass');
-        rowAsk.appendChild(mkToggle('askBeforeBypass'));
-        const rowCaptcha = mkRow('Auto-solve captchas', 'Automatically solve Cloudflare Turnstile captchas');
-        rowCaptcha.appendChild(mkToggle('autoCaptcha'));
-        secBypass.appendChild(rowAsk);
-        secBypass.appendChild(rowCaptcha);
-
-        // NOTIFICATIONS
-        const secNotif = mkSection('Notifications');
-
-        const rowPos = mkRow('Position', 'Where toast notifications appear on screen');
-        rowPos.appendChild(mkSelect('notifPosition', [
-            ['bottom-right','Bottom Right'],['bottom-left','Bottom Left'],
-            ['top-right','Top Right'],['top-left','Top Left'],
-        ]));
-
-        const rowDur = mkRow('Duration (ms)', 'How long a notification stays on screen. 0 = until clicked');
-        rowDur.appendChild(mkNumber('notifDuration', 0));
-
-        const rowTime  = mkRow('Show bypass time', 'Display "Done in 1.3s" in the success notification');
-        rowTime.appendChild(mkToggle('showBypassTime'));
-        const rowLabel = mkRow('Show site label', 'Show which bypasser handled the page in the footer');
-        rowLabel.appendChild(mkToggle('showSiteLabel'));
-        const rowCompact = mkRow('Compact mode', 'Smaller, less detailed notification cards');
-        rowCompact.appendChild(mkToggle('compactMode'));
-        const rowDismiss = mkRow('Auto-dismiss on redirect', 'Remove the notification the moment navigation starts');
-        rowDismiss.appendChild(mkToggle('autoDismissOnRedirect'));
-        const rowBrand = mkRow('Show branding', 'Show "Unknown Link Bypasser · @Aro Moon" in cards');
-        rowBrand.appendChild(mkToggle('notifShowBranding'));
-        const rowVer = mkRow('Show version in branding', 'Show script version in the branding line');
-        rowVer.appendChild(mkToggle('notifShowVersion'));
-        const rowLoad = mkRow('Show on loading', 'Show notification while a bypass is in progress');
-        rowLoad.appendChild(mkToggle('notifShowOnLoading'));
-        const rowSucc = mkRow('Show on success', 'Show notification on a successful bypass');
-        rowSucc.appendChild(mkToggle('notifShowOnSuccess'));
-        const rowErr  = mkRow('Show on error', 'Show notification when an error occurs');
-        rowErr.appendChild(mkToggle('notifShowOnError'));
-        const rowClick = mkRow('Click to dismiss', 'Click anywhere on a notification card to dismiss it early');
-        rowClick.appendChild(mkToggle('notifClickToDismiss'));
-        const rowAnim = mkRow('Animate icon', 'Spin animation on the loading icon while bypassing');
-        rowAnim.appendChild(mkToggle('notifAnimateIcon'));
-        const rowHover = mkRow('Pause on hover', 'Pause the auto-dismiss countdown while hovering over the card');
-        rowHover.appendChild(mkToggle('notifPauseOnHover'));
-
-        [rowPos,rowDur,rowTime,rowLabel,rowCompact,rowDismiss,rowBrand,rowVer,
-         rowLoad,rowSucc,rowErr,rowClick,rowAnim,rowHover].forEach(r => secNotif.appendChild(r));
-
-        // SITE-SPECIFIC
-        const secSite = mkSection('Site-Specific');
-        const rowDlSurf = mkRow('dl.surf auto-inject', 'Automatically inject the download bypass button on dl.surf');
-        rowDlSurf.appendChild(mkToggle('dlSurfAutoInject'));
-        const rowAds = mkRow('Block ads (safelink)', 'Remove ads on safelink pages');
-        rowAds.appendChild(mkToggle('blockAds'));
-        const rowPhantom = mkRow('PhantomFluxKey URL', 'URL opened when "Get Key" is clicked');
-        rowPhantom.appendChild(mkText('phantomDirectUrl', 'https://...'));
-        [rowDlSurf, rowAds, rowPhantom].forEach(r => secSite.appendChild(r));
-
-        // AUTO-BYPASS HOSTS
-        const secHosts = mkSection('Auto-Bypass Hosts');
-        const hostNote = document.createElement('div');
-        hostNote.style.cssText = 'font-size:11px;color:#6060a0;margin-bottom:4px';
-        hostNote.textContent = 'One hostname or substring per line — these sites skip the "Bypass this page?" prompt entirely.';
-        const taHosts = mkTextarea('autoBypassHosts', 'e.g. tpi.li\ngplinks.co');
-        secHosts.appendChild(hostNote);
-        secHosts.appendChild(taHosts);
-
-        // CF ALLOWED REFS
-        const secCf = mkSection('Cloudflare Allowed Referrers');
-        const cfNote = document.createElement('div');
-        cfNote.style.cssText = 'font-size:11px;color:#6060a0;margin-bottom:4px';
-        cfNote.textContent = 'Add new safelink domains here if CF auto-click stops working on a site. One entry per line.';
-        const taCf = mkTextarea('cfAllowedRefs', 'e.g. airflowscript.com\ndl.surf');
-        secCf.appendChild(cfNote);
-        secCf.appendChild(taCf);
-
-        [secBypass, secNotif, secSite, secHosts, secCf].forEach(s => body.appendChild(s));
-
-        panel.appendChild(header);
-        panel.appendChild(body);
-        panel.appendChild(footer);
-        overlay.appendChild(panel);
-        _cfgRoot.appendChild(overlay);
-
-        // ── Event wiring ─────────────────────────────────────────────────
-        const closeMenu = () => {
-            if (_cfgObserver) { _cfgObserver.disconnect(); _cfgObserver = null; }
-            _cfgHost.remove();
-            _cfgHost = null;
-            _cfgRoot = null;
-        };
-
-        _cfgRoot.getElementById('ulb-cfg-close').onclick   = closeMenu;
-        _cfgRoot.getElementById('ulb-cfg-cancel').onclick  = closeMenu;
-        overlay.addEventListener('click', e => { if (e.target === overlay) closeMenu(); });
-
-        _cfgRoot.getElementById('ulb-cfg-reset').onclick = () => {
-            if (!confirm('Reset all settings to their defaults?')) return;
-            GM_setValue('ulb_config', null);
-            closeMenu();
-            location.reload();
-        };
-
-        _cfgRoot.getElementById('ulb-cfg-save').onclick = () => {
-            const overrides = {};
-
-            // Checkboxes / toggles
-            panel.querySelectorAll('input[type="checkbox"][data-key]').forEach(inp => {
-                overrides[inp.dataset.key] = inp.checked;
-            });
-
-            // Text inputs
-            panel.querySelectorAll('input[type="text"][data-key]').forEach(inp => {
-                overrides[inp.dataset.key] = inp.value.trim();
-            });
-
-            // Number inputs
-            panel.querySelectorAll('input[type="number"][data-key]').forEach(inp => {
-                overrides[inp.dataset.key] = Number(inp.value);
-            });
-
-            // Selects
-            panel.querySelectorAll('select[data-key]').forEach(sel => {
-                overrides[sel.dataset.key] = sel.value;
-            });
-
-            // Textareas (arrays)
-            panel.querySelectorAll('textarea[data-key]').forEach(ta => {
-                overrides[ta.dataset.key] = ta.value
-                    .split('\n')
-                    .map(l => l.trim())
-                    .filter(Boolean);
-            });
-
-            try { GM_setValue('ulb_config', JSON.stringify(overrides)); } catch (_) {}
-            closeMenu();
-            location.reload();
-        };
-
-        // Hover effects for buttons
-        ['ulb-cfg-close','ulb-cfg-cancel','ulb-cfg-reset'].forEach(id => {
-            const btn = _cfgRoot.getElementById(id);
-            if (!btn) return;
-            btn.addEventListener('mouseenter', () => btn.style.color = '#d0d0ee');
-            btn.addEventListener('mouseleave', () => btn.style.color = id === 'ulb-cfg-close' ? '#7070a0' : '#9090c0');
-        });
-    }
+    } catch (_) {
+        /* storage not available or corrupt — use defaults */ }
 
     // ╔══════════════════════════════════════════════════════════════════════╗
     // ║                    INTERNAL CODE — DO NOT EDIT                       ║
@@ -694,37 +286,37 @@
     // §1  CONSTANTS
     // ═══════════════════════════════════════════════════════════════════════
 
-    const VERSION = '6.8.0';
+    const VERSION = '6.8.2';
 
     // ── Diagnostics log ───────────────────────────────────────────────────
     // Captures errors/warnings for the Diagnostics menu command.
     const _diagEntries = [];
     const _origConsoleError = console.error.bind(console);
-    const _origConsoleWarn  = console.warn.bind(console);
+    const _origConsoleWarn = console.warn.bind(console);
 
     /** Serialize any value to a readable string for the diagnostics log. */
     function _diagSerialize(a) {
-        if (a === null) return 'null';
-        if (a === undefined) return 'undefined';
-        if (typeof a === 'string') return a;
-        if (typeof a !== 'object' && typeof a !== 'function') return String(a);
+        if(a === null) return 'null';
+        if(a === undefined) return 'undefined';
+        if(typeof a === 'string') return a;
+        if(typeof a !== 'object' && typeof a !== 'function') return String(a);
         // Error objects — JSON.stringify gives "{}" so handle them explicitly
-        if (a instanceof Error) {
+        if(a instanceof Error) {
             const parts = [`${a.name}: ${a.message}`];
-            if (a.cause) parts.push(`  cause: ${_diagSerialize(a.cause)}`);
-            if (a.stack) parts.push(`  stack: ${a.stack.split('\n').slice(0, 4).join(' | ')}`);
+            if(a.cause) parts.push(`  cause: ${_diagSerialize(a.cause)}`);
+            if(a.stack) parts.push(`  stack: ${a.stack.split('\n').slice(0, 4).join(' | ')}`);
             return parts.join('\n');
         }
         // Response objects
-        if (typeof Response !== 'undefined' && a instanceof Response) {
+        if(typeof Response !== 'undefined' && a instanceof Response) {
             return `Response { status: ${a.status}, url: ${a.url} }`;
         }
         // Plain object / array — safe stringify with circular guard
         try {
             const seen = new WeakSet();
             return JSON.stringify(a, (_k, v) => {
-                if (typeof v === 'object' && v !== null) {
-                    if (seen.has(v)) return '[Circular]';
+                if(typeof v === 'object' && v !== null) {
+                    if(seen.has(v)) return '[Circular]';
                     seen.add(v);
                 }
                 return v;
@@ -734,8 +326,22 @@
         }
     }
 
-    console.error = (...args) => { _diagEntries.push({ level: 'ERROR', ts: Date.now(), msg: args.map(_diagSerialize).join(' ') }); _origConsoleError(...args); };
-    console.warn  = (...args) => { _diagEntries.push({ level: 'WARN',  ts: Date.now(), msg: args.map(_diagSerialize).join(' ') }); _origConsoleWarn(...args); };
+    console.error = (...args) => {
+        _diagEntries.push({
+            level: 'ERROR',
+            ts: Date.now(),
+            msg: args.map(_diagSerialize).join(' ')
+        });
+        _origConsoleError(...args);
+    };
+    console.warn = (...args) => {
+        _diagEntries.push({
+            level: 'WARN',
+            ts: Date.now(),
+            msg: args.map(_diagSerialize).join(' ')
+        });
+        _origConsoleWarn(...args);
+    };
 
     const FORM_HOSTS = ['shrtslug.biz', 'biovetro.net', 'technons.com', 'tournguide.com', 'dailyjobposting.xyz', 'stfly.biz'];
     const TPI_HOSTS = ['tpi.li'];
@@ -988,11 +594,11 @@
      */
     function submitForm(form) {
         try {
-            if (typeof form.requestSubmit === 'function') form.requestSubmit();
+            if(typeof form.requestSubmit === 'function') form.requestSubmit();
             else HTMLFormElement.prototype.submit.call(form);
         } catch (_) {
             const btn = form.querySelector('button[type="submit"], input[type="submit"]');
-            if (btn) btn.click();
+            if(btn) btn.click();
         }
     }
 
@@ -1005,11 +611,16 @@
      */
     function spoofVisibilityHidden() {
         const desc = Object.getOwnPropertyDescriptor(Document.prototype, 'visibilityState');
-        Object.defineProperty(document, 'visibilityState', { get: () => 'hidden', configurable: true });
+        Object.defineProperty(document, 'visibilityState', {
+            get: () => 'hidden',
+            configurable: true
+        });
         document.dispatchEvent(new Event('visibilitychange'));
         return function restore() {
-            try { delete document.visibilityState; } catch (_) {}
-            if (desc) Object.defineProperty(Document.prototype, 'visibilityState', desc);
+            try {
+                delete document.visibilityState;
+            } catch (_) {}
+            if(desc) Object.defineProperty(Document.prototype, 'visibilityState', desc);
             document.dispatchEvent(new Event('visibilitychange'));
         };
     }
@@ -1026,11 +637,13 @@
      */
     function waitForContinueBtn(label, nh, SITE, timeoutMs = 60_000) {
         const check = setInterval(() => {
-            for (const id of ['cross-snp2', 'btn7']) {
+            for(const id of ['cross-snp2', 'btn7']) {
                 const el = document.getElementById(id);
-                if (el && el.offsetParent !== null) {
+                if(el && el.offsetParent !== null) {
                     clearInterval(check);
-                    if (nh) nh.update(`${SITE} — ${label} — clicking Continue…`, 'loading', { site: SITE });
+                    if(nh) nh.update(`${SITE} — ${label} — clicking Continue…`, 'loading', {
+                        site: SITE
+                    });
                     el.click();
                     return;
                 }
@@ -1043,7 +656,21 @@
     // §3  NOTIFICATION SYSTEM
     // ═══════════════════════════════════════════════════════════════════════
 
+    let _posCache = null;
+    window.addEventListener('resize', () => {
+        _posCache = null;
+        // Re-apply container sizing after orientation change / resize
+        if(_container?.isConnected) {
+            const mobile = _isMobile();
+            _container.style.maxWidth = mobile ? 'calc(100vw - 20px)' : 'calc(100vw - 56px)';
+            _container.style.gap = mobile ? '7px' : '10px';
+        }
+    }, {
+        passive: true
+    });
+
     function _posStyles() {
+        if(_posCache) return _posCache;
         const p = CONFIG.notifPosition || 'bottom-right';
         const [v, h] = p.split('-');
         const mobile = _isMobile();
@@ -1060,12 +687,13 @@
         const dir = v === 'top' ? 'column' : 'column-reverse';
         const slide = h === 'left' ? 'translateX(-14px)' : 'translateX(14px)';
 
-        return {
+        _posCache = {
             vert,
             horiz,
             dir,
             slide
         };
+        return _posCache;
     }
 
     const CSS_CARD_BASE = [
@@ -1088,6 +716,10 @@
     let _root = null;
     let _container = null;
 
+    // Rate-limiter: suppress identical back-to-back notifications within 300 ms
+    let _lastNotifMsg = '';
+    let _lastNotifTs = 0;
+
     /* =========================
        CORE CONTAINER (SHADOW DOM)
     ========================= */
@@ -1106,16 +738,24 @@
             _host = document.createElement('div');
             _host.id = '__ulb_host';
 
+            // Zero-size anchor at the top-left corner of the viewport.
+            // CRITICAL: no `contain:layout` or `contain:paint` — those create a
+            // new positioning containing block, which makes `position:fixed` inside
+            // the shadow root fixed relative to the host box, not the real viewport.
+            // A zero-size host with only `contain:style` keeps CSS isolation without
+            // corrupting the containing block.  Children use true viewport-fixed pos.
             _host.style.cssText = [
                 'all:initial',
+                'display:block',
                 'position:fixed',
                 'top:0',
                 'left:0',
-                'width:100vw',
-                'height:100vh',
-                'z-index:2147483646',
+                'width:0',
+                'height:0',
+                'overflow:visible',
+                'z-index:2147483647',
                 'pointer-events:none',
-                'contain:layout style paint',
+                'contain:style',
             ].join(';');
 
             (document.documentElement || document.body).appendChild(_host);
@@ -1130,7 +770,7 @@
             :host { all: initial; }
             @keyframes __ulb_spin { to { transform: rotate(360deg); } }
             @media (prefers-reduced-motion: reduce) {
-                * { animation-duration:0.01ms!important; transition-duration:0.01ms!important; }
+                * { animation-duration:0.01ms!important; transition-duration:0.01ms!important; will-change:auto!important; }
             }
             button, a { -webkit-tap-highlight-color: transparent; }
         `;
@@ -1167,21 +807,6 @@
     }
 
     /* =========================
-       SAFETY (DOM RESTORE)
-    ========================= */
-
-    const __ulbObserver = new MutationObserver(() => {
-        if(_host && !document.documentElement.contains(_host)) {
-            document.documentElement.appendChild(_host);
-        }
-    });
-
-    __ulbObserver.observe(document.documentElement, {
-        childList: true,
-        subtree: true
-    });
-
-    /* =========================
        HELPERS
     ========================= */
 
@@ -1190,7 +815,9 @@
     }
 
     function mountCard(card) {
-        const { slide } = _posStyles();
+        const {
+            slide
+        } = _posStyles();
 
         // ── Height-animate wrapper so existing cards glide when a new one arrives ──
         const wrap = document.createElement('div');
@@ -1218,14 +845,18 @@
     }
 
     function dismissCard(card) {
-        const { slide } = _posStyles();
+        if(card._ulbDismissed) return;
+        card._ulbDismissed = true;
+        const {
+            slide
+        } = _posStyles();
         card.style.opacity = '0';
         card.style.transform = slide;
 
         // After the card fades out, collapse the wrapper so siblings animate back
         setTimeout(() => {
             const wrap = card._ulbWrap;
-            if (wrap && wrap.isConnected) {
+            if(wrap && wrap.isConnected) {
                 wrap.style.overflow = 'hidden';
                 wrap.style.transition = 'max-height .2s ease';
                 wrap.style.maxHeight = '0px';
@@ -1244,10 +875,28 @@
         const dur = duration ?? CONFIG.notifDuration;
 
         // ── Respect show/hide flags ───────────────────────────────────────
-        const _showFlag = { loading: 'notifShowOnLoading', success: 'notifShowOnSuccess', error: 'notifShowOnError' };
-        if (_showFlag[type] && CONFIG[_showFlag[type]] === false) {
-            return { update: () => {}, remove: () => {} };
+        const _showFlag = {
+            loading: 'notifShowOnLoading',
+            success: 'notifShowOnSuccess',
+            error: 'notifShowOnError'
+        };
+        if(_showFlag[type] && CONFIG[_showFlag[type]] === false) {
+            return {
+                update: () => {},
+                remove: () => {}
+            };
         }
+
+        // Suppress identical rapid duplicates (< 300 ms between same message)
+        const _now = Date.now();
+        if(message === _lastNotifMsg && (_now - _lastNotifTs) < 300) {
+            return {
+                update: () => {},
+                remove: () => {}
+            };
+        }
+        _lastNotifMsg = message;
+        _lastNotifTs = _now;
 
         if(!document.body) {
             const h = {
@@ -1274,19 +923,19 @@
             icon
         } = NOTIFY_TYPES[type] || NOTIFY_TYPES.info;
 
-        const pad   = mobile ? '6px 10px'
-                     : CONFIG.compactMode ? '8px 12px'
-                     : '12px 16px';
-        const mw    = mobile ? 'min(170px,calc(100vw - 28px))'
-                     : CONFIG.compactMode ? 'min(200px,calc(100vw - 56px))'
-                     : 'min(240px,calc(100vw - 56px))';
-        const maxW  = mobile ? 'min(210px,calc(100vw - 28px))'
-                     : CONFIG.compactMode ? 'min(280px,calc(100vw - 56px))'
-                     : 'min(320px,calc(100vw - 56px))';
+        const pad = mobile ? '6px 10px' :
+            CONFIG.compactMode ? '8px 12px' :
+            '12px 16px';
+        const mw = mobile ? 'min(170px,calc(100vw - 28px))' :
+            CONFIG.compactMode ? 'min(200px,calc(100vw - 56px))' :
+            'min(240px,calc(100vw - 56px))';
+        const maxW = mobile ? 'min(210px,calc(100vw - 28px))' :
+            CONFIG.compactMode ? 'min(280px,calc(100vw - 56px))' :
+            'min(320px,calc(100vw - 56px))';
 
         const card = document.createElement('div');
         card.style.cssText =
-            `${CSS_CARD_BASE};border-left:3px solid ${accent};padding:${pad};min-width:${mw};max-width:${maxW};display:flex;align-items:flex-start;gap:${mobile ? '8px' : '10px'}`;
+            `${CSS_CARD_BASE};border-left:3px solid ${accent};padding:${pad};min-width:${mw};max-width:${maxW};display:flex;align-items:flex-start;gap:${mobile ? '8px' : '10px'};touch-action:manipulation;-webkit-tap-highlight-color:transparent`;
 
         const iconEl = document.createElement('div');
         iconEl.style.cssText =
@@ -1309,11 +958,24 @@
         body.appendChild(msg);
         card.append(iconEl, body);
 
+        // Trim oldest cards if stack gets too tall (max 5 visible)
+        if(_container) {
+            const _wraps = Array.from(_container.children);
+            if(_wraps.length >= 5) {
+                const _oldWrap = _wraps[0];
+                if(_oldWrap?.isConnected) {
+                    _oldWrap.style.overflow = 'hidden';
+                    _oldWrap.style.maxHeight = '0px';
+                    setTimeout(() => _oldWrap.remove(), 230);
+                }
+            }
+        }
+
         mountCard(card);
 
         const setSpin = on => {
-            iconEl.style.animation = CONFIG.notifAnimateIcon !== false && on
-                ? '1s linear infinite __ulb_spin' : '';
+            iconEl.style.animation = CONFIG.notifAnimateIcon !== false && on ?
+                '1s linear infinite __ulb_spin' : '';
         };
 
         if(type === 'loading') setSpin(true);
@@ -1329,28 +991,30 @@
         };
 
         const startTimer = (ms) => {
-            if (ms <= 0) return;
+            if(ms <= 0) return;
             startedAt = Date.now();
             remaining = ms;
             timer = setTimeout(remove, ms);
         };
 
         // ── notifClickToDismiss ──────────────────────────────────────────
-        if (CONFIG.notifClickToDismiss) {
+        if(CONFIG.notifClickToDismiss) {
             card.style.cursor = 'pointer';
-            card.addEventListener('click', remove, { once: true });
+            card.addEventListener('click', remove, {
+                once: true
+            });
         }
 
         // ── notifPauseOnHover ────────────────────────────────────────────
-        if (CONFIG.notifPauseOnHover && dur > 0) {
+        if(CONFIG.notifPauseOnHover && dur > 0) {
             card.addEventListener('mouseenter', () => {
-                if (paused) return;
+                if(paused) return;
                 paused = true;
                 clearTimeout(timer);
                 remaining = Math.max(0, remaining - (Date.now() - (startedAt || Date.now())));
             });
             card.addEventListener('mouseleave', () => {
-                if (!paused) return;
+                if(!paused) return;
                 paused = false;
                 startTimer(remaining);
             });
@@ -1359,6 +1023,8 @@
         const update = (newMsg, newType, newDurOrOpts) => {
             clearTimeout(timer);
             paused = false;
+            // Reset dedup cache so this updated message isn't suppressed
+            _lastNotifMsg = '';
             msg.textContent = newMsg;
 
             if(newType && NOTIFY_TYPES[newType]) {
@@ -1371,12 +1037,17 @@
 
             if(typeof newDurOrOpts === 'number' && newDurOrOpts > 0) {
                 startTimer(newDurOrOpts);
+            } else if(typeof newDurOrOpts === 'object' && newDurOrOpts !== null) {
+                // Object opts (e.g. {site, time}) — no timer change, just refresh display
             }
         };
 
         if(dur > 0) startTimer(dur);
 
-        return { update, remove };
+        return {
+            update,
+            remove
+        };
     }
 
     /* =========================
@@ -1438,7 +1109,7 @@
     /** Show a persistent success card with a manual fallback tap-link. */
     function showRedirectNotif(dest) {
         const mobile = _isMobile();
-        const mw  = mobile ? 'min(190px,calc(100vw - 28px))' : 'min(240px,calc(100vw - 56px))';
+        const mw = mobile ? 'min(190px,calc(100vw - 28px))' : 'min(240px,calc(100vw - 56px))';
         const mxw = mobile ? 'min(220px,calc(100vw - 28px))' : 'min(320px,calc(100vw - 56px))';
         const pad = mobile ? '10px 12px' : '14px 18px';
         const card = document.createElement('div');
@@ -1475,7 +1146,7 @@
         }
         ensureSpinStyle();
         const mobile = _isMobile();
-        const mw  = mobile ? 'min(190px,calc(100vw - 28px))' : 'min(260px,calc(100vw - 56px))';
+        const mw = mobile ? 'min(190px,calc(100vw - 28px))' : 'min(260px,calc(100vw - 56px))';
         const mxw = mobile ? 'min(220px,calc(100vw - 28px))' : 'min(340px,calc(100vw - 56px))';
         const pad = mobile ? '10px 12px' : '14px 18px';
         const card = document.createElement('div');
@@ -1517,12 +1188,12 @@
      */
     function showKeyCard(key, site, timer, autoDismissMs = 30_000) {
         const mobile = _isMobile();
-        const vTag  = CONFIG.notifShowVersion  !== false ? ` · v${VERSION}` : '';
-        const brand = (!mobile && !CONFIG.compactMode && CONFIG.notifShowBranding !== false)
-            ? `<div style="${CSS_LABEL};margin-bottom:6px">Unknown Link Bypasser · @Aro Moon${vTag}</div>`
-            : '';
+        const vTag = CONFIG.notifShowVersion !== false ? ` · v${VERSION}` : '';
+        const brand = (!mobile && !CONFIG.compactMode && CONFIG.notifShowBranding !== false) ?
+            `<div style="${CSS_LABEL};margin-bottom:6px">Unknown Link Bypasser · @Aro Moon${vTag}</div>` :
+            '';
         const timeLabel = timer ? timer.label() : '';
-        const mw  = mobile ? 'min(190px,calc(100vw - 28px))' : 'min(280px,calc(100vw - 56px))';
+        const mw = mobile ? 'min(190px,calc(100vw - 28px))' : 'min(280px,calc(100vw - 56px))';
         const mxw = mobile ? 'min(220px,calc(100vw - 28px))' : 'min(360px,calc(100vw - 56px))';
         const pad = mobile ? '10px 12px' : '14px 18px';
 
@@ -1555,7 +1226,7 @@
                 tap to copy · auto-closes in ${Math.round(autoDismissMs / 1000)}s
             </div>`;
 
-        const keyEl  = card.querySelector('.__ulb_kc_key');
+        const keyEl = card.querySelector('.__ulb_kc_key');
         const hintEl = card.querySelector('.__ulb_kc_hint');
         keyEl.textContent = key;
 
@@ -1603,7 +1274,7 @@
         ensureSpinStyle();
 
         const mobile = _isMobile();
-        const mw  = mobile ? 'min(190px,calc(100vw - 28px))' : 'min(260px,calc(100vw - 56px))';
+        const mw = mobile ? 'min(190px,calc(100vw - 28px))' : 'min(260px,calc(100vw - 56px))';
         const mxw = mobile ? 'min(220px,calc(100vw - 28px))' : 'min(340px,calc(100vw - 56px))';
         const pad = mobile ? '10px 12px' : '14px 16px';
 
@@ -1749,7 +1420,7 @@
 
             // Inject @keyframes into the main document so the overlay spinner works
             // (the Shadow DOM keyframes are not accessible outside the shadow root).
-            if (!document.querySelector('style[data-ulb-spin]')) {
+            if(!document.querySelector('style[data-ulb-spin]')) {
                 const ks = document.createElement('style');
                 ks.setAttribute('data-ulb-spin', '1');
                 ks.textContent = '@keyframes __ulb_spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }';
@@ -1758,11 +1429,12 @@
 
             const overlay = document.createElement('div');
             overlay.id = '__ulb_ts_overlay';
+            const _tsHasBlur = window.matchMedia?.('(prefers-reduced-motion:no-preference)').matches !== false;
             overlay.style.cssText = [
                 'all:initial', 'position:fixed', 'inset:0', 'z-index:2147483647',
                 'display:flex', 'align-items:center', 'justify-content:center',
-                'background:rgba(2,6,23,.82)', 'backdrop-filter:blur(6px)',
-                '-webkit-backdrop-filter:blur(6px)',
+                'background:rgba(2,6,23,.88)',
+                ...(_tsHasBlur ? ['backdrop-filter:blur(6px)', '-webkit-backdrop-filter:blur(6px)'] : []),
                 'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif',
                 'transition:opacity .3s ease',
             ].join(';');
@@ -1789,7 +1461,7 @@
             ].join(';');
             const spinIcon = document.createElement('div');
             spinIcon.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:22px';
-            spinIcon.textContent = '🔐';
+            spinIcon.textContent = '🔓';
             spinWrap.append(spinRing, spinIcon);
 
             const textWrap = document.createElement('div');
@@ -1834,7 +1506,9 @@
             const autoClickObs = new MutationObserver(() => {
                 overlay.querySelectorAll('iframe').forEach(fr => {
                     try {
-                        fr.contentWindow?.postMessage({ __ulb_triggerClick: true }, '*');
+                        fr.contentWindow?.postMessage({
+                            __ulb_triggerClick: true
+                        }, '*');
                     } catch (_) {}
                 });
             });
@@ -1853,20 +1527,25 @@
             // We independently poll getResponse() and the hidden input so a solve
             // is detected even if the callback was missed.
             let _pollInterval = null;
-            let _tokenFired   = false;
-            let _widgetId     = null;
+            let _tokenFired = false;
+            let _widgetId = null;
 
             function cleanup() {
                 clearTimeout(timeout);
-                if (_pollInterval) { clearInterval(_pollInterval); _pollInterval = null; }
+                if(_pollInterval) {
+                    clearInterval(_pollInterval);
+                    _pollInterval = null;
+                }
                 autoClickObs.disconnect();
-                try { delete unsafeWindow[cbName]; } catch (_) {}
+                try {
+                    delete unsafeWindow[cbName];
+                } catch (_) {}
                 overlay.style.opacity = '0';
                 setTimeout(() => overlay.remove(), 350);
             }
 
             const onToken = token => {
-                if (_tokenFired) return;   // guard: only fire once
+                if(_tokenFired) return; // guard: only fire once
                 _tokenFired = true;
                 const sub2 = overlay.querySelector('#__ulb_ts_sub');
                 if(sub2) sub2.textContent = 'Solved ✓ — redirecting…';
@@ -1883,23 +1562,26 @@
             unsafeWindow[cbName] = onToken;
 
             function _startSolvePoll() {
-                if (_pollInterval) return;
+                if(_pollInterval) return;
                 _pollInterval = setInterval(() => {
-                    if (_tokenFired) { clearInterval(_pollInterval); return; }
+                    if(_tokenFired) {
+                        clearInterval(_pollInterval);
+                        return;
+                    }
                     const ts = unsafeWindow.turnstile;
                     // Method 1 — turnstile.getResponse() API (works even when callback was skipped)
                     try {
-                        const resp = (_widgetId != null)
-                            ? ts?.getResponse?.(_widgetId)
-                            : ts?.getResponse?.();
-                        if (resp && typeof resp === 'string' && resp.length > 20) {
+                        const resp = (_widgetId != null) ?
+                            ts?.getResponse?.(_widgetId) :
+                            ts?.getResponse?.();
+                        if(resp && typeof resp === 'string' && resp.length > 20) {
                             onToken(resp);
                             return;
                         }
                     } catch (_) {}
                     // Method 2 — the hidden input Turnstile fills after a solve
                     const inp = widgetDiv.querySelector('[name="cf-turnstile-response"]');
-                    if (inp?.value?.length > 20) {
+                    if(inp?.value?.length > 20) {
                         onToken(inp.value);
                     }
                 }, 300);
@@ -1916,10 +1598,10 @@
                         callback: onToken,
                         'expired-callback': () => {
                             _tokenFired = false;
-                            if (_widgetId != null) ts.reset?.(_widgetId);
+                            if(_widgetId != null) ts.reset?.(_widgetId);
                         },
                         'error-callback': () => {
-                            if (_widgetId != null) ts.reset?.(_widgetId);
+                            if(_widgetId != null) ts.reset?.(_widgetId);
                         }
                     });
                     _startSolvePoll();
@@ -1936,11 +1618,462 @@
                         src: 'https://challenges.cloudflare.com/turnstile/v0/api.js',
                         async: true,
                     });
-                    s.onload = () => { tryRenderApi(); _startSolvePoll(); };
+                    s.onload = () => {
+                        tryRenderApi();
+                        _startSolvePoll();
+                    };
                     document.head.appendChild(s);
                 } else {
                     const poll = setInterval(() => {
-                        if(tryRenderApi()) { clearInterval(poll); _startSolvePoll(); }
+                        if(tryRenderApi()) {
+                            clearInterval(poll);
+                            _startSolvePoll();
+                        }
+                    }, 150);
+                    setTimeout(() => clearInterval(poll), 10_000);
+                }
+            }
+        });
+    }
+
+    // ── reCAPTCHA v2 Audio Solver ──────────────────────────────────────────
+    //
+    //  Architecture mirrors the Turnstile solver exactly:
+    //    • solveRecaptcha([sitekey]) is called from main-page bypassers.
+    //      It auto-detects the sitekey, shows a full-screen overlay identical
+    //      to the Turnstile one, and renders the real reCAPTCHA v2 widget
+    //      inside it via grecaptcha.render() (loading the API script if needed).
+    //    • _runRecaptchaFrameSolver() runs inside the google.com/recaptcha/*
+    //      iframes that grecaptcha.render() creates (matched by @match).
+    //      It clicks the checkbox, switches to the audio challenge, grabs the
+    //      .mp3 URL, and POSTs it to the engageub transcription service via
+    //      GM_xmlhttpRequest.  On a valid response it fills #audio-response
+    //      and clicks Verify — which fires the grecaptcha callback back in the
+    //      overlay, resolving the promise and dismissing the UI.
+
+    const _RC_SERVERS = ['https://engageub.pythonanywhere.com', 'https://engageub1.pythonanywhere.com'];
+    const _rcLatency = _RC_SERVERS.map(() => 10000);
+
+    function _rcPingServers() {
+        _RC_SERVERS.forEach((url, i) => {
+            const start = Date.now();
+            GM_xmlhttpRequest({
+                method: 'GET',
+                url,
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                timeout: 8000,
+                onload(r) {
+                    if(r?.responseText === '0') _rcLatency[i] = Date.now() - start;
+                },
+                onerror() {},
+                ontimeout() {},
+            });
+        });
+    }
+
+    /** Return the URL of whichever transcription server last had lowest latency. */
+    function _rcBestServer() {
+        let minLat = Infinity,
+            best = _RC_SERVERS[0];
+        _rcLatency.forEach((lat, i) => {
+            if(lat <= minLat) {
+                minLat = lat;
+                best = _RC_SERVERS[i];
+            }
+        });
+        return best;
+    }
+
+    /**
+     * POST an audio challenge URL to the transcription service.
+     * Returns a Promise<string> with the recognised text, or rejects on failure.
+     */
+    function _rcGetAudioText(audioUrl, lang) {
+        return new Promise((resolve, reject) => {
+            const url = audioUrl.replace('recaptcha.net', 'google.com');
+            GM_xmlhttpRequest({
+                method: 'POST',
+                url: _rcBestServer(),
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                data: `input=${encodeURIComponent(url)}&lang=${lang || 'en-US'}`,
+                timeout: 60000,
+                onload(r) {
+                    const text = r?.responseText?.trim();
+                    if(!text || text === '0' || text.includes('<') || text.includes('>') ||
+                        text.length < 2 || text.length > 50) {
+                        reject(new Error(`[ULB/reCAPTCHA] Bad transcription: "${text}"`));
+                    } else {
+                        resolve(text);
+                    }
+                },
+                onerror() {
+                    reject(new Error('[ULB/reCAPTCHA] GM_xmlhttpRequest network error'));
+                },
+                ontimeout() {
+                    reject(new Error('[ULB/reCAPTCHA] Transcription request timed out'));
+                },
+            });
+        });
+    }
+
+    /**
+     * Runs inside google.com/recaptcha/* iframes.
+     * Polls every 4 s to drive the audio-challenge flow from start to finish.
+     */
+    function _runRecaptchaFrameSolver() {
+        const MAX_ATTEMPTS = 5;
+        const lang = document.documentElement.getAttribute('lang') || 'en-US';
+        let requestCount = 0;
+        let solved = false;
+        let waitingForResp = false;
+        let lastAudioUrl = '';
+
+        const SEL = {
+            CHECKBOX: '.recaptcha-checkbox-border',
+            AUDIO_BTN: '#recaptcha-audio-button',
+            AUDIO_SRC: '#audio-source',
+            RESP_FIELD: '.rc-audiochallenge-response-field',
+            RESP_INPUT: '#audio-response',
+            AUDIO_ERR: '.rc-audiochallenge-error-message',
+            RELOAD: '#recaptcha-reload-button',
+            VERIFY: '#recaptcha-verify-button',
+            STATUS: '#recaptcha-accessible-status',
+            IMG_SEL: '#rc-imageselect',
+            DOSBLOCK: '.rc-doscaptcha-body',
+        };
+
+        const isHidden = el => !el || el.offsetParent === null;
+        const q = sel => document.querySelector(sel);
+
+        const initialStatus = q(SEL.STATUS)?.innerText ?? '';
+
+        // Determine fastest server before first attempt
+        _rcPingServers();
+
+        const iv = setInterval(async () => {
+            try {
+                if(solved || requestCount > MAX_ATTEMPTS) {
+                    clearInterval(iv);
+                    return;
+                }
+
+                // ── Solved? ──────────────────────────────────────────────
+                if(q(SEL.STATUS) && q(SEL.STATUS).innerText !== initialStatus) {
+                    solved = true;
+                    console.log('[ULB/reCAPTCHA] Solved ✓');
+                    clearInterval(iv);
+                    return;
+                }
+
+                // ── Click checkbox ───────────────────────────────────────
+                if(q(SEL.CHECKBOX) && !isHidden(q(SEL.CHECKBOX))) {
+                    q(SEL.CHECKBOX).click();
+                }
+
+                // ── Switch to audio challenge ────────────────────────────
+                if(q(SEL.AUDIO_BTN) && !isHidden(q(SEL.AUDIO_BTN)) && q(SEL.IMG_SEL)) {
+                    q(SEL.AUDIO_BTN).click();
+                }
+
+                const audioEl = q(SEL.AUDIO_SRC);
+
+                // ── Reload if stale audio or error ───────────────────────
+                if((!waitingForResp && audioEl?.src && lastAudioUrl === audioEl.src && q(SEL.RELOAD)) ||
+                    (q(SEL.AUDIO_ERR)?.innerText?.length > 0 && q(SEL.RELOAD) && !q(SEL.RELOAD).disabled)) {
+                    q(SEL.RELOAD).click();
+                    return;
+                }
+
+                // ── New audio URL → transcribe ───────────────────────────
+                if(!waitingForResp && audioEl?.src?.length > 0 &&
+                    lastAudioUrl !== audioEl.src &&
+                    q(SEL.RESP_FIELD) && !isHidden(q(SEL.RESP_FIELD)) &&
+                    q(SEL.RESP_INPUT) && !q(SEL.RESP_INPUT).value &&
+                    q(SEL.AUDIO_BTN)?.style.display === 'none' &&
+                    requestCount <= MAX_ATTEMPTS) {
+
+                    waitingForResp = true;
+                    lastAudioUrl = audioEl.src;
+                    requestCount++;
+
+                    try {
+                        const text = await _rcGetAudioText(audioEl.src, lang);
+                        // Confirm the audio URL hasn't rotated while we awaited
+                        if(q(SEL.AUDIO_SRC)?.src === lastAudioUrl &&
+                            q(SEL.RESP_INPUT) && !q(SEL.RESP_INPUT).value &&
+                            q(SEL.VERIFY)) {
+                            q(SEL.RESP_INPUT).value = text;
+                            q(SEL.VERIFY).click();
+                        }
+                    } catch (e) {
+                        console.warn('[ULB/reCAPTCHA]', e.message, '— will retry');
+                    } finally {
+                        waitingForResp = false;
+                    }
+                }
+
+                // ── Stop on bot-detection wall ───────────────────────────
+                if(q(SEL.DOSBLOCK)?.innerText?.length > 0) {
+                    console.warn('[ULB/reCAPTCHA] Automated queries detected — stopping');
+                    clearInterval(iv);
+                }
+            } catch (e) {
+                console.error('[ULB/reCAPTCHA] Frame solver error:', e.message);
+                clearInterval(iv);
+            }
+        }, 4000);
+    }
+
+    /** Try every known strategy to extract a reCAPTCHA v2 sitekey from the page. */
+    function getRecaptchaSiteKey(fallback = null) {
+        // Strategy 1 — .g-recaptcha or any element with data-sitekey
+        for(const sel of ['.g-recaptcha[data-sitekey]', 'div[data-sitekey]', '[data-sitekey]']) {
+            const el = document.querySelector(sel);
+            const k = el?.dataset?.sitekey || el?.getAttribute('data-sitekey');
+            if(k && k.length > 20) return k;
+        }
+        // Strategy 2 — grecaptcha.render / sitekey in inline scripts
+        for(const s of document.querySelectorAll('script:not([src])')) {
+            const t = s.textContent;
+            for(const re of [
+                    /['"]sitekey['"]\s*:\s*['"]([0-9A-Za-z_\-]{20,})['"]/,
+                    /sitekey\s*[=:,]\s*['"]([0-9A-Za-z_\-]{20,})['"]/,
+                    /data-sitekey=['"]([0-9A-Za-z_\-]{20,})['"]/,
+                ]) {
+                const m = t.match(re);
+                if(m) return m[1];
+            }
+        }
+        // Strategy 3 — already-rendered iframe src param
+        const fr = document.querySelector('iframe[src*="recaptcha"][src*="anchor"]');
+        if(fr) {
+            const m = fr.src.match(/[?&]k=([0-9A-Za-z_\-]{20,})/);
+            if(m) return m[1];
+        }
+        return fallback;
+    }
+
+    /**
+     * Show a full-screen overlay, render the reCAPTCHA v2 widget inside it,
+     * and let _runRecaptchaFrameSolver handle the audio bypass in the iframes.
+     * Resolves with the g-recaptcha-response token, or rejects after 120 s.
+     *
+     * @param {string} [sitekey]  Override; auto-detected from page if omitted.
+     * @returns {Promise<string>}
+     */
+    function solveRecaptcha(sitekey) {
+        if(CONFIG.autoRecaptcha === false)
+            return Promise.reject(new Error('[ULB/reCAPTCHA] autoRecaptcha is disabled'));
+
+        const key = sitekey || getRecaptchaSiteKey();
+        if(!key) return Promise.reject(new Error('[ULB/reCAPTCHA] could not find sitekey on page'));
+
+        return new Promise((resolve, reject) => {
+            const cbName = '__ulb_rcCb_' + generateId();
+
+            // Inject spin @keyframes into the main document (same as Turnstile)
+            if(!document.querySelector('style[data-ulb-spin]')) {
+                const ks = document.createElement('style');
+                ks.setAttribute('data-ulb-spin', '1');
+                ks.textContent = '@keyframes __ulb_spin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }';
+                (document.head || document.documentElement).appendChild(ks);
+            }
+
+            // ── Overlay (identical layout to solveTurnstile) ───────────────
+            const overlay = document.createElement('div');
+            overlay.id = '__ulb_rc_overlay';
+            overlay.style.cssText = [
+                'all:initial', 'position:fixed', 'inset:0', 'z-index:2147483647',
+                'display:flex', 'align-items:center', 'justify-content:center',
+                'background:rgba(2,6,23,.82)', 'backdrop-filter:blur(6px)',
+                '-webkit-backdrop-filter:blur(6px)',
+                'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif',
+                'transition:opacity .3s ease',
+            ].join(';');
+
+            const card = document.createElement('div');
+            card.style.cssText = [
+                'background:linear-gradient(145deg,#0f172a,#1e293b)',
+                'border:1px solid rgba(99,102,241,.35)', 'border-radius:18px',
+                'box-shadow:0 0 0 1px rgba(255,255,255,.04),0 32px 64px rgba(0,0,0,.7),0 0 80px rgba(99,102,241,.12)',
+                'padding:32px 28px 28px', 'display:flex', 'flex-direction:column',
+                'align-items:center', 'gap:16px',
+                'min-width:340px', 'max-width:calc(100vw - 48px)', 'position:relative',
+            ].join(';');
+
+            // Spinner
+            const spinWrap = document.createElement('div');
+            spinWrap.style.cssText = 'position:relative;width:48px;height:48px;flex-shrink:0';
+            const spinRing = document.createElement('div');
+            spinRing.id = '__ulb_rc_ring';
+            spinRing.style.cssText = [
+                'position:absolute;inset:0;border-radius:50%',
+                'border:3px solid rgba(99,102,241,.18)',
+                'border-top-color:#818cf8',
+                'animation:__ulb_spin 0.9s linear infinite',
+            ].join(';');
+            const spinIcon = document.createElement('div');
+            spinIcon.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:22px';
+            spinIcon.textContent = '🔓';
+            spinWrap.append(spinRing, spinIcon);
+
+            // Text block
+            const textWrap = document.createElement('div');
+            textWrap.style.cssText = 'text-align:center';
+            const heading = document.createElement('div');
+            heading.style.cssText = 'font-size:15px;font-weight:700;color:#e2e8f0;letter-spacing:.3px;margin-bottom:5px';
+            heading.textContent = 'Solving reCAPTCHA';
+            const sub = document.createElement('div');
+            sub.id = '__ulb_rc_sub';
+            sub.style.cssText = 'font-size:12px;color:#64748b;line-height:1.5';
+            sub.textContent = 'Switching to audio challenge…';
+            textWrap.append(heading, sub);
+
+            // Widget container — grecaptcha.render() targets this div
+            const widgetDiv = document.createElement('div');
+            widgetDiv.id = '__ulb_rc_widget';
+            widgetDiv.style.cssText = 'border-radius:8px;overflow:hidden';
+
+            // Footer branding
+            const footer = document.createElement('div');
+            footer.style.cssText = 'font-size:10px;color:#334155;letter-spacing:1.2px;text-transform:uppercase;margin-top:4px';
+            footer.textContent = `Unknown Link Bypasser · @Aro Moon${CONFIG.notifShowVersion !== false ? ` · v${VERSION}` : ''}`;
+
+            card.append(spinWrap, textWrap, widgetDiv, footer);
+            overlay.appendChild(card);
+
+            const mountOverlay = () => {
+                overlay.style.opacity = '0';
+                (document.body || document.documentElement).appendChild(overlay);
+                requestAnimationFrame(() => {
+                    overlay.style.opacity = '1';
+                });
+            };
+            if(document.body) mountOverlay();
+            else document.addEventListener('DOMContentLoaded', mountOverlay, {
+                once: true
+            });
+
+            let _tokenFired = false;
+            let _widgetId = null;
+            let _pollInterval = null;
+
+            const timeout = setTimeout(() => {
+                cleanup();
+                reject(new Error('[ULB/reCAPTCHA] timed out after 120s'));
+            }, 120_000);
+
+            function cleanup() {
+                clearTimeout(timeout);
+                if(_pollInterval) {
+                    clearInterval(_pollInterval);
+                    _pollInterval = null;
+                }
+                try {
+                    delete unsafeWindow[cbName];
+                } catch (_) {}
+                try {
+                    delete unsafeWindow['__ulb_rcLoad_' + cbName];
+                } catch (_) {}
+                overlay.style.opacity = '0';
+                setTimeout(() => overlay.remove(), 350);
+            }
+
+            const onToken = token => {
+                if(_tokenFired) return; // fire exactly once
+                _tokenFired = true;
+                const sub2 = overlay.querySelector('#__ulb_rc_sub');
+                if(sub2) sub2.textContent = 'Solved ✓ — redirecting…';
+                const ring = overlay.querySelector('#__ulb_rc_ring');
+                if(ring) {
+                    ring.style.borderTopColor = '#22c55e';
+                    ring.style.animationDuration = '0.3s';
+                }
+                setTimeout(() => {
+                    cleanup();
+                    resolve(token);
+                }, 400);
+            };
+            unsafeWindow[cbName] = onToken;
+
+            // ── Polling fallback — catches solves the callback may miss ──
+            function _startPoll() {
+                if(_pollInterval) return;
+                _pollInterval = setInterval(() => {
+                    if(_tokenFired) {
+                        clearInterval(_pollInterval);
+                        return;
+                    }
+                    // Method 1 — grecaptcha.getResponse()
+                    try {
+                        const resp = (_widgetId != null) ?
+                            unsafeWindow.grecaptcha?.getResponse?.(_widgetId) :
+                            unsafeWindow.grecaptcha?.getResponse?.();
+                        if(resp?.length > 20) {
+                            onToken(resp);
+                            return;
+                        }
+                    } catch (_) {}
+                    // Method 2 — the hidden textarea reCAPTCHA populates after a solve
+                    const ta = widgetDiv.querySelector('[name="g-recaptcha-response"]') ||
+                        document.querySelector('[name="g-recaptcha-response"]');
+                    if(ta?.value?.length > 20) onToken(ta.value);
+                }, 500);
+            }
+
+            // ── Render the widget via grecaptcha API ────────────────────
+            const tryRenderApi = () => {
+                const rc = unsafeWindow.grecaptcha;
+                if(!rc?.render) return false;
+                try {
+                    _widgetId = rc.render(widgetDiv, {
+                        sitekey: key,
+                        theme: 'dark',
+                        size: 'normal',
+                        callback: onToken,
+                        'expired-callback': () => {
+                            _tokenFired = false;
+                            if(_widgetId != null) rc.reset?.(_widgetId);
+                        },
+                        'error-callback': () => {
+                            if(_widgetId != null) rc.reset?.(_widgetId);
+                        },
+                    });
+                    _startPoll();
+                    return true;
+                } catch (e) {
+                    console.warn('[ULB/reCAPTCHA] grecaptcha.render() threw:', e);
+                    return false;
+                }
+            };
+
+            // If the reCAPTCHA API script isn't loaded yet, inject it
+            if(!tryRenderApi()) {
+                const existing = document.querySelector(
+                    'script[src*="google.com/recaptcha/api.js"], script[src*="recaptcha/api"]'
+                );
+                if(!existing) {
+                    const loadCb = '__ulb_rcLoad_' + cbName;
+                    unsafeWindow[loadCb] = () => {
+                        tryRenderApi();
+                        _startPoll();
+                    };
+                    const s = Object.assign(document.createElement('script'), {
+                        src: `https://www.google.com/recaptcha/api.js?render=explicit&onload=${loadCb}`,
+                        async: true,
+                    });
+                    (document.head || document.documentElement).appendChild(s);
+                } else {
+                    // API script present but not ready yet — poll until it is
+                    const poll = setInterval(() => {
+                        if(tryRenderApi()) {
+                            clearInterval(poll);
+                            _startPoll();
+                        }
                     }, 150);
                     setTimeout(() => clearInterval(poll), 10_000);
                 }
@@ -1949,7 +2082,6 @@
     }
 
     // ── Cloudflare Challenge Frame Hook ────────────────────────────────────
-
     function _runCfHook() {
         // Proxy isTrusted=true on every event so CF sees a real interaction
         const _origAdd = EventTarget.prototype.addEventListener;
@@ -1957,8 +2089,8 @@
             return _origAdd.call(this, type, function (e) {
                 return listener.call(this, new Proxy(e, {
                     get(t, p) {
-                        if (p === 'isTrusted') return true;
-                        if (p === 'origin' && location.hash.includes('origin='))
+                        if(p === 'isTrusted') return true;
+                        if(p === 'origin' && location.hash.includes('origin='))
                             return decodeURIComponent(location.hash.split('origin=')[1]);
                         const v = t[p];
                         return typeof v === 'function' ? v.bind(t) : v;
@@ -1971,15 +2103,27 @@
         let _clicked = false;
 
         function clickCheckbox(cb) {
-            if (!cb || cb.checked) return;
+            if(!cb || cb.checked) return;
             _clicked = true;
-            try { window.parent.postMessage({ __ulb: true, __ulb_clicked: true, id: frameId }, '*'); } catch (_) {}
+            try {
+                window.parent.postMessage({
+                    __ulb: true,
+                    __ulb_clicked: true,
+                    id: frameId
+                }, '*');
+            } catch (_) {}
 
             // Fire the full mouse event chain CF expects, then call .click()
             const rect = cb.getBoundingClientRect();
             const cx = rect.left + rect.width / 2;
-            const cy = rect.top  + rect.height / 2;
-            const evOpts = { bubbles: true, cancelable: true, view: window, clientX: cx, clientY: cy };
+            const cy = rect.top + rect.height / 2;
+            const evOpts = {
+                bubbles: true,
+                cancelable: true,
+                view: window,
+                clientX: cx,
+                clientY: cy
+            };
             ['mouseover', 'mousemove', 'mousedown', 'mouseup', 'click'].forEach(type =>
                 cb.dispatchEvent(new MouseEvent(type, evOpts))
             );
@@ -1988,44 +2132,66 @@
 
         function tryClick(root) {
             const cb = root.querySelector('input[type=checkbox]');
-            if (cb && !cb.checked) clickCheckbox(cb);
+            if(cb && !cb.checked) clickCheckbox(cb);
         }
 
         // Intercept attachShadow so we observe every shadow root CF creates
         const shadowObs = new MutationObserver(muts => {
-            for (const m of muts)
+            for(const m of muts)
                 m.addedNodes.forEach(n => {
-                    if (n.nodeType !== 1) return;
+                    if(n.nodeType !== 1) return;
                     const cb = n.matches?.('input[type=checkbox]') ? n : n.querySelector('input[type=checkbox]');
-                    if (cb && !cb.checked) clickCheckbox(cb);
+                    if(cb && !cb.checked) clickCheckbox(cb);
                 });
         });
 
         const _origShadow = Element.prototype.attachShadow;
         Element.prototype.attachShadow = function (opt) {
             const root = _origShadow.call(this, opt);
-            shadowObs.observe(root, { childList: true, subtree: true });
+            shadowObs.observe(root, {
+                childList: true,
+                subtree: true
+            });
             Promise.resolve().then(() => tryClick(root));
             return root;
         };
 
         // Also scan any shadow roots already present at run time
         document.querySelectorAll('*').forEach(el => {
-            if (el.shadowRoot) { shadowObs.observe(el.shadowRoot, { childList: true, subtree: true }); tryClick(el.shadowRoot); }
+            if(el.shadowRoot) {
+                shadowObs.observe(el.shadowRoot, {
+                    childList: true,
+                    subtree: true
+                });
+                tryClick(el.shadowRoot);
+            }
         });
 
         // Retry every 200 ms in case the checkbox appears after we ran
         const retry = setInterval(() => {
-            if (_clicked) { clearInterval(retry); return; }
+            if(_clicked) {
+                clearInterval(retry);
+                return;
+            }
             tryClick(document);
-            document.querySelectorAll('*').forEach(el => { if (el.shadowRoot) tryClick(el.shadowRoot); });
+            document.querySelectorAll('*').forEach(el => {
+                if(el.shadowRoot) tryClick(el.shadowRoot);
+            });
         }, 200);
         setTimeout(() => clearInterval(retry), 30_000);
     }
 
     // Early return: only the CF hook runs inside challenge iframes.
     if(location.hostname === 'challenges.cloudflare.com') {
-        _runCfHook();   // run unconditionally — referrer gate was too restrictive
+        _runCfHook(); // run unconditionally — referrer gate was too restrictive
+        return;
+    }
+
+    // Early return: run the reCAPTCHA audio solver inside google recaptcha iframes.
+    if(CONFIG.autoRecaptcha !== false &&
+        (location.hostname === 'www.google.com' || location.hostname === 'recaptcha.net') &&
+        location.pathname.includes('/recaptcha/')) {
+        _runRecaptchaFrameSolver();
         return;
     }
 
@@ -2041,14 +2207,16 @@
             console.error(`[ULB/${siteLabel}] ${label}`, err ?? '');
             // HTTP errors already contain the full human-readable description —
             // showing them directly is cleaner than prepending "site: label —".
-            const msg = err?._isHttp
-                ? err.message
-                : `${siteLabel}: ${label}${err?.message ? ` — ${err.message}` : ''}`;
+            const msg = err?._isHttp ?
+                err.message :
+                `${siteLabel}: ${label}${err?.message ? ` — ${err.message}` : ''}`;
             if(nh) {
                 nh.update(msg, 'error');
                 setTimeout(() => nh.remove(), msClose);
             } else {
-                notify(msg, 'error', msClose, { site: siteLabel });
+                notify(msg, 'error', msClose, {
+                    site: siteLabel
+                });
             }
         };
     }
@@ -2286,7 +2454,7 @@
             } catch (e) {
                 console.warn('[ULB/lnbz] form submit failed, trying click fallback:', e);
                 const btn2 = form.querySelector('button[type="submit"], input[type="submit"]');
-                if (btn2) btn2.click();
+                if(btn2) btn2.click();
             }
         };
 
@@ -2323,6 +2491,405 @@
     }
 
     // ═══════════════════════════════════════════════════════════════════════
+    // §5.5  CONFIG MENU UI
+    // ═══════════════════════════════════════════════════════════════════════
+    // The config overlay lives inside the shared notification shadow root
+    // (_root / _host).  That host is already kept alive on every page by
+    // __ulbObserver, so all DOM-survival work is free.  No separate host,
+    // no separate observer, no second shadow root, no <dialog>.
+    // ─────────────────────────────────────────────────────────────────────
+    function _showConfigMenu() {
+        // Ensure the shared notification shadow host/root exist.
+        getContainer();
+
+        // Toggle: close if already open.
+        if(_root.getElementById('__ulb_cfg')) {
+            _root.getElementById('__ulb_cfg').remove();
+            const cs = _root.getElementById('__ulb_cfg_style');
+            if(cs) cs.remove();
+            return;
+        }
+
+        // ── Scoped styles injected into the shared shadow root ────────────
+        // Using a <style> tag only for things that cannot be set inline:
+        // pseudo-element scrollbars, :focus-visible rings, select arrow.
+        const cfgStyle = document.createElement('style');
+        cfgStyle.id = '__ulb_cfg_style';
+        cfgStyle.textContent = `
+            #__ulb_cfg ::-webkit-scrollbar            { width: 6px }
+            #__ulb_cfg ::-webkit-scrollbar-track      { background: #0a0a18 }
+            #__ulb_cfg ::-webkit-scrollbar-thumb      { background: #3b3b6b; border-radius: 3px }
+            #__ulb_cfg ::-webkit-scrollbar-thumb:hover{ background: #5555a0 }
+            #__ulb_cfg select {
+                -webkit-appearance:none; -moz-appearance:none; appearance:none;
+                background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237070a0'/%3E%3C/svg%3E");
+                background-repeat:no-repeat; background-position:right 10px center; padding-right:30px!important;
+            }
+            #__ulb_cfg select option { background:#0a0a18; color:#d0d0ee }
+            #__ulb_cfg button:focus-visible,
+            #__ulb_cfg input:focus-visible,
+            #__ulb_cfg select:focus-visible,
+            #__ulb_cfg textarea:focus-visible { outline:2px solid #6366f1; outline-offset:2px }
+        `;
+        _root.appendChild(cfgStyle);
+
+        // ── Overlay ───────────────────────────────────────────────────────
+        // Fixed, viewport-filling backdrop inside the shared shadow root.
+        // pointer-events:auto because the host element is pointer-events:none.
+        const overlay = document.createElement('div');
+        overlay.id = '__ulb_cfg';
+        overlay.style.cssText = [
+            'position:fixed', 'inset:0',
+            'z-index:2147483647', // one above notification container
+            'pointer-events:auto',
+            'background:rgba(0,0,0,.82)',
+            'display:flex', 'align-items:center', 'justify-content:center',
+            'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif',
+            'overscroll-behavior:contain',
+        ].join(';');
+
+        // ── Panel ─────────────────────────────────────────────────────────
+        const panel = document.createElement('div');
+        const _cfgMobile = _isMobile();
+        panel.style.cssText = [
+            'background:#1a1a2e', 'color:#e2e2f0',
+            'border:1px solid #3b3b6b', `border-radius:${_cfgMobile ? '8px' : '12px'}`,
+            `width:${_cfgMobile ? '100vw' : 'min(680px,96vw)'}`,
+            `max-height:${_cfgMobile ? '92dvh' : 'min(700px,90vh)'}`,
+            'display:flex', 'flex-direction:column',
+            'box-shadow:0 24px 64px rgba(0,0,0,.8)',
+            'overflow:hidden', 'position:relative',
+            _cfgMobile ? 'margin:auto 0 0 0' : '',
+        ].filter(Boolean).join(';');
+
+        // ── Header ────────────────────────────────────────────────────────
+        const header = document.createElement('div');
+        header.style.cssText = [
+            'display:flex', 'align-items:center', 'justify-content:space-between',
+            'padding:16px 20px', 'border-bottom:1px solid #2e2e52',
+            'background:#16162a', 'flex-shrink:0',
+        ].join(';');
+        const vTag = `v${VERSION}`;
+        header.innerHTML =
+            `<div style="display:flex;align-items:center;gap:10px">` +
+            `<span style="font-size:20px">⏣</span>` +
+            `<span style="font-size:16px;font-weight:700;letter-spacing:.3px">ULB Config</span>` +
+            `<span style="font-size:11px;color:#7070a0;background:#0a0a18;border:1px solid #2e2e52;` +
+            `border-radius:4px;padding:2px 7px">${vTag}</span>` +
+            `</div>` +
+            `<button id="__ulb_cfg_close" title="Close (Esc)" style="` +
+            `background:none;border:none;color:#7070a0;font-size:20px;cursor:pointer;` +
+            `line-height:1;padding:4px 8px;border-radius:5px;transition:color .15s,background .15s;` +
+            `min-width:36px;min-height:36px;display:flex;align-items:center;justify-content:center">✕</button>`;
+
+        // ── Body (scrollable) ─────────────────────────────────────────────
+        const body = document.createElement('div');
+        body.style.cssText = [
+            'padding:20px', 'overflow-y:auto', 'flex:1',
+            'display:flex', 'flex-direction:column', 'gap:20px',
+            'overscroll-behavior:contain',
+        ].join(';');
+
+        // ── Footer ────────────────────────────────────────────────────────
+        const footer = document.createElement('div');
+        footer.style.cssText = [
+            'padding:14px 20px', 'border-top:1px solid #2e2e52',
+            'background:#16162a', 'display:flex', 'align-items:center',
+            'justify-content:space-between', 'flex-shrink:0', 'gap:10px',
+            'flex-wrap:wrap',
+        ].join(';');
+        footer.innerHTML =
+            `<button id="__ulb_cfg_reset" style="background:#1e1e38;border:1px solid #3b3b6b;` +
+            `color:#9090c0;font-size:13px;padding:8px 16px;border-radius:7px;cursor:pointer;` +
+            `transition:color .15s,background .15s;min-height:36px">Reset to defaults</button>` +
+            `<div style="display:flex;gap:10px">` +
+            `<button id="__ulb_cfg_cancel" style="background:#1e1e38;border:1px solid #3b3b6b;` +
+            `color:#9090c0;font-size:13px;padding:8px 18px;border-radius:7px;cursor:pointer;` +
+            `transition:color .15s,background .15s;min-height:36px">Cancel</button>` +
+            `<button id="__ulb_cfg_save" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);` +
+            `border:none;color:#fff;font-size:13px;font-weight:600;padding:8px 22px;` +
+            `border-radius:7px;cursor:pointer;box-shadow:0 2px 10px rgba(99,102,241,.4);` +
+            `transition:opacity .15s;min-height:36px">Save &amp; Reload</button>` +
+            `</div>`;
+
+        // ── Builder helpers ───────────────────────────────────────────────
+
+        const INP_BASE = [
+            'background:#0a0a18', 'border:1px solid #3b3b6b', 'color:#d0d0ee',
+            'font-size:13px', 'padding:6px 10px', 'border-radius:6px',
+            'outline:none', 'flex-shrink:0', 'transition:border-color .15s',
+            'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif',
+        ].join(';');
+
+        const mkSection = title => {
+            const sec = document.createElement('div');
+            const lbl = document.createElement('div');
+            lbl.style.cssText = 'font-size:11px;font-weight:700;text-transform:uppercase;' +
+                'letter-spacing:.8px;color:#6060a0;margin-bottom:12px;padding-bottom:6px;' +
+                'border-bottom:1px solid #2a2a4a';
+            lbl.textContent = title;
+            sec.appendChild(lbl);
+            return sec;
+        };
+
+        const mkRow = (labelText, desc) => {
+            const row = document.createElement('div');
+            row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:8px 0;gap:12px';
+            const info = document.createElement('div');
+            info.style.cssText = 'flex:1;min-width:0';
+            info.innerHTML =
+                `<div style="font-size:13px;font-weight:500;color:#d0d0ee">${labelText}</div>` +
+                (desc ? `<div style="font-size:11px;color:#6060a0;margin-top:2px">${desc}</div>` : '');
+            row.appendChild(info);
+            return row;
+        };
+
+        const mkToggle = key => {
+            const wrap = document.createElement('label');
+            wrap.style.cssText = 'position:relative;display:inline-block;width:40px;height:22px;flex-shrink:0;cursor:pointer;touch-action:manipulation';
+            const inp = document.createElement('input');
+            inp.type = 'checkbox';
+            inp.dataset.key = key;
+            inp.checked = !!CONFIG[key];
+            inp.style.cssText = 'opacity:0;width:0;height:0;position:absolute';
+            const track = document.createElement('span');
+            track.style.cssText = `position:absolute;inset:0;border-radius:22px;transition:background .2s;cursor:pointer;background:${inp.checked ? '#6366f1' : '#2e2e52'}`;
+            const knob = document.createElement('span');
+            knob.style.cssText = `position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:3px;transition:left .2s;left:${inp.checked ? '21px' : '3px'}`;
+            inp.addEventListener('change', () => {
+                track.style.background = inp.checked ? '#6366f1' : '#2e2e52';
+                knob.style.left = inp.checked ? '21px' : '3px';
+            });
+            track.appendChild(knob);
+            wrap.append(inp, track);
+            return wrap;
+        };
+
+        const mkText = (key, placeholder = '') => {
+            const inp = document.createElement('input');
+            inp.type = 'text';
+            inp.dataset.key = key;
+            inp.value = CONFIG[key] ?? '';
+            inp.placeholder = placeholder;
+            inp.style.cssText = `${INP_BASE};width:220px`;
+            inp.addEventListener('focus', () => inp.style.borderColor = '#6366f1');
+            inp.addEventListener('blur', () => inp.style.borderColor = '#3b3b6b');
+            return inp;
+        };
+
+        const mkNumber = (key, min, max) => {
+            const inp = document.createElement('input');
+            inp.type = 'number';
+            inp.dataset.key = key;
+            inp.value = CONFIG[key] ?? 0;
+            if(min !== undefined) inp.min = min;
+            if(max !== undefined) inp.max = max;
+            inp.style.cssText = `${INP_BASE};width:100px`;
+            inp.addEventListener('focus', () => inp.style.borderColor = '#6366f1');
+            inp.addEventListener('blur', () => inp.style.borderColor = '#3b3b6b');
+            return inp;
+        };
+
+        const mkSelect = (key, options) => {
+            const sel = document.createElement('select');
+            sel.dataset.key = key;
+            sel.style.cssText = `${INP_BASE};cursor:pointer`;
+            for(const [val, label] of options) {
+                const opt = document.createElement('option');
+                opt.value = val;
+                opt.textContent = label;
+                if(CONFIG[key] === val) opt.selected = true;
+                sel.appendChild(opt);
+            }
+            sel.addEventListener('focus', () => sel.style.borderColor = '#6366f1');
+            sel.addEventListener('blur', () => sel.style.borderColor = '#3b3b6b');
+            return sel;
+        };
+
+        const mkTextarea = (key, placeholder = '') => {
+            const ta = document.createElement('textarea');
+            ta.dataset.key = key;
+            ta.value = (CONFIG[key] || []).join('\n');
+            ta.placeholder = placeholder;
+            ta.rows = 5;
+            ta.style.cssText = [
+                'background:#0a0a18', 'border:1px solid #3b3b6b', 'color:#d0d0ee',
+                'font-size:12px', 'font-family:monospace', 'padding:8px 10px',
+                'border-radius:6px', 'width:100%', 'box-sizing:border-box',
+                'resize:vertical', 'outline:none', 'margin-top:8px',
+                'transition:border-color .15s', 'line-height:1.5',
+            ].join(';');
+            ta.addEventListener('focus', () => ta.style.borderColor = '#6366f1');
+            ta.addEventListener('blur', () => ta.style.borderColor = '#3b3b6b');
+            return ta;
+        };
+
+        // Helper: append a control row to a section
+        const addRow = (sec, lbl, desc, ctrl) => {
+            const row = mkRow(lbl, desc);
+            row.appendChild(ctrl);
+            sec.appendChild(row);
+        };
+
+        // ── Sections ──────────────────────────────────────────────────────
+
+        const secBypass = mkSection('Bypass Behaviour');
+        addRow(secBypass, 'Ask before bypass', 'Show a confirmation card before running any bypass', mkToggle('askBeforeBypass'));
+        addRow(secBypass, 'Auto-solve captchas', 'Automatically solve Cloudflare Turnstile captchas', mkToggle('autoCaptcha'));
+
+        const secNotif = mkSection('Notifications');
+        addRow(secNotif, 'Position', 'Where toast notifications appear on screen',
+            mkSelect('notifPosition', [
+                ['bottom-right', 'Bottom Right'],
+                ['bottom-left', 'Bottom Left'],
+                ['top-right', 'Top Right'],
+                ['top-left', 'Top Left']
+            ]));
+        addRow(secNotif, 'Duration (ms)', 'How long a notification stays on screen — 0 = until clicked', mkNumber('notifDuration', 0));
+        addRow(secNotif, 'Show bypass time', 'Display "Done in 1.3s" in the success notification', mkToggle('showBypassTime'));
+        addRow(secNotif, 'Show site label', 'Show which bypasser handled the page in the footer', mkToggle('showSiteLabel'));
+        addRow(secNotif, 'Compact mode', 'Smaller, less detailed notification cards', mkToggle('compactMode'));
+        addRow(secNotif, 'Auto-dismiss on redirect', 'Remove the notification the moment navigation starts', mkToggle('autoDismissOnRedirect'));
+        addRow(secNotif, 'Show branding', 'Show "Unknown Link Bypasser · @Aro Moon" in cards', mkToggle('notifShowBranding'));
+        addRow(secNotif, 'Show version in branding', 'Show script version in the branding line', mkToggle('notifShowVersion'));
+        addRow(secNotif, 'Show on loading', 'Show notification while a bypass is in progress', mkToggle('notifShowOnLoading'));
+        addRow(secNotif, 'Show on success', 'Show notification on a successful bypass', mkToggle('notifShowOnSuccess'));
+        addRow(secNotif, 'Show on error', 'Show notification when an error occurs', mkToggle('notifShowOnError'));
+        addRow(secNotif, 'Click to dismiss', 'Click anywhere on a card to dismiss it early', mkToggle('notifClickToDismiss'));
+        addRow(secNotif, 'Animate icon', 'Spin animation on the loading icon while bypassing', mkToggle('notifAnimateIcon'));
+        addRow(secNotif, 'Pause on hover', 'Pause the auto-dismiss countdown while hovering over the card', mkToggle('notifPauseOnHover'));
+
+        const secSite = mkSection('Site-Specific');
+        addRow(secSite, 'dl.surf auto-inject', 'Automatically inject the download bypass button on dl.surf', mkToggle('dlSurfAutoInject'));
+        addRow(secSite, 'Block ads (safelink)', 'Remove ads on safelink pages', mkToggle('blockAds'));
+        addRow(secSite, 'PhantomFluxKey URL', 'URL opened when "Get Key" is clicked', mkText('phantomDirectUrl', 'https://...'));
+
+        const secHosts = mkSection('Auto-Bypass Hosts');
+        const hostNote = document.createElement('div');
+        hostNote.style.cssText = 'font-size:11px;color:#6060a0;margin-bottom:4px';
+        hostNote.textContent = 'One hostname or substring per line — these sites skip the "Bypass this page?" prompt entirely.';
+        secHosts.append(hostNote, mkTextarea('autoBypassHosts', 'e.g. tpi.li\ngplinks.co'));
+
+        const secCf = mkSection('Cloudflare Allowed Referrers');
+        const cfNote = document.createElement('div');
+        cfNote.style.cssText = 'font-size:11px;color:#6060a0;margin-bottom:4px';
+        cfNote.textContent = 'Add new safelink domains here if CF auto-click stops working on a site. One entry per line.';
+        secCf.append(cfNote, mkTextarea('cfAllowedRefs', 'e.g. airflowscript.com\ndl.surf'));
+
+        [secBypass, secNotif, secSite, secHosts, secCf].forEach(s => body.appendChild(s));
+        panel.append(header, body, footer);
+        overlay.appendChild(panel);
+        _root.appendChild(overlay);
+
+        // ── Close / open helpers ──────────────────────────────────────────
+        const closeMenu = () => {
+            overlay.remove();
+            const cs = _root.getElementById('__ulb_cfg_style');
+            if(cs) cs.remove();
+        };
+
+        // Keyboard: Escape closes
+        const onKey = e => {
+            if(e.key === 'Escape') {
+                closeMenu();
+                document.removeEventListener('keydown', onKey);
+            }
+        };
+        document.addEventListener('keydown', onKey);
+
+        // Click backdrop to close
+        overlay.addEventListener('click', e => {
+            if(e.target === overlay) closeMenu();
+        });
+
+        const close = _root.getElementById('__ulb_cfg_close');
+        const cancel = _root.getElementById('__ulb_cfg_cancel');
+        const resetBtn = _root.getElementById('__ulb_cfg_reset');
+        const saveBtn = _root.getElementById('__ulb_cfg_save');
+
+        close.onclick = closeMenu;
+        cancel.onclick = closeMenu;
+
+        // Hover tints for secondary buttons
+        for(const [btn, fg] of [
+                [close, '#7070a0'],
+                [cancel, '#9090c0'],
+                [resetBtn, '#9090c0']
+            ]) {
+            btn.addEventListener('mouseenter', () => {
+                btn.style.color = '#d0d0ee';
+                btn.style.background = 'rgba(255,255,255,.06)';
+            });
+            btn.addEventListener('mouseleave', () => {
+                btn.style.color = fg;
+                btn.style.background = btn === close ? 'none' : '#1e1e38';
+            });
+        }
+        saveBtn.addEventListener('mouseenter', () => saveBtn.style.opacity = '.85');
+        saveBtn.addEventListener('mouseleave', () => saveBtn.style.opacity = '1');
+
+        // ── Inline reset confirmation ─────────────────────────────────────
+        resetBtn.onclick = () => {
+            if(_root.getElementById('__ulb_cfg_rc')) return; // prevent double-open
+            const rc = document.createElement('div');
+            rc.id = '__ulb_cfg_rc';
+            rc.style.cssText = [
+                'position:absolute', 'inset:0', 'border-radius:12px',
+                'background:rgba(10,10,24,.96)', 'backdrop-filter:blur(4px)',
+                'display:flex', 'flex-direction:column',
+                'align-items:center', 'justify-content:center',
+                'gap:14px', 'z-index:10', 'padding:24px',
+            ].join(';');
+            rc.innerHTML =
+                `<div style="font-size:15px;font-weight:700;color:#e2e2f0">Reset all settings?</div>` +
+                `<div style="font-size:12px;color:#6060a0;text-align:center;line-height:1.6">` +
+                `This will restore every option to its default value and reload the page.</div>` +
+                `<div style="display:flex;gap:12px">` +
+                `<button id="__ulb_rc_no"  style="background:#1e1e38;border:1px solid #3b3b6b;color:#9090c0;` +
+                `font-size:13px;padding:8px 20px;border-radius:7px;cursor:pointer;min-height:36px">Cancel</button>` +
+                `<button id="__ulb_rc_yes" style="background:linear-gradient(135deg,#ef4444,#dc2626);border:none;` +
+                `color:#fff;font-size:13px;font-weight:600;padding:8px 20px;border-radius:7px;cursor:pointer;min-height:36px">` +
+                `Yes, reset</button>` +
+                `</div>`;
+            panel.appendChild(rc);
+            _root.getElementById('__ulb_rc_no').onclick = () => rc.remove();
+            _root.getElementById('__ulb_rc_yes').onclick = () => {
+                try {
+                    GM_setValue('ulb_config', null);
+                } catch (_) {}
+                closeMenu();
+                location.reload();
+            };
+        };
+
+        // ── Save ──────────────────────────────────────────────────────────
+        saveBtn.onclick = () => {
+            const overrides = {};
+            panel.querySelectorAll('input[type="checkbox"][data-key]').forEach(el => {
+                overrides[el.dataset.key] = el.checked;
+            });
+            panel.querySelectorAll('input[type="text"][data-key]').forEach(el => {
+                overrides[el.dataset.key] = el.value.trim();
+            });
+            panel.querySelectorAll('input[type="number"][data-key]').forEach(el => {
+                overrides[el.dataset.key] = Math.max(0, Number(el.value) || 0);
+            });
+            panel.querySelectorAll('select[data-key]').forEach(el => {
+                overrides[el.dataset.key] = el.value;
+            });
+            panel.querySelectorAll('textarea[data-key]').forEach(el => {
+                overrides[el.dataset.key] = el.value.split('\n').map(l => l.trim()).filter(Boolean);
+            });
+            try {
+                GM_setValue('ulb_config', JSON.stringify(overrides));
+            } catch (_) {}
+            closeMenu();
+            location.reload();
+        };
+    }
+
+
+    // ═══════════════════════════════════════════════════════════════════════
     // §6  ROUTER
     // ═══════════════════════════════════════════════════════════════════════
 
@@ -2335,16 +2902,19 @@
     // This ensures any page using our captcha handler shows the widget.
     (function _patchInvisibleTurnstiles() {
         const patch = el => {
-            if (el.nodeType !== 1) return;
-            if (el.classList?.contains('cf-turnstile') && el.getAttribute('data-size') === 'invisible') {
+            if(el.nodeType !== 1) return;
+            if(el.classList?.contains('cf-turnstile') && el.getAttribute('data-size') === 'invisible') {
                 el.setAttribute('data-size', 'normal');
             }
             el.querySelectorAll?.('.cf-turnstile[data-size="invisible"]').forEach(w => w.setAttribute('data-size', 'normal'));
         };
         patch(document.documentElement);
         new MutationObserver(muts => {
-            for (const m of muts) m.addedNodes.forEach(patch);
-        }).observe(document.documentElement, { childList: true, subtree: true });
+            for(const m of muts) m.addedNodes.forEach(patch);
+        }).observe(document.documentElement, {
+            childList: true,
+            subtree: true
+        });
     })();
 
     // ── GM Clipboard helper (uses GM_setClipboard with navigator.clipboard fallback) ──
@@ -2357,24 +2927,43 @@
         }
     }
 
+    // ── SPA survival: re-attach notification host if removed from DOM ────────
+    const __ulbObserver = new MutationObserver(() => {
+        if(_host && !_host.isConnected) {
+            try {
+                (document.documentElement || document.body).appendChild(_host);
+            } catch (_) {}
+        }
+    });
+    __ulbObserver.observe(document.documentElement || document.body, {
+        childList: true
+    });
+
     // ── Config menu command ────────────────────────────────────────────────
     try {
         GM_registerMenuCommand('Config', _showConfigMenu);
-    } catch (_) { /* GM_registerMenuCommand not available */ }
+    } catch (_) {
+        /* GM_registerMenuCommand not available */ }
 
     // ── Diagnostics menu command ───────────────────────────────────────────
     try {
         GM_registerMenuCommand('ULB Diagnostics', () => {
             const now = new Date();
-            const gmAvail = fn => { try { return typeof eval(fn) === 'function' ? '✔' : '✘'; } catch(_) { return '✘'; } };
+            const gmAvail = fn => {
+                try {
+                    return typeof eval(fn) === 'function' ? '✔' : '✘';
+                } catch (_) {
+                    return '✘';
+                }
+            };
             const cfgLines = Object.entries(CONFIG)
-                .filter(([k]) => !['cfAllowedRefs','autoBypassHosts'].includes(k))
-                .map(([k,v]) => `  ${k}: ${JSON.stringify(v)}`)
+                .filter(([k]) => !['cfAllowedRefs', 'autoBypassHosts'].includes(k))
+                .map(([k, v]) => `  ${k}: ${JSON.stringify(v)}`)
                 .join('\n');
             const hostLines = (CONFIG.autoBypassHosts || []).map(h => `  - ${h}`).join('\n');
-            const diagLines = _diagEntries.length
-                ? _diagEntries.slice(-30).map(e => `  [${e.level}] ${new Date(e.ts).toISOString().slice(11,19)} ${e.msg}`).join('\n')
-                : '  (none)';
+            const diagLines = _diagEntries.length ?
+                _diagEntries.slice(-30).map(e => `  [${e.level}] ${new Date(e.ts).toISOString().slice(11,19)} ${e.msg}`).join('\n') :
+                '  (none)';
 
             const report = [
                 `╔══════════════════════════════════════════════╗`,
@@ -2414,7 +3003,8 @@
                 console.log('[ULB] Diagnostics report:\n', report);
             });
         });
-    } catch (_) { /* GM_registerMenuCommand not available (e.g. non-TM runner) */ }
+    } catch (_) {
+        /* GM_registerMenuCommand not available (e.g. non-TM runner) */ }
 
     try {
         if(host.includes('dl.surf')) _gateBypass('dl.surf', runDlSurf);
@@ -2478,7 +3068,7 @@
         else if(host.includes('krnl-ios.com')) _gateBypass('krnl-ios.com', runKrnlIosBypasser);
         else if(host.includes('scoplidrop.com')) _gateBypass('scoplidrop.com', runScoplidropBypasser);
         else if(host.includes('ouo.io') ||
-                host.includes('ouo.press')
+            host.includes('ouo.press')
         ) _gateBypass(host, runOuoBypasser);
         else if(host.includes('nexusdevs.fun') && (path.startsWith('/getkey') || /[?&]h=/.test(location.search) || /[?&]hwid=/.test(location.search))) _gateBypass('nexusdevs.fun', runNexusBypasser);
         else if(host.includes('encurtai.online')) _gateBypass('encurtai.online', runEncurtaiBypasser);
@@ -2490,7 +3080,8 @@
         else if(host.includes('boblox-script.com')) _gateBypass('boblox-script.com', runBobloxScriptBypasser);
         else if(host.includes('dusarisalary.com')) _gateBypass(host, runUnlockLinkFinderBypasser);
         else if(host.includes('sub2unlock.io') && path.length > 1) _gateBypass(host, runUnlockLinkFinderBypasser);
-        else if(host.includes('sub2unlock.io')) { /* homepage — do nothing */ }
+        else if(host.includes('sub2unlock.io')) {
+            /* homepage — do nothing */ } else if(host.includes('checkpoint2keyhub.vercel.app') || host.includes('checkpoint3keyhub.vercel.app')) _gateBypass('Keyhub', runKeyhubBypasser);
         else if(host.includes('socialwolvez.com')) _gateBypass('socialwolvez.com', runSocialWolvezBypasser);
         else if(TPI_HOSTS.some(h => host.includes(h))) _gateBypass(host, runTpiLiBypasser);
         else if(FORM_HOSTS.some(h => host.includes(h))) _gateBypass(host, runFormBypasser);
@@ -2634,11 +3225,25 @@
                 startInjecting();
             }
         };
+        // MutationObserver on <title> covers most SPA navigations;
+        // history API overrides cover pushState/replaceState.
         new MutationObserver(hrefCheck).observe(document.querySelector('title') || document.head, {
             childList: true,
             subtree: true
         });
-        setInterval(hrefCheck, 500);
+        const _origPush = history.pushState.bind(history);
+        const _origReplace = history.replaceState.bind(history);
+        history.pushState = function () {
+            _origPush.apply(this, arguments);
+            hrefCheck();
+        };
+        history.replaceState = function () {
+            _origReplace.apply(this, arguments);
+            hrefCheck();
+        };
+        window.addEventListener('popstate', hrefCheck, {
+            passive: true
+        });
         startInjecting();
 
         btn.addEventListener('click', async () => {
@@ -3033,7 +3638,9 @@
             const data = extract();
             if(!data?.dest) return;
             scheduled = true;
-            if (data.delay > 0) notify(`${host} — safelink decoded, redirecting in ${data.delay}s…`, 'info', 5000, { site: host });
+            if(data.delay > 0) notify(`${host} — safelink decoded, redirecting in ${data.delay}s…`, 'info', 5000, {
+                site: host
+            });
             const startCountdown = () => {
                 showCountdown(data.delay, () => {
                     notify(`${host} — safelink bypassed!`, 'success', undefined, {
@@ -3889,22 +4496,31 @@
     function runApnahireworkBypasser() {
         const SITE = 'apnahirework.com';
         const t = makeTimer();
-        const nh = notify(`${SITE} — detecting page…`, 'loading', 0, { site: SITE });
+        const nh = notify(`${SITE} — detecting page…`, 'loading', 0, {
+            site: SITE
+        });
         const handleError = makeErrHandler(SITE, nh, 7000);
 
         const run = () => {
             // Variant A: #tp-snp2 "Continue" link button — direct click
             const tpBtn = document.getElementById('tp-snp2');
-            if (tpBtn) {
-                nh.update(`${SITE} — clicking Continue…`, 'loading', { site: SITE });
-                safeRedirect(tpBtn.href || tpBtn.getAttribute('href'), nh, { t, siteLabel: SITE });
-                if (!tpBtn.href) tpBtn.click();
+            if(tpBtn) {
+                nh.update(`${SITE} — clicking Continue…`, 'loading', {
+                    site: SITE
+                });
+                safeRedirect(tpBtn.href || tpBtn.getAttribute('href'), nh, {
+                    t,
+                    siteLabel: SITE
+                });
+                if(!tpBtn.href) tpBtn.click();
                 return;
             }
 
             // Variant B: startCountdownBtn ad-countdown page
-            if (document.getElementById('startCountdownBtn')) {
-                nh.update(`${SITE} — bypassing ad countdown…`, 'loading', { site: SITE });
+            if(document.getElementById('startCountdownBtn')) {
+                nh.update(`${SITE} — bypassing ad countdown…`, 'loading', {
+                    site: SITE
+                });
                 unsafeWindow.count = -1;
                 unsafeWindow.timer?.();
                 waitForContinueBtn('countdown', nh, SITE);
@@ -3913,11 +4529,16 @@
 
             // Variant C: step counter (div#stick / span.text-danger)
             const stepDanger = document.querySelector('strong .text-danger, strong span.text-danger');
-            if (stepDanger) {
+            if(stepDanger) {
                 const m = stepDanger.textContent.trim().match(/^(\d+)\/(\d+)$/);
-                if (m) {
-                    const step = { current: parseInt(m[1], 10), total: parseInt(m[2], 10) };
-                    nh.update(`${SITE} — step ${step.current}/${step.total} — bypassing…`, 'loading', { site: SITE });
+                if(m) {
+                    const step = {
+                        current: parseInt(m[1], 10),
+                        total: parseInt(m[2], 10)
+                    };
+                    nh.update(`${SITE} — step ${step.current}/${step.total} — bypassing…`, 'loading', {
+                        site: SITE
+                    });
                     unsafeWindow.count = -1;
                     unsafeWindow.timer?.();
                     waitForContinueBtn(`step ${step.current}/${step.total}`, nh, SITE);
@@ -3940,22 +4561,31 @@
         const SITE = 'crimejasoos.in';
         const STEP_WAIT_SEC = 35;
         const t = makeTimer();
-        const nh = notify(`${SITE} — detecting page…`, 'loading', 0, { site: SITE });
+        const nh = notify(`${SITE} — detecting page…`, 'loading', 0, {
+            site: SITE
+        });
         const handleError = makeErrHandler(SITE, nh, 7000);
 
         const run = () => {
             // Variant A: #tp-snp2 "Continue" link button — direct
             const tpBtn = document.getElementById('tp-snp2');
-            if (tpBtn) {
-                nh.update(`${SITE} — clicking Continue…`, 'loading', { site: SITE });
-                if (tpBtn.href) safeRedirect(tpBtn.href, nh, { t, siteLabel: SITE });
+            if(tpBtn) {
+                nh.update(`${SITE} — clicking Continue…`, 'loading', {
+                    site: SITE
+                });
+                if(tpBtn.href) safeRedirect(tpBtn.href, nh, {
+                    t,
+                    siteLabel: SITE
+                });
                 else tpBtn.click();
                 return;
             }
 
             // Variant B: startCountdownBtn ad-countdown page
-            if (document.getElementById('startCountdownBtn')) {
-                nh.update(`${SITE} — bypassing ad countdown…`, 'loading', { site: SITE });
+            if(document.getElementById('startCountdownBtn')) {
+                nh.update(`${SITE} — bypassing ad countdown…`, 'loading', {
+                    site: SITE
+                });
                 unsafeWindow.count = -1;
                 unsafeWindow.timer?.();
                 waitForContinueBtn('countdown', nh, SITE);
@@ -3965,18 +4595,25 @@
             // Variant C: step counter (div#stick / span.text-danger)
             // Every step waits STEP_WAIT_SEC s with a visible countdown before bypassing.
             const stepDanger = document.querySelector('strong .text-danger, strong span.text-danger');
-            if (stepDanger) {
+            if(stepDanger) {
                 const m = stepDanger.textContent.trim().match(/^(\d+)\/(\d+)$/);
-                if (m) {
-                    const step = { current: parseInt(m[1], 10), total: parseInt(m[2], 10) };
+                if(m) {
+                    const step = {
+                        current: parseInt(m[1], 10),
+                        total: parseInt(m[2], 10)
+                    };
                     const label = `step ${step.current}/${step.total}`;
                     const isLast = step.current === step.total;
                     const subtitle = `crimejasoos.in — ${label}${isLast ? ' (last)' : ''}`;
-                    nh.update(`${SITE} — ${label}${isLast ? ' (last)' : ''} — waiting ${STEP_WAIT_SEC}s…`, 'loading', { site: SITE });
+                    nh.update(`${SITE} — ${label}${isLast ? ' (last)' : ''} — waiting ${STEP_WAIT_SEC}s…`, 'loading', {
+                        site: SITE
+                    });
                     const restore = spoofVisibilityHidden();
                     showCountdown(STEP_WAIT_SEC, () => {
                         restore();
-                        nh.update(`${SITE} — ${label} — bypassing…`, 'loading', { site: SITE });
+                        nh.update(`${SITE} — ${label} — bypassing…`, 'loading', {
+                            site: SITE
+                        });
                         unsafeWindow.count = -1;
                         unsafeWindow.timer?.();
                         waitForContinueBtn(label, nh, SITE);
@@ -4000,16 +4637,20 @@
     function runNewsuchnaonlineBypasser() {
         const SITE = 'newsuchnaonline.com';
         const t = makeTimer();
-        const nh = notify(`${SITE} — detecting page…`, 'loading', 0, { site: SITE });
+        const nh = notify(`${SITE} — detecting page…`, 'loading', 0, {
+            site: SITE
+        });
         const handleError = makeErrHandler(SITE, nh, 7000);
 
         const run = () => {
             // Variant B: #getlink button (dual-tap style)
             const getlinkBtn = document.getElementById('getlink');
-            if (getlinkBtn) {
-                nh.update(`${SITE} — clicking Get Link…`, 'loading', { site: SITE });
-                count = -1;
-                timer();
+            if(getlinkBtn) {
+                nh.update(`${SITE} — clicking Get Link…`, 'loading', {
+                    site: SITE
+                });
+                unsafeWindow.count = -1;
+                unsafeWindow.timer?.();
                 getlinkBtn.click();
                 waitForContinueBtn('get-link', nh, SITE, 30_000);
                 return;
@@ -4017,8 +4658,10 @@
 
             // Variant A: #notarobot verify button
             const notarobot = document.getElementById('notarobot');
-            if (notarobot) {
-                nh.update(`${SITE} — clicking verify…`, 'loading', { site: SITE });
+            if(notarobot) {
+                nh.update(`${SITE} — clicking verify…`, 'loading', {
+                    site: SITE
+                });
                 notarobot.click();
                 waitForContinueBtn('notarobot', nh, SITE, 30_000);
                 return;
@@ -4038,7 +4681,9 @@
     function runJoberFacwizBypasser() {
         const SITE = 'jober.factwiz.online';
         const t = makeTimer();
-        const nh = notify(`${SITE} — reading page delay…`, 'loading', 0, { site: SITE });
+        const nh = notify(`${SITE} — reading page delay…`, 'loading', 0, {
+            site: SITE
+        });
         const handleError = makeErrHandler(SITE, nh, 7000);
 
         const init = () => {
@@ -4048,7 +4693,9 @@
             const delayMatch = allScriptText.match(/setTimeout\([^,]+,\s*(\d+)\)/);
             const delay = delayMatch ? +delayMatch[1] : 0;
 
-            nh.update(`${SITE} — waiting ${delay}ms for cookie…`, 'loading', { site: SITE });
+            nh.update(`${SITE} — waiting ${delay}ms for cookie…`, 'loading', {
+                site: SITE
+            });
 
             const restore = spoofVisibilityHidden();
 
@@ -4062,13 +4709,16 @@
 
                     const value = cookie ? cookie.split('=')[1] : '';
 
-                    if (!value) {
+                    if(!value) {
                         handleError('#tp cookie not found after delay', null);
                         return;
                     }
 
                     const finalUrl = 'https://go.yorurl.com/' + value;
-                    safeRedirect(finalUrl, nh, { t, siteLabel: SITE });
+                    safeRedirect(finalUrl, nh, {
+                        t,
+                        siteLabel: SITE
+                    });
                 } catch (err) {
                     handleError('bypass failed', err);
                 }
@@ -4076,10 +4726,12 @@
         };
 
         // Wait for full page load so all inline scripts are present before scanning.
-        if (document.readyState === 'complete') {
+        if(document.readyState === 'complete') {
             init();
         } else {
-            window.addEventListener('load', init, { once: true });
+            window.addEventListener('load', init, {
+                once: true
+            });
         }
     }
 
@@ -4564,7 +5216,9 @@
 
             const form = document.querySelector('form');
             if(form) {
-                try { submitForm(form); } catch (_) {}
+                try {
+                    submitForm(form);
+                } catch (_) {}
             }
 
             nh.update(`${SITE} — captcha done, waiting for redirect…`, 'success', {
@@ -4659,72 +5313,47 @@
     }
 
     // ── ytsubme.com ────────────────────────────────────────────────────────
-    // ytsubme.com/s2u/* completes a subscribe-to-unlock flow via XHR/fetch.
-    // The final destination URL is returned by the API calls matching
-    // s2u_links.php or s2uGetLink in their URL. This bypasser intercepts
-    // both fetch() and XMLHttpRequest at the unsafeWindow level so it catches
-    // whichever transport the page uses, parses the JSON response, and extracts
-    // return_url (or msg.target). The real URL is read passively — no API
-    // calls are made by ULB itself; we simply observe the page's own traffic.
+    // ytsubme.com/s2u/* exposes the destination URL through a direct API
+    // endpoint: /dashboard/api/s2u_links.php?mode=s2uGetLink&code=<urlid>
+    // The page URL contains the "urlid" query parameter we need to pass.
+    // We call the API ourselves immediately — no waiting for the page's own
+    // traffic or subscribe steps — and redirect straight to return_url.
 
     function runYtSubMeBypasser() {
         const SITE = 'ytsubme.com';
         const t = makeTimer();
+        const nh = notify(`${SITE} — fetching destination…`, 'loading', 0, {
+            site: SITE
+        });
+        const handleError = makeErrHandler(SITE, nh, 7000);
 
-        const isTarget = url => typeof url === 'string' && (url.includes('s2u_links.php') || url.includes('s2uGetLink'));
-
-        let _handled = false;
-        const handleData = data => {
-            if(_handled) return;
-            const url = data?.return_url || data?.msg?.target;
-            if(!url) {
-                console.warn('[ULB/ytsubme] no return_url in response:', data);
-                notify(`${SITE}: no return_url in API response`, 'error', 7000, {
-                    site: SITE
-                });
-                return;
-            }
-            _handled = true;
-            const nh = notify(`${SITE} — redirecting…`, 'success', {
-                site: SITE,
-                time: t.elapsed() + 's'
-            });
-            setTimeout(() => nh.remove(), CONFIG.autoDismissOnRedirect ? 500 : 2000);
-            location.href = url;
-        };
-
-        const _origFetch = unsafeWindow.fetch;
-        unsafeWindow.fetch = function (input, init) {
-            const url = typeof input === 'string' ? input : input?.url;
-            const promise = _origFetch.apply(this, arguments);
-            if(isTarget(url)) {
-                promise.then(r => r.clone().json()).then(handleData).catch(e => console.warn('[ULB/ytsubme] fetch intercept parse error:', e));
-            }
-            return promise;
-        };
-
-        const _OrigXHR = unsafeWindow.XMLHttpRequest;
-
-        function PatchedXHR() {
-            const xhr = new _OrigXHR();
-            const _open = xhr.open.bind(xhr);
-            let _targeted = false;
-            xhr.open = function (method, url, ...rest) {
-                if(isTarget(url)) _targeted = true;
-                return _open(method, url, ...rest);
-            };
-            xhr.addEventListener('load', () => {
-                if(!_targeted) return;
-                try {
-                    handleData(JSON.parse(xhr.responseText));
-                } catch (e) {
-                    console.warn('[ULB/ytsubme] XHR intercept parse error:', e);
+        const init = async () => {
+            try {
+                const code = new URL(location.href).searchParams.get('urlid');
+                if(!code) {
+                    handleError('urlid parameter not found in page URL', null);
+                    return;
                 }
-            });
-            return xhr;
-        }
-        PatchedXHR.prototype = _OrigXHR.prototype;
-        unsafeWindow.XMLHttpRequest = PatchedXHR;
+
+                const res = await fetch(
+                    `https://www.ytsubme.com/dashboard/api/s2u_links.php?mode=s2uGetLink&code=${encodeURIComponent(code)}`
+                );
+                if(!res.ok) throw new Error(`API returned HTTP ${res.status}`);
+
+                const data = await res.json();
+                const url = data?.return_url;
+                if(!url) throw new Error('No return_url in API response');
+
+                safeRedirect(url, nh, {
+                    t,
+                    siteLabel: SITE
+                });
+            } catch (err) {
+                handleError('bypass failed', err);
+            }
+        };
+
+        onReady(init);
     }
 
     // ── sub4unlock.co ──────────────────────────────────────────────────────
@@ -4974,23 +5603,29 @@
                     nh.update(`${SITE} — checkpoint ${i}/2…`, 'loading', {
                         site: SITE
                     });
-                    await fetch('/api/loot/verify', {
+                    await fetch(`/api/checkpoint/${i}`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                            token,
-                            checkpoint: i
+                            token
                         }),
                     });
+                    if(i < 2) await sleep(2000);
                 }
 
                 nh.update(`${SITE} — finalising…`, 'loading', {
                     site: SITE
                 });
-                await fetch('/api/loot/create', {
-                    method: 'POST'
+                await fetch('/api/getkey', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        token
+                    }),
                 });
 
                 const rParam = new URLSearchParams(location.search).get('r');
@@ -5136,16 +5771,6 @@
         const t = makeTimer();
         const handleError = makeErrHandler(SITE, null, 7000);
 
-        const isCaptchaPresent = () => {
-            if(document.querySelector('iframe[src*="hcaptcha.com"]')) return true;
-            if(document.querySelector('[name="h-captcha-response"]')) return true;
-            if(document.querySelector('[name="g-recaptcha-response"]')) return true;
-            for(const el of document.querySelectorAll('.mb-2.text-base.font-semibold, [class*="font-semibold"]')) {
-                if(el.textContent.trim() === 'Verify You Are Human') return true;
-            }
-            return false;
-        };
-
         const getHCaptchaToken = () => {
             const ta = document.querySelector('[name="h-captcha-response"]');
             if(ta?.value?.length > 20) return ta.value;
@@ -5158,15 +5783,41 @@
             return '';
         };
 
+        const getRecaptchaToken = () => {
+            const ta = document.querySelector('[name="g-recaptcha-response"], #g-recaptcha-response');
+            if(ta?.value?.length > 20) return ta.value;
+            try {
+                const r = unsafeWindow.grecaptcha?.getResponse?.();
+                if(r?.length > 20) return r;
+            } catch (_) {}
+            return '';
+        };
+
+        const isRecaptchaPresent = () => !!document.querySelector('[name="g-recaptcha-response"]');
+        const isHCaptchaPresent = () =>
+            !!document.querySelector('iframe[src*="hcaptcha.com"]') ||
+            !!document.querySelector('[name="h-captcha-response"]');
+
+        const isCaptchaPresent = () => {
+            if(isHCaptchaPresent()) return true;
+            if(isRecaptchaPresent()) return true;
+            for(const el of document.querySelectorAll('.mb-2.text-base.font-semibold, [class*="font-semibold"]')) {
+                if(el.textContent.trim() === 'Verify You Are Human') return true;
+            }
+            return false;
+        };
+
         const runBypass = async nh => {
             const adSlug = path.split('/').filter(Boolean).pop();
             nh.update(`${SITE} — fetching destination…`, 'loading', {
                 site: SITE
             });
             try {
-                const token = getHCaptchaToken();
+                const hToken = getHCaptchaToken();
+                const rcToken = getRecaptchaToken();
                 const headers = {};
-                if(token) headers['x-hcaptcha-response'] = token;
+                if(hToken) headers['x-hcaptcha-response'] = hToken;
+                if(rcToken) headers['x-recaptcha-response'] = rcToken;
 
                 const resp = await fetch(`https://api.getpolsec.com/ad/${adSlug}/linkvertise`, {
                     headers
@@ -5201,6 +5852,25 @@
         };
 
         const runCaptchaWait = nh => {
+            // ── reCAPTCHA: auto-solve via overlay + audio bypass ─────────
+            if(isRecaptchaPresent() && CONFIG.autoRecaptcha !== false) {
+                nh.update(`${SITE} — solving reCAPTCHA…`, 'loading', {
+                    site: SITE
+                });
+                solveRecaptcha()
+                    .then(() => runBypass(nh))
+                    .catch(err => {
+                        console.warn('[ULB/getpolsec] reCAPTCHA solve failed:', err.message);
+                        nh.update(`${SITE} — reCAPTCHA solve failed; solve it manually then wait…`, 'warn', 0, {
+                            site: SITE
+                        });
+                        // Fall back to polling for manual solve
+                        _waitManualRecaptcha(nh);
+                    });
+                return;
+            }
+
+            // ── hCaptcha: wait for manual solve ──────────────────────────
             nh.update(`${SITE} — solve the hCaptcha to continue…`, 'warn', 0, {
                 site: SITE
             });
@@ -5218,6 +5888,23 @@
                     handleError('timed out waiting for hCaptcha', null);
                 }
             }, 100);
+        };
+
+        /** Fallback: poll every 500 ms for a manually-solved reCAPTCHA token. */
+        const _waitManualRecaptcha = nh => {
+            let tries = 0;
+            const iv = setInterval(() => {
+                const token = getRecaptchaToken();
+                if(token) {
+                    clearInterval(iv);
+                    runBypass(nh);
+                    return;
+                }
+                if(++tries > 240) {
+                    clearInterval(iv);
+                    handleError('timed out waiting for reCAPTCHA', null);
+                }
+            }, 500);
         };
 
         const init = () => {
@@ -5245,25 +5932,34 @@
         const detect = () => {
             // ── Jober-style step counter (btn6 + btn7) ─────────────────────
             const stepDanger = document.querySelector('strong .text-danger, strong span.text-danger');
-            if (stepDanger) {
+            if(stepDanger) {
                 const m = stepDanger.textContent.trim().match(/^(\d+)\/(\d+)$/);
-                if (m) {
-                    const step = { current: parseInt(m[1], 10), total: parseInt(m[2], 10) };
-                    nh.update(`${SITE} — step ${step.current}/${step.total} — bypassing…`, 'loading', { site: SITE });
-                    count = -1;
-                    timer();
+                if(m) {
+                    const step = {
+                        current: parseInt(m[1], 10),
+                        total: parseInt(m[2], 10)
+                    };
+                    nh.update(`${SITE} — step ${step.current}/${step.total} — bypassing…`, 'loading', {
+                        site: SITE
+                    });
+                    unsafeWindow.count = -1;
+                    unsafeWindow.timer?.();
                     const check = setInterval(() => {
                         const b7 = document.getElementById('btn7');
-                        if (b7 && b7.offsetParent !== null) {
+                        if(b7 && b7.offsetParent !== null) {
                             clearInterval(check);
-                            nh.update(`${SITE} — clicking Continue…`, 'loading', { site: SITE });
+                            nh.update(`${SITE} — clicking Continue…`, 'loading', {
+                                site: SITE
+                            });
                             b7.click();
                             return;
                         }
                         const cross = document.getElementById('cross-snp2');
-                        if (cross && cross.offsetParent !== null) {
+                        if(cross && cross.offsetParent !== null) {
                             clearInterval(check);
-                            nh.update(`${SITE} — clicking Continue…`, 'loading', { site: SITE });
+                            nh.update(`${SITE} — clicking Continue…`, 'loading', {
+                                site: SITE
+                            });
                             cross.click();
                         }
                     }, 500);
@@ -5273,22 +5969,28 @@
             }
 
             // ── Jober-style startCountdownBtn ────────────────────────────────
-            if (document.getElementById('startCountdownBtn')) {
-                nh.update(`${SITE} — bypassing ad countdown…`, 'loading', { site: SITE });
-                count = -1;
-                timer();
+            if(document.getElementById('startCountdownBtn')) {
+                nh.update(`${SITE} — bypassing ad countdown…`, 'loading', {
+                    site: SITE
+                });
+                unsafeWindow.count = -1;
+                unsafeWindow.timer?.();
                 const check = setInterval(() => {
                     const cross = document.getElementById('cross-snp2');
-                    if (cross && cross.offsetParent !== null) {
+                    if(cross && cross.offsetParent !== null) {
                         clearInterval(check);
-                        nh.update(`${SITE} — clicking Continue…`, 'loading', { site: SITE });
+                        nh.update(`${SITE} — clicking Continue…`, 'loading', {
+                            site: SITE
+                        });
                         cross.click();
                         return;
                     }
                     const b7 = document.getElementById('btn7');
-                    if (b7 && b7.offsetParent !== null) {
+                    if(b7 && b7.offsetParent !== null) {
                         clearInterval(check);
-                        nh.update(`${SITE} — clicking Continue…`, 'loading', { site: SITE });
+                        nh.update(`${SITE} — clicking Continue…`, 'loading', {
+                            site: SITE
+                        });
                         b7.click();
                     }
                 }, 500);
@@ -5385,7 +6087,9 @@
                         nh.update(`${SITE} — submitting…`, 'loading', {
                             site: SITE
                         });
-                        try { submitForm(form); } catch (err) {
+                        try {
+                            submitForm(form);
+                        } catch (err) {
                             handleError('captcha solve failed', err);
                         }
                     } catch (err) {
@@ -5468,7 +6172,9 @@
     function runRekoniseBypasser() {
         const SITE = 'rekonise.com';
         const t = makeTimer();
-        const nh = notify(`${SITE} — Unlocking…`, 'loading', 0, { site: SITE });
+        const nh = notify(`${SITE} — Unlocking…`, 'loading', 0, {
+            site: SITE
+        });
         const handleError = makeErrHandler(SITE, nh, 7000);
 
         const run = () => {
@@ -5480,39 +6186,59 @@
 
             const tryOnce = async () => {
                 const ngStateEl = document.getElementById('ng-state');
-                if (!ngStateEl) return null;
+                if(!ngStateEl) return null;
                 let token;
                 try {
                     const d = JSON.parse(ngStateEl.textContent);
-                    for (const k in d) {
-                        if (d[k]?.b?.unlock_token) { token = d[k].b.unlock_token; break; }
+                    for(const k in d) {
+                        if(d[k]?.b?.unlock_token) {
+                            token = d[k].b.unlock_token;
+                            break;
+                        }
                     }
-                } catch (_) { return null; }
-                if (!token) return null;
+                } catch (_) {
+                    return null;
+                }
+                if(!token) return null;
                 const slug = location.pathname.split('/').filter(Boolean).pop();
-                const url  = `https://api.rekonise.com/social-unlocks/${encodeURIComponent(slug)}/unlock?token=${encodeURIComponent(token)}`;
+                const url = `https://api.rekonise.com/social-unlocks/${encodeURIComponent(slug)}/unlock?token=${encodeURIComponent(token)}`;
                 try {
                     const j = await fetchJSON(url);
                     const dest = j.url ?? j;
-                    if (safeUrl(dest)) return dest;
+                    if(safeUrl(dest)) return dest;
                 } catch (_) {}
                 return null;
             };
 
             // First attempt immediately after the 5 s wait
             let dest = await tryOnce();
-            if (dest) { safeRedirect(dest, nh, { t, siteLabel: SITE }); return; }
+            if(dest) {
+                safeRedirect(dest, nh, {
+                    t,
+                    siteLabel: SITE
+                });
+                return;
+            }
 
             // Retry every 1 s until the API returns a valid URL
             let attempts = 1;
             const retry = setInterval(async () => {
                 attempts++;
                 dest = await tryOnce();
-                if (dest) { clearInterval(retry); safeRedirect(dest, nh, { t, siteLabel: SITE }); }
+                if(dest) {
+                    clearInterval(retry);
+                    safeRedirect(dest, nh, {
+                        t,
+                        siteLabel: SITE
+                    });
+                }
             }, 1000);
 
             // Give up after 60 s of retrying
-            setTimeout(() => { clearInterval(retry); if (!dest) handleError('unlock URL not returned after 30s', null); }, 30_000);
+            setTimeout(() => {
+                clearInterval(retry);
+                if(!dest) handleError('unlock URL not returned after 30s', null);
+            }, 30_000);
         };
 
         onReady(run);
@@ -5604,33 +6330,37 @@
     function runNexusBypasser() {
         const SITE = 'nexusdevs.fun';
         const BASE = 'https://keyserver.nexusdevs.fun';
-        const JSON_HEADERS = { 'Content-Type': 'application/json' };
+        const JSON_HEADERS = {
+            'Content-Type': 'application/json'
+        };
 
         // ── Block report-adblock & hidaddy on unsafeWindow so the page's own
         //    JS cannot fire these requests regardless of how they're made. ────
-        const _uw         = typeof unsafeWindow !== 'undefined' ? unsafeWindow : window;
-        const _nxBlocked  = (u) => {
+        const _uw = typeof unsafeWindow !== 'undefined' ? unsafeWindow : window;
+        const _nxBlocked = (u) => {
             const s = u ? String(typeof u === 'object' ? (u.url ?? u) : u) : '';
             return s.includes('report-adblock') || s.includes('hidaddy');
         };
 
         // fetch
         const _origFetch = _uw.fetch;
-        _uw.fetch = function(input, init) {
-            if (_nxBlocked(input)) return Promise.resolve(new Response(null, { status: 204 }));
+        _uw.fetch = function (input, init) {
+            if(_nxBlocked(input)) return Promise.resolve(new Response(null, {
+                status: 204
+            }));
             return _origFetch.apply(this, arguments);
         };
 
         // XHR — patch the prototype on unsafeWindow's copy
-        const _XHR   = _uw.XMLHttpRequest;
+        const _XHR = _uw.XMLHttpRequest;
         const _xOpen = _XHR.prototype.open;
         const _xSend = _XHR.prototype.send;
-        _XHR.prototype.open = function(method, url) {
+        _XHR.prototype.open = function (method, url) {
             this.__nxBlock = _nxBlocked(url);
             return _xOpen.apply(this, arguments);
         };
-        _XHR.prototype.send = function() {
-            if (this.__nxBlock) return;
+        _XHR.prototype.send = function () {
+            if(this.__nxBlock) return;
             return _xSend.apply(this, arguments);
         };
 
@@ -5642,22 +6372,28 @@
         // DOM — kill matching nodes as they appear and on load
         new MutationObserver(ms => {
             ms.forEach(m => m.addedNodes.forEach(n => {
-                if (n.nodeType === 1 && _nxBlocked(n.src || n.href)) { n.pause?.(); n.remove(); }
+                if(n.nodeType === 1 && _nxBlocked(n.src || n.href)) {
+                    n.pause?.();
+                    n.remove();
+                }
             }));
-        }).observe(document.documentElement, { childList: true, subtree: true });
+        }).observe(document.documentElement, {
+            childList: true,
+            subtree: true
+        });
         document.querySelectorAll('audio,source,script,img').forEach(e => {
-            if (_nxBlocked(e.src || e.href)) e.remove();
+            if(_nxBlocked(e.src || e.href)) e.remove();
         });
         // ─────────────────────────────────────────────────────────────────────
 
-        const t  = makeTimer();
+        const t = makeTimer();
         const nh = notify(`${SITE} — starting key flow…`, 'loading', 0);
         const handleError = makeErrHandler(SITE, nh, 9000);
 
         const params = new URLSearchParams(window.location.search);
-        const HWID   = params.get('h') || params.get('hwid');
+        const HWID = params.get('h') || params.get('hwid');
 
-        if (!HWID) {
+        if(!HWID) {
             handleError('no HWID found in URL (?h= or ?hwid=)', null);
             return;
         }
@@ -5679,20 +6415,20 @@
 
             let data = await go();
 
-            if (data.status === 'rate_limited') {
+            if(data.status === 'rate_limited') {
                 handleError('rate limited — please wait a while and try again', null);
                 throw new Error('rate_limited');
             }
 
-            if (data.status === 'blocked') {
-                const waitMs  = (data.remaining_ms ?? 5000) + 500;
+            if(data.status === 'blocked') {
+                const waitMs = (data.remaining_ms ?? 5000) + 500;
                 const waitSec = Math.ceil(waitMs / 1000);
                 console.warn(`[ULB/nexus] ${label} — IP blocked (${data.reason ?? '?'}), waiting ${waitSec}s…`);
                 nh.update(`${SITE} — blocked (${data.reason ?? 'ad blocker detected'}), waiting ${waitSec}s…`, 'warn');
                 await sleep(waitMs);
                 nh.update(`${SITE} — retrying ${label}…`, 'loading');
                 data = await go();
-                if (data.status === 'rate_limited') {
+                if(data.status === 'rate_limited') {
                     handleError('rate limited — please wait a while and try again', null);
                     throw new Error('rate_limited');
                 }
@@ -5706,12 +6442,14 @@
                 // 1. Init session
                 nh.update(`${SITE} — initialising session…`, 'loading');
 
-                const initData = await nxPost('/api/getkey/init',
-                    { hwid_hash: HWID, timestamp: Date.now() },
+                const initData = await nxPost('/api/getkey/init', {
+                        hwid_hash: HWID,
+                        timestamp: Date.now()
+                    },
                     'init'
                 );
 
-                if (!initData?.token) {
+                if(!initData?.token) {
                     handleError('init failed — no token returned', null);
                     return;
                 }
@@ -5721,27 +6459,31 @@
                 const total = steps.length;
 
                 // 2. Walk each step
-                for (let i = 0; i < steps.length; i++) {
-                    const s       = steps[i];
+                for(let i = 0; i < steps.length; i++) {
+                    const s = steps[i];
                     const stepNum = s.step || (i + 1);
 
                     // Discord step — skip start-step and complete-step entirely
-                    if (s.type === 'discord') {
+                    if(s.type === 'discord') {
                         nh.update(`${SITE} — step ${stepNum}/${total} (discord)…`, 'loading');
                         await sleep(1500);
-                        await nxPost('/api/getkey/complete-discord', { token }, 'complete-discord').catch(() => {});
+                        await nxPost('/api/getkey/complete-discord', {
+                            token
+                        }, 'complete-discord').catch(() => {});
                         await sleep(1200);
                         continue;
                     }
 
                     nh.update(`${SITE} — step ${stepNum}/${total}…`, 'loading');
 
-                    const startData = await nxPost('/api/getkey/start-step',
-                        { token, step: stepNum },
+                    const startData = await nxPost('/api/getkey/start-step', {
+                            token,
+                            step: stepNum
+                        },
                         `start-step ${stepNum}`
                     );
 
-                    if (startData.wait) {
+                    if(startData.wait) {
                         nh.update(`${SITE} — step ${stepNum}/${total} (waiting ${startData.wait}s)…`, 'loading');
                         await sleep((startData.wait * 1000) + 800);
                     }
@@ -5749,16 +6491,18 @@
                     // complete-step — retry on too_fast, also handles blocked via nxPost
                     let completeData;
                     do {
-                        completeData = await nxPost('/api/getkey/complete-step',
-                            { token, step: stepNum },
+                        completeData = await nxPost('/api/getkey/complete-step', {
+                                token,
+                                step: stepNum
+                            },
                             `complete-step ${stepNum}`
                         );
-                        if (completeData.status === 'too_fast' && completeData.remaining) {
+                        if(completeData.status === 'too_fast' && completeData.remaining) {
                             const waitSec = Math.ceil(completeData.remaining / 1000) + 2;
                             nh.update(`${SITE} — step ${stepNum}/${total} too fast, retrying in ${waitSec}s…`, 'loading');
                             await sleep(waitSec * 1000);
                         }
-                    } while (completeData.status === 'too_fast' && completeData.remaining);
+                    } while(completeData.status === 'too_fast' && completeData.remaining);
 
                     await sleep(1200);
                 }
@@ -5767,9 +6511,11 @@
                 nh.update(`${SITE} — generating key…`, 'loading');
                 await sleep(2000);
 
-                const genData = await nxPost('/api/getkey/generate', { token }, 'generate');
+                const genData = await nxPost('/api/getkey/generate', {
+                    token
+                }, 'generate');
 
-                if (!genData?.code) {
+                if(!genData?.code) {
                     handleError('key generation failed — no code in response', null);
                     return;
                 }
@@ -5790,25 +6536,32 @@
     function runEncurtaiBypasser() {
         const SITE = 'encurtai.online';
         const t = makeTimer();
-        const nh = notify(`${SITE} — fetching destination…`, 'loading', 0, { site: SITE });
+        const nh = notify(`${SITE} — fetching destination…`, 'loading', 0, {
+            site: SITE
+        });
         const handleError = makeErrHandler(SITE, nh, 7000);
 
         const run = async () => {
             try {
                 const slug = location.pathname.split('/').filter(Boolean).pop();
-                if (!slug) throw new Error('Could not extract slug from URL path');
+                if(!slug) throw new Error('Could not extract slug from URL path');
 
-                nh.update(`${SITE} — resolving link…`, 'loading', { site: SITE });
+                nh.update(`${SITE} — resolving link…`, 'loading', {
+                    site: SITE
+                });
 
                 const resp = await fetch(
                     `https://sbxebooks.online/ADMINFLUENCERSTESTER/api.php?resource=public_link&slug=${encodeURIComponent(slug)}`
                 );
-                if (!resp.ok) throw _httpError(resp, 'API');
+                if(!resp.ok) throw _httpError(resp, 'API');
 
                 const data = await resp.json();
-                if (!data?.url) throw new Error('No URL in API response');
+                if(!data?.url) throw new Error('No URL in API response');
 
-                safeRedirect(data.url, nh, { t, siteLabel: SITE });
+                safeRedirect(data.url, nh, {
+                    t,
+                    siteLabel: SITE
+                });
             } catch (err) {
                 handleError('bypass failed', err);
             }
@@ -5829,34 +6582,41 @@
     function runPandaDevelopmentBypasser() {
         const SITE = 'pandadevelopment.net';
         const t = makeTimer();
-        const nh = notify(`${SITE} — starting key flow…`, 'loading', 0, { site: SITE });
+        const nh = notify(`${SITE} — starting key flow…`, 'loading', 0, {
+            site: SITE
+        });
         const handleError = makeErrHandler(SITE, nh, 10000);
 
         const run = async () => {
             try {
                 // Extract keyId from /getkey/<keyId>
                 const keyId = location.pathname.split('/getkey/')[1];
-                if (!keyId) throw new Error('Could not extract key ID from URL path');
+                if(!keyId) throw new Error('Could not extract key ID from URL path');
 
                 const hwid = new URLSearchParams(location.search).get('hwid') || '';
 
                 // Step 1 — fetch session info
-                nh.update(`${SITE} — fetching session…`, 'loading', { site: SITE });
+                nh.update(`${SITE} — fetching session…`, 'loading', {
+                    site: SITE
+                });
                 const infoResp = await fetch(
-                    `/api/v1/public/getkey/${encodeURIComponent(keyId)}?hwid=${encodeURIComponent(hwid)}&_t=${Date.now()}`,
-                    { credentials: 'include' }
+                    `/api/v1/public/getkey/${encodeURIComponent(keyId)}?hwid=${encodeURIComponent(hwid)}&_t=${Date.now()}`, {
+                        credentials: 'include'
+                    }
                 );
-                if (!infoResp.ok) throw _httpError(infoResp, 'Session fetch');
+                if(!infoResp.ok) throw _httpError(infoResp, 'Session fetch');
                 const info = await infoResp.json();
 
-                if (!info.success) throw new Error('Session init unsuccessful — ' + (info.message || 'unknown error'));
+                if(!info.success) throw new Error('Session init unsuccessful — ' + (info.message || 'unknown error'));
 
-                const sessionId  = info.data.sessionId;
+                const sessionId = info.data.sessionId;
                 const checkpoints = info.data.checkpoints;
 
                 // If all checkpoints are already done, nothing to bypass
-                if (checkpoints.completed >= checkpoints.total) {
-                    nh.update(`${SITE} — checkpoints already complete`, 'success', { site: SITE });
+                if(checkpoints.completed >= checkpoints.total) {
+                    nh.update(`${SITE} — checkpoints already complete`, 'success', {
+                        site: SITE
+                    });
                     setTimeout(() => nh.remove(), 3000);
                     return;
                 }
@@ -5865,30 +6625,38 @@
                 const customProvider = settings.selectedCustomProvider ?? settings.revenueMode;
 
                 // Step 2 — request revenue link
-                nh.update(`${SITE} — requesting revenue link…`, 'loading', { site: SITE });
+                nh.update(`${SITE} — requesting revenue link…`, 'loading', {
+                    site: SITE
+                });
                 const linkBody = {
                     sessionId,
                     useSecondary: settings.secondaryRevenueMode !== 'NONE',
-                    useTertiary:  settings.tertiaryRevenueMode  !== 'NONE',
-                    ...(customProvider ? { customProvider } : {}),
+                    useTertiary: settings.tertiaryRevenueMode !== 'NONE',
+                    ...(customProvider ? {
+                        customProvider
+                    } : {}),
                 };
 
                 const linkResp = await fetch(
-                    `/api/v1/public/getkey/${encodeURIComponent(keyId)}/revenue-link`,
-                    {
+                    `/api/v1/public/getkey/${encodeURIComponent(keyId)}/revenue-link`, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
                         body: JSON.stringify(linkBody),
                         credentials: 'include',
                     }
                 );
-                if (!linkResp.ok) throw _httpError(linkResp, 'Revenue-link fetch');
+                if(!linkResp.ok) throw _httpError(linkResp, 'Revenue-link fetch');
                 const linkData = await linkResp.json();
 
-                if (!linkData.success || !linkData.data?.link)
+                if(!linkData.success || !linkData.data?.link)
                     throw new Error('Revenue link not returned — ' + (linkData.message || 'unknown error'));
 
-                safeRedirect(linkData.data.link, nh, { t, siteLabel: SITE });
+                safeRedirect(linkData.data.link, nh, {
+                    t,
+                    siteLabel: SITE
+                });
             } catch (err) {
                 handleError('bypass failed', err);
             }
@@ -6023,44 +6791,47 @@
         const SITE = 'lua-key-vault';
         const BASE = location.origin;
 
-        const t   = makeTimer();
-        const nh  = notify(`${SITE} — starting key generation…`, 'loading', 0);
+        const t = makeTimer();
+        const nh = notify(`${SITE} — starting key generation…`, 'loading', 0);
         const handleError = makeErrHandler(SITE, nh, 9000);
 
         (async () => {
             try {
                 // Step 1 — request key generation
                 nh.update(`${SITE} — requesting key…`, 'loading');
-                const genResp = await fetch(`${BASE}/api/generate-key`, { method: 'POST' });
-                if (!genResp.ok) throw _httpError(genResp, 'generate-key');
+                const genResp = await fetch(`${BASE}/api/generate-key`, {
+                    method: 'POST'
+                });
+                if(!genResp.ok) throw _httpError(genResp, 'generate-key');
                 const genData = await genResp.json();
                 const requestId = genData.requestId;
-                if (!requestId) throw new Error('No requestId in generate-key response');
+                if(!requestId) throw new Error('No requestId in generate-key response');
 
                 const validateUrl = `${BASE}/api/validate-key?requestId=${encodeURIComponent(requestId)}`;
 
                 // Step 2 — poll once to learn remainingTime
                 nh.update(`${SITE} — checking wait time…`, 'loading');
                 const pollResp = await fetch(validateUrl);
-                if (!pollResp.ok) throw _httpError(pollResp, 'validate-key (poll)');
+                if(!pollResp.ok) throw _httpError(pollResp, 'validate-key (poll)');
                 const pollData = await pollResp.json();
 
-                const waitMs  = (typeof pollData.remainingTime === 'number' ? pollData.remainingTime : 180_000) + 200;
+                const waitMs = (typeof pollData.remainingTime === 'number' ? pollData.remainingTime : 180_000) + 200;
                 const waitSec = Math.ceil(waitMs / 1000);
 
                 // Step 3 — dismiss loading notif now that wait time is known, then show countdown
                 nh.remove();
+                const nhFinal = notify(`${SITE} — waiting for key generation…`, 'loading', 0);
                 showCountdown(waitSec, async () => {
                     try {
-                        nh.update(`${SITE} — fetching key…`, 'loading');
+                        nhFinal.update(`${SITE} — fetching key…`, 'loading');
                         const keyResp = await fetch(validateUrl);
-                        if (!keyResp.ok) throw _httpError(keyResp, 'validate-key (final)');
+                        if(!keyResp.ok) throw _httpError(keyResp, 'validate-key (final)');
                         const keyData = await keyResp.json();
 
                         const key = keyData.key;
-                        if (!key) throw new Error('No key field in validate-key response');
+                        if(!key) throw new Error('No key field in validate-key response');
 
-                        nh.remove();
+                        nhFinal.remove();
                         showKeyCard(key, SITE, t);
                     } catch (err) {
                         handleError('failed to fetch final key', err);
@@ -6080,24 +6851,32 @@
     function runMboostBypasser() {
         const SITE = 'mboost.me';
         const t = makeTimer();
-        const nh = notify(`${SITE} — extracting target URL…`, 'loading', 0, { site: SITE });
+        const nh = notify(`${SITE} — extracting target URL…`, 'loading', 0, {
+            site: SITE
+        });
         const handleError = makeErrHandler(SITE, nh, 7000);
 
         const tryExtract = () => {
             // Strategy 1: read from unsafeWindow.data.targeturl
             try {
                 const d = unsafeWindow.data;
-                if (d && d.targeturl) {
-                    safeRedirect(d.targeturl, nh, { t, siteLabel: SITE });
+                if(d && d.targeturl) {
+                    safeRedirect(d.targeturl, nh, {
+                        t,
+                        siteLabel: SITE
+                    });
                     return true;
                 }
             } catch (_) {}
 
             // Strategy 2: scan inline <script> tags
-            for (const s of document.querySelectorAll('script:not([src])')) {
+            for(const s of document.querySelectorAll('script:not([src])')) {
                 const m = s.textContent.match(/['"]{0,1}targeturl['"]{0,1}\s*:\s*['"]([^'"]+)['"]/);
-                if (m && m[1]) {
-                    safeRedirect(m[1], nh, { t, siteLabel: SITE });
+                if(m && m[1]) {
+                    safeRedirect(m[1], nh, {
+                        t,
+                        siteLabel: SITE
+                    });
                     return true;
                 }
             }
@@ -6105,7 +6884,7 @@
         };
 
         const init = () => {
-            if (tryExtract()) return;
+            if(tryExtract()) return;
             // Scripts may still be executing — poll until data is available
             pollUntil(tryExtract, 200, 150).catch(() => {
                 handleError('target URL not found in page', null);
@@ -6121,22 +6900,27 @@
     function runSub2UnlockBypasser() {
         const SITE = 'sub2unlock';
         const t = makeTimer();
-        const nh = notify(`${SITE} — waiting for unlock signal…`, 'loading', 0, { site: SITE });
+        const nh = notify(`${SITE} — waiting for unlock signal…`, 'loading', 0, {
+            site: SITE
+        });
 
         let redirected = false;
 
         const W = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
         const OrigWS = W.WebSocket;
 
-        W.WebSocket = function(u, p) {
+        W.WebSocket = function (u, p) {
             const s = new OrigWS(u, p);
             s.addEventListener('message', e => {
-                if (redirected) return;
+                if(redirected) return;
                 try {
                     const d = JSON.parse(e.data)?.d?.b?.d?.download;
-                    if (d) {
+                    if(d) {
                         redirected = true;
-                        safeRedirect(d, nh, { t, siteLabel: SITE });
+                        safeRedirect(d, nh, {
+                            t,
+                            siteLabel: SITE
+                        });
                     }
                 } catch (_) {}
             });
@@ -6160,7 +6944,9 @@
         const SITE = 'scoplidrop.com';
         const WAIT_SEC = 15;
         const t = makeTimer();
-        const nh = notify(`${SITE} — reading code…`, 'loading', 0, { site: SITE });
+        const nh = notify(`${SITE} — reading code…`, 'loading', 0, {
+            site: SITE
+        });
         const handleError = makeErrHandler(SITE, nh, 10000);
 
         const run = async () => {
@@ -6168,57 +6954,67 @@
                 // Step 1 — resolve code
                 const code = new URLSearchParams(location.search).get('code') ||
                     prompt('scoplidrop — Enter your entry code:');
-                if (!code) throw new Error('No code provided');
+                if(!code) throw new Error('No code provided');
 
                 // Step 2 — exchange code for token
-                nh.update(`${SITE} — fetching token…`, 'loading', { site: SITE });
+                nh.update(`${SITE} — fetching token…`, 'loading', {
+                    site: SITE
+                });
                 const tokRes = await fetch(
                     `https://www.scoplidrop.com/api/tokens?code=${encodeURIComponent(code)}`
                 );
-                if (!tokRes.ok) throw _httpError(tokRes, 'Token fetch');
+                if(!tokRes.ok) throw _httpError(tokRes, 'Token fetch');
                 const tokData = await tokRes.json();
                 const token = tokData.token;
-                if (!token) throw new Error('Token missing in response');
+                if(!token) throw new Error('Token missing in response');
 
                 // Step 3 — fetch giveaway + entry data
-                nh.update(`${SITE} — fetching giveaway data…`, 'loading', { site: SITE });
+                nh.update(`${SITE} — fetching giveaway data…`, 'loading', {
+                    site: SITE
+                });
                 const entRes = await fetch(
                     `https://www.scoplidrop.com/api/entry/giveaway?token=${encodeURIComponent(token)}`
                 );
-                if (!entRes.ok) throw _httpError(entRes, 'Giveaway fetch');
+                if(!entRes.ok) throw _httpError(entRes, 'Giveaway fetch');
                 const data = await entRes.json();
-                if (!data || !data.giveaway) throw new Error('Invalid giveaway response');
+                if(!data || !data.giveaway) throw new Error('Invalid giveaway response');
 
                 const giveawayId = data.giveaway.id;
                 const userId = data.user?.id || data.entry?.user_id;
-                if (!userId) throw new Error('User ID not found in response');
+                if(!userId) throw new Error('User ID not found in response');
 
                 const tasks = data.giveaway.tasks || [];
                 const completions = data.entry?.task_completions || {};
 
                 // Step 4 — collect incomplete custom-task indices
                 const incomplete = [];
-                for (let i = 0; i < tasks.length; i++) {
-                    if (tasks[i].id === 'custom-task' && !completions[`custom-task_${i}`]?.completed) {
+                for(let i = 0; i < tasks.length; i++) {
+                    if(tasks[i].id === 'custom-task' && !completions[`custom-task_${i}`]?.completed) {
                         incomplete.push(i);
                     }
                 }
 
-                if (!incomplete.length) {
-                    nh.update(`${SITE} — all tasks already completed!`, 'success', 5000, { site: SITE });
+                if(!incomplete.length) {
+                    nh.update(`${SITE} — all tasks already completed!`, 'success', 5000, {
+                        site: SITE
+                    });
                     return;
                 }
 
                 nh.update(
                     `${SITE} — starting ${incomplete.length} task(s)…`,
-                    'loading', { site: SITE }
+                    'loading', {
+                        site: SITE
+                    }
                 );
 
                 // Step 5 — start all incomplete tasks
                 const startTask = (taskIndex) =>
                     fetch('https://www.scoplidrop.com/api/task/start', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
                         body: JSON.stringify({
                             taskId: 'custom-task',
                             taskIndex,
@@ -6233,7 +7029,9 @@
                 const verifyTask = (taskIndex) =>
                     fetch('https://www.scoplidrop.com/api/task/verify', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
                         body: JSON.stringify({
                             taskId: 'custom-task',
                             taskIndex,
@@ -6246,16 +7044,23 @@
                 await Promise.all(incomplete.map(startTask));
 
                 // Step 6 — 15 s countdown, then verify
-                nh.update(`${SITE} — waiting ${WAIT_SEC}s before verifying…`, 'loading', { site: SITE });
+                nh.update(`${SITE} — waiting ${WAIT_SEC}s before verifying…`, 'loading', {
+                    site: SITE
+                });
                 await new Promise(resolve =>
                     showCountdown(WAIT_SEC, resolve, `${SITE} — verifying tasks`)
                 );
 
-                nh.update(`${SITE} — verifying ${incomplete.length} task(s)…`, 'loading', { site: SITE });
+                nh.update(`${SITE} — verifying ${incomplete.length} task(s)…`, 'loading', {
+                    site: SITE
+                });
                 await Promise.all(incomplete.map(verifyTask));
 
                 // Step 7 — done
-                safeRedirect(location.href, nh, { t, siteLabel: SITE });
+                safeRedirect(location.href, nh, {
+                    t,
+                    siteLabel: SITE
+                });
 
             } catch (err) {
                 handleError('bypass failed', err);
@@ -6272,17 +7077,26 @@
     function runKrnlIosBypasser() {
         const SITE = 'krnl-ios';
         const t = makeTimer();
-        const nh = notify(`${SITE} — decoding URL…`, 'loading', 0, { site: SITE });
+        const nh = notify(`${SITE} — decoding URL…`, 'loading', 0, {
+            site: SITE
+        });
         const handleError = makeErrHandler(SITE, nh, 5000);
 
         const init = () => {
             try {
                 const encoded = new URLSearchParams(location.search).get('URL');
-                if (!encoded) throw new Error('No ?URL= parameter found');
+                if(!encoded) throw new Error('No ?URL= parameter found');
                 let dest;
-                try { dest = atob(encoded); } catch (e) { throw new Error('base64 decode failed — ' + e.message); }
-                if (!dest) throw new Error('Decoded URL is empty');
-                safeRedirect(dest, nh, { t, siteLabel: SITE });
+                try {
+                    dest = atob(encoded);
+                } catch (e) {
+                    throw new Error('base64 decode failed — ' + e.message);
+                }
+                if(!dest) throw new Error('Decoded URL is empty');
+                safeRedirect(dest, nh, {
+                    t,
+                    siteLabel: SITE
+                });
             } catch (err) {
                 handleError('decode failed', err);
             }
@@ -6305,7 +7119,9 @@
         const SITE = location.hostname; // dynamic: works for both ouo.io and ouo.press
         const TURNSTILE_SITEKEY = getSiteKey('0x4AAAAAAA77ZC8BklcfDJke'); // fall back to hardcoded key if page doesn't expose one
         const t = makeTimer();
-        const nh = notify(`${SITE} — detecting page…`, 'loading', 0, { site: SITE });
+        const nh = notify(`${SITE} — detecting page…`, 'loading', 0, {
+            site: SITE
+        });
         const handleError = makeErrHandler(SITE, nh, 10000);
 
         /**
@@ -6314,10 +7130,10 @@
          */
         const waitForInput = (form, inputName, maxMs = 3000) => new Promise(resolve => {
             const inp = form.querySelector(`[name="${inputName}"]`);
-            if (!inp || inp.value) return resolve();
+            if(!inp || inp.value) return resolve();
             const start = Date.now();
             const iv = setInterval(() => {
-                if (inp.value || Date.now() - start >= maxMs) {
+                if(inp.value || Date.now() - start >= maxMs) {
                     clearInterval(iv);
                     resolve();
                 }
@@ -6327,47 +7143,66 @@
         const init = async () => {
             try {
                 // ── Page B: /go/<id> — wait for hidden inputs then submit #form-go ──
-                if (path.startsWith('/go/')) {
-                    nh.update(`${SITE} — waiting for form tokens…`, 'loading', { site: SITE });
+                if(path.startsWith('/go/')) {
+                    nh.update(`${SITE} — waiting for form tokens…`, 'loading', {
+                        site: SITE
+                    });
 
                     const form = await (async () => {
                         // Try to find form-go immediately, or wait up to 3s for it
                         const found = document.getElementById('form-go') || document.querySelector('form#form-go') || document.querySelector('form');
-                        if (found) return found;
+                        if(found) return found;
                         return new Promise(resolve => {
                             const obs = new MutationObserver(() => {
                                 const f = document.getElementById('form-go') || document.querySelector('form');
-                                if (f) { obs.disconnect(); resolve(f); }
+                                if(f) {
+                                    obs.disconnect();
+                                    resolve(f);
+                                }
                             });
-                            obs.observe(document.body || document.documentElement, { childList: true, subtree: true });
-                            setTimeout(() => { obs.disconnect(); resolve(null); }, 3000);
+                            obs.observe(document.body || document.documentElement, {
+                                childList: true,
+                                subtree: true
+                            });
+                            setTimeout(() => {
+                                obs.disconnect();
+                                resolve(null);
+                            }, 3000);
                         });
                     })();
 
-                    if (!form) throw new Error('#form-go not found on /go/ page');
+                    if(!form) throw new Error('#form-go not found on /go/ page');
 
                     // Wait for x-token to be filled in by the page's own JS (or timeout and proceed)
                     await waitForInput(form, 'x-token', 2500);
 
-                    nh.update(`${SITE} — submitting go-form…`, 'loading', { site: SITE });
+                    nh.update(`${SITE} — submitting go-form…`, 'loading', {
+                        site: SITE
+                    });
                     submitForm(form);
-                    nh.update(`${SITE} — submitted, awaiting final redirect…`, 'loading', { site: SITE });
+                    nh.update(`${SITE} — submitted, awaiting final redirect…`, 'loading', {
+                        site: SITE
+                    });
                     setTimeout(() => nh.remove(), 8000);
                     return;
                 }
 
                 // ── Page A: /<id> — solve Turnstile (visible) → submit #form-captcha ──
-                if (!CONFIG.autoCaptcha) {
+                if(!CONFIG.autoCaptcha) {
                     // Make the page's own widget visible so the user can interact with it
                     document.querySelectorAll('.cf-turnstile').forEach(el => {
                         el.setAttribute('data-size', 'normal');
                         el.style.cssText = 'display:block!important;visibility:visible!important;opacity:1!important';
                     });
-                    nh.update(`${SITE} — solve the Turnstile to continue…`, 'warn', 0, { site: SITE });
+                    nh.update(`${SITE} — solve the Turnstile to continue…`, 'warn', 0, {
+                        site: SITE
+                    });
                     return;
                 }
 
-                nh.update(`${SITE} — solving Turnstile captcha…`, 'loading', { site: SITE });
+                nh.update(`${SITE} — solving Turnstile captcha…`, 'loading', {
+                    site: SITE
+                });
 
                 let token;
                 try {
@@ -6378,13 +7213,14 @@
                 }
 
                 const form = document.getElementById('form-captcha') || document.querySelector('form');
-                if (!form) throw new Error('#form-captcha not found');
+                if(!form) throw new Error('#form-captcha not found');
 
                 // Inject resolved token into the form's cf-turnstile-response field
                 let cfInput = form.querySelector('[name="cf-turnstile-response"]');
-                if (!cfInput) {
+                if(!cfInput) {
                     cfInput = Object.assign(document.createElement('input'), {
-                        type: 'hidden', name: 'cf-turnstile-response'
+                        type: 'hidden',
+                        name: 'cf-turnstile-response'
                     });
                     form.appendChild(cfInput);
                 }
@@ -6393,18 +7229,22 @@
                 // Also attempt to fill the shadow-DOM widget's own response field
                 try {
                     const widgetInput = document.querySelector('[id$="_response"]');
-                    if (widgetInput && widgetInput !== cfInput) widgetInput.value = token;
+                    if(widgetInput && widgetInput !== cfInput) widgetInput.value = token;
                 } catch (_) {}
 
                 // Enable any disabled submit button
                 const btn = document.getElementById('btn-main') ||
                     form.querySelector('button[type="submit"][disabled], input[type="submit"][disabled]');
-                if (btn) btn.disabled = false;
+                if(btn) btn.disabled = false;
 
-                nh.update(`${SITE} — submitting captcha form…`, 'loading', { site: SITE });
+                nh.update(`${SITE} — submitting captcha form…`, 'loading', {
+                    site: SITE
+                });
                 submitForm(form);
 
-                nh.update(`${SITE} — captcha submitted, loading go-page…`, 'loading', { site: SITE });
+                nh.update(`${SITE} — captcha submitted, loading go-page…`, 'loading', {
+                    site: SITE
+                });
                 setTimeout(() => nh.remove(), 8000);
 
             } catch (err) {
@@ -6423,20 +7263,26 @@
     function runStartGetKeyBypasser() {
         const SITE = 'start-get-key';
         const t = makeTimer();
-        const nh = notify(`${SITE} — probing keysystem workers…`, 'loading', 0, { site: SITE });
+        const nh = notify(`${SITE} — probing keysystem workers…`, 'loading', 0, {
+            site: SITE
+        });
         const handleError = makeErrHandler(SITE, nh, 8000);
 
         (async () => {
             try {
                 const workers = ['352', '2352', '3352'];
-                for (const n of workers) {
+                for(const n of workers) {
                     try {
                         await fetch(`https://get-key.keysystem${n}.workers.dev/status`);
-                        nh.update(`${SITE} — worker ${n} alive, redirecting…`, 'loading', { site: SITE });
+                        nh.update(`${SITE} — worker ${n} alive, redirecting…`, 'loading', {
+                            site: SITE
+                        });
                         safeRedirect(
                             `https://get-key.keysystem${n}.workers.dev/make`,
-                            nh,
-                            { t, siteLabel: SITE }
+                            nh, {
+                                t,
+                                siteLabel: SITE
+                            }
                         );
                         return;
                     } catch (_) {
@@ -6444,11 +7290,15 @@
                     }
                 }
                 // All probes failed — fall back to the last worker as the original snippet does
-                nh.update(`${SITE} — all probes failed, using fallback worker…`, 'loading', { site: SITE });
+                nh.update(`${SITE} — all probes failed, using fallback worker…`, 'loading', {
+                    site: SITE
+                });
                 safeRedirect(
                     'https://get-key.keysystem3352.workers.dev/make',
-                    nh,
-                    { t, siteLabel: SITE }
+                    nh, {
+                        t,
+                        siteLabel: SITE
+                    }
                 );
             } catch (err) {
                 handleError('worker probe failed', err);
@@ -6470,17 +7320,21 @@
         const TURNSTILE_SITEKEY = '0x4AAAAAABik-QUxiaALrsZ3';
         const API_URL = 'https://boblox-script.com/api/generate-key';
         const t = makeTimer();
-        const nh = notify(`${SITE} — solving Turnstile…`, 'loading', 0, { site: SITE });
+        const nh = notify(`${SITE} — solving Turnstile…`, 'loading', 0, {
+            site: SITE
+        });
         const handleError = makeErrHandler(SITE, nh, 8000);
 
         const init = async () => {
             try {
-                if (!CONFIG.autoCaptcha) {
+                if(!CONFIG.autoCaptcha) {
                     document.querySelectorAll('.cf-turnstile').forEach(el => {
                         el.setAttribute('data-size', 'normal');
                         el.style.cssText = 'display:block!important;visibility:visible!important;opacity:1!important';
                     });
-                    nh.update(`${SITE} — solve the Turnstile to continue…`, 'warn', 0, { site: SITE });
+                    nh.update(`${SITE} — solve the Turnstile to continue…`, 'warn', 0, {
+                        site: SITE
+                    });
                     return;
                 }
 
@@ -6492,20 +7346,26 @@
                     return;
                 }
 
-                nh.update(`${SITE} — requesting key…`, 'loading', { site: SITE });
+                nh.update(`${SITE} — requesting key…`, 'loading', {
+                    site: SITE
+                });
 
                 const res = await fetch(API_URL, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ token: turnstileToken }),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        token: turnstileToken
+                    }),
                     credentials: 'same-origin',
                 });
 
-                if (!res.ok) throw new Error(`Key API returned HTTP ${res.status}`);
+                if(!res.ok) throw new Error(`Key API returned HTTP ${res.status}`);
 
                 const data = await res.json();
                 const key = data.key;
-                if (!key) throw new Error('No key field in API response');
+                if(!key) throw new Error('No key field in API response');
 
                 nh.remove();
                 showKeyCard(key, SITE, t, 30_000);
@@ -6526,18 +7386,23 @@
     function runUnlockLinkFinderBypasser() {
         const SITE = location.hostname;
         const t = makeTimer();
-        const nh = notify(`${SITE} — finding unlock link…`, 'loading', 0, { site: SITE });
+        const nh = notify(`${SITE} — finding unlock link…`, 'loading', 0, {
+            site: SITE
+        });
         const handleError = makeErrHandler(SITE, nh, 7000);
 
         const tryFind = () => {
             const a = [...document.querySelectorAll('a')].find(el => el.textContent.includes('Unlock Link'));
-            if (!a || !a.href) return false;
-            safeRedirect(a.href, nh, { t, siteLabel: SITE });
+            if(!a || !a.href) return false;
+            safeRedirect(a.href, nh, {
+                t,
+                siteLabel: SITE
+            });
             return true;
         };
 
         const init = () => {
-            if (tryFind()) return;
+            if(tryFind()) return;
             pollUntil(tryFind, 200, 100).catch(() => {
                 handleError('"Unlock Link" anchor not found on page', null);
             });
@@ -6554,21 +7419,26 @@
     function runBstshrtBypasser() {
         const SITE = 'bstshrt.com';
         const t = makeTimer();
-        const nh = notify(`${SITE} — scanning for final URL…`, 'loading', 0, { site: SITE });
+        const nh = notify(`${SITE} — scanning for final URL…`, 'loading', 0, {
+            site: SITE
+        });
         const handleError = makeErrHandler(SITE, nh, 7000);
 
         const tryExtract = () => {
             const allScripts = [...document.scripts].map(s => s.innerHTML).join('');
             const m = allScripts.match(/finalUrl\\":\\"(https?:\/\/[^\\"]+)/);
-            if (m && m[1]) {
-                safeRedirect(m[1], nh, { t, siteLabel: SITE });
+            if(m && m[1]) {
+                safeRedirect(m[1], nh, {
+                    t,
+                    siteLabel: SITE
+                });
                 return true;
             }
             return false;
         };
 
         const init = () => {
-            if (tryExtract()) return;
+            if(tryExtract()) return;
             pollUntil(tryExtract, 200, 100).catch(() => {
                 handleError('finalUrl not found in page scripts', null);
             });
@@ -6582,16 +7452,21 @@
     // own sitekey, then constructs and POSTs the captcha form ourselves.
 
     function runUpfilesGoBypasser() {
-        const SITE        = 'upfilesgo.com';
-        const SITEKEY     = '0x4AAAAAACOs2qXUfX8e7LFB';
-        const t           = makeTimer();
-        const nh          = notify(`${SITE} — Unlocking…`, 'loading', 0, { site: SITE });
+        const SITE = 'upfilesgo.com';
+        const SITEKEY = '0x4AAAAAACOs2qXUfX8e7LFB';
+        const t = makeTimer();
+        const nh = notify(`${SITE} — Unlocking…`, 'loading', 0, {
+            site: SITE
+        });
         const handleError = makeErrHandler(SITE, nh, 8000);
 
         const init = async () => {
             try {
                 const csrfMeta = document.querySelector('meta[name="csrf-token"]');
-                if (!csrfMeta) { handleError('csrf-token meta not found', null); return; }
+                if(!csrfMeta) {
+                    handleError('csrf-token meta not found', null);
+                    return;
+                }
                 const csrfToken = csrfMeta.content;
 
                 let turnstileToken;
@@ -6603,13 +7478,13 @@
                 }
 
                 const body = new URLSearchParams();
-                body.set('_token',                csrfToken);
-                body.set('action',                'captcha');
+                body.set('_token', csrfToken);
+                body.set('action', 'captcha');
                 body.set('cf-turnstile-response', turnstileToken);
 
                 const res = await fetch(location.href, {
-                    method:  'POST',
-                    body:    body.toString(),
+                    method: 'POST',
+                    body: body.toString(),
                     credentials: 'same-origin',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
@@ -6617,7 +7492,10 @@
                     },
                 });
 
-                if (!res.ok) { handleError(`POST returned HTTP ${res.status}`, null); return; }
+                if(!res.ok) {
+                    handleError(`POST returned HTTP ${res.status}`, null);
+                    return;
+                }
 
                 const html = await res.text();
 
@@ -6625,6 +7503,43 @@
                 document.write(html);
                 document.close();
 
+            } catch (err) {
+                handleError('bypass failed', err);
+            }
+        };
+
+        onReady(init);
+    }
+
+    // ── Keyhub Bypass (checkpoint2keyhub / checkpoint3keyhub) ─────────────
+    // Fetches the key-system-hub index page, scrapes all unique FREE_<n> key
+    // codes from the HTML, picks one at random, and displays it via showKeyCard.
+
+    function runKeyhubBypasser() {
+        const SITE = 'Keyhub';
+        const API_URL = 'https://key-system-hub.vercel.app/';
+        const t = makeTimer();
+        const nh = notify(`${SITE} — fetching key…`, 'loading', 0, {
+            site: SITE
+        });
+        const handleError = makeErrHandler(SITE, nh, 7000);
+
+        const init = async () => {
+            try {
+                const res = await fetch(API_URL);
+                if(!res.ok) throw new Error(`key-system-hub returned HTTP ${res.status}`);
+
+                const text = await res.text();
+
+                // Collect every unique FREE_<digits> code that appears in the page
+                const keys = [...new Set((text.match(/FREE_\d+/g) || []))];
+                if(!keys.length) throw new Error('No FREE_<n> keys found in response');
+
+                // Pick one at random
+                const key = keys[Math.random() * keys.length | 0];
+
+                nh.remove();
+                showKeyCard(key, SITE, t, 30_000);
             } catch (err) {
                 handleError('bypass failed', err);
             }
@@ -6643,24 +7558,29 @@
     function runSocialWolvezBypasser() {
         const SITE = 'socialwolvez.com';
         const t = makeTimer();
-        const nh = notify(`${SITE} — reading Next.js payload…`, 'loading', 0, { site: SITE });
+        const nh = notify(`${SITE} — reading Next.js payload…`, 'loading', 0, {
+            site: SITE
+        });
         const handleError = makeErrHandler(SITE, nh, 7000);
 
         const tryExtract = () => {
             const raw = (unsafeWindow.self.__next_f || []).join('');
-            if (!raw) return false;
+            if(!raw) return false;
             const m = raw.match(/"url":"(.*?)"/);
             // Unescape any Unicode escape sequences Next.js may encode (e.g. \u002F → /)
             const url = m && m[1] ? m[1].replace(/\\u([\dA-Fa-f]{4})/g, (_, h) => String.fromCharCode(parseInt(h, 16))) : null;
-            if (url && safeUrl(url)) {
-                safeRedirect(url, nh, { t, siteLabel: SITE });
+            if(url && safeUrl(url)) {
+                safeRedirect(url, nh, {
+                    t,
+                    siteLabel: SITE
+                });
                 return true;
             }
             return false;
         };
 
         const init = () => {
-            if (tryExtract()) return;
+            if(tryExtract()) return;
             pollUntil(tryExtract, 150, 100).catch(() => {
                 handleError('"url" key not found in Next.js payload (__next_f)', null);
             });
