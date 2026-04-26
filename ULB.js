@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Unknown Link Bypasser
-// @version      6.8.2
+// @version      6.8.3
 // @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live(SCAM WARNING) + go.yorurl.com + jankariweb + newsuchnaonline + bigcarinsurance + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + highlocus.shop + gplinks.co + powergam.online + getpolsec.com + hehehub + sub4unlock.co + app.khaddavi.net + sfl.gl + ytsubme.com + aylink.co + biplabtewary.com + mwgamesyt.com.br + topjogosvip.online + legacyagency.com.br + 4br.me + short-jambo.com/ink + fastcars + fluorine.s3ren1ty.xyz + go.linkify.ru + arolinks.com + spdmteam.com + linkunlocker.com + mboost.me + sub2unlock.netlify.app + krnl-ios.com + ouo.io + start-get-key.pages.dev + bstshrt.com + rekonise.com + boblox-script.com + dusarisalary.com + sub2unlock.io + checkpoint2keyhub.vercel.app + checkpoint3keyhub.vercel.app. Made by @Aro Moon
 // @author       @Aro Moon
 // @include      /^https:\/\/mtc\d+\.[^/]+\.[a-z.]+\//
@@ -286,7 +286,7 @@
     // §1  CONSTANTS
     // ═══════════════════════════════════════════════════════════════════════
 
-    const VERSION = '6.8.2';
+    const VERSION = '6.8.3';
 
     // ── Diagnostics log ───────────────────────────────────────────────────
     // Captures errors/warnings for the Diagnostics menu command.
@@ -550,11 +550,28 @@
     }
 
     /**
-     * Fetch URL and parse response as JSON.
-     * Throws on non-2xx status or malformed JSON.
+     * Fetch with an AbortController-based timeout so requests never hang forever.
+     * Throws an AbortError (err.name === 'AbortError') on timeout.
+     * @param {string|Request} url
+     * @param {RequestInit}    [opts={}]
+     * @param {number}         [timeoutMs=15000]
      */
-    async function fetchJSON(url, opts = {}) {
-        const r = await fetch(url, opts);
+    async function fetchWithTimeout(url, opts = {}, timeoutMs = 15000) {
+        const controller = new AbortController();
+        const tid = setTimeout(() => controller.abort(), timeoutMs);
+        try {
+            return await fetch(url, { ...opts, signal: controller.signal });
+        } finally {
+            clearTimeout(tid);
+        }
+    }
+
+    /**
+     * Fetch URL and parse response as JSON.
+     * Throws on non-2xx status, timeout, or malformed JSON.
+     */
+    async function fetchJSON(url, opts = {}, timeoutMs = 15000) {
+        const r = await fetchWithTimeout(url, opts, timeoutMs);
         if(!r.ok) throw _httpError(r, 'Request');
         return r.json();
     }
@@ -2356,7 +2373,7 @@
                     body = '_method=POST&ad_form_data=' + encodeURIComponent(adEl.value);
                 }
 
-                const r = await fetch('/links/go', {
+                const r = await fetchWithTimeout('/links/go', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
@@ -2365,7 +2382,7 @@
                     },
                     credentials: 'include',
                     body,
-                });
+                }, 15000);
                 if(!r.ok) throw _httpError(r, '/links/go');
                 let d;
                 try {
@@ -3835,7 +3852,7 @@
             try {
                 const form = document.querySelector('#go-link');
                 if(!form) throw new Error('Form #go-link not found');
-                const r = await fetch('/links/go', {
+                const r = await fetchWithTimeout('/links/go', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
@@ -3843,7 +3860,7 @@
                     },
                     body: new URLSearchParams(new FormData(form)),
                     credentials: 'include',
-                });
+                }, 15000);
                 const tx = await r.text();
                 let dest = null;
                 try {
@@ -5047,11 +5064,25 @@
     function runPowergamBypasser() {
         const SITE = 'powergam.online';
         const REQUIRED = ['imps', 'lid', 'pages', 'pid', 'step_count', 'vid'];
+        const STEP_TIMEOUT_MS = 12000; // per-step POST timeout
+        const COOKIE_WAIT_MS  = 30000; // give up waiting for cookies after 30 s
         const t = makeTimer();
 
-        const getCookies = () => Object.fromEntries(
-            document.cookie.split('; ').filter(Boolean).map(c => c.split('=').map(decodeURIComponent))
-        );
+        // ── Safe cookie parser ─────────────────────────────────────────────
+        // Handles values that contain '=' and ignores malformed entries.
+        const getCookies = () => {
+            const result = {};
+            for(const c of document.cookie.split('; ')) {
+                if(!c) continue;
+                const i = c.indexOf('=');
+                if(i < 0) continue;
+                try {
+                    result[decodeURIComponent(c.slice(0, i))] =
+                        decodeURIComponent(c.slice(i + 1));
+                } catch (_) {}
+            }
+            return result;
+        };
 
         const handleError = makeErrHandler(SITE, null, 7000);
 
@@ -5070,7 +5101,7 @@
                     visitor_id: cookies.vid,
                 });
                 try {
-                    await fetch(`${ref}/`, {
+                    await fetchWithTimeout(`${ref}/`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded',
@@ -5078,17 +5109,23 @@
                         },
                         credentials: 'include',
                         body: body.toString(),
-                    });
+                    }, STEP_TIMEOUT_MS);
                 } catch (e) {
-                    console.warn(`[ULB/${SITE}] POST failed at step ${s}`, e);
+                    if(e.name === 'AbortError') {
+                        console.warn(`[ULB/${SITE}] Step ${s}/${pages} timed out — continuing`);
+                    } else {
+                        console.warn(`[ULB/${SITE}] POST failed at step ${s}`, e);
+                    }
                 }
                 nh2.remove();
                 if(s < pages) await sleep(1200);
             }
+
             notify(`${SITE} — redirecting…`, 'success', 2000, {
                 site: SITE,
                 time: t.elapsed() + 's'
             });
+
             if(safeUrl(finalURL)) location.href = finalURL;
             else handleError('invalid final URL', null);
         };
@@ -5110,11 +5147,48 @@
             const finalURL = `https://gplinks.co/${cookies.lid}?pid=${cookies.pid}&vid=${cookies.vid}`;
             const delaySecs = pages * 30;
 
+            // ── Nuke the page's own timers & block new ones ────────────────
+            // 1. Kill all currently-registered timers.
+            // 2. Override setTimeout/setInterval on the page's window so any
+            //    new ones it tries to register are silently dropped.
+            // We save the real functions first so our own code (showCountdown,
+            // sleep, notify, etc.) still works via the saved references.
+            const _realSetTimeout    = unsafeWindow.setTimeout.bind(unsafeWindow);
+            const _realSetInterval   = unsafeWindow.setInterval.bind(unsafeWindow);
+            const _realClearTimeout  = unsafeWindow.clearTimeout.bind(unsafeWindow);
+            const _realClearInterval = unsafeWindow.clearInterval.bind(unsafeWindow);
+
+            // Kill everything running right now.
+            let _nukeId = _realSetTimeout(() => {}, 0);
+            while(_nukeId--) {
+                _realClearTimeout(_nukeId);
+                _realClearInterval(_nukeId);
+            }
+
+            // Freeze the page — any new timer it tries to set is a no-op.
+            unsafeWindow.setTimeout  = () => -1;
+            unsafeWindow.setInterval = () => -1;
+
+            // Replace the on-page countdown UI with our status text.
+            const timerDiv = document.getElementById('myTimerDiv');
+            if(timerDiv) {
+                timerDiv.innerHTML = '<span>Bypassing GPlinks...</span>';
+            }
+            console.log(`[ULB/${SITE}] Gurtified`);
+
             notify(`${SITE} — ${pages} step${pages > 1 ? 's' : ''} detected, waiting ${delaySecs}s…`, 'info', 4000, {
                 site: SITE
             });
             showCountdown(delaySecs, () => runSteps(cookies, pages, finalURL), `powergam — ${pages} page${pages > 1 ? 's' : ''}`);
         }, 500);
+
+        // Safety net: if the required cookies never appear, stop polling and notify.
+        setTimeout(() => {
+            if(!executed) {
+                clearInterval(waiter);
+                handleError('required cookies not set after 30s — try refreshing the page', null);
+            }
+        }, COOKIE_WAIT_MS);
     }
 
     // ── rojgarhindi.in ─────────────────────────────────────────────────────
@@ -6031,7 +6105,7 @@
                             } else {
                                 body = '_method=POST&ad_form_data=' + encodeURIComponent(adEl.value);
                             }
-                            const r = await fetch('/links/go', {
+                            const r = await fetchWithTimeout('/links/go', {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
@@ -6040,7 +6114,7 @@
                                 },
                                 credentials: 'include',
                                 body,
-                            });
+                            }, 15000);
                             if(!r.ok) throw _httpError(r, '/links/go');
                             const d = await r.json();
                             const dest = d.url || d.data;
@@ -6405,11 +6479,11 @@
          */
         const nxPost = async (endpoint, body, label) => {
             const go = async () => {
-                const r = await fetch(`${BASE}${endpoint}`, {
+                const r = await fetchWithTimeout(`${BASE}${endpoint}`, {
                     method: 'POST',
                     headers: JSON_HEADERS,
                     body: JSON.stringify(body),
-                });
+                }, 15000);
                 return r.json().catch(() => ({}));
             };
 
