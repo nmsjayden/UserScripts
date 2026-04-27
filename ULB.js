@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Unknown Link Bypasser
-// @version      6.8.3
-// @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live(SCAM WARNING) + go.yorurl.com + jankariweb + newsuchnaonline + bigcarinsurance + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + highlocus.shop + gplinks.co + powergam.online + getpolsec.com + hehehub + sub4unlock.co + app.khaddavi.net + sfl.gl + ytsubme.com + aylink.co + biplabtewary.com + mwgamesyt.com.br + topjogosvip.online + legacyagency.com.br + 4br.me + short-jambo.com/ink + fastcars + fluorine.s3ren1ty.xyz + go.linkify.ru + arolinks.com + spdmteam.com + linkunlocker.com + mboost.me + sub2unlock.netlify.app + krnl-ios.com + ouo.io + start-get-key.pages.dev + bstshrt.com + rekonise.com + boblox-script.com + dusarisalary.com + sub2unlock.io + checkpoint2keyhub.vercel.app + checkpoint3keyhub.vercel.app. Made by @Aro Moon
+// @version      6.8.4
+// @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live(SCAM WARNING) + go.yorurl.com + jankariweb + newsuchnaonline + bigcarinsurance + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + highlocus.shop + gplinks.co + powergam.online + getpolsec.com + hehehub + sub4unlock.co + app.khaddavi.net + sfl.gl + ytsubme.com + aylink.co + biplabtewary.com + mwgamesyt.com.br + topjogosvip.online + legacyagency.com.br + 4br.me + short-jambo.com/ink + fastcars + fluorine.s3ren1ty.xyz + go.linkify.ru + arolinks.com + spdmteam.com + linkunlocker.com + mboost.me + sub2unlock.netlify.app + krnl-ios.com + ouo.io + start-get-key.pages.dev + bstshrt.com + rekonise.com + boblox-script.com + dusarisalary.com + sub2unlock.io + checkpoint2keyhub.vercel.app + checkpoint3keyhub.vercel.app + orca-key-system.vercel.app + razelol.vercel.app + whatwhatboy.com/scoobyontop2. Made by @Aro Moon
 // @author       @Aro Moon
 // @include      /^https:\/\/mtc\d+\.[^/]+\.[a-z.]+\//
 // @include      /^https?:\/\/(?:\w+\.)?fastcars\d+\.com\//
@@ -82,6 +82,9 @@
 // @match        https://socialwolvez.com/app/l/*
 // @match        https://checkpoint2keyhub.vercel.app/*
 // @match        https://checkpoint3keyhub.vercel.app/*
+// @match        https://orca-key-system.vercel.app/*
+// @match        https://razelol.vercel.app/*
+// @match        https://whatwhatboy.com/scoobyontop2.html
 // @grant        GM_addElement
 // @grant        GM_xmlhttpRequest
 // @grant        unsafeWindow
@@ -95,6 +98,7 @@
 // @connect      key-system-hub.vercel.app
 // @connect      engageub.pythonanywhere.com
 // @connect      engageub1.pythonanywhere.com
+// @connect      oaqxcsejqhsvchqetrzc.supabase.co
 // @run-at       document-start
 // @downloadURL  https://raw.githubusercontent.com/nmsjayden/UserScripts/main/ULB.js
 // @updateURL    https://raw.githubusercontent.com/nmsjayden/UserScripts/main/ULB.js
@@ -286,7 +290,7 @@
     // §1  CONSTANTS
     // ═══════════════════════════════════════════════════════════════════════
 
-    const VERSION = '6.8.3';
+    const VERSION = '6.8.4';
 
     // ── Diagnostics log ───────────────────────────────────────────────────
     // Captures errors/warnings for the Diagnostics menu command.
@@ -1202,8 +1206,11 @@
      * @param {string} site      Site label shown in the card header.
      * @param {object} [timer]   makeTimer() instance — used for the elapsed label.
      * @param {number} [autoDismissMs=30000]  Auto-dismiss delay in ms.
+     * @param {object} [opts={}]
+     * @param {Date|string|number} [opts.expiresAt]  When the key expires — shows a
+     *   live countdown in the card and turns amber/red as it approaches zero.
      */
-    function showKeyCard(key, site, timer, autoDismissMs = 30_000) {
+    function showKeyCard(key, site, timer, autoDismissMs = 30_000, opts = {}) {
         const mobile = _isMobile();
         const vTag = CONFIG.notifShowVersion !== false ? ` · v${VERSION}` : '';
         const brand = (!mobile && !CONFIG.compactMode && CONFIG.notifShowBranding !== false) ?
@@ -1213,6 +1220,22 @@
         const mw = mobile ? 'min(190px,calc(100vw - 28px))' : 'min(280px,calc(100vw - 56px))';
         const mxw = mobile ? 'min(220px,calc(100vw - 28px))' : 'min(360px,calc(100vw - 56px))';
         const pad = mobile ? '10px 12px' : '14px 18px';
+
+        // ── Expiry setup ──────────────────────────────────────────────────
+        const expiryTs = opts.expiresAt ? new Date(opts.expiresAt).getTime() : null;
+        const hasExpiry = expiryTs && !isNaN(expiryTs);
+
+        /** Format remaining ms into "Xh Ym Zs" or "Xm Ys" or "Xs" */
+        function _fmtRemaining(ms) {
+            if (ms <= 0) return 'expired';
+            const totalSec = Math.ceil(ms / 1000);
+            const h = Math.floor(totalSec / 3600);
+            const m = Math.floor((totalSec % 3600) / 60);
+            const s = totalSec % 60;
+            if (h > 0) return `${h}h ${m}m ${s}s`;
+            if (m > 0) return `${m}m ${s}s`;
+            return `${s}s`;
+        }
 
         const card = document.createElement('div');
         card.style.cssText = [
@@ -1239,15 +1262,50 @@
                 cursor:pointer;user-select:all;margin-bottom:${mobile ? '6px' : '8px'};line-height:1.5;
                 touch-action:manipulation;min-height:44px;display:flex;align-items:center"
                 title="Tap to copy"></div>
+            ${hasExpiry ? `
+            <div class="__ulb_kc_expiry" style="
+                font-size:${mobile ? '9px' : '10px'};color:#f59e0b;text-align:center;
+                margin-bottom:${mobile ? '4px' : '5px'};font-variant-numeric:tabular-nums">
+                Expires in <span class="__ulb_kc_exp_val"></span>
+            </div>` : ''}
             <div class="__ulb_kc_hint" style="font-size:${mobile ? '9px' : '10px'};color:#555;text-align:center">
                 tap to copy · auto-closes in ${Math.round(autoDismissMs / 1000)}s
             </div>`;
 
         const keyEl = card.querySelector('.__ulb_kc_key');
         const hintEl = card.querySelector('.__ulb_kc_hint');
+        const expValEl = hasExpiry ? card.querySelector('.__ulb_kc_exp_val') : null;
+        const expRowEl = hasExpiry ? card.querySelector('.__ulb_kc_expiry') : null;
         keyEl.textContent = key;
 
         mountCard(card);
+
+        // ── Live expiry countdown ─────────────────────────────────────────
+        if (hasExpiry && expValEl) {
+            const updateExpiry = () => {
+                const rem = expiryTs - Date.now();
+                expValEl.textContent = _fmtRemaining(rem);
+
+                // Colour-shift: green → amber (≤5 min) → red (≤60 s)
+                if (rem <= 0) {
+                    expRowEl.style.color = '#ef4444';
+                    expValEl.textContent = 'expired';
+                    clearInterval(expiryIv);
+                } else if (rem <= 60_000) {
+                    expRowEl.style.color = '#ef4444'; // red
+                } else if (rem <= 300_000) {
+                    expRowEl.style.color = '#f59e0b'; // amber
+                } else {
+                    expRowEl.style.color = '#a3e635'; // lime-green — plenty of time
+                }
+            };
+            updateExpiry();
+            const expiryIv = setInterval(updateExpiry, 1000);
+            // Clean up interval when card is dismissed
+            const origDismiss = card._ulbDismissed;
+            const _origDismissCard = dismissCard;
+            card._expiryIv = expiryIv;
+        }
 
         keyEl.addEventListener('click', () => {
             _gmCopy(key).then(() => {
@@ -1268,8 +1326,10 @@
             });
         });
 
-        setTimeout(() => dismissCard(card), autoDismissMs);
-        console.log(`%c[ULB/${site}] Key:`, 'color:#22c55e;font-weight:bold', key);
+        setTimeout(() => {
+            if (card._expiryIv) clearInterval(card._expiryIv);
+            dismissCard(card);
+        }, autoDismissMs);
     }
 
     // ── §3.6  BYPASS CONFIRMATION PROMPT ──────────────────────────────────
@@ -3099,6 +3159,9 @@
         else if(host.includes('sub2unlock.io') && path.length > 1) _gateBypass(host, runUnlockLinkFinderBypasser);
         else if(host.includes('sub2unlock.io')) {
             /* homepage — do nothing */ } else if(host.includes('checkpoint2keyhub.vercel.app') || host.includes('checkpoint3keyhub.vercel.app')) _gateBypass('Keyhub', runKeyhubBypasser);
+        else if(host.includes('orca-key-system.vercel.app')) _gateBypass('orca-key-system', runOrcaKeySystemBypasser);
+        else if(host.includes('razelol.vercel.app')) _gateBypass('razelol', runRazelolBypasser);
+        else if(host.includes('whatwhatboy.com') && path.includes('scoobyontop2')) _gateBypass('scoobyontop2', runScoobyontopBypasser);
         else if(host.includes('socialwolvez.com')) _gateBypass('socialwolvez.com', runSocialWolvezBypasser);
         else if(TPI_HOSTS.some(h => host.includes(h))) _gateBypass(host, runTpiLiBypasser);
         else if(FORM_HOSTS.some(h => host.includes(h))) _gateBypass(host, runFormBypasser);
@@ -7616,6 +7679,138 @@
                 showKeyCard(key, SITE, t, 30_000);
             } catch (err) {
                 handleError('bypass failed', err);
+            }
+        };
+
+        onReady(init);
+    }
+
+    // ── orca-key-system.vercel.app ─────────────────────────────────────────
+    // Two-step API: POST /api/generate-key → { requestId }, then after 10 s
+    // GET /api/validate-key?requestId=<id> → { key } or { key: null, ... }.
+    // Uses fetchJSON helper + notify/showKeyCard/makeErrHandler pattern.
+
+    function runOrcaKeySystemBypasser() {
+        const SITE = 'orca-key-system.vercel.app';
+        const t = makeTimer();
+        const nh = notify(`${SITE} — generating key…`, 'loading', 0, { site: SITE });
+        const handleError = makeErrHandler(SITE, nh, 8000);
+
+        const init = async () => {
+            try {
+                const genData = await fetchJSON('/api/generate-key', { method: 'POST' });
+                const requestId = genData?.requestId;
+                if (!requestId) throw new Error('No requestId in generate-key response');
+
+                nh.update(`${SITE} — validating in 10 s…`, 'loading', { site: SITE });
+                await sleep(10_000);
+
+                const valData = await fetchJSON(`/api/validate-key?requestId=${encodeURIComponent(requestId)}`);
+                const key = valData?.key;
+                if (!key) throw new Error('No key in validate-key response');
+
+                nh.remove();
+                showKeyCard(key, SITE, t, 30_000);
+            } catch (err) {
+                handleError('bypass failed', err);
+            }
+        };
+
+        onReady(init);
+    }
+
+    // ── razelol.vercel.app ────────────────────────────────────────────────
+    // Two-step Supabase Edge Function flow:
+    //   1. POST …/generate-key { action:"create-token" }  → { token }
+    //   2. POST …/generate-key { action:"redeem-token", token } → { key, expirate_date }
+    // Uses fetchJSON helper + showKeyCard/makeErrHandler pattern.
+
+    function runRazelolBypasser() {
+        const SITE = 'razelol.vercel.app';
+        const BASE = 'https://oaqxcsejqhsvchqetrzc.supabase.co/functions/v1/generate-key';
+        const HEADERS = { 'content-type': 'application/json' };
+        const t = makeTimer();
+        const nh = notify(`${SITE} — creating token…`, 'loading', 0, { site: SITE });
+        const handleError = makeErrHandler(SITE, nh, 8000);
+
+        const init = async () => {
+            try {
+                const tokenData = await fetchJSON(BASE, {
+                    method: 'POST',
+                    headers: HEADERS,
+                    body: JSON.stringify({ action: 'create-token' }),
+                });
+                const token = tokenData?.token;
+                if (!token) throw new Error('No token in create-token response');
+
+                nh.update(`${SITE} — redeeming token…`, 'loading', { site: SITE });
+
+                const keyData = await fetchJSON(BASE, {
+                    method: 'POST',
+                    headers: HEADERS,
+                    body: JSON.stringify({ action: 'redeem-token', token }),
+                });
+                const key = keyData?.key;
+                if (!key) throw new Error('No key in redeem-token response');
+
+                nh.remove();
+                showKeyCard(key, SITE, t, 30_000, { expiresAt: keyData.expirate_date ?? null });
+            } catch (err) {
+                handleError('bypass failed', err);
+            }
+        };
+
+        onReady(init);
+    }
+
+    // ── whatwhatboy.com/scoobyontop2.html ────────────────────────────────
+    // Generates a key locally — no network request needed.
+    // Algorithm (from original snippet):
+    //   epoch = floor(Date.now() / 14400000)   ← 4-hour window
+    //   salt  = XOR-decoded string from hardcoded byte array
+    //   fnv1a = FNV-1a 32-bit hash of "<epoch>|<n>|<salt>"
+    //   key   = "SCOOBY-FREE-" + base36_4(fnv1a(…|1|…)) + "-" + … + "-" + …
+    // Fully client-side; result displayed via showKeyCard.
+
+    function runScoobyontopBypasser() {
+        const SITE = 'whatwhatboy.com';
+        const t = makeTimer();
+
+        const init = () => {
+            try {
+                // Decode salt via XOR with 90
+                const ENC = [9,57,106,106,56,35,23,105,52,47,17,105,35,104,106,104,108,123];
+                const salt = ENC.map(c => String.fromCharCode(c ^ 90)).join('');
+
+                // Current 4-hour epoch
+                const epoch = Math.floor(Date.now() / 14_400_000);
+
+                // FNV-1a 32-bit
+                const fnv1a = str => {
+                    let h = 2166136261;
+                    for (let i = 0; i < str.length; i++) {
+                        h ^= str.charCodeAt(i);
+                        h = Math.imul(h, 16777619);
+                    }
+                    return h >>> 0;
+                };
+
+                // Base-36 encode, 4 chars wide
+                const b36_4 = v => {
+                    let r = '', c = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                    for (let i = 0; i < 4; i++) { r += c[v % 36]; v = Math.floor(v / 36); }
+                    return r;
+                };
+
+                const key =
+                    'SCOOBY-FREE-' +
+                    b36_4(fnv1a(`${epoch}|1|${salt}`)) + '-' +
+                    b36_4(fnv1a(`${epoch}|2|${salt}`)) + '-' +
+                    b36_4(fnv1a(`${epoch}|3|${salt}`));
+
+                showKeyCard(key, SITE, t, 30_000);
+            } catch (err) {
+                notify(`${SITE}: key generation failed — ${err.message}`, 'error', 8000, { site: SITE });
             }
         };
 
