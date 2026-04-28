@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Unknown Link Bypasser
-// @version      6.8.8
+// @version      6.8.9
 // @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live(SCAM WARNING) + go.yorurl.com + jankariweb + newsuchnaonline + bigcarinsurance + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + highlocus.shop + gplinks.co + powergam.online + getpolsec.com + hehehub + sub4unlock.co + app.khaddavi.net + sfl.gl + ytsubme.com + aylink.co + biplabtewary.com + mwgamesyt.com.br + topjogosvip.online + legacyagency.com.br + 4br.me + short-jambo.com/ink + fastcars + fluorine.s3ren1ty.xyz + go.linkify.ru + arolinks.com + spdmteam.com + linkunlocker.com + mboost.me + sub2unlock.netlify.app + krnl-ios.com + ouo.io + start-get-key.pages.dev + bstshrt.com + rekonise.com + boblox-script.com + dusarisalary.com + sub2unlock.io + checkpoint2keyhub.vercel.app + checkpoint3keyhub.vercel.app + orca-key-system.vercel.app + razelol.vercel.app + whatwhatboy.com/scoobyontop2 + vayuhub.space. Made by @Aro Moon
 // @author       @Aro Moon
 // @include      /^https:\/\/mtc\d+\.[^/]+\.[a-z.]+\//
@@ -293,7 +293,7 @@
     // §1  CONSTANTS
     // ═══════════════════════════════════════════════════════════════════════
 
-    const VERSION = '6.8.8';
+    const VERSION = '6.8.9';
 
     // ── Diagnostics log ───────────────────────────────────────────────────
     // Captures errors/warnings for the Diagnostics menu command.
@@ -6522,15 +6522,334 @@
     }
 
     // ── nexusdevs.fun ──────────────────────────────────────────────────────
-    // Bypasser patched by site — showing holding notification.
+    // Full automated key-system flow for nexusdevs.fun/getkey.
+    // Flow:
+    //   1. Generate ECDSA P-256 keypair for request signing.
+    //   2. Read hwid_hash from ?h= param (or prompt as fallback).
+    //   3. Show hCaptcha overlay — wait for user to solve.
+    //   4. POST /api/getkey/init  → token + steps[]
+    //   5. GET  /api/oauth/me     → verify Discord is linked
+    //   6. POST /api/getkey/complete-discord
+    //   7. For each step: start-step → wait → complete-step (handles too_fast)
+    //   8. POST /api/getkey/generate → key sent to Discord DMs.
 
     function runNexusBypasser() {
         const SITE = 'nexusdevs.fun';
-        showDirectBypassBtn(
-            'Bypass unavailable — check back later',
-            'https://discord.gg/tvgjHVbyct',
-            `${SITE} — currently patched`
-        );
+        const t = makeTimer();
+        const nh = notify(`${SITE} — starting key flow…`, 'loading', 0, { site: SITE });
+        const handleError = makeErrHandler(SITE, nh, 10000);
+
+        const run = async () => {
+            try {
+                // ── Keypair ────────────────────────────────────────────────
+                const k = await crypto.subtle.generateKey(
+                    { name: 'ECDSA', namedCurve: 'P-256' },
+                    true,
+                    ['sign', 'verify']
+                );
+                const [pub] = await Promise.all([
+                    crypto.subtle.exportKey('jwk', k.publicKey),
+                    crypto.subtle.exportKey('jwk', k.privateKey),
+                ]);
+                const privKey = k.privateKey;
+                const pubKey  = pub;
+
+                // ── HWID ───────────────────────────────────────────────────
+                const hwid =
+                    new URLSearchParams(location.search).get('h') ||
+                    new URLSearchParams(location.search).get('hwid') ||
+                    prompt('Enter hwid_hash (h= in URL):');
+                if (!hwid) throw new Error('No HWID provided');
+
+                // ── ENV ────────────────────────────────────────────────────
+                const env = {
+                    webdriver:           false,
+                    userAgent:           navigator.userAgent,
+                    languagesLength:     navigator.languages?.length || 1,
+                    platform:            navigator.platform,
+                    hardwareConcurrency: navigator.hardwareConcurrency || 2,
+                    maxTouchPoints:      navigator.maxTouchPoints || 0,
+                };
+
+                // ── hCaptcha overlay (reuses solveTurnstile overlay style) ─
+                // Note: nh toast is intentionally NOT updated here — the overlay
+                // renders the status inline, and a visible toast at the same
+                // z-index would cover the hCaptcha iframe's submit button.
+
+                const hcaptchaToken = await new Promise((resolve, reject) => {
+                    const cbName = '__ulb_hcCb_' + generateId();
+                    let _tokenFired = false;
+
+                    // Hide the notification host while the captcha overlay is
+                    // active so it cannot obscure the hCaptcha widget.
+                    const _notifHost = document.getElementById('__ulb_host');
+                    if (_notifHost) _notifHost.style.setProperty('visibility', 'hidden', 'important');
+
+                    // Inject spinner keyframes (same as solveTurnstile)
+                    if (!document.querySelector('style[data-ulb-spin]')) {
+                        const ks = document.createElement('style');
+                        ks.setAttribute('data-ulb-spin', '1');
+                        ks.textContent = '@keyframes __ulb_spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }';
+                        (document.head || document.documentElement).appendChild(ks);
+                    }
+
+                    const _tsHasBlur = window.matchMedia?.('(prefers-reduced-motion:no-preference)').matches !== false;
+                    const overlay = document.createElement('div');
+                    overlay.id = '__ulb_hc_overlay';
+                    overlay.style.cssText = [
+                        'all:initial', 'position:fixed', 'inset:0', 'z-index:2147483647',
+                        'display:flex', 'align-items:center', 'justify-content:center',
+                        'background:rgba(2,6,23,.88)',
+                        ...(_tsHasBlur ? ['backdrop-filter:blur(6px)', '-webkit-backdrop-filter:blur(6px)'] : []),
+                        'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif',
+                        'transition:opacity .3s ease',
+                    ].join(';');
+
+                    const card = document.createElement('div');
+                    card.style.cssText = [
+                        'background:linear-gradient(145deg,#0f172a,#1e293b)',
+                        'border:1px solid rgba(99,102,241,.35)', 'border-radius:18px',
+                        'box-shadow:0 0 0 1px rgba(255,255,255,.04),0 32px 64px rgba(0,0,0,.7),0 0 80px rgba(99,102,241,.12)',
+                        'padding:32px 28px 28px', 'display:flex', 'flex-direction:column',
+                        'align-items:center', 'gap:16px',
+                        'min-width:340px', 'max-width:calc(100vw - 48px)', 'position:relative',
+                    ].join(';');
+
+                    const spinWrap = document.createElement('div');
+                    spinWrap.style.cssText = 'position:relative;width:48px;height:48px;flex-shrink:0';
+                    const spinRing = document.createElement('div');
+                    spinRing.id = '__ulb_hc_ring';
+                    spinRing.style.cssText = [
+                        'position:absolute;inset:0;border-radius:50%',
+                        'border:3px solid rgba(99,102,241,.18)',
+                        'border-top-color:#818cf8',
+                        'animation:__ulb_spin 0.9s linear infinite',
+                    ].join(';');
+                    const spinIcon = document.createElement('div');
+                    spinIcon.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:22px';
+                    spinIcon.textContent = '🔓';
+                    spinWrap.append(spinRing, spinIcon);
+
+                    const textWrap = document.createElement('div');
+                    textWrap.style.cssText = 'text-align:center';
+                    const heading = document.createElement('div');
+                    heading.style.cssText = 'font-size:15px;font-weight:700;color:#e2e8f0;letter-spacing:.3px;margin-bottom:5px';
+                    heading.textContent = 'Solving CAPTCHA';
+                    const subEl = document.createElement('div');
+                    subEl.id = '__ulb_hc_sub';
+                    subEl.style.cssText = 'font-size:12px;color:#64748b;line-height:1.5';
+                    subEl.textContent = 'Please complete the challenge below if it appears…';
+                    textWrap.append(heading, subEl);
+
+                    const widgetDiv = document.createElement('div');
+                    widgetDiv.style.cssText = 'border-radius:8px;overflow:hidden';
+
+                    const footer = document.createElement('div');
+                    footer.style.cssText = 'font-size:10px;color:#334155;letter-spacing:1.2px;text-transform:uppercase;margin-top:4px';
+                    footer.textContent = `Unknown Link Bypasser · @Aro Moon${CONFIG.notifShowVersion !== false ? ` · v${VERSION}` : ''}`;
+
+                    card.append(spinWrap, textWrap, widgetDiv, footer);
+                    overlay.appendChild(card);
+
+                    const mountOverlay = () => {
+                        overlay.style.opacity = '0';
+                        (document.body || document.documentElement).appendChild(overlay);
+                        requestAnimationFrame(() => { overlay.style.opacity = '1'; });
+                    };
+                    if (document.body) mountOverlay();
+                    else document.addEventListener('DOMContentLoaded', mountOverlay, { once: true });
+
+                    const timeout = setTimeout(() => {
+                        cleanup();
+                        reject(new Error('[ULB/hCaptcha] timed out after 90s'));
+                    }, 90_000);
+
+                    function cleanup() {
+                        clearTimeout(timeout);
+                        try { delete unsafeWindow[cbName]; } catch (_) {}
+                        // Restore notification host visibility before removing overlay.
+                        if (_notifHost) _notifHost.style.removeProperty('visibility');
+                        overlay.style.opacity = '0';
+                        setTimeout(() => overlay.remove(), 350);
+                    }
+
+                    const onToken = token => {
+                        if (_tokenFired) return;
+                        _tokenFired = true;
+                        const s2 = overlay.querySelector('#__ulb_hc_sub');
+                        if (s2) s2.textContent = 'Solved ✓ — continuing…';
+                        const ring = overlay.querySelector('#__ulb_hc_ring');
+                        if (ring) { ring.style.borderTopColor = '#22c55e'; ring.style.animationDuration = '0.3s'; }
+                        setTimeout(() => { cleanup(); resolve(token); }, 400);
+                    };
+                    unsafeWindow[cbName] = onToken;
+
+                    // Load hCaptcha script and render into widgetDiv
+                    const tryRender = () => {
+                        const hc = unsafeWindow.hcaptcha;
+                        if (!hc?.render) return false;
+                        try {
+                            hc.render(widgetDiv, {
+                                sitekey:  'c2ae9104-814c-4e0c-8e28-e4145e2064c2',
+                                theme:    'dark',
+                                callback: cbName,
+                            });
+                            return true;
+                        } catch (e) {
+                            cleanup();
+                            reject(new Error('hCaptcha render failed: ' + e.message));
+                            return true; // stop polling
+                        }
+                    };
+
+                    if (!tryRender()) {
+                        if (!document.querySelector('script[src*="js.hcaptcha.com"]')) {
+                            const s = Object.assign(document.createElement('script'), {
+                                src: 'https://js.hcaptcha.com/1/api.js',
+                                async: true,
+                            });
+                            s.onload = () => tryRender();
+                            document.head.appendChild(s);
+                        } else {
+                            const poll = setInterval(() => {
+                                if (tryRender()) clearInterval(poll);
+                            }, 150);
+                            setTimeout(() => clearInterval(poll), 15_000);
+                        }
+                    }
+                });
+
+                // ── Proof helper ───────────────────────────────────────────
+                let _tok = '';
+                const b64 = (b) =>
+                    btoa([...new Uint8Array(b)].map(x => String.fromCharCode(x)).join(''))
+                        .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+
+                const proof = async (ep, extra = {}) => {
+                    const ts    = Date.now();
+                    const nonce = [...crypto.getRandomValues(new Uint8Array(16))]
+                        .map(b => b.toString(16).padStart(2, '0')).join('');
+                    const payload = [
+                        'v1', ep, _tok, ts, nonce,
+                        ...(extra.step ? [extra.step] : []),
+                    ].join(':');
+                    const sig = await crypto.subtle.sign(
+                        { name: 'ECDSA', hash: 'SHA-256' },
+                        privKey,
+                        new TextEncoder().encode(payload)
+                    );
+                    return { ts, nonce, signature: b64(sig) };
+                };
+
+                // ── INIT ───────────────────────────────────────────────────
+                nh.update(`${SITE} — initialising…`, 'loading', 0, { site: SITE });
+                const init = await fetch('https://keyserver.nexusdevs.fun/api/getkey/init', {
+                    method:      'POST',
+                    credentials: 'include',
+                    headers:     { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        hwid_hash:     hwid,
+                        timestamp:     Date.now(),
+                        hcaptchaToken,
+                        client_pubkey: pubKey,
+                        client_env:    env,
+                    }),
+                }).then(r => r.json());
+
+                if (init.status !== 'success') throw new Error('Init failed: ' + (init.message || JSON.stringify(init)));
+
+                _tok = init.token;
+                const steps = init.steps || [];
+                nh.update(`${SITE} — init OK — ${steps.length} step(s)…`, 'loading', 0, { site: SITE });
+
+                // ── Discord check ──────────────────────────────────────────
+                nh.update(`${SITE} — checking Discord link…`, 'loading', 0, { site: SITE });
+                const me = await fetch('https://keyserver.nexusdevs.fun/api/oauth/me', {
+                    credentials: 'include',
+                }).then(r => r.json());
+
+                if (!me.user) {
+                    nh.update(`${SITE} — Discord not linked — opening OAuth…`, 'warn', 0, { site: SITE });
+                    window.open('https://keyserver.nexusdevs.fun/api/oauth/discord?intent=getkey');
+                    throw new Error('Discord not linked — link it and retry');
+                }
+
+                nh.update(`${SITE} — Discord linked ✔`, 'loading', 0, { site: SITE });
+
+                // ── complete-discord ───────────────────────────────────────
+                await fetch('https://keyserver.nexusdevs.fun/api/getkey/complete-discord', {
+                    method:      'POST',
+                    credentials: 'include',
+                    headers:     { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: _tok, proof: await proof('complete-discord') }),
+                });
+
+                // ── Steps ──────────────────────────────────────────────────
+                for (const s of steps) {
+                    nh.update(`${SITE} — step ${s.step}/${steps.length} (${s.type})…`, 'loading', 0, { site: SITE });
+
+                    if (s.type === 'discord') {
+                        await sleep(3000);
+                        continue;
+                    }
+
+                    await fetch('https://keyserver.nexusdevs.fun/api/getkey/start-step', {
+                        method:      'POST',
+                        credentials: 'include',
+                        headers:     { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            token: _tok,
+                            step:  s.step,
+                            proof: await proof('start-step', { step: s.step }),
+                        }),
+                    });
+
+                    const waitMs = (Number(s.wait) || 20) * 1000;
+                    nh.update(`${SITE} — step ${s.step} — waiting ${waitMs / 1000}s…`, 'loading', 0, { site: SITE });
+                    await sleep(waitMs);
+
+                    const res = await fetch('https://keyserver.nexusdevs.fun/api/getkey/complete-step', {
+                        method:      'POST',
+                        credentials: 'include',
+                        headers:     { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            token: _tok,
+                            step:  s.step,
+                            proof: await proof('complete-step', { step: s.step }),
+                        }),
+                    }).then(r => r.json());
+
+                    if (res.status === 'too_fast') {
+                        const extra = (res.remaining || 5) * 1000;
+                        nh.update(`${SITE} — too fast, waiting extra ${extra / 1000}s…`, 'loading', 0, { site: SITE });
+                        await sleep(extra);
+                    }
+                }
+
+                // ── Generate ───────────────────────────────────────────────
+                nh.update(`${SITE} — generating key…`, 'loading', 0, { site: SITE });
+                await sleep(500);
+
+                const gen = await fetch('https://keyserver.nexusdevs.fun/api/getkey/generate', {
+                    method:      'POST',
+                    credentials: 'include',
+                    headers:     { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: _tok, proof: await proof('generate') }),
+                }).then(r => r.json());
+
+                if (gen.status === 'success') {
+                    nh.remove();
+                    notify(`${SITE} — key sent to Discord DMs ✔ — done in ${t.elapsed()}s`, 'success', 12000, { site: SITE });
+                } else {
+                    throw new Error('Key generation failed: ' + (gen.message || JSON.stringify(gen)));
+                }
+
+            } catch (err) {
+                handleError('bypass failed', err);
+            }
+        };
+
+        onReady(run);
     }
 
     // ── encurtai.online ────────────────────────────────────────────────────
