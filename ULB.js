@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Unknown Link Bypasser
-// @version      6.8.4
-// @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live(SCAM WARNING) + go.yorurl.com + jankariweb + newsuchnaonline + bigcarinsurance + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + highlocus.shop + gplinks.co + powergam.online + getpolsec.com + hehehub + sub4unlock.co + app.khaddavi.net + sfl.gl + ytsubme.com + aylink.co + biplabtewary.com + mwgamesyt.com.br + topjogosvip.online + legacyagency.com.br + 4br.me + short-jambo.com/ink + fastcars + fluorine.s3ren1ty.xyz + go.linkify.ru + arolinks.com + spdmteam.com + linkunlocker.com + mboost.me + sub2unlock.netlify.app + krnl-ios.com + ouo.io + start-get-key.pages.dev + bstshrt.com + rekonise.com + boblox-script.com + dusarisalary.com + sub2unlock.io + checkpoint2keyhub.vercel.app + checkpoint3keyhub.vercel.app + orca-key-system.vercel.app + razelol.vercel.app + whatwhatboy.com/scoobyontop2. Made by @Aro Moon
+// @version      6.8.8
+// @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live(SCAM WARNING) + go.yorurl.com + jankariweb + newsuchnaonline + bigcarinsurance + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + highlocus.shop + gplinks.co + powergam.online + getpolsec.com + hehehub + sub4unlock.co + app.khaddavi.net + sfl.gl + ytsubme.com + aylink.co + biplabtewary.com + mwgamesyt.com.br + topjogosvip.online + legacyagency.com.br + 4br.me + short-jambo.com/ink + fastcars + fluorine.s3ren1ty.xyz + go.linkify.ru + arolinks.com + spdmteam.com + linkunlocker.com + mboost.me + sub2unlock.netlify.app + krnl-ios.com + ouo.io + start-get-key.pages.dev + bstshrt.com + rekonise.com + boblox-script.com + dusarisalary.com + sub2unlock.io + checkpoint2keyhub.vercel.app + checkpoint3keyhub.vercel.app + orca-key-system.vercel.app + razelol.vercel.app + whatwhatboy.com/scoobyontop2 + vayuhub.space. Made by @Aro Moon
 // @author       @Aro Moon
 // @include      /^https:\/\/mtc\d+\.[^/]+\.[a-z.]+\//
 // @include      /^https?:\/\/(?:\w+\.)?fastcars\d+\.com\//
@@ -85,6 +85,7 @@
 // @match        https://orca-key-system.vercel.app/*
 // @match        https://razelol.vercel.app/*
 // @match        https://whatwhatboy.com/scoobyontop2.html
+// @match        https://vayuhub.space/getkey*
 // @grant        GM_addElement
 // @grant        GM_xmlhttpRequest
 // @grant        unsafeWindow
@@ -99,6 +100,7 @@
 // @connect      engageub.pythonanywhere.com
 // @connect      engageub1.pythonanywhere.com
 // @connect      oaqxcsejqhsvchqetrzc.supabase.co
+// @connect      vayuhub.space
 // @run-at       document-start
 // @downloadURL  https://raw.githubusercontent.com/nmsjayden/UserScripts/main/ULB.js
 // @updateURL    https://raw.githubusercontent.com/nmsjayden/UserScripts/main/ULB.js
@@ -170,6 +172,7 @@
             'lnbz.la',
             'checkpoint2keyhub.vercel.app',
             'checkpoint3keyhub.vercel.app',
+            'bnty.nexusdevs.fun'
         ],
 
         // ┌─────────────────────────────────────────────────────────────────┐
@@ -290,7 +293,7 @@
     // §1  CONSTANTS
     // ═══════════════════════════════════════════════════════════════════════
 
-    const VERSION = '6.8.4';
+    const VERSION = '6.8.8';
 
     // ── Diagnostics log ───────────────────────────────────────────────────
     // Captures errors/warnings for the Diagnostics menu command.
@@ -1420,23 +1423,75 @@
 
 
     /**
+     * Returns true when the current page is a Cloudflare challenge interstitial
+     * ("Just a moment…", "Checking your browser", "Are you human?" etc.).
+     * Used to suppress the bypass prompt and auto-bypass when CF is actively
+     * challenging the visitor — the bypasser should wait until CF clears.
+     */
+    function _isCfChallengePage() {
+        try {
+            // Known CF interstitial element IDs / attributes
+            if(document.getElementById('cf-wrapper') ||
+               document.getElementById('cf-challenge-running') ||
+               document.getElementById('challenge-running') ||
+               document.getElementById('cf-content') ||
+               document.querySelector('[data-cf-action]') ||
+               document.querySelector('meta[name="cf-challenge"]') ||
+               document.querySelector('meta[http-equiv="refresh"][content*="cf-chl"]')) return true;
+
+            // Title-based heuristics (reliable across CF versions)
+            const title = (document.title || '').toLowerCase();
+            if(title.includes('just a moment') ||
+               title.includes('checking your browser') ||
+               title.includes('are you human') ||
+               title.includes('attention required') ||
+               title.includes('cloudflare') && title.includes('security')) return true;
+
+            // Body class flags CF sets on the challenge page
+            const bc = (document.body && document.body.className) || '';
+            if(bc.includes('cf-im-under-attack') ||
+               bc.includes('challenge-running') ||
+               bc.includes('cf-challenge-running')) return true;
+        } catch (_) {}
+        return false;
+    }
+
+    /**
      * Gate function: shows a bypass confirmation prompt if CONFIG.askBeforeBypass
      * is true, using sessionStorage to survive the reload.  If already confirmed
      * (post-reload), askBeforeBypass is false, or the host is in autoBypassHosts,
      * runs fn() immediately.
+     *
+     * In all paths, if a Cloudflare challenge interstitial is detected the gate
+     * exits silently — the bypasser must not run or show a prompt while CF is
+     * actively challenging the visitor.
+     *
      * @param {string}   siteLabel  Human-readable site name shown in the prompt.
      * @param {Function} fn         The bypasser function to call.
      */
     function _gateBypass(siteLabel, fn) {
+        // Helper: run fn only if no CF challenge is currently active.
+        // If the DOM isn't loaded yet, defer the check to DOMContentLoaded so
+        // that the CF interstitial elements have had a chance to render.
+        const _runIfNoCf = (action) => {
+            const check = () => {
+                if(!_isCfChallengePage()) action();
+                // If CF challenge IS active, do nothing — the page will reload
+                // on its own once CF clears and the bypasser will fire then.
+            };
+            if(document.readyState !== 'loading') check();
+            else document.addEventListener('DOMContentLoaded', check, { once: true });
+        };
+
         // Always run immediately when asking is disabled.
         if(!CONFIG.askBeforeBypass) {
-            fn();
+            _runIfNoCf(fn);
             return;
         }
 
         // Auto-bypass for user-configured hosts — no session tracking needed.
         if(CONFIG.autoBypassHosts?.some(h => host.includes(h) || (host + path).includes(h))) {
-            fn();
+            _runIfNoCf(fn);
             return;
         }
 
@@ -1445,20 +1500,23 @@
         try {
             if(sessionStorage.getItem(key) === '1') {
                 sessionStorage.removeItem(key);
-                fn();
+                _runIfNoCf(fn);
                 return;
             }
         } catch (_) {
-            fn();
+            _runIfNoCf(fn);
             return;
         }
-        // Not yet confirmed — show the prompt.
-        const show = () => showBypassPrompt(siteLabel, () => {
-            try {
-                sessionStorage.setItem(key, '1');
-            } catch (_) {}
-            location.reload();
-        });
+        // Not yet confirmed — show the prompt (but only if no CF challenge is active).
+        const show = () => {
+            if(_isCfChallengePage()) return; // CF is running its own challenge — leave it alone
+            showBypassPrompt(siteLabel, () => {
+                try {
+                    sessionStorage.setItem(key, '1');
+                } catch (_) {}
+                location.reload();
+            });
+        };
         if(document.body) show();
         else document.addEventListener('DOMContentLoaded', show, {
             once: true
@@ -2259,8 +2317,17 @@
     }
 
     // Early return: only the CF hook runs inside challenge iframes.
+    // Guard: only hook Turnstile iframes whose parent page is a known bypass-target.
+    // Running unconditionally broke legitimate Turnstile verification on arbitrary sites
+    // because the isTrusted-proxy and auto-click interfere with CF's bot-detection.
     if(location.hostname === 'challenges.cloudflare.com') {
-        _runCfHook(); // run unconditionally — referrer gate was too restrictive
+        const _cfRef = document.referrer || '';
+        const _cfAllowed = CONFIG.cfAllowedRefs || [];
+        // Also allow when the parent explicitly tagged the frame via #ulbid= hash
+        if(_cfAllowed.some(r => r && _cfRef.includes(r)) || location.hash.includes('ulbid=')) {
+            _runCfHook();
+        }
+        // If referrer is unknown/not in the list, leave the iframe completely alone.
         return;
     }
 
@@ -2321,11 +2388,7 @@
             return false;
         }
         if(nh) {
-            const extra = {};
-            if(siteLabel) extra.site = siteLabel;
-            if(t) extra.time = t.elapsed() + 's';
-            nh.update('Redirecting…', 'success', extra);
-            setTimeout(() => nh.remove(), autoDismiss ? 500 : 2000);
+            setTimeout(() => nh.remove(), autoDismiss ? 300 : 800);
         }
         showRedirectNotif(url);
         location.href = url;
@@ -2974,10 +3037,21 @@
     const path = location.pathname;
 
     // ── Global: make invisible Turnstile widgets visible ──────────────────
-    // Runs at document-start so widgets are patched before the Turnstile
-    // script initialises them. Also watches for dynamically added widgets.
-    // This ensures any page using our captcha handler shows the widget.
+    // Only runs on sites where the bypasser needs to expose the widget to the
+    // user (autoCaptcha:false fallback). Scoped to specific hosts to avoid
+    // interfering with sites' own invisible Turnstile bot-detection flows.
     (function _patchInvisibleTurnstiles() {
+        const NEEDS_PATCH = [
+            'ouo.io', 'ouo.press',           // explicit invisible widget
+            'gplinks.co',                     // captchaButton flow
+            'bstlar.com', 'wareguardv2.xyz',  // may render invisible
+            'lnbz.la', '4br.me', 'go.yorurl.com',
+            'go.caslinks.com', 'highlocus.shop',
+            'short-jambo.com', 'short-jambo.ink',
+            'arolinks.com', 'upfilesgo.com',
+        ];
+        if(!NEEDS_PATCH.some(h => location.hostname.includes(h))) return;
+
         const patch = el => {
             if(el.nodeType !== 1) return;
             if(el.classList?.contains('cf-turnstile') && el.getAttribute('data-size') === 'invisible') {
@@ -3162,6 +3236,7 @@
         else if(host.includes('orca-key-system.vercel.app')) _gateBypass('orca-key-system', runOrcaKeySystemBypasser);
         else if(host.includes('razelol.vercel.app')) _gateBypass('razelol', runRazelolBypasser);
         else if(host.includes('whatwhatboy.com') && path.includes('scoobyontop2')) _gateBypass('scoobyontop2', runScoobyontopBypasser);
+        else if(host.includes('vayuhub.space') && /[?&]hwid=/.test(location.search)) _gateBypass('vayuhub.space', runVayuHubBypasser);
         else if(host.includes('socialwolvez.com')) _gateBypass('socialwolvez.com', runSocialWolvezBypasser);
         else if(TPI_HOSTS.some(h => host.includes(h))) _gateBypass(host, runTpiLiBypasser);
         else if(FORM_HOSTS.some(h => host.includes(h))) _gateBypass(host, runFormBypasser);
@@ -3182,9 +3257,6 @@
     // letting the user grab the key without completing the ad steps.
 
     function runPhantomFluxKeyBypasser() {
-        notify('PhantomFluxKey — direct key link ready', 'info', undefined, {
-            site: 'phantomfluxkey'
-        });
         showDirectBypassBtn('Direct Bypass — Get Key', CONFIG.phantomDirectUrl, 'PhantomFluxKey Direct Bypass');
     }
 
@@ -4825,7 +4897,7 @@
     function runHow2GuidesBypasser() {
         const SITE = 'how2guidess.com';
 
-        const waitAndClick = (id, afterMs, afterFn) => {
+        const waitAndClick = (id, afterMs, afterFn, nh) => {
             pollUntil(() => {
                     const el = document.getElementById(id);
                     if(!el) return false;
@@ -4833,15 +4905,11 @@
                     return true;
                 }, 200, 150)
                 .then(() => {
-                    notify(`how2guidess — clicked #${id}`, 'info', 2000, {
-                        site: SITE
-                    });
                     if(afterFn) setTimeout(afterFn, afterMs);
                 })
                 .catch(() => {
-                    notify(`${SITE}: #${id} not found — unsupported layout.`, 'error', 6000, {
-                        site: SITE
-                    });
+                    nh.update(`${SITE}: #${id} not found — unsupported layout.`, 'error');
+                    setTimeout(() => nh.remove(), 6000);
                 });
         };
 
@@ -4851,17 +4919,17 @@
                 site: SITE
             });
             waitAndClick('gi', 500, () => {
-                nh.update('Step 1 done…', 'loading', {
+                nh.update(`${SITE} — step 1 done, clicking confirm…`, 'loading', {
                     site: SITE
                 });
                 waitAndClick('ci', 0, () => {
-                    nh.update('Done!', 'success', {
+                    nh.update(`${SITE} — done in ${t.elapsed()}s`, 'success', {
                         site: SITE,
                         time: t.elapsed() + 's'
                     });
                     setTimeout(() => nh.remove(), 2000);
-                });
-            });
+                }, nh);
+            }, nh);
         };
         onReady(run);
     }
@@ -4929,9 +4997,7 @@
     // so the user knows the script is active while the redirect loads.
 
     function runLink4SubBypasser() {
-        notify('link4sub.com — following redirect to tapvietcode.com…', 'info', undefined, {
-            site: 'link4sub.com'
-        });
+        // link4sub redirects to tapvietcode.com — tapvietcode bypasser handles it
     }
 
     // ── tapvietcode.com ────────────────────────────────────────────────────
@@ -5708,72 +5774,71 @@
     }
 
     // ── fluorine.s3ren1ty.xyz ──────────────────────────────────────────────
-    // fluorine.s3ren1ty.xyz/getkey* is a Loot-Link-style key system with two
-    // sequential checkpoint endpoints. Flow:
-    //   1. Generate or retrieve a session token from localStorage
-    //      (provider_session) — format: "loot_<timestamp>_<random>".
-    //   2. Loop checkpoints 1 and 2:
-    //      POST /api/checkpoint/<n>  { token }  — marks the checkpoint complete.
-    //      A 2 s sleep between checkpoints mimics human timing.
-    //   3. POST /api/getkey  { token }  → { key } — generates the access key.
-    //   4. Display the key via showKeyCard() for easy clipboard copy.
+    // fluorine.s3ren1ty.xyz/getkey* uses a loot-link session flow:
+    //   1. POST /api/loot/check-session { token }
+    //      → { completed_checkpoints, required_checkpoints }
+    //   2. Loop from (completed + 1) to required:
+    //      POST /api/loot/verify { checkpoint, token }
+    //   3. POST https://fluorine.s3ren1ty.xyz/api/getkey
+    //      { provider_token, owner }  → { key, expires_at }
+    //   Key is displayed via showKeyCard().
 
     function runFluorineBypasser() {
         if(!path.startsWith('/getkey')) return;
 
         const SITE = 'fluorine.s3ren1ty.xyz';
         const timer = makeTimer();
-        const nh = notify(`${SITE} — running key checkpoints…`, 'loading', 0, {
+        const nh = notify(`${SITE} — starting key session…`, 'loading', 0, {
             site: SITE
         });
         const handleError = makeErrHandler(SITE, nh, 7000);
 
         const run = async () => {
             try {
-                let token = localStorage.getItem('provider_session');
-                if(!token) {
-                    token = `loot_${Date.now()}_${Math.random().toString(36).substr(2, 16)}`;
-                    localStorage.setItem('provider_session', token);
-                }
+                const token = `loot_${Date.now()}_${Math.random().toString(36).slice(2, 18)}`;
+                const owner = Math.random().toString().slice(2, 20);
 
-                for(let i = 1; i <= 2; i++) {
-                    nh.update(`${SITE} — checkpoint ${i}/2…`, 'loading', {
-                        site: SITE
-                    });
-                    await fetch(`/api/checkpoint/${i}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            token
-                        }),
-                    });
-                    if(i < 2) await sleep(2000);
-                }
-
-                nh.update(`${SITE} — finalising…`, 'loading', {
-                    site: SITE
-                });
-                await fetch('/api/getkey', {
+                // Step 1 — check session / resume from last completed checkpoint
+                nh.update(`${SITE} — checking session…`, 'loading', { site: SITE });
+                const sessionResp = await fetch('/api/loot/check-session', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        token
-                    }),
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token }),
                 });
+                if(!sessionResp.ok) throw _httpError(sessionResp, 'check-session');
+                const sessionData = await sessionResp.json();
 
-                const rParam = new URLSearchParams(location.search).get('r');
-                const dest = rParam ? atob(rParam) : '/generate?suc=x1';
+                const completed = sessionData.completed_checkpoints || 0;
+                const required  = sessionData.required_checkpoints  || 2;
 
-                nh.update(`${SITE} — done in ${timer.elapsed()}s`, 'success', {
-                    site: SITE,
-                    time: timer.elapsed() + 's'
+                // Step 2 — complete any outstanding checkpoints
+                for(let i = completed + 1; i <= required; i++) {
+                    nh.update(`${SITE} — checkpoint ${i}/${required}…`, 'loading', { site: SITE });
+                    await fetch('/api/loot/verify', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ checkpoint: i, token }),
+                    });
+                    if(i < required) await sleep(1500);
+                }
+
+                // Step 3 — retrieve the key
+                nh.update(`${SITE} — retrieving key…`, 'loading', { site: SITE });
+                const keyResp = await fetch('https://fluorine.s3ren1ty.xyz/api/getkey', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ provider_token: token, owner }),
                 });
-                setTimeout(() => nh.remove(), CONFIG.autoDismissOnRedirect ? 500 : 2000);
-                location.href = dest;
+                if(!keyResp.ok) throw _httpError(keyResp, 'getkey');
+                const keyData = await keyResp.json();
+
+                const key = keyData.key;
+                if(!key) throw new Error('No key in API response');
+
+                nh.remove();
+                showKeyCard(key, SITE, timer, 30_000, {
+                    expiresAt: keyData.expires_at ?? null,
+                });
             } catch (err) {
                 handleError('bypass failed', err);
             }
@@ -5873,9 +5938,6 @@
             blankObs.observe(document.body, {
                 childList: true,
                 subtree: true
-            });
-            notify(`${SITE} — popup links removed from buttons`, 'info', undefined, {
-                site: SITE
             });
             pollUntil(trySkip, 200, 150)
                 .catch(() => {
@@ -6460,210 +6522,15 @@
     }
 
     // ── nexusdevs.fun ──────────────────────────────────────────────────────
-    // Handles bnty.nexusdevs.fun/getkey?h=<hwid> (and any *.nexusdevs.fun/getkey*)
-    // Runs the full init -> step loop -> key generation flow silently, then
-    // surfaces the key via the shared showKeyCard() utility.
+    // Bypasser patched by site — showing holding notification.
 
     function runNexusBypasser() {
         const SITE = 'nexusdevs.fun';
-        const BASE = 'https://keyserver.nexusdevs.fun';
-        const JSON_HEADERS = {
-            'Content-Type': 'application/json'
-        };
-
-        // ── Block report-adblock & hidaddy on unsafeWindow so the page's own
-        //    JS cannot fire these requests regardless of how they're made. ────
-        const _uw = typeof unsafeWindow !== 'undefined' ? unsafeWindow : window;
-        const _nxBlocked = (u) => {
-            const s = u ? String(typeof u === 'object' ? (u.url ?? u) : u) : '';
-            return s.includes('report-adblock') || s.includes('hidaddy');
-        };
-
-        // fetch
-        const _origFetch = _uw.fetch;
-        _uw.fetch = function (input, init) {
-            if(_nxBlocked(input)) return Promise.resolve(new Response(null, {
-                status: 204
-            }));
-            return _origFetch.apply(this, arguments);
-        };
-
-        // XHR — patch the prototype on unsafeWindow's copy
-        const _XHR = _uw.XMLHttpRequest;
-        const _xOpen = _XHR.prototype.open;
-        const _xSend = _XHR.prototype.send;
-        _XHR.prototype.open = function (method, url) {
-            this.__nxBlock = _nxBlocked(url);
-            return _xOpen.apply(this, arguments);
-        };
-        _XHR.prototype.send = function () {
-            if(this.__nxBlock) return;
-            return _xSend.apply(this, arguments);
-        };
-
-        // sendBeacon
-        const _origBeacon = _uw.navigator.sendBeacon.bind(_uw.navigator);
-        _uw.navigator.sendBeacon = (url, data) =>
-            _nxBlocked(url) ? true : _origBeacon(url, data);
-
-        // DOM — kill matching nodes as they appear and on load
-        new MutationObserver(ms => {
-            ms.forEach(m => m.addedNodes.forEach(n => {
-                if(n.nodeType === 1 && _nxBlocked(n.src || n.href)) {
-                    n.pause?.();
-                    n.remove();
-                }
-            }));
-        }).observe(document.documentElement, {
-            childList: true,
-            subtree: true
-        });
-        document.querySelectorAll('audio,source,script,img').forEach(e => {
-            if(_nxBlocked(e.src || e.href)) e.remove();
-        });
-        // ─────────────────────────────────────────────────────────────────────
-
-        const t = makeTimer();
-        const nh = notify(`${SITE} — starting key flow…`, 'loading', 0);
-        const handleError = makeErrHandler(SITE, nh, 9000);
-
-        const params = new URLSearchParams(window.location.search);
-        const HWID = params.get('h') || params.get('hwid');
-
-        if(!HWID) {
-            handleError('no HWID found in URL (?h= or ?hwid=)', null);
-            return;
-        }
-
-        /**
-         * POST to a keyserver endpoint with automatic blocked/rate-limited handling.
-         * • status:"blocked"      → wait remaining_ms then retry once
-         * • status:"rate_limited" → surface a persistent error, do not retry
-         */
-        const nxPost = async (endpoint, body, label) => {
-            const go = async () => {
-                const r = await fetchWithTimeout(`${BASE}${endpoint}`, {
-                    method: 'POST',
-                    headers: JSON_HEADERS,
-                    body: JSON.stringify(body),
-                }, 15000);
-                return r.json().catch(() => ({}));
-            };
-
-            let data = await go();
-
-            if(data.status === 'rate_limited') {
-                handleError('rate limited — please wait a while and try again', null);
-                throw new Error('rate_limited');
-            }
-
-            if(data.status === 'blocked') {
-                const waitMs = (data.remaining_ms ?? 5000) + 500;
-                const waitSec = Math.ceil(waitMs / 1000);
-                console.warn(`[ULB/nexus] ${label} — IP blocked (${data.reason ?? '?'}), waiting ${waitSec}s…`);
-                nh.update(`${SITE} — blocked (${data.reason ?? 'ad blocker detected'}), waiting ${waitSec}s…`, 'warn');
-                await sleep(waitMs);
-                nh.update(`${SITE} — retrying ${label}…`, 'loading');
-                data = await go();
-                if(data.status === 'rate_limited') {
-                    handleError('rate limited — please wait a while and try again', null);
-                    throw new Error('rate_limited');
-                }
-            }
-
-            return data;
-        };
-
-        (async () => {
-            try {
-                // 1. Init session
-                nh.update(`${SITE} — initialising session…`, 'loading');
-
-                const initData = await nxPost('/api/getkey/init', {
-                        hwid_hash: HWID,
-                        timestamp: Date.now()
-                    },
-                    'init'
-                );
-
-                if(!initData?.token) {
-                    handleError('init failed — no token returned', null);
-                    return;
-                }
-
-                const token = initData.token;
-                const steps = Array.isArray(initData.steps) ? initData.steps : [];
-                const total = steps.length;
-
-                // 2. Walk each step
-                for(let i = 0; i < steps.length; i++) {
-                    const s = steps[i];
-                    const stepNum = s.step || (i + 1);
-
-                    // Discord step — skip start-step and complete-step entirely
-                    if(s.type === 'discord') {
-                        nh.update(`${SITE} — step ${stepNum}/${total} (discord)…`, 'loading');
-                        await sleep(1500);
-                        await nxPost('/api/getkey/complete-discord', {
-                            token
-                        }, 'complete-discord').catch(() => {});
-                        await sleep(1200);
-                        continue;
-                    }
-
-                    nh.update(`${SITE} — step ${stepNum}/${total}…`, 'loading');
-
-                    const startData = await nxPost('/api/getkey/start-step', {
-                            token,
-                            step: stepNum
-                        },
-                        `start-step ${stepNum}`
-                    );
-
-                    if(startData.wait) {
-                        nh.update(`${SITE} — step ${stepNum}/${total} (waiting ${startData.wait}s)…`, 'loading');
-                        await sleep((startData.wait * 1000) + 800);
-                    }
-
-                    // complete-step — retry on too_fast, also handles blocked via nxPost
-                    let completeData;
-                    do {
-                        completeData = await nxPost('/api/getkey/complete-step', {
-                                token,
-                                step: stepNum
-                            },
-                            `complete-step ${stepNum}`
-                        );
-                        if(completeData.status === 'too_fast' && completeData.remaining) {
-                            const waitSec = Math.ceil(completeData.remaining / 1000) + 2;
-                            nh.update(`${SITE} — step ${stepNum}/${total} too fast, retrying in ${waitSec}s…`, 'loading');
-                            await sleep(waitSec * 1000);
-                        }
-                    } while(completeData.status === 'too_fast' && completeData.remaining);
-
-                    await sleep(1200);
-                }
-
-                // 3. Generate key
-                nh.update(`${SITE} — generating key…`, 'loading');
-                await sleep(2000);
-
-                const genData = await nxPost('/api/getkey/generate', {
-                    token
-                }, 'generate');
-
-                if(!genData?.code) {
-                    handleError('key generation failed — no code in response', null);
-                    return;
-                }
-
-                nh.remove();
-                showKeyCard(genData.code, SITE, t);
-
-            } catch (err) {
-                handleError('unexpected error during key flow', err);
-            }
-        })();
+        showDirectBypassBtn(
+            'Bypass unavailable — check back later',
+            'https://discord.gg/tvgjHVbyct',
+            `${SITE} — currently patched`
+        );
     }
 
     // ── encurtai.online ────────────────────────────────────────────────────
@@ -6815,8 +6682,8 @@
 
     function runLinkUnlockerBypasser() {
         const SITE = 'linkunlocker.com';
-        const ACTION_FETCH = '40aefacb2f77a22354545aacbb194a03ebfedad72b';
-        const ACTION_UNLOCK = '403f66e55109b46b722c408c17a17267d20e0393c2';
+        const ACTION_FETCH  = '4060549de4ea75f30236a465a814e69abf3bfa21c0';
+        const ACTION_UNLOCK = '40d7308c40dad062e5adb4d01ec6517dd30dd7efa0';
 
         const t = makeTimer();
         const nh = notify(`${SITE} — extracting link data…`, 'loading', 0, {
@@ -6863,6 +6730,13 @@
                 if(!dataMatch) throw new Error('Could not find _id / _secureTarget5 in page scripts');
                 const [, id, secureTarget] = dataMatch;
 
+                // adDestination shortcut — site skips unlock entirely when present.
+                const adDest = (raw.match(/"adDestination":"([^"]+)"/) || [])[1] || null;
+                if(adDest) {
+                    safeRedirect(adDest, nh, { t, siteLabel: SITE });
+                    return;
+                }
+
                 // Step 2 — fetch request token.
                 nh.update(`${SITE} — fetching request token…`, 'loading', {
                     site: SITE
@@ -6901,8 +6775,8 @@
                 });
                 if(!r2.ok) throw _httpError(r2, 'Unlock request');
                 const t2 = await r2.text();
-                const urlM = t2.match(/"url":"([^"]+)"/);
-                if(!urlM) throw new Error('No URL found in unlock response');
+                const urlM = t2.match(/"url":"(.*?)(?<!\\)"/);
+                if(!urlM) throw new Error('No url field in unlock response');
                 const dest = urlM[1].replace(/\\/g, '');
 
                 safeRedirect(dest, nh, {
@@ -7823,6 +7697,95 @@
     // We poll until the array is populated, extract the first match, and
     // redirect — identical logic to the one-liner below, fully integrated:
     //   location.href=((self.__next_f||[]).join("").match(/"url":"(.*?)"/)||[])[1]
+
+    // ── vayuhub.space/getkey ───────────────────────────────────────────────
+    // vayuhub.space/getkey?hwid=<hwid> is a two-checkpoint HWID key system.
+    // Flow per checkpoint n (1 then 2):
+    //   1. GET  /api/checkpoint?hwid=<hwid>  (fires the checkpoint timer)
+    //   2. Wait 15 s (simulates ad view time)
+    //   3. GET  /api/callback                (signals completion to server)
+    //   4. GET  /api/verify?hwid=<hwid>      → { step }
+    //      If step >= n → checkpoint done; else retry the whole loop.
+    //   After both checkpoints: reload so the site delivers the key.
+
+    function runVayuHubBypasser() {
+        const SITE = 'vayuhub.space';
+        const hwid = new URLSearchParams(location.search).get('hwid');
+        if(!hwid) return; // no hwid param — nothing to bypass
+
+        const t = makeTimer();
+        const nh = notify(`${SITE} — starting checkpoint flow…`, 'loading', 0, { site: SITE });
+        const handleError = makeErrHandler(SITE, nh, 10000);
+
+        // Set validation cookie the site expects
+        document.cookie = `validating_hwid=${hwid};path=/;max-age=3600;SameSite=Lax`;
+
+        const checkpointUrl = `https://vayuhub.space/api/checkpoint?hwid=${encodeURIComponent(hwid)}`;
+        const callbackUrl   = 'https://vayuhub.space/api/callback';
+        const verifyUrl     = `https://vayuhub.space/api/verify?hwid=${encodeURIComponent(hwid)}`;
+
+        const safeFetch = (url, opts) =>
+            fetch(url, { ...(opts || {}), redirect: 'manual' }).catch(() => null);
+
+        const getStep = async () => {
+            try {
+                const r = await fetch(verifyUrl, { redirect: 'follow' });
+                const d = await r.json();
+                return typeof d?.step === 'number' ? d.step : -1;
+            } catch (_) {
+                return -1;
+            }
+        };
+
+        // Polls verify every 3 s until step >= target, then resolves
+        const waitForStep = (target) => new Promise(resolve => {
+            const iv = setInterval(async () => {
+                const step = await getStep();
+                if(step >= target) {
+                    clearInterval(iv);
+                    resolve();
+                }
+            }, 3000);
+            // Hard cap: 90 s per checkpoint
+            setTimeout(() => { clearInterval(iv); resolve(); }, 90_000);
+        });
+
+        const runCheckpoint = async (n) => {
+            nh.update(`${SITE} — checkpoint ${n}/2 — firing…`, 'loading', { site: SITE });
+            await safeFetch(checkpointUrl, { method: 'GET' });
+
+            nh.update(`${SITE} — checkpoint ${n}/2 — waiting 15 s…`, 'loading', { site: SITE });
+            await sleep(15_000);
+
+            await safeFetch(callbackUrl, { method: 'GET', redirect: 'follow' });
+
+            nh.update(`${SITE} — checkpoint ${n}/2 — verifying…`, 'loading', { site: SITE });
+            const step = await getStep();
+            if(step >= n) return; // confirmed done
+
+            // Server hasn't registered it yet — keep polling
+            await waitForStep(n);
+        };
+
+        const run = async () => {
+            try {
+                for(let n = 1; n <= 2; n++) {
+                    await runCheckpoint(n);
+                    nh.update(`${SITE} — checkpoint ${n}/2 ✔`, 'loading', { site: SITE });
+                    if(n < 2) await sleep(500);
+                }
+
+                nh.update(`${SITE} — done in ${t.elapsed()}s — reloading for key…`, 'loading', { site: SITE });
+                await sleep(600);
+                nh.remove();
+                location.reload();
+            } catch (err) {
+                handleError('bypass failed', err);
+            }
+        };
+
+        onReady(run);
+    }
 
     function runSocialWolvezBypasser() {
         const SITE = 'socialwolvez.com';
