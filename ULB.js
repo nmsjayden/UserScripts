@@ -86,6 +86,7 @@
 // @match        https://razelol.vercel.app/*
 // @match        https://whatwhatboy.com/scoobyontop2.html
 // @match        https://vayuhub.space/getkey*
+// @match        https://mobile3.hubsocial.chat/*
 // @grant        GM_addElement
 // @grant        GM_xmlhttpRequest
 // @grant        unsafeWindow
@@ -3238,6 +3239,7 @@
         else if(host.includes('whatwhatboy.com') && path.includes('scoobyontop2')) _gateBypass('scoobyontop2', runScoobyontopBypasser);
         else if(host.includes('vayuhub.space') && /[?&]hwid=/.test(location.search)) _gateBypass('vayuhub.space', runVayuHubBypasser);
         else if(host.includes('socialwolvez.com')) _gateBypass('socialwolvez.com', runSocialWolvezBypasser);
+        else if(host.includes('mobile3.hubsocial.chat') && path.length > 1) _gateBypass('hubsocial.chat', runHubsocialBypasser);
         else if(TPI_HOSTS.some(h => host.includes(h))) _gateBypass(host, runTpiLiBypasser);
         else if(FORM_HOSTS.some(h => host.includes(h))) _gateBypass(host, runFormBypasser);
         else _gateBypass(host, runSafelinkBypasser);
@@ -6804,7 +6806,7 @@
                         }),
                     });
 
-                    const waitMs = (Number(s.wait) || 20) * 1000;
+                    const waitMs = (Number(s.wait) || 20) * 1000 + 3000;
                     nh.update(`${SITE} — step ${s.step} — waiting ${waitMs / 1000}s…`, 'loading', 0, { site: SITE });
                     await sleep(waitMs);
 
@@ -8134,6 +8136,41 @@
             if(tryExtract()) return;
             pollUntil(tryExtract, 150, 100).catch(() => {
                 handleError('"url" key not found in Next.js payload (__next_f)', null);
+            });
+        };
+
+        onReady(init);
+    }
+
+    // ── mobile3.hubsocial.chat ─────────────────────────────────────────────
+    // Pages on mobile3.hubsocial.chat embed the real destination in the
+    // `url` attribute of an <a class="prx"> element.  The `href` points to
+    // an internal /send/?tokenX= redirect — we skip that entirely, read the
+    // `url` attribute directly, and redirect straight to the destination.
+    //
+    // Matches: https://mobile3.hubsocial.chat/<anything>/<anything>
+    //   (path must have at least one segment beyond /, per @match rule)
+
+    function runHubsocialBypasser() {
+        const SITE = 'hubsocial.chat';
+        const t = makeTimer();
+        const nh = notify(`${SITE} — looking for destination link…`, 'loading', 0, { site: SITE });
+        const handleError = makeErrHandler(SITE, nh, 10000);
+
+        const tryExtract = () => {
+            const anchor = document.querySelector('a.prx[url]');
+            if (!anchor) return false;
+            const dest = anchor.getAttribute('url');
+            if (!dest || !dest.startsWith('http')) return false;
+            nh.update(`${SITE} — link found, redirecting… (${t.elapsed()}s)`, 'loading', 0, { site: SITE });
+            safeRedirect(dest, nh, { t, siteLabel: SITE });
+            return true;
+        };
+
+        const init = () => {
+            if (tryExtract()) return;
+            pollUntil(tryExtract, 150, 100).catch(() => {
+                handleError('a.prx[url] not found — unsupported layout', null);
             });
         };
 
