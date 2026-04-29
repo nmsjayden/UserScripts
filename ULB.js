@@ -6765,12 +6765,451 @@
 
     // ── nexusdevs.fun ──────────────────────────────────────────────────────────
     // Full automated key-system flow for nexusdevs.fun/getkey.
-    // Flow: No longer documented due to @dearygd and nexus disccord server, but I know how it works. ;3
+    // Flow:
+    //   1. Generate ECDSA P-256 keypair for request signing.
+    //   2. Read hwid_hash from ?h= / ?hwid= param (or prompt as fallback).
+    //   3. Show hCaptcha overlay — wait for user to solve.
+    //   4. POST /api/getkey/init            → token + steps[]
+    //   5. GET  /api/oauth/me               → verify Discord is linked
+    //   6. POST /api/getkey/complete-discord
+    //   7. For each step:
+    //        POST start-step                → captures step_nonce
+    //        sleep(wait + 3s)
+    //        POST complete-step             → sends step_nonce back (too_fast / bypass_dct → retry once)
+    //   8. POST /api/getkey/generate        → key sent to Discord DMs.
 
-    function runNexusAdblock(_0xe44bda){try{if(!window['\u0063\u0068\u0072\u006F\u006D\u0065']){var _0x7291b=(342860^342852)+(450648^450648);const _0x6a_0xac8={'\u0061\u0070\u0070':{'\u0069\u0073\u0049\u006E\u0073\u0074\u0061\u006C\u006C\u0065\u0064':false},"runtime":{'\u0069\u0064':undefined,"connect":()=>{},'\u0073\u0065\u006E\u0064\u004D\u0065\u0073\u0073\u0061\u0067\u0065':()=>{},"onMessage":{"addListener":()=>{},"removeListener":()=>{}}},'\u006C\u006F\u0061\u0064\u0054\u0069\u006D\u0065\u0073':function(){var _0xf4gdbb=(503444^503445)+(531160^531162);const _0x0g49b=Date['\u006E\u006F\u0077']()/(952285^951349);_0xf4gdbb=516442^516435;return{"commitLoadTime":_0x0g49b-(413220^413221),'\u0063\u006F\u006E\u006E\u0065\u0063\u0074\u0069\u006F\u006E\u0049\u006E\u0066\u006F':'h2',"finishDocumentLoadTime":_0x0g49b,'\u0066\u0069\u006E\u0069\u0073\u0068\u004C\u006F\u0061\u0064\u0054\u0069\u006D\u0065':_0x0g49b,'\u0066\u0069\u0072\u0073\u0074\u0050\u0061\u0069\u006E\u0074\u0041\u0066\u0074\u0065\u0072\u004C\u006F\u0061\u0064\u0054\u0069\u006D\u0065':0,"firstPaintTime":_0x0g49b-0.5,"navigationType":"\u004F\u0074\u0068\u0065\u0072",'\u006E\u0070\u006E\u004E\u0065\u0067\u006F\u0074\u0069\u0061\u0074\u0065\u0064\u0050\u0072\u006F\u0074\u006F\u0063\u006F\u006C':"\u0068\u0032",'\u0072\u0065\u0071\u0075\u0065\u0073\u0074\u0054\u0069\u006D\u0065':_0x0g49b-(981689^981691),"startLoadTime":_0x0g49b-(194190^194188),"wasAlternateProtocolAvailable":false,'\u0077\u0061\u0073\u0046\u0065\u0074\u0063\u0068\u0065\u0064\u0056\u0069\u0061\u0053\u0070\u0064\u0079':!![],'\u0077\u0061\u0073\u004E\u0070\u006E\u004E\u0065\u0067\u006F\u0074\u0069\u0061\u0074\u0065\u0064':!![]};},"csi":function(){return{'\u0073\u0074\u0061\u0072\u0074\u0045':Date['\u006E\u006F\u0077'](),"onloadT":Date['\u006E\u006F\u0077'](),'\u0070\u0061\u0067\u0065\u0054':1000,'\u0074\u0072\u0061\u006E':15};}};_0x7291b=283919^283914;Object['\u0064\u0065\u0066\u0069\u006E\u0065\u0050\u0072\u006F\u0070\u0065\u0072\u0074\u0079'](window,"emorhc".split("").reverse().join(""),{"get":()=>_0x6a_0xac8,'\u0063\u006F\u006E\u0066\u0069\u0067\u0075\u0072\u0061\u0062\u006C\u0065':!![]});}}catch(_){}try{Object['\u0064\u0065\u0066\u0069\u006E\u0065\u0050\u0072\u006F\u0070\u0065\u0072\u0074\u0079'](navigator,"evarb".split("").reverse().join(""),{"get":()=>undefined,'\u0063\u006F\u006E\u0066\u0069\u0067\u0075\u0072\u0061\u0062\u006C\u0065':!![]});}catch(_){}try{Object['\u0064\u0065\u0066\u0069\u006E\u0065\u0050\u0072\u006F\u0070\u0065\u0072\u0074\u0079'](navigator,"tnegAresu".split("").reverse().join(""),{'\u0067\u0065\u0074':()=>"\u004D\u006F\u007A\u0069\u006C\u006C\u0061\u002F\u0035\u002E\u0030\u0020\u0028\u0058\u0031\u0031\u003B\u0020\u0043\u0072\u004F\u0053\u0020\u0078\u0038\u0036\u005F\u0036\u0034\u0020\u0031\u0034\u0035\u0034\u0031\u002E\u0030\u002E\u0030\u0029\u0020\u0041\u0070\u0070\u006C\u0065\u0057\u0065\u0062\u004B\u0069\u0074\u002F\u0035\u0033\u0037\u002E\u0033\u0036\u0020\u0028\u004B\u0048\u0054\u004D\u004C\u002C\u0020\u006C\u0069\u006B\u0065\u0020\u0047\u0065\u0063\u006B\u006F\u0029\u0020\u0043\u0068\u0072\u006F\u006D\u0065\u002F\u0031\u0034\u0037\u002E\u0030\u002E\u0030\u002E\u0030\u0020\u0053\u0061\u0066\u0061\u0072\u0069\u002F\u0035\u0033\u0037\u002E\u0033\u0036",'\u0063\u006F\u006E\u0066\u0069\u0067\u0075\u0072\u0061\u0062\u006C\u0065':!![]});}catch(_){}const _0xc4f0b=["\u0061\u0064\u0073\u0065\u006E\u0073\u0065\u004C\u006F\u0061\u0064\u0065\u0064","\u0061\u0064\u0073\u0074\u0065\u0072\u0072\u0061\u0053\u006F\u0063\u0069\u0061\u006C\u004C\u006F\u0061\u0064\u0065\u0064","\u0061\u0064\u0073\u0074\u0065\u0072\u0072\u0061\u0050\u006F\u0070\u004C\u006F\u0061\u0064\u0065\u0064","dedaoLdraobredaeLarretsda".split("").reverse().join(""),"dedaoLllaTediSarretsda".split("").reverse().join(""),"\u0061\u0064\u0073\u0074\u0065\u0072\u0072\u0061\u0053\u0069\u0064\u0065\u0042\u006F\u0078\u004C\u006F\u0061\u0064\u0065\u0064","\u0061\u0064\u0073\u0074\u0065\u0072\u0072\u0061\u0049\u006E\u006C\u0069\u006E\u0065\u0042\u0061\u0072\u004C\u006F\u0061\u0064\u0065\u0064","dedaoLraBeliboMarretsda".split("").reverse().join(""),"\u0061\u0064\u0073\u0074\u0065\u0072\u0072\u0061\u0042\u006F\u0078\u004C\u006F\u0061\u0064\u0065\u0064","\u0061\u0064\u0073\u0074\u0065\u0072\u0072\u0061\u004E\u0061\u0074\u0069\u0076\u0065\u004C\u006F\u0061\u0064\u0065\u0064"];_0xe44bda=(700516^700519)+(895666^895675);const _0x76381b=["dekcolBesnesda".split("").reverse().join(""),"dekcolBlaicoSarretsda".split("").reverse().join(""),"dekcolBpoParretsda".split("").reverse().join(""),"dekcolBdraobredaeLarretsda".split("").reverse().join(""),"dekcolBllaTediSarretsda".split("").reverse().join(""),"\u0061\u0064\u0073\u0074\u0065\u0072\u0072\u0061\u0053\u0069\u0064\u0065\u0042\u006F\u0078\u0042\u006C\u006F\u0063\u006B\u0065\u0064","\u0061\u0064\u0073\u0074\u0065\u0072\u0072\u0061\u0049\u006E\u006C\u0069\u006E\u0065\u0042\u0061\u0072\u0042\u006C\u006F\u0063\u006B\u0065\u0064","\u0061\u0064\u0073\u0074\u0065\u0072\u0072\u0061\u004D\u006F\u0062\u0069\u006C\u0065\u0042\u0061\u0072\u0042\u006C\u006F\u0063\u006B\u0065\u0064","\u0061\u0064\u0073\u0074\u0065\u0072\u0072\u0061\u0042\u006F\u0078\u0042\u006C\u006F\u0063\u006B\u0065\u0064","\u0061\u0064\u0073\u0074\u0065\u0072\u0072\u0061\u004E\u0061\u0074\u0069\u0076\u0065\u0042\u006C\u006F\u0063\u006B\u0065\u0064"];var _0x5fc30a=(144580^144589)+(898332^898325);const _0xdee={};_0x5fc30a=(270655^270648)+(712501^712508);_0xc4f0b['\u0066\u006F\u0072\u0045\u0061\u0063\u0068'](k=>_0xdee[k]=!![]);_0x76381b['\u0066\u006F\u0072\u0045\u0061\u0063\u0068'](k=>_0xdee[k]=false);var _0xga9e=(773560^773567)+(890521^890522);const _0x6f_0xgc7=new Proxy(_0xdee,{set(t,p,v){if(typeof p==="\u0073\u0074\u0072\u0069\u006E\u0067"&&p['\u0065\u006E\u0064\u0073\u0057\u0069\u0074\u0068']("\u0042\u006C\u006F\u0063\u006B\u0065\u0064")){t[p]=false;return!![];}t[p]=v;return!![];},get(t,p){if(typeof p==="\u0073\u0074\u0072\u0069\u006E\u0067"&&p['\u0065\u006E\u0064\u0073\u0057\u0069\u0074\u0068']("dekcolB".split("").reverse().join("")))return false;if(typeof p==="\u0073\u0074\u0072\u0069\u006E\u0067"&&p['\u0065\u006E\u0064\u0073\u0057\u0069\u0074\u0068']("\u004C\u006F\u0061\u0064\u0065\u0064"))return!![];return Reflect['\u0067\u0065\u0074'](t,p);}});_0xga9e=(474608^474614)+(795119^795117);try{Object['\u0064\u0065\u0066\u0069\u006E\u0065\u0050\u0072\u006F\u0070\u0065\u0072\u0074\u0079'](window,"sdAsuxen__".split("").reverse().join(""),{'\u0067\u0065\u0074':()=>_0x6f_0xgc7,"set":()=>!![],'\u0063\u006F\u006E\u0066\u0069\u0067\u0075\u0072\u0061\u0062\u006C\u0065':false});}catch(_){}const _0x8e2a6a=window['\u0066\u0065\u0074\u0063\u0068']['\u0062\u0069\u006E\u0064'](window);window['\u0066\u0065\u0074\u0063\u0068']=function(input,init){const _0x2a3ccg=typeof input==="\u0073\u0074\u0072\u0069\u006E\u0067"?input:input instanceof URL?input['\u0068\u0072\u0065\u0066']:input?.url??'';if(_0x2a3ccg['\u0069\u006E\u0063\u006C\u0075\u0064\u0065\u0073']("kcolbda-troper/yekteg/ipa/".split("").reverse().join("")))return Promise['\u0072\u0065\u0073\u006F\u006C\u0076\u0065'](new Response(JSON['\u0073\u0074\u0072\u0069\u006E\u0067\u0069\u0066\u0079']({'\u0073\u0074\u0061\u0074\u0075\u0073':"\u006F\u006B"}),{'\u0073\u0074\u0061\u0074\u0075\u0073':200,'\u0068\u0065\u0061\u0064\u0065\u0072\u0073':{"\u0043\u006F\u006E\u0074\u0065\u006E\u0074\u002D\u0054\u0079\u0070\u0065":"\u0061\u0070\u0070\u006C\u0069\u0063\u0061\u0074\u0069\u006F\u006E\u002F\u006A\u0073\u006F\u006E"}}));return _0x8e2a6a(input,init);};var _0x4be6ae=(558860^558858)+(657522^657530);const _0x381f=[new RegExp('\u0074\u0061\u006D\u0070\u0065\u0072\u006D\u006F\u006E\u006B\u0065\u0079\u007C\u0067\u0072\u0065\u0061\u0073\u0065\u006D\u006F\u006E\u006B\u0065\u0079\u007C\u0076\u0069\u006F\u006C\u0065\u006E\u0074\u006D\u006F\u006E\u006B\u0065\u0079\u007C\u0075\u0073\u0065\u0072\u0073\u0063\u0072\u0069\u0070\u0074','\u0069'),new RegExp("nips-blu-atad".split("").reverse().join(""),'\u0069'),new RegExp('\u007A\u002D\u0069\u006E\u0064\u0065\u0078\u003A\u005C\u0073\u002A\u0032\u0031\u0034\u0037\u0034\u0038\u0033\u0036\u0034\u0037','\u0069')];_0x4be6ae=(354466^354470)+(832160^832163);const _0x8acgeb=[new RegExp("$tsoh_blu__^".split("").reverse().join(""),""),new RegExp('\u005E\u005F\u005F\u0075\u006C\u0062\u005F\u0068\u0063\u005F\u006F\u0076\u0065\u0072\u006C\u0061\u0079\u0024',"")];const _0x667bf=Document['\u0070\u0072\u006F\u0074\u006F\u0074\u0079\u0070\u0065']['\u0071\u0075\u0065\u0072\u0079\u0053\u0065\u006C\u0065\u0063\u0074\u006F\u0072'];const _0xf9f9e=Document['\u0070\u0072\u006F\u0074\u006F\u0074\u0079\u0070\u0065']['\u0071\u0075\u0065\u0072\u0079\u0053\u0065\u006C\u0065\u0063\u0074\u006F\u0072\u0041\u006C\u006C'];var _0xc_0x995=(414072^414073)+(592293^592293);const _0x6d86e=Document['\u0070\u0072\u006F\u0074\u006F\u0074\u0079\u0070\u0065']['\u0067\u0065\u0074\u0045\u006C\u0065\u006D\u0065\u006E\u0074\u0042\u0079\u0049\u0064'];_0xc_0x995=705116^705112;Document['\u0070\u0072\u006F\u0074\u006F\u0074\u0079\u0070\u0065']['\u0071\u0075\u0065\u0072\u0079\u0053\u0065\u006C\u0065\u0063\u0074\u006F\u0072']=function(s){if(typeof s==="\u0073\u0074\u0072\u0069\u006E\u0067"&&_0x381f['\u0073\u006F\u006D\u0065'](r=>r['\u0074\u0065\u0073\u0074'](s)))return null;return _0x667bf['\u0063\u0061\u006C\u006C'](this,s);};Document['\u0070\u0072\u006F\u0074\u006F\u0074\u0079\u0070\u0065']['\u0071\u0075\u0065\u0072\u0079\u0053\u0065\u006C\u0065\u0063\u0074\u006F\u0072\u0041\u006C\u006C']=function(s){if(typeof s==="gnirts".split("").reverse().join("")&&_0x381f['\u0073\u006F\u006D\u0065'](r=>r['\u0074\u0065\u0073\u0074'](s)))return document['\u0063\u0072\u0065\u0061\u0074\u0065\u0044\u006F\u0063\u0075\u006D\u0065\u006E\u0074\u0046\u0072\u0061\u0067\u006D\u0065\u006E\u0074']()['\u0071\u0075\u0065\u0072\u0079\u0053\u0065\u006C\u0065\u0063\u0074\u006F\u0072\u0041\u006C\u006C']("\u003A\u006E\u006F\u0074\u0028\u002A\u0029");return _0xf9f9e['\u0063\u0061\u006C\u006C'](this,s);};Document['\u0070\u0072\u006F\u0074\u006F\u0074\u0079\u0070\u0065']['\u0067\u0065\u0074\u0045\u006C\u0065\u006D\u0065\u006E\u0074\u0042\u0079\u0049\u0064']=function(id){if(typeof id==="gnirts".split("").reverse().join("")&&_0x8acgeb['\u0073\u006F\u006D\u0065'](r=>r['\u0074\u0065\u0073\u0074'](id)))return null;return _0x6d86e['\u0063\u0061\u006C\u006C'](this,id);};document['\u0071\u0075\u0065\u0072\u0079\u0053\u0065\u006C\u0065\u0063\u0074\u006F\u0072']=Document['\u0070\u0072\u006F\u0074\u006F\u0074\u0079\u0070\u0065']['\u0071\u0075\u0065\u0072\u0079\u0053\u0065\u006C\u0065\u0063\u0074\u006F\u0072']['\u0062\u0069\u006E\u0064'](document);document['\u0071\u0075\u0065\u0072\u0079\u0053\u0065\u006C\u0065\u0063\u0074\u006F\u0072\u0041\u006C\u006C']=Document['\u0070\u0072\u006F\u0074\u006F\u0074\u0079\u0070\u0065']['\u0071\u0075\u0065\u0072\u0079\u0053\u0065\u006C\u0065\u0063\u0074\u006F\u0072\u0041\u006C\u006C']['\u0062\u0069\u006E\u0064'](document);document['\u0067\u0065\u0074\u0045\u006C\u0065\u006D\u0065\u006E\u0074\u0042\u0079\u0049\u0064']=Document['\u0070\u0072\u006F\u0074\u006F\u0074\u0079\u0070\u0065']['\u0067\u0065\u0074\u0045\u006C\u0065\u006D\u0065\u006E\u0074\u0042\u0079\u0049\u0064']['\u0062\u0069\u006E\u0064'](document);const _0x1b_0xe1b=["\u0061\u0064\u0073\u0062\u006F\u0078","\u0061\u0064\u002D\u0062\u0061\u006E\u006E\u0065\u0072","\u0061\u0064\u002D\u0075\u006E\u0069\u0074","\u0074\u0065\u0078\u0074\u002D\u0061\u0064","\u0073\u0070\u006F\u006E\u0073\u006F\u0072\u0065\u0064"];const _0x7dfafc=el=>el instanceof Element&&_0x1b_0xe1b['\u0073\u006F\u006D\u0065'](c=>el['\u0063\u006C\u0061\u0073\u0073\u004C\u0069\u0073\u0074']['\u0063\u006F\u006E\u0074\u0061\u0069\u006E\u0073'](c));function _0x80f(el){if(!_0x7dfafc(el)||el['\u0073\u0074\u0079\u006C\u0065']['\u006C\u0065\u0066\u0074']!=="xp9999-".split("").reverse().join("")&&el['\u0073\u0074\u0079\u006C\u0065']['\u0074\u006F\u0070']!=="\u002D\u0039\u0039\u0039\u0039\u0070\u0078")return;el['\u0073\u0074\u0079\u006C\u0065']['\u0073\u0065\u0074\u0050\u0072\u006F\u0070\u0065\u0072\u0074\u0079']("\u0064\u0069\u0073\u0070\u006C\u0061\u0079","\u0062\u006C\u006F\u0063\u006B","tnatropmi".split("").reverse().join(""));el['\u0073\u0074\u0079\u006C\u0065']['\u0073\u0065\u0074\u0050\u0072\u006F\u0070\u0065\u0072\u0074\u0079']("\u0076\u0069\u0073\u0069\u0062\u0069\u006C\u0069\u0074\u0079","\u0076\u0069\u0073\u0069\u0062\u006C\u0065","\u0069\u006D\u0070\u006F\u0072\u0074\u0061\u006E\u0074");el['\u0073\u0074\u0079\u006C\u0065']['\u0073\u0065\u0074\u0050\u0072\u006F\u0070\u0065\u0072\u0074\u0079']("\u006F\u0070\u0061\u0063\u0069\u0074\u0079","\u0031","tnatropmi".split("").reverse().join(""));el['\u0073\u0074\u0079\u006C\u0065']['\u0073\u0065\u0074\u0050\u0072\u006F\u0070\u0065\u0072\u0074\u0079']("htdiw".split("").reverse().join(""),"\u0031\u0070\u0078","tnatropmi".split("").reverse().join(""));el['\u0073\u0074\u0079\u006C\u0065']['\u0073\u0065\u0074\u0050\u0072\u006F\u0070\u0065\u0072\u0074\u0079']("thgieh".split("").reverse().join(""),"\u0031\u0070\u0078","tnatropmi".split("").reverse().join(""));}var _0xae_0xab1=(492529^492530)+(634021^634020);const _0x97f71f=window['\u0067\u0065\u0074\u0043\u006F\u006D\u0070\u0075\u0074\u0065\u0064\u0053\u0074\u0079\u006C\u0065']['\u0062\u0069\u006E\u0064'](window);_0xae_0xab1=(686418^686421)+(197200^197202);window['\u0067\u0065\u0074\u0043\u006F\u006D\u0070\u0075\u0074\u0065\u0064\u0053\u0074\u0079\u006C\u0065']=function(el,pseudo){const _0xf65abe=_0x97f71f(el,pseudo);if(!_0x7dfafc(el))return _0xf65abe;return new Proxy(_0xf65abe,{get(t,p){if(p==="\u0064\u0069\u0073\u0070\u006C\u0061\u0079")return"\u0062\u006C\u006F\u0063\u006B";if(p==="\u0076\u0069\u0073\u0069\u0062\u0069\u006C\u0069\u0074\u0079")return"\u0076\u0069\u0073\u0069\u0062\u006C\u0065";if(p==="yticapo".split("").reverse().join(""))return"\u0031";var _0x228d=(634927^634922)+(669708^669704);const v=Reflect['\u0067\u0065\u0074'](t,p);_0x228d=(866845^866837)+(498864^498870);return typeof v==="noitcnuf".split("").reverse().join("")?v['\u0062\u0069\u006E\u0064'](t):v;}});};const _0xba13ab=new MutationObserver(mutations=>{for(const m of mutations){if(m['\u0074\u0079\u0070\u0065']==="\u0063\u0068\u0069\u006C\u0064\u004C\u0069\u0073\u0074")m['\u0061\u0064\u0064\u0065\u0064\u004E\u006F\u0064\u0065\u0073']['\u0066\u006F\u0072\u0045\u0061\u0063\u0068'](n=>{if(n['\u006E\u006F\u0064\u0065\u0054\u0079\u0070\u0065']===(147238^147239))_0x80f(n);});else if(m['\u0074\u0079\u0070\u0065']==="\u0061\u0074\u0074\u0072\u0069\u0062\u0075\u0074\u0065\u0073")_0x80f(m['\u0074\u0061\u0072\u0067\u0065\u0074']);}});const _0x8c_0x9ec=()=>_0xba13ab['\u006F\u0062\u0073\u0065\u0072\u0076\u0065'](document['\u0062\u006F\u0064\u0079']||document['\u0064\u006F\u0063\u0075\u006D\u0065\u006E\u0074\u0045\u006C\u0065\u006D\u0065\u006E\u0074'],{"childList":!![],'\u0073\u0075\u0062\u0074\u0072\u0065\u0065':!![],'\u0061\u0074\u0074\u0072\u0069\u0062\u0075\u0074\u0065\u0073':!![],'\u0061\u0074\u0074\u0072\u0069\u0062\u0075\u0074\u0065\u0046\u0069\u006C\u0074\u0065\u0072':["\u0073\u0074\u0079\u006C\u0065","\u0063\u006C\u0061\u0073\u0073"]});document['\u0062\u006F\u0064\u0079']?_0x8c_0x9ec():document['\u0061\u0064\u0064\u0045\u0076\u0065\u006E\u0074\u004C\u0069\u0073\u0074\u0065\u006E\u0065\u0072']("dedaoLtnetnoCMOD".split("").reverse().join(""),_0x8c_0x9ec,{'\u006F\u006E\u0063\u0065':!![]});var _0x2d1fb=(929738^929736)+(156358^156353);const _0x2202f=()=>document['\u0071\u0075\u0065\u0072\u0079\u0053\u0065\u006C\u0065\u0063\u0074\u006F\u0072\u0041\u006C\u006C']("\u002E\u0067\u0061\u0074\u0065\u002D\u006F\u0076\u0065\u0072\u006C\u0061\u0079\u002C\u0020\u002E\u0067\u0061\u0074\u0065\u002D\u0070\u0061\u006E\u0065\u006C")['\u0066\u006F\u0072\u0045\u0061\u0063\u0068'](el=>el['\u0072\u0065\u006D\u006F\u0076\u0065']());_0x2d1fb=192920^192927;const _0x72cb=new MutationObserver(_0x2202f);const _0xadb77e=()=>_0x72cb['\u006F\u0062\u0073\u0065\u0072\u0076\u0065'](document['\u0062\u006F\u0064\u0079']||document['\u0064\u006F\u0063\u0075\u006D\u0065\u006E\u0074\u0045\u006C\u0065\u006D\u0065\u006E\u0074'],{'\u0063\u0068\u0069\u006C\u0064\u004C\u0069\u0073\u0074':!![],"subtree":!![]});document['\u0062\u006F\u0064\u0079']?_0xadb77e():document['\u0061\u0064\u0064\u0045\u0076\u0065\u006E\u0074\u004C\u0069\u0073\u0074\u0065\u006E\u0065\u0072']("dedaoLtnetnoCMOD".split("").reverse().join(""),_0xadb77e,{"once":!![]});window['\u0061\u0064\u0064\u0045\u0076\u0065\u006E\u0074\u004C\u0069\u0073\u0074\u0065\u006E\u0065\u0072']("daol".split("").reverse().join(""),_0x2202f,{'\u006F\u006E\u0063\u0065':!![]});}
+    function runNexusAdblock() {
+
+        // ── VECTOR 14 — window.chrome (realistic runtime object) ─────────────
+        try {
+            if(!window.chrome) {
+                const _chrome = {
+                    app: {
+                        isInstalled: false
+                    },
+                    runtime: {
+                        id: undefined,
+                        connect: () => {},
+                        sendMessage: () => {},
+                        onMessage: {
+                            addListener: () => {},
+                            removeListener: () => {}
+                        },
+                    },
+                    loadTimes: function () {
+                        const now = Date.now() / 1000;
+                        return {
+                            commitLoadTime: now - 1,
+                            connectionInfo: 'h2',
+                            finishDocumentLoadTime: now,
+                            finishLoadTime: now,
+                            firstPaintAfterLoadTime: 0,
+                            firstPaintTime: now - 0.5,
+                            navigationType: 'Other',
+                            npnNegotiatedProtocol: 'h2',
+                            requestTime: now - 2,
+                            startLoadTime: now - 2,
+                            wasAlternateProtocolAvailable: false,
+                            wasFetchedViaSpdy: true,
+                            wasNpnNegotiated: true,
+                        };
+                    },
+                    csi: function () {
+                        return {
+                            startE: Date.now(),
+                            onloadT: Date.now(),
+                            pageT: 1000,
+                            tran: 15
+                        };
+                    },
+                };
+                Object.defineProperty(window, 'chrome', {
+                    get: () => _chrome,
+                    configurable: true
+                });
+            }
+        } catch (_) {}
+        // ── VECTOR 8 — Brave flag ─────────────────────────────────────────────
+        try {
+            Object.defineProperty(navigator, 'brave', {
+                get: () => undefined,
+                configurable: true
+            });
+        } catch (_) {}
+
+        // ── VECTOR 6 — __nexusAds proxy ───────────────────────────────────────
+        const _NX_LOADED_KEYS = [
+            'adsenseLoaded', 'adsterraSocialLoaded', 'adsterraPopLoaded',
+            'adsterraLeaderboardLoaded', 'adsterraSideTallLoaded', 'adsterraSideBoxLoaded',
+            'adsterraInlineBarLoaded', 'adsterraMobileBarLoaded', 'adsterraBoxLoaded', 'adsterraNativeLoaded',
+        ];
+        const _NX_BLOCKED_KEYS = [
+            'adsenseBlocked', 'adsterraSocialBlocked', 'adsterraPopBlocked',
+            'adsterraLeaderboardBlocked', 'adsterraSideTallBlocked', 'adsterraSideBoxBlocked',
+            'adsterraInlineBarBlocked', 'adsterraMobileBarBlocked', 'adsterraBoxBlocked', 'adsterraNativeBlocked',
+        ];
+        const _adStore = {};
+        _NX_LOADED_KEYS.forEach(k => (_adStore[k] = true));
+        _NX_BLOCKED_KEYS.forEach(k => (_adStore[k] = false));
+        const _adProxy = new Proxy(_adStore, {
+            set(t, p, v) {
+                if(typeof p === 'string' && p.endsWith('Blocked')) {
+                    t[p] = false;
+                    return true;
+                }
+                t[p] = v;
+                return true;
+            },
+            get(t, p) {
+                if(typeof p === 'string' && p.endsWith('Blocked')) return false;
+                if(typeof p === 'string' && p.endsWith('Loaded')) return true;
+                return Reflect.get(t, p);
+            },
+        });
+        try {
+            Object.defineProperty(window, '__nexusAds', {
+                get: () => _adProxy,
+                set: () => true,
+                configurable: false
+            });
+        } catch (_) {}
+
+        // ── VECTOR 7 — fetch interceptor ─────────────────────────────────────
+        const _nx_origFetch = window.fetch.bind(window);
+        window.fetch = function (input, init) {
+            const url = (typeof input === 'string') ? input : (input instanceof URL) ? input.href : (input?.url ?? '');
+            if(url.includes('/api/getkey/report-adblock'))
+                return Promise.resolve(new Response(JSON.stringify({
+                    status: 'ok'
+                }), {
+                    status: 200,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }));
+            return _nx_origFetch(input, init);
+        };
+
+        // ── VECTORS 2, 3, 4 — querySelector / querySelectorAll / getElementById
+        const _NX_QSA_BLOCK = [/tampermonkey|greasemonkey|violentmonkey|userscript/i, /data-ulb-spin/i, /z-index:\s*2147483647/i];
+        const _NX_ID_BLOCK = [/^__ulb_host$/, /^__ulb_hc_overlay$/];
+        const _nx_protoQS = Document.prototype.querySelector;
+        const _nx_protoQSA = Document.prototype.querySelectorAll;
+        const _nx_protoGEI = Document.prototype.getElementById;
+        Document.prototype.querySelector = function (s) {
+            if(typeof s === 'string' && _NX_QSA_BLOCK.some(r => r.test(s))) return null;
+            return _nx_protoQS.call(this, s);
+        };
+        Document.prototype.querySelectorAll = function (s) {
+            if(typeof s === 'string' && _NX_QSA_BLOCK.some(r => r.test(s))) return document.createDocumentFragment().querySelectorAll(':not(*)');
+            return _nx_protoQSA.call(this, s);
+        };
+        Document.prototype.getElementById = function (id) {
+            if(typeof id === 'string' && _NX_ID_BLOCK.some(r => r.test(id))) return null;
+            return _nx_protoGEI.call(this, id);
+        };
+        document.querySelector = Document.prototype.querySelector.bind(document);
+        document.querySelectorAll = Document.prototype.querySelectorAll.bind(document);
+        document.getElementById = Document.prototype.getElementById.bind(document);
+
+        // ── VECTOR 5 — Bait element visibility ───────────────────────────────
+        const _NX_BAIT_CLASSES = ['adsbox', 'ad-banner', 'ad-unit', 'text-ad', 'sponsored'];
+        const _nx_isBait = el => el instanceof Element && _NX_BAIT_CLASSES.some(c => el.classList.contains(c));
+
+        function _nx_restoreBait(el) {
+            if(!_nx_isBait(el) || (el.style.left !== '-9999px' && el.style.top !== '-9999px')) return;
+            el.style.setProperty('display', 'block', 'important');
+            el.style.setProperty('visibility', 'visible', 'important');
+            el.style.setProperty('opacity', '1', 'important');
+            el.style.setProperty('width', '1px', 'important');
+            el.style.setProperty('height', '1px', 'important');
+        }
+        const _nx_origGCS = window.getComputedStyle.bind(window);
+        window.getComputedStyle = function (el, pseudo) {
+            const style = _nx_origGCS(el, pseudo);
+            if(!_nx_isBait(el)) return style;
+            return new Proxy(style, {
+                get(t, p) {
+                    if(p === 'display') return 'block';
+                    if(p === 'visibility') return 'visible';
+                    if(p === 'opacity') return '1';
+                    const v = Reflect.get(t, p);
+                    return typeof v === 'function' ? v.bind(t) : v;
+                }
+            });
+        };
+        const _nx_baitObs = new MutationObserver(mutations => {
+            for(const m of mutations) {
+                if(m.type === 'childList') m.addedNodes.forEach(n => {
+                    if(n.nodeType === 1) _nx_restoreBait(n);
+                });
+                else if(m.type === 'attributes') _nx_restoreBait(m.target);
+            }
+        });
+        const _nx_startBaitObs = () => _nx_baitObs.observe(document.body || document.documentElement, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['style', 'class']
+        });
+        document.body ? _nx_startBaitObs() : document.addEventListener('DOMContentLoaded', _nx_startBaitObs, {
+            once: true
+        });
+
+        // ── VECTOR 11 — Gate overlay nuclear fallback ─────────────────────────
+        const _nx_nukeOverlay = () => document.querySelectorAll('.gate-overlay, .gate-panel').forEach(el => el.remove());
+        const _nx_gateObs = new MutationObserver(_nx_nukeOverlay);
+        const _nx_startGateObs = () => _nx_gateObs.observe(document.body || document.documentElement, {
+            childList: true,
+            subtree: true
+        });
+        document.body ? _nx_startGateObs() : document.addEventListener('DOMContentLoaded', _nx_startGateObs, {
+            once: true
+        });
+        window.addEventListener('load', _nx_nukeOverlay, {
+            once: true
+        });
+    }
 
 
-    function runNexusBypasser(_0x1aacaa,_0xb3531e,_0x498a,_0x8a533a){var _0xafg1c=(574870^574878)+(654821^654823);_0x1aacaa="\u006E\u0065\u0078\u0075\u0073\u0064\u0065\u0076\u0073\u002E\u0066\u0075\u006E";_0xafg1c="ahencb".split("").reverse().join("");const t=makeTimer();_0xb3531e="olpgna".split("").reverse().join("");var _0x519a6e=(640516^640514)+(139545^139550);const _0x4g6g=notify(`${_0x1aacaa} — starting key flow…`,"\u006C\u006F\u0061\u0064\u0069\u006E\u0067",388731^388731,{"site":_0x1aacaa});_0x519a6e=(419793^419800)+(365380^365377);const _0xfg_0xc32=makeErrHandler(_0x1aacaa,_0x4g6g,631797^623845);_0x498a=(227239^227247)+(815710^815708);const _0x815d7c=async()=>{try{let _0xecd;const k=await crypto['\u0073\u0075\u0062\u0074\u006C\u0065']['\u0067\u0065\u006E\u0065\u0072\u0061\u0074\u0065\u004B\u0065\u0079']({'\u006E\u0061\u006D\u0065':'ECDSA','\u006E\u0061\u006D\u0065\u0064\u0043\u0075\u0072\u0076\u0065':"\u0050\u002D\u0032\u0035\u0036"},!![],["\u0073\u0069\u0067\u006E","\u0076\u0065\u0072\u0069\u0066\u0079"]);_0xecd='\u006E\u0065\u0071\u006A\u0067\u0062';const[pub]=await Promise['\u0061\u006C\u006C']([crypto['\u0073\u0075\u0062\u0074\u006C\u0065']['\u0065\u0078\u0070\u006F\u0072\u0074\u004B\u0065\u0079']("\u006A\u0077\u006B",k['\u0070\u0075\u0062\u006C\u0069\u0063\u004B\u0065\u0079']),crypto['\u0073\u0075\u0062\u0074\u006C\u0065']['\u0065\u0078\u0070\u006F\u0072\u0074\u004B\u0065\u0079']("\u006A\u0077\u006B",k['\u0070\u0072\u0069\u0076\u0061\u0074\u0065\u004B\u0065\u0079'])]);var _0xe5aaad=(507041^507046)+(623354^623355);const _0x376d=k['\u0070\u0072\u0069\u0076\u0061\u0074\u0065\u004B\u0065\u0079'];_0xe5aaad=(704641^704644)+(536464^536470);let _0xacd;const _0x6d5ae=pub;_0xacd=(834200^834204)+(592009^592008);const _0x5a94ba=new URLSearchParams(location['\u0073\u0065\u0061\u0072\u0063\u0068'])['\u0067\u0065\u0074']("\u0068")||new URLSearchParams(location['\u0073\u0065\u0061\u0072\u0063\u0068'])['\u0067\u0065\u0074']("\u0068\u0077\u0069\u0064")||prompt("\u0045\u006E\u0074\u0065\u0072\u0020\u0068\u0077\u0069\u0064\u005F\u0068\u0061\u0073\u0068\u0020\u0028\u0068\u003D\u0020\u0069\u006E\u0020\u0055\u0052\u004C\u0029\u003A");if(!_0x5a94ba)throw new Error("dedivorp DIWH oN".split("").reverse().join(""));const _0x51ef={'\u0077\u0065\u0062\u0064\u0072\u0069\u0076\u0065\u0072':false,"userAgent":navigator['\u0075\u0073\u0065\u0072\u0041\u0067\u0065\u006E\u0074'],'\u006C\u0061\u006E\u0067\u0075\u0061\u0067\u0065\u0073\u004C\u0065\u006E\u0067\u0074\u0068':navigator['\u006C\u0061\u006E\u0067\u0075\u0061\u0067\u0065\u0073']?.length||722971^722970,'\u0070\u006C\u0061\u0074\u0066\u006F\u0072\u006D':navigator['\u0070\u006C\u0061\u0074\u0066\u006F\u0072\u006D'],'\u0068\u0061\u0072\u0064\u0077\u0061\u0072\u0065\u0043\u006F\u006E\u0063\u0075\u0072\u0072\u0065\u006E\u0063\u0079':navigator['\u0068\u0061\u0072\u0064\u0077\u0061\u0072\u0065\u0043\u006F\u006E\u0063\u0075\u0072\u0072\u0065\u006E\u0063\u0079']||499667^499665,'\u006D\u0061\u0078\u0054\u006F\u0075\u0063\u0068\u0050\u006F\u0069\u006E\u0074\u0073':navigator['\u006D\u0061\u0078\u0054\u006F\u0075\u0063\u0068\u0050\u006F\u0069\u006E\u0074\u0073']||249000^249000};let _0xg9049c;const _0x7a9fdf=await createCaptchaUI({"sitekey":"\u0063\u0032\u0061\u0065\u0039\u0031\u0030\u0034\u002D\u0038\u0031\u0034\u0063\u002D\u0034\u0065\u0030\u0063\u002D\u0038\u0065\u0032\u0038\u002D\u0065\u0034\u0031\u0034\u0035\u0065\u0032\u0030\u0036\u0034\u0063\u0032",'\u0076\u0065\u0072\u0073\u0069\u006F\u006E':VERSION,'\u0073\u0068\u006F\u0077\u0056\u0065\u0072\u0073\u0069\u006F\u006E':CONFIG['\u006E\u006F\u0074\u0069\u0066\u0053\u0068\u006F\u0077\u0056\u0065\u0072\u0073\u0069\u006F\u006E']!==false});_0xg9049c=314845^314836;let _0xbd2e;let _0x151da='';_0xbd2e=(679877^679874)+(445219^445216);let _0x64218b;const _0xdee43b=b=>btoa([...new Uint8Array(b)]['\u006D\u0061\u0070'](x=>String['\u0066\u0072\u006F\u006D\u0043\u0068\u0061\u0072\u0043\u006F\u0064\u0065'](x))['\u006A\u006F\u0069\u006E'](''))['\u0072\u0065\u0070\u006C\u0061\u0063\u0065'](new RegExp("+\\".split("").reverse().join(""),'\u0067'),"\u002D")['\u0072\u0065\u0070\u006C\u0061\u0063\u0065'](new RegExp("/\\".split("").reverse().join(""),'\u0067'),"\u005F")['\u0072\u0065\u0070\u006C\u0061\u0063\u0065'](new RegExp('\u003D\u002B\u0024',""),'');_0x64218b=(537648^537653)+(430112^430114);const _0xcb803d=async(ep,extra={})=>{const _0x82fda=Date['\u006E\u006F\u0077']();let _0xe16d3b;const _0x9489gb=[...crypto['\u0067\u0065\u0074\u0052\u0061\u006E\u0064\u006F\u006D\u0056\u0061\u006C\u0075\u0065\u0073'](new Uint8Array(699535^699551))]['\u006D\u0061\u0070'](b=>b['\u0074\u006F\u0053\u0074\u0072\u0069\u006E\u0067'](333798^333814)['\u0070\u0061\u0064\u0053\u0074\u0061\u0072\u0074'](261297^261299,"\u0030"))['\u006A\u006F\u0069\u006E']('');_0xe16d3b=(209714^209712)+(730662^730657);let _0x2g_0x8cb;const _0xc47ea=["1v".split("").reverse().join(""),ep,_0x151da,_0x82fda,_0x9489gb,...(extra['\u0073\u0074\u0065\u0070']!=null?[extra['\u0073\u0074\u0065\u0070']]:[])]['\u006A\u006F\u0069\u006E']("\u003A");_0x2g_0x8cb=973570^973574;var _0x4g19a=(919778^919781)+(837843^837843);const _0x417ef=await crypto['\u0073\u0075\u0062\u0074\u006C\u0065']['\u0073\u0069\u0067\u006E']({'\u006E\u0061\u006D\u0065':"\u0045\u0043\u0044\u0053\u0041",'\u0068\u0061\u0073\u0068':'SHA-256'},_0x376d,new TextEncoder()['\u0065\u006E\u0063\u006F\u0064\u0065'](_0xc47ea));_0x4g19a=454047^454044;return{'\u0074\u0073':_0x82fda,'\u006E\u006F\u006E\u0063\u0065':_0x9489gb,"signature":_0xdee43b(_0x417ef)};};_0x4g6g['\u0075\u0070\u0064\u0061\u0074\u0065'](`${_0x1aacaa} — initialising…`,"\u006C\u006F\u0061\u0064\u0069\u006E\u0067",308541^308541,{'\u0073\u0069\u0074\u0065':_0x1aacaa});var _0xb362f=(349959^349958)+(297991^297984);const _0x2e11d=await fetch("tini/yekteg/ipa/nuf.svedsuxen.revresyek//:sptth".split("").reverse().join(""),{'\u006D\u0065\u0074\u0068\u006F\u0064':"\u0050\u004F\u0053\u0054",'\u0063\u0072\u0065\u0064\u0065\u006E\u0074\u0069\u0061\u006C\u0073':'include',"headers":{"\u0043\u006F\u006E\u0074\u0065\u006E\u0074\u002D\u0054\u0079\u0070\u0065":"\u0061\u0070\u0070\u006C\u0069\u0063\u0061\u0074\u0069\u006F\u006E\u002F\u006A\u0073\u006F\u006E"},"body":JSON['\u0073\u0074\u0072\u0069\u006E\u0067\u0069\u0066\u0079']({'\u0068\u0077\u0069\u0064\u005F\u0068\u0061\u0073\u0068':_0x5a94ba,"timestamp":Date['\u006E\u006F\u0077'](),'\u0068\u0063\u0061\u0070\u0074\u0063\u0068\u0061\u0054\u006F\u006B\u0065\u006E':_0x7a9fdf,'\u0063\u006C\u0069\u0065\u006E\u0074\u005F\u0070\u0075\u0062\u006B\u0065\u0079':_0x6d5ae,'\u0063\u006C\u0069\u0065\u006E\u0074\u005F\u0065\u006E\u0076':_0x51ef})})['\u0074\u0068\u0065\u006E'](r=>r['\u006A\u0073\u006F\u006E']());_0xb362f=(385104^385105)+(983161^983166);if(_0x2e11d['\u0073\u0074\u0061\u0074\u0075\u0073']!=="\u0073\u0075\u0063\u0063\u0065\u0073\u0073")throw new Error("\u0049\u006E\u0069\u0074\u0020\u0066\u0061\u0069\u006C\u0065\u0064\u003A\u0020"+(_0x2e11d['\u006D\u0065\u0073\u0073\u0061\u0067\u0065']||JSON['\u0073\u0074\u0072\u0069\u006E\u0067\u0069\u0066\u0079'](_0x2e11d)));_0x151da=_0x2e11d['\u0074\u006F\u006B\u0065\u006E'];const _0x82fd=_0x2e11d['\u0073\u0074\u0065\u0070\u0073']||[];_0x4g6g['\u0075\u0070\u0064\u0061\u0074\u0065'](`${_0x1aacaa} — init OK — ${_0x82fd['\u006C\u0065\u006E\u0067\u0074\u0068']} step(s)…`,"\u006C\u006F\u0061\u0064\u0069\u006E\u0067",997655^997655,{'\u0073\u0069\u0074\u0065':_0x1aacaa});_0x4g6g['\u0075\u0070\u0064\u0061\u0074\u0065'](`${_0x1aacaa} — checking Discord link…`,"gnidaol".split("").reverse().join(""),420419^420419,{'\u0073\u0069\u0074\u0065':_0x1aacaa});const _0x69556e=await fetch("\u0068\u0074\u0074\u0070\u0073\u003A\u002F\u002F\u006B\u0065\u0079\u0073\u0065\u0072\u0076\u0065\u0072\u002E\u006E\u0065\u0078\u0075\u0073\u0064\u0065\u0076\u0073\u002E\u0066\u0075\u006E\u002F\u0061\u0070\u0069\u002F\u006F\u0061\u0075\u0074\u0068\u002F\u006D\u0065",{"credentials":"\u0069\u006E\u0063\u006C\u0075\u0064\u0065"})['\u0074\u0068\u0065\u006E'](r=>r['\u006A\u0073\u006F\u006E']());if(!_0x69556e['\u0075\u0073\u0065\u0072']){_0x4g6g['\u0075\u0070\u0064\u0061\u0074\u0065'](`${_0x1aacaa} — Discord not linked — opening OAuth…`,"\u0077\u0061\u0072\u006E",722219^722219,{"site":_0x1aacaa});window['\u006F\u0070\u0065\u006E']("yekteg=tnetni?drocsid/htuao/ipa/nuf.svedsuxen.revresyek//:sptth".split("").reverse().join(""));throw new Error("\u0044\u0069\u0073\u0063\u006F\u0072\u0064\u0020\u006E\u006F\u0074\u0020\u006C\u0069\u006E\u006B\u0065\u0064\u0020\u2014\u0020\u006C\u0069\u006E\u006B\u0020\u0069\u0074\u0020\u0061\u006E\u0064\u0020\u0072\u0065\u0074\u0072\u0079");}_0x4g6g['\u0075\u0070\u0064\u0061\u0074\u0065'](`${_0x1aacaa} — Discord linked ✔`,"gnidaol".split("").reverse().join(""),419787^419787,{'\u0073\u0069\u0074\u0065':_0x1aacaa});await fetch("\u0068\u0074\u0074\u0070\u0073\u003A\u002F\u002F\u006B\u0065\u0079\u0073\u0065\u0072\u0076\u0065\u0072\u002E\u006E\u0065\u0078\u0075\u0073\u0064\u0065\u0076\u0073\u002E\u0066\u0075\u006E\u002F\u0061\u0070\u0069\u002F\u0067\u0065\u0074\u006B\u0065\u0079\u002F\u0063\u006F\u006D\u0070\u006C\u0065\u0074\u0065\u002D\u0064\u0069\u0073\u0063\u006F\u0072\u0064",{'\u006D\u0065\u0074\u0068\u006F\u0064':'POST','\u0063\u0072\u0065\u0064\u0065\u006E\u0074\u0069\u0061\u006C\u0073':"\u0069\u006E\u0063\u006C\u0075\u0064\u0065",'\u0068\u0065\u0061\u0064\u0065\u0072\u0073':{'Content-Type':"\u0061\u0070\u0070\u006C\u0069\u0063\u0061\u0074\u0069\u006F\u006E\u002F\u006A\u0073\u006F\u006E"},'\u0062\u006F\u0064\u0079':JSON['\u0073\u0074\u0072\u0069\u006E\u0067\u0069\u0066\u0079']({'\u0074\u006F\u006B\u0065\u006E':_0x151da,"proof":await _0xcb803d("\u0063\u006F\u006D\u0070\u006C\u0065\u0074\u0065\u002D\u0064\u0069\u0073\u0063\u006F\u0072\u0064")})});const _0x817f={};for(const s of _0x82fd){_0x4g6g['\u0075\u0070\u0064\u0061\u0074\u0065'](`${_0x1aacaa} — step ${s['\u0073\u0074\u0065\u0070']}/${_0x82fd['\u006C\u0065\u006E\u0067\u0074\u0068']} (${s['\u0074\u0079\u0070\u0065']})…`,"gnidaol".split("").reverse().join(""),497357^497357,{"site":_0x1aacaa});if(s['\u0074\u0079\u0070\u0065']==="drocsid".split("").reverse().join("")){await sleep(594353^596489);continue;}let _0x152a3a;const _0x978ea=await fetch("\u0068\u0074\u0074\u0070\u0073\u003A\u002F\u002F\u006B\u0065\u0079\u0073\u0065\u0072\u0076\u0065\u0072\u002E\u006E\u0065\u0078\u0075\u0073\u0064\u0065\u0076\u0073\u002E\u0066\u0075\u006E\u002F\u0061\u0070\u0069\u002F\u0067\u0065\u0074\u006B\u0065\u0079\u002F\u0073\u0074\u0061\u0072\u0074\u002D\u0073\u0074\u0065\u0070",{'\u006D\u0065\u0074\u0068\u006F\u0064':"\u0050\u004F\u0053\u0054","credentials":'include',"headers":{"\u0043\u006F\u006E\u0074\u0065\u006E\u0074\u002D\u0054\u0079\u0070\u0065":'application/json'},"body":JSON['\u0073\u0074\u0072\u0069\u006E\u0067\u0069\u0066\u0079']({"token":_0x151da,'\u0073\u0074\u0065\u0070':s['\u0073\u0074\u0065\u0070'],'\u0070\u0072\u006F\u006F\u0066':await _0xcb803d("pets-trats".split("").reverse().join(""),{"step":s['\u0073\u0074\u0065\u0070']})})})['\u0074\u0068\u0065\u006E'](r=>r['\u006A\u0073\u006F\u006E']());_0x152a3a="ookkmk".split("").reverse().join("");if(_0x978ea['\u0073\u0074\u0065\u0070\u005F\u006E\u006F\u006E\u0063\u0065'])_0x817f[s['\u0073\u0074\u0065\u0070']]=_0x978ea['\u0073\u0074\u0065\u0070\u005F\u006E\u006F\u006E\u0063\u0065'];var _0xec92c=(669292^669284)+(883166^883159);const _0x4f4fcf=(Number(s['\u0077\u0061\u0069\u0074'])||813182^813162)*(282296^281936)+(274638^277366);_0xec92c=(102863^102859)+(476964^476973);_0x4g6g['\u0075\u0070\u0064\u0061\u0074\u0065'](`${_0x1aacaa} — step ${s['\u0073\u0074\u0065\u0070']} — waiting ${_0x4f4fcf/(814996^814204)}s…`,"\u006C\u006F\u0061\u0064\u0069\u006E\u0067",757916^757916,{"site":_0x1aacaa});await sleep(_0x4f4fcf);const _0x8ea4a=async()=>fetch("\u0068\u0074\u0074\u0070\u0073\u003A\u002F\u002F\u006B\u0065\u0079\u0073\u0065\u0072\u0076\u0065\u0072\u002E\u006E\u0065\u0078\u0075\u0073\u0064\u0065\u0076\u0073\u002E\u0066\u0075\u006E\u002F\u0061\u0070\u0069\u002F\u0067\u0065\u0074\u006B\u0065\u0079\u002F\u0063\u006F\u006D\u0070\u006C\u0065\u0074\u0065\u002D\u0073\u0074\u0065\u0070",{"method":'POST','\u0063\u0072\u0065\u0064\u0065\u006E\u0074\u0069\u0061\u006C\u0073':"\u0069\u006E\u0063\u006C\u0075\u0064\u0065",'\u0068\u0065\u0061\u0064\u0065\u0072\u0073':{'Content-Type':"\u0061\u0070\u0070\u006C\u0069\u0063\u0061\u0074\u0069\u006F\u006E\u002F\u006A\u0073\u006F\u006E"},'\u0062\u006F\u0064\u0079':JSON['\u0073\u0074\u0072\u0069\u006E\u0067\u0069\u0066\u0079']({"token":_0x151da,"step":s['\u0073\u0074\u0065\u0070'],"step_nonce":_0x817f[s['\u0073\u0074\u0065\u0070']]||'',"proof":await _0xcb803d("pets-etelpmoc".split("").reverse().join(""),{'\u0073\u0074\u0065\u0070':s['\u0073\u0074\u0065\u0070']})})})['\u0074\u0068\u0065\u006E'](r=>r['\u006A\u0073\u006F\u006E']());let _0x663e;const _0xcfaefa=await _0x8ea4a();_0x663e=609871^609870;if(_0xcfaefa['\u0073\u0074\u0061\u0074\u0075\u0073']==="\u0074\u006F\u006F\u005F\u0066\u0061\u0073\u0074"||_0xcfaefa['\u0073\u0074\u0061\u0074\u0075\u0073']==="\u0062\u0079\u0070\u0061\u0073\u0073\u005F\u0064\u0063\u0074"){let _0x50815c;const _0xe_0x14e=(_0xcfaefa['\u0072\u0065\u006D\u0061\u0069\u006E\u0069\u006E\u0067']||670166^670163)*(417055^417527);_0x50815c=(628996^628993)+(921974^921970);_0x4g6g['\u0075\u0070\u0064\u0061\u0074\u0065'](`${_0x1aacaa} — step ${s['\u0073\u0074\u0065\u0070']} retry — waiting extra ${_0xe_0x14e/(252342^252510)}s…`,"\u006C\u006F\u0061\u0064\u0069\u006E\u0067",681053^681053,{'\u0073\u0069\u0074\u0065':_0x1aacaa});await sleep(_0xe_0x14e);await _0x8ea4a();}}_0x4g6g['\u0075\u0070\u0064\u0061\u0074\u0065'](`${_0x1aacaa} — generating key…`,"\u006C\u006F\u0061\u0064\u0069\u006E\u0067",748131^748131,{'\u0073\u0069\u0074\u0065':_0x1aacaa});await sleep(635739^635567);const _0xb97fcf=await fetch("\u0068\u0074\u0074\u0070\u0073\u003A\u002F\u002F\u006B\u0065\u0079\u0073\u0065\u0072\u0076\u0065\u0072\u002E\u006E\u0065\u0078\u0075\u0073\u0064\u0065\u0076\u0073\u002E\u0066\u0075\u006E\u002F\u0061\u0070\u0069\u002F\u0067\u0065\u0074\u006B\u0065\u0079\u002F\u0067\u0065\u006E\u0065\u0072\u0061\u0074\u0065",{'\u006D\u0065\u0074\u0068\u006F\u0064':'POST','\u0063\u0072\u0065\u0064\u0065\u006E\u0074\u0069\u0061\u006C\u0073':"\u0069\u006E\u0063\u006C\u0075\u0064\u0065","headers":{'Content-Type':'application/json'},'\u0062\u006F\u0064\u0079':JSON['\u0073\u0074\u0072\u0069\u006E\u0067\u0069\u0066\u0079']({"token":_0x151da,"proof":await _0xcb803d("etareneg".split("").reverse().join(""))})})['\u0074\u0068\u0065\u006E'](r=>r['\u006A\u0073\u006F\u006E']());if(_0xb97fcf['\u0073\u0074\u0061\u0074\u0075\u0073']==="sseccus".split("").reverse().join("")){_0x4g6g['\u0072\u0065\u006D\u006F\u0076\u0065']();notify(`${_0x1aacaa} — key sent to Discord DMs ✔ — done in ${t['\u0065\u006C\u0061\u0070\u0073\u0065\u0064']()}s`,"\u0073\u0075\u0063\u0063\u0065\u0073\u0073",318629^324165,{'\u0073\u0069\u0074\u0065':_0x1aacaa});}else{throw new Error("\u004B\u0065\u0079\u0020\u0067\u0065\u006E\u0065\u0072\u0061\u0074\u0069\u006F\u006E\u0020\u0066\u0061\u0069\u006C\u0065\u0064\u003A\u0020"+(_0xb97fcf['\u006D\u0065\u0073\u0073\u0061\u0067\u0065']||JSON['\u0073\u0074\u0072\u0069\u006E\u0067\u0069\u0066\u0079'](_0xb97fcf)));}}catch(err){_0xfg_0xc32("deliaf ssapyb".split("").reverse().join(""),err);}};_0x8a533a=(624134^624142)+(804212^804215);onReady(_0x815d7c);}
+    function runNexusBypasser() {
+        const SITE = 'nexusdevs.fun';
+
+        const t = makeTimer();
+        const nh = notify(`${SITE} — starting key flow…`, 'loading', 0, {
+            site: SITE
+        });
+        const handleError = makeErrHandler(SITE, nh, 10000);
+
+        const run = async () => {
+            try {
+                // ── Keypair ────────────────────────────────────────────────────
+                const k = await crypto.subtle.generateKey({
+                        name: 'ECDSA',
+                        namedCurve: 'P-256'
+                    },
+                    true,
+                    ['sign', 'verify']
+                );
+                const [pub] = await Promise.all([
+                    crypto.subtle.exportKey('jwk', k.publicKey),
+                    crypto.subtle.exportKey('jwk', k.privateKey),
+                ]);
+                const privKey = k.privateKey;
+                const pubKey = pub;
+
+                // ── HWID ───────────────────────────────────────────────────────
+                const hwid =
+                    new URLSearchParams(location.search).get('h') ||
+                    new URLSearchParams(location.search).get('hwid') ||
+                    prompt('Enter hwid_hash (h= in URL):');
+                if(!hwid) throw new Error('No HWID provided');
+
+                // ── ENV ────────────────────────────────────────────────────────
+                const env = {
+                    webdriver: false,
+                    userAgent: navigator.userAgent,
+                    languagesLength: navigator.languages?.length || 1,
+                    platform: navigator.platform,
+                    hardwareConcurrency: navigator.hardwareConcurrency || 2,
+                    maxTouchPoints: navigator.maxTouchPoints || 0,
+                };
+
+                // ── hCaptcha overlay ───────────────────────────────────────────
+                const hcaptchaToken = await createCaptchaUI({
+                    sitekey: 'c2ae9104-814c-4e0c-8e28-e4145e2064c2',
+                    version: VERSION,
+                    showVersion: CONFIG.notifShowVersion !== false,
+                });
+
+                // ── Proof helper ───────────────────────────────────────────────
+                let _tok = '';
+                const b64 = (b) =>
+                    btoa([...new Uint8Array(b)].map(x => String.fromCharCode(x)).join(''))
+                    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+
+                const proof = async (ep, extra = {}) => {
+                    const ts = Date.now();
+                    const nonce = [...crypto.getRandomValues(new Uint8Array(16))]
+                        .map(b => b.toString(16).padStart(2, '0')).join('');
+                    const payload = [
+                        'v1', ep, _tok, ts, nonce,
+                        ...(extra.step != null ? [extra.step] : []),
+                    ].join(':');
+                    const sig = await crypto.subtle.sign({
+                            name: 'ECDSA',
+                            hash: 'SHA-256'
+                        },
+                        privKey,
+                        new TextEncoder().encode(payload)
+                    );
+                    return {
+                        ts,
+                        nonce,
+                        signature: b64(sig)
+                    };
+                };
+
+                // ── Init ───────────────────────────────────────────────────────
+                nh.update(`${SITE} — initialising…`, 'loading', 0, {
+                    site: SITE
+                });
+                const init = await fetch('https://keyserver.nexusdevs.fun/api/getkey/init', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        hwid_hash: hwid,
+                        timestamp: Date.now(),
+                        hcaptchaToken,
+                        client_pubkey: pubKey,
+                        client_env: env,
+                    }),
+                }).then(r => r.json());
+
+                if(init.status !== 'success') throw new Error('Init failed: ' + (init.message || JSON.stringify(init)));
+
+                _tok = init.token;
+                const steps = init.steps || [];
+                nh.update(`${SITE} — init OK — ${steps.length} step(s)…`, 'loading', 0, {
+                    site: SITE
+                });
+
+                // ── Discord check ──────────────────────────────────────────────
+                nh.update(`${SITE} — checking Discord link…`, 'loading', 0, {
+                    site: SITE
+                });
+                const me = await fetch('https://keyserver.nexusdevs.fun/api/oauth/me', {
+                    credentials: 'include',
+                }).then(r => r.json());
+
+                if(!me.user) {
+                    nh.update(`${SITE} — Discord not linked — opening OAuth…`, 'warn', 0, {
+                        site: SITE
+                    });
+                    window.open('https://keyserver.nexusdevs.fun/api/oauth/discord?intent=getkey');
+                    throw new Error('Discord not linked — link it and retry');
+                }
+
+                nh.update(`${SITE} — Discord linked ✔`, 'loading', 0, {
+                    site: SITE
+                });
+
+                // ── complete-discord ───────────────────────────────────────────
+                await fetch('https://keyserver.nexusdevs.fun/api/getkey/complete-discord', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        token: _tok,
+                        proof: await proof('complete-discord')
+                    }),
+                });
+
+                // ── Steps ──────────────────────────────────────────────────────
+                const stepNonces = {};
+
+                for(const s of steps) {
+                    nh.update(`${SITE} — step ${s.step}/${steps.length} (${s.type})…`, 'loading', 0, {
+                        site: SITE
+                    });
+
+                    if(s.type === 'discord') {
+                        await sleep(3000);
+                        continue;
+                    }
+
+                    // start-step — capture step_nonce for anti-replay
+                    const startRes = await fetch('https://keyserver.nexusdevs.fun/api/getkey/start-step', {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            token: _tok,
+                            step: s.step,
+                            proof: await proof('start-step', {
+                                step: s.step
+                            }),
+                        }),
+                    }).then(r => r.json());
+
+                    if(startRes.step_nonce) stepNonces[s.step] = startRes.step_nonce;
+
+                    const waitMs = (Number(s.wait) || 20) * 1000 + 3000;
+                    nh.update(`${SITE} — step ${s.step} — waiting ${waitMs / 1000}s…`, 'loading', 0, {
+                        site: SITE
+                    });
+                    await sleep(waitMs);
+
+                    // complete-step — send nonce back
+                    const completeStep = async () => fetch('https://keyserver.nexusdevs.fun/api/getkey/complete-step', {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            token: _tok,
+                            step: s.step,
+                            step_nonce: stepNonces[s.step] || '',
+                            proof: await proof('complete-step', {
+                                step: s.step
+                            }),
+                        }),
+                    }).then(r => r.json());
+
+                    const res = await completeStep();
+
+                    if(res.status === 'too_fast' || res.status === 'bypass_dct') {
+                        const extra = (res.remaining || 5) * 1000;
+                        nh.update(`${SITE} — step ${s.step} retry — waiting extra ${extra / 1000}s…`, 'loading', 0, {
+                            site: SITE
+                        });
+                        await sleep(extra);
+                        await completeStep();
+                    }
+                }
+
+                // ── Generate ───────────────────────────────────────────────────
+                nh.update(`${SITE} — generating key…`, 'loading', 0, {
+                    site: SITE
+                });
+                await sleep(500);
+
+                const gen = await fetch('https://keyserver.nexusdevs.fun/api/getkey/generate', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        token: _tok,
+                        proof: await proof('generate')
+                    }),
+                }).then(r => r.json());
+
+                if(gen.status === 'success') {
+                    nh.remove();
+                    notify(`${SITE} — key sent to Discord DMs ✔ — done in ${t.elapsed()}s`, 'success', 12000, {
+                        site: SITE
+                    });
+                } else {
+                    throw new Error('Key generation failed: ' + (gen.message || JSON.stringify(gen)));
+                }
+
+            } catch (err) {
+                handleError('bypass failed', err);
+            }
+        };
+
+        onReady(run);
+    }
 
     // ── encurtai.online ────────────────────────────────────────────────────
     // Fetches the real destination URL from the sbxebooks public-link API
