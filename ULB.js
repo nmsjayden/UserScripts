@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Unknown Link Bypasser
-// @version      6.9.2
+// @version      6.9.3
 // @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live(SCAM WARNING) + go.yorurl.com + jankariweb + newsuchnaonline + bigcarinsurance + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + highlocus.shop + gplinks.co + powergam.online + getpolsec.com + hehehub + sub4unlock.co + app.khaddavi.net + sfl.gl + ytsubme.com + aylink.co + biplabtewary.com + mwgamesyt.com.br + topjogosvip.online + legacyagency.com.br + 4br.me + short-jambo.com/ink + fastcars + fluorine.s3ren1ty.xyz + go.linkify.ru + arolinks.com + spdmteam.com + linkunlocker.com + mboost.me + sub2unlock.netlify.app + krnl-ios.com + ouo.io + start-get-key.pages.dev + bstshrt.com + rekonise.com + boblox-script.com + dusarisalary.com + sub2unlock.io + checkpoint2keyhub.vercel.app + checkpoint3keyhub.vercel.app + orca-key-system.vercel.app + razelol.vercel.app + whatwhatboy.com/scoobyontop2 + vayuhub.space. Made by @Aro Moon
 // @author       @Aro Moon
 // @include      /^https:\/\/mtc\d+\.[^/]+\.[a-z.]+\//
@@ -294,7 +294,7 @@
     // §1  CONSTANTS
     // ═══════════════════════════════════════════════════════════════════════
 
-    const VERSION = '6.9.2';
+    const VERSION = '6.9.3';
 
     // ── Diagnostics log ───────────────────────────────────────────────────
     // Captures errors/warnings for the Diagnostics menu command.
@@ -6763,20 +6763,25 @@
         onReady(init);
     }
 
-    // ── nexusdevs.fun ──────────────────────────────────────────────────────────
+    // ── http://nexusdevs.fun ──────────────────────────────────────────────────────────
     // Full automated key-system flow for nexusdevs.fun/getkey.
     // Flow:
-    //   1. Generate ECDSA P-256 keypair for request signing.
-    //   2. Read hwid_hash from ?h= / ?hwid= param (or prompt as fallback).
-    //   3. Show hCaptcha overlay — wait for user to solve.
-    //   4. POST /api/getkey/init            → token + steps[]
-    //   5. GET  /api/oauth/me               → verify Discord is linked
-    //   6. POST /api/getkey/complete-discord
-    //   7. For each step:
-    //        POST start-step                → captures step_nonce
-    //        sleep(wait + 3s)
-    //        POST complete-step             → sends step_nonce back (too_fast / bypass_dct → retry once)
-    //   8. POST /api/getkey/generate        → key sent to Discord DMs.
+    //   1.  Generate ECDSA P-256 keypair for request signing.
+    //   2.  Read hwid_hash from ?h= / ?hwid= param (or prompt as fallback).
+    //   3.  GET  /api/getkey/route-config       → dynamic route paths
+    //   4.  POST /api/v2/{interaction}          → interaction_token
+    //   5.  Solve hCaptcha (1/5)
+    //   6.  POST /api/v2/{init}                → token + steps[]
+    //   7.  GET  /api/oauth/me                 → verify Discord is linked
+    //   8.  Solve hCaptcha (2/5)
+    //   9.  POST /api/v2/{complete_discord}
+    //   10. For each ad step:
+    //         POST /api/v2/{start_step}        → step_nonce + challenge
+    //         Solve hCaptcha (3–4/5) in parallel with sleep(wait + 1s)
+    //         POST /api/v2/{complete_step}     → step_nonce + challenge back
+    //                                            (too_fast / bypass_dct → retry once)
+    //   11. Solve hCaptcha (5/5)
+    //   12. POST /api/v2/{generate}            → key sent to Discord DMs.
 
     function runNexusAdblock() {
 
@@ -6972,8 +6977,10 @@
     }
 
 
-    function runNexusBypasser() {
+    async function runNexusBypasser() {
         const SITE = 'nexusdevs.fun';
+        const BASE = 'https://keyserver.nexusdevs.fun';
+        const SITEKEY = 'c2ae9104-814c-4e0c-8e28-e4145e2064c2';
 
         const t = makeTimer();
         const nh = notify(`${SITE} — starting key flow…`, 'loading', 0, {
@@ -6981,8 +6988,33 @@
         });
         const handleError = makeErrHandler(SITE, nh, 10000);
 
+        // ── Captcha helper ─────────────────────────────────────────────────────
+        const solveCaptcha = () => createCaptchaUI({
+            sitekey: SITEKEY,
+            version: VERSION,
+            showVersion: CONFIG.notifShowVersion !== false,
+        });
+
         const run = async () => {
             try {
+                // ── Upfront notice ─────────────────────────────────────────────
+                notify(
+                    `⚠️ ${SITE} — You will need to solve 5 captchas. Sorry for the inconvenience — this is due to new Nexus security measures. Adblockers are safe to use.`,
+                    'info',
+                    30000, {
+                        site: SITE
+                    }
+                );
+
+                // ── Route Config ───────────────────────────────────────────────
+                nh.update(`${SITE} — fetching route config…`, 'loading', 0, {
+                    site: SITE
+                });
+                const routeConfig = await fetch(`${BASE}/api/getkey/route-config`).then(r => r.json());
+                if(routeConfig.status !== 'ok') throw new Error('Route config fetch failed');
+                const R = routeConfig.routes;
+                const v2 = (routeKey) => `${BASE}/api/v2${R[routeKey]}`;
+
                 // ── Keypair ────────────────────────────────────────────────────
                 const k = await crypto.subtle.generateKey({
                         name: 'ECDSA',
@@ -6991,12 +7023,8 @@
                     true,
                     ['sign', 'verify']
                 );
-                const [pub] = await Promise.all([
-                    crypto.subtle.exportKey('jwk', k.publicKey),
-                    crypto.subtle.exportKey('jwk', k.privateKey),
-                ]);
+                const pub = await crypto.subtle.exportKey('jwk', k.publicKey);
                 const privKey = k.privateKey;
-                const pubKey = pub;
 
                 // ── HWID ───────────────────────────────────────────────────────
                 const hwid =
@@ -7013,14 +7041,9 @@
                     platform: navigator.platform,
                     hardwareConcurrency: navigator.hardwareConcurrency || 2,
                     maxTouchPoints: navigator.maxTouchPoints || 0,
+                    fetchLooksNative: true,
+                    fetchName: 'fetch',
                 };
-
-                // ── hCaptcha overlay ───────────────────────────────────────────
-                const hcaptchaToken = await createCaptchaUI({
-                    sitekey: 'c2ae9104-814c-4e0c-8e28-e4145e2064c2',
-                    version: VERSION,
-                    showVersion: CONFIG.notifShowVersion !== false,
-                });
 
                 // ── Proof helper ───────────────────────────────────────────────
                 let _tok = '';
@@ -7028,12 +7051,12 @@
                     btoa([...new Uint8Array(b)].map(x => String.fromCharCode(x)).join(''))
                     .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 
-                const proof = async (ep, extra = {}) => {
+                const proof = async (epName, extra = {}) => {
                     const ts = Date.now();
                     const nonce = [...crypto.getRandomValues(new Uint8Array(16))]
                         .map(b => b.toString(16).padStart(2, '0')).join('');
                     const payload = [
-                        'v1', ep, _tok, ts, nonce,
+                        'v1', epName, _tok, ts, nonce,
                         ...(extra.step != null ? [extra.step] : []),
                     ].join(':');
                     const sig = await crypto.subtle.sign({
@@ -7050,11 +7073,32 @@
                     };
                 };
 
+                // ── Interaction token ──────────────────────────────────────────
+                nh.update(`${SITE} — getting interaction token…`, 'loading', 0, {
+                    site: SITE
+                });
+                const interactionRes = await fetch(v2('interaction'), {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({}),
+                }).then(r => r.json());
+                const interaction_token = interactionRes.token;
+                if(!interaction_token) throw new Error('Failed to get interaction token');
+
+                // ── hCaptcha (init) ────────────────────────────────────────────
+                nh.update(`${SITE} — solving captcha 1/5 (init)…`, 'loading', 0, {
+                    site: SITE
+                });
+                const hcaptchaInit = await solveCaptcha();
+
                 // ── Init ───────────────────────────────────────────────────────
                 nh.update(`${SITE} — initialising…`, 'loading', 0, {
                     site: SITE
                 });
-                const init = await fetch('https://keyserver.nexusdevs.fun/api/getkey/init', {
+                const init = await fetch(v2('init'), {
                     method: 'POST',
                     credentials: 'include',
                     headers: {
@@ -7062,9 +7106,11 @@
                     },
                     body: JSON.stringify({
                         hwid_hash: hwid,
+                        requested_product: '',
                         timestamp: Date.now(),
-                        hcaptchaToken,
-                        client_pubkey: pubKey,
+                        interaction_token,
+                        hcaptcha_token: hcaptchaInit,
+                        client_pubkey: pub,
                         client_env: env,
                     }),
                 }).then(r => r.json());
@@ -7081,15 +7127,15 @@
                 nh.update(`${SITE} — checking Discord link…`, 'loading', 0, {
                     site: SITE
                 });
-                const me = await fetch('https://keyserver.nexusdevs.fun/api/oauth/me', {
-                    credentials: 'include',
+                const me = await fetch(`${BASE}/api/oauth/me`, {
+                    credentials: 'include'
                 }).then(r => r.json());
 
                 if(!me.user) {
                     nh.update(`${SITE} — Discord not linked — opening OAuth…`, 'warn', 0, {
                         site: SITE
                     });
-                    window.open('https://keyserver.nexusdevs.fun/api/oauth/discord?intent=getkey');
+                    window.open(`${BASE}/api/oauth/discord?intent=getkey`);
                     throw new Error('Discord not linked — link it and retry');
                 }
 
@@ -7097,8 +7143,14 @@
                     site: SITE
                 });
 
+                // ── hCaptcha (discord) ─────────────────────────────────────────
+                nh.update(`${SITE} — solving captcha 2/5 (discord)…`, 'loading', 0, {
+                    site: SITE
+                });
+                const hcaptchaDiscord = await solveCaptcha();
+
                 // ── complete-discord ───────────────────────────────────────────
-                await fetch('https://keyserver.nexusdevs.fun/api/getkey/complete-discord', {
+                await fetch(v2('complete_discord'), {
                     method: 'POST',
                     credentials: 'include',
                     headers: {
@@ -7106,12 +7158,14 @@
                     },
                     body: JSON.stringify({
                         token: _tok,
-                        proof: await proof('complete-discord')
+                        hcaptcha_token: hcaptchaDiscord,
+                        proof: await proof('complete-discord'),
                     }),
-                });
+                }).then(r => r.json());
 
                 // ── Steps ──────────────────────────────────────────────────────
-                const stepNonces = {};
+                const adSteps = steps.filter(s => s.type !== 'discord');
+                let captchaNum = 3;
 
                 for(const s of steps) {
                     nh.update(`${SITE} — step ${s.step}/${steps.length} (${s.type})…`, 'loading', 0, {
@@ -7123,8 +7177,8 @@
                         continue;
                     }
 
-                    // start-step — capture step_nonce for anti-replay
-                    const startRes = await fetch('https://keyserver.nexusdevs.fun/api/getkey/start-step', {
+                    // start-step
+                    const startRes = await fetch(v2('start_step'), {
                         method: 'POST',
                         credentials: 'include',
                         headers: {
@@ -7139,16 +7193,22 @@
                         }),
                     }).then(r => r.json());
 
-                    if(startRes.step_nonce) stepNonces[s.step] = startRes.step_nonce;
+                    const step_nonce = startRes.step_nonce || '';
+                    const challenge = startRes.challenge || '';
+                    const waitMs = (Number(s.wait) || 20) * 1000 + 1000;
 
-                    const waitMs = (Number(s.wait) || 20) * 1000 + 3000;
-                    nh.update(`${SITE} — step ${s.step} — waiting ${waitMs / 1000}s…`, 'loading', 0, {
+                    // ── Solve captcha and wait in parallel ─────────────────────
+                    nh.update(`${SITE} — step ${s.step} — solve captcha ${captchaNum}/5 while waiting ${waitMs / 1000}s…`, 'loading', 0, {
                         site: SITE
                     });
-                    await sleep(waitMs);
+                    const [hcaptchaStep] = await Promise.all([
+                        solveCaptcha(),
+                        sleep(waitMs),
+                    ]);
+                    captchaNum++;
 
-                    // complete-step — send nonce back
-                    const completeStep = async () => fetch('https://keyserver.nexusdevs.fun/api/getkey/complete-step', {
+                    // complete-step
+                    const completeStep = async () => fetch(v2('complete_step'), {
                         method: 'POST',
                         credentials: 'include',
                         headers: {
@@ -7157,14 +7217,16 @@
                         body: JSON.stringify({
                             token: _tok,
                             step: s.step,
-                            step_nonce: stepNonces[s.step] || '',
+                            step_nonce,
+                            challenge,
+                            hcaptcha_token: hcaptchaStep,
                             proof: await proof('complete-step', {
                                 step: s.step
                             }),
                         }),
                     }).then(r => r.json());
 
-                    const res = await completeStep();
+                    let res = await completeStep();
 
                     if(res.status === 'too_fast' || res.status === 'bypass_dct') {
                         const extra = (res.remaining || 5) * 1000;
@@ -7172,9 +7234,15 @@
                             site: SITE
                         });
                         await sleep(extra);
-                        await completeStep();
+                        res = await completeStep();
                     }
                 }
+
+                // ── hCaptcha (generate) ────────────────────────────────────────
+                nh.update(`${SITE} — solving captcha 5/5 (generate)…`, 'loading', 0, {
+                    site: SITE
+                });
+                const hcaptchaGen = await solveCaptcha();
 
                 // ── Generate ───────────────────────────────────────────────────
                 nh.update(`${SITE} — generating key…`, 'loading', 0, {
@@ -7182,7 +7250,7 @@
                 });
                 await sleep(500);
 
-                const gen = await fetch('https://keyserver.nexusdevs.fun/api/getkey/generate', {
+                const gen = await fetch(v2('generate'), {
                     method: 'POST',
                     credentials: 'include',
                     headers: {
@@ -7190,13 +7258,14 @@
                     },
                     body: JSON.stringify({
                         token: _tok,
-                        proof: await proof('generate')
+                        hcaptcha_token: hcaptchaGen,
+                        proof: await proof('generate'),
                     }),
                 }).then(r => r.json());
 
                 if(gen.status === 'success') {
                     nh.remove();
-                    notify(`${SITE} — key sent to Discord DMs ✔ — done in ${t.elapsed()}s`, 'success', 12000, {
+                    notify(`${SITE} — key sent to Discord DMs Successfully! — done in ${t.elapsed()}s`, 'success', 12000, {
                         site: SITE
                     });
                 } else {
