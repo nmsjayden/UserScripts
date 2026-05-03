@@ -113,7 +113,7 @@
     'use strict';
 
     // ── Runtime element-prefix — random per page-load so page scripts cannot
-    //    detect ULB by scanning the DOM for known IDs or class names. ────────
+    //    detect ULB by scanning the DOM for known IDs or class names.(@Ryu >:c) ────────
     const _pfx = (function(){
         // Must start with a letter — CSS selectors reject IDs/classes beginning with a digit.
         try {
