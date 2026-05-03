@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Unknown Link Bypasser
-// @version      6.9.3
-// @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live(SCAM WARNING) + go.yorurl.com + jankariweb + newsuchnaonline + bigcarinsurance + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + highlocus.shop + gplinks.co + powergam.online + getpolsec.com + hehehub + sub4unlock.co + app.khaddavi.net + sfl.gl + ytsubme.com + aylink.co + biplabtewary.com + mwgamesyt.com.br + topjogosvip.online + legacyagency.com.br + 4br.me + short-jambo.com/ink + fastcars + fluorine.s3ren1ty.xyz + go.linkify.ru + arolinks.com + spdmteam.com + linkunlocker.com + mboost.me + sub2unlock.netlify.app + krnl-ios.com + ouo.io + start-get-key.pages.dev + bstshrt.com + rekonise.com + boblox-script.com + dusarisalary.com + sub2unlock.io + checkpoint2keyhub.vercel.app + checkpoint3keyhub.vercel.app + orca-key-system.vercel.app + razelol.vercel.app + whatwhatboy.com/scoobyontop2 + vayuhub.space. Made by @Aro Moon
+// @version      7.0.0
+// @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live(SCAM WARNING) + go.yorurl.com + jankariweb + newsuchnaonline + bigcarinsurance + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + highlocus.shop + gplinks.co + powergam.online + getpolsec.com + hehehub + sub4unlock.co + app.khaddavi.net + sfl.gl + ytsubme.com + aylink.co + biplabtewary.com + mwgamesyt.com.br + topjogosvip.online + legacyagency.com.br + 4br.me + short-jambo.com/ink + fastcars + fluorine.s3ren1ty.xyz + go.linkify.ru + arolinks.com + theimmigrationworld.com + srtak.com + vplink.in + spdmteam.com + linkunlocker.com + mboost.me + sub2unlock.netlify.app + krnl-ios.com + ouo.io + start-get-key.pages.dev + bstshrt.com + rekonise.com + boblox-script.com + dusarisalary.com + sub2unlock.io + checkpoint2keyhub.vercel.app + checkpoint3keyhub.vercel.app + orca-key-system.vercel.app + razelol.vercel.app + whatwhatboy.com/scoobyontop2 + vayuhub.space. Made by @Aro Moon
 // @author       @Aro Moon
 // @include      /^https:\/\/mtc\d+\.[^/]+\.[a-z.]+\//
 // @include      /^https?:\/\/(?:\w+\.)?fastcars\d+\.com\//
@@ -12,10 +12,10 @@
 // @match        https://tournguide.com/*
 // @match        https://dailyjobposting.xyz/*
 // @match        https://tpi.li/*
+// @match        https://oii.la/*
 // @match        https://challenges.cloudflare.com/*
 // @match        https://www.google.com/recaptcha/*
 // @match        https://recaptcha.net/recaptcha/*
-// @match        https://www.airflowscript.com/key
 // @match        https://stfly.biz/*
 // @match        https://bstlar.com/*
 // @match        https://wareguardv2.xyz/checkpoint*
@@ -60,9 +60,6 @@
 // @match        https://jober.factwiz.online/*
 // @match        https://spdmteam.com/social/*
 // @match        https://linkunlocker.com/*
-// @match        https://bnty.nexusdevs.fun/getkey*
-// @match        https://bnty.nexusdevs.fun/*
-// @match        https://*.nexusdevs.fun/getkey*
 // @match        https://encurtai.online/*
 // @match        https://new.pandadevelopment.net/getkey/*
 // @match        https://lua-key-vault.vercel.app/*
@@ -86,7 +83,11 @@
 // @match        https://razelol.vercel.app/*
 // @match        https://whatwhatboy.com/scoobyontop2.html
 // @match        https://vayuhub.space/getkey*
+// @match        https://www.theimmigrationworld.com/*
+// @match        https://srtak.com/*
+// @match        https://vplink.in/*
 // @match        https://mobile3.hubsocial.chat/*
+// @match        https://urbanstorm.uk/*
 // @grant        GM_addElement
 // @grant        GM_xmlhttpRequest
 // @grant        unsafeWindow
@@ -102,6 +103,7 @@
 // @connect      engageub1.pythonanywhere.com
 // @connect      oaqxcsejqhsvchqetrzc.supabase.co
 // @connect      vayuhub.space
+// @connect      raw.githubusercontent.com
 // @run-at       document-start
 // @downloadURL  https://raw.githubusercontent.com/nmsjayden/UserScripts/main/ULB.js
 // @updateURL    https://raw.githubusercontent.com/nmsjayden/UserScripts/main/ULB.js
@@ -109,6 +111,27 @@
 
 (function () {
     'use strict';
+
+    // ── Runtime element-prefix — random per page-load so page scripts cannot
+    //    detect ULB by scanning the DOM for known IDs or class names. ────────
+    const _pfx = (function(){
+        // Must start with a letter — CSS selectors reject IDs/classes beginning with a digit.
+        try {
+            const b = new Uint8Array(8);
+            (self.crypto || self.msCrypto).getRandomValues(b);
+            return 'u' + Array.from(b, v => v.toString(36).padStart(2,'0')).join('');
+        } catch(_) {
+            return 'u' + Math.random().toString(36).slice(2,10) +
+                         Math.random().toString(36).slice(2,10);
+        }
+    }());
+
+
+    // ── Safe unsafeWindow accessor (Firefox GM4 / Violentmonkey compat) ──────
+    // Always use _uw instead of bare unsafeWindow so the script doesn't crash
+    // in environments where unsafeWindow is not in scope.
+    var _uw;
+    try { _uw = unsafeWindow; } catch (_) { _uw = window; }
 
     // ╔══════════════════════════════════════════════════════════════════════╗
     // ║                     ★  USER CONFIGURATION  ★                        ║
@@ -124,22 +147,13 @@
         // ┌─────────────────────────────────────────────────────────────────┐
         // │  BYPASS CONFIRMATION                                            │
         // └─────────────────────────────────────────────────────────────────┘
-
-        // Show a confirmation prompt before attempting to bypass a page.
-        // When true (default): a card asks "Bypass this page?" — clicking
-        //   "Yes" reloads the tab so the bypass can run; "Cancel" does nothing.
-        // When false: bypass runs instantly without asking.
         askBeforeBypass: true,
 
         // ┌─────────────────────────────────────────────────────────────────┐
         // │  AUTO-BYPASS HOSTS                                              │
-        // │  Add site hostnames here to skip the "Bypass this page?" prompt │
-        // │  entirely for those sites — bypass runs immediately with no ask.│
-        // │  Use the bare hostname or a substring of it, e.g:               │
-        // │    'tpi.li', 'gplinks.co', 'go.caslinks.com'                    │
         // └─────────────────────────────────────────────────────────────────┘
         autoBypassHosts: [
-            'bloxscript.live', // (to instantly show the scam warning)
+            'bloxscript.live',
             'avnsgames.com',
             'rojgarhindi.in',
             'newsuchnaonline.com',
@@ -173,97 +187,45 @@
             'lnbz.la',
             'checkpoint2keyhub.vercel.app',
             'checkpoint3keyhub.vercel.app',
+            'theimmigrationworld.com',
+            'srtak.com',
         ],
 
         // ┌─────────────────────────────────────────────────────────────────┐
         // │  CAPTCHA                                                        │
         // └─────────────────────────────────────────────────────────────────┘
-
-        // Automatically solve Cloudflare Turnstile captchas.
-        // Set to false to solve them yourself; the /links/go step is still
-        // automated regardless of this setting.
-        autoCaptcha: true,
-
-        // Automatically solve reCAPTCHA v2 challenges using an audio bypass.
-        // Works by switching to the audio challenge and sending the audio clip
-        // to a transcription service (engageub.pythonanywhere.com).
-        // Set to false to disable auto-solving and handle reCAPTCHAs manually.
+        autoTurnstile: true,
         autoRecaptcha: true,
 
         // ┌─────────────────────────────────────────────────────────────────┐
         // │  NOTIFICATIONS                                                  │
         // └─────────────────────────────────────────────────────────────────┘
-
-        // Where toast notifications appear on screen.
-        // Options: 'bottom-right'  'bottom-left'  'top-right'  'top-left'
         notifPosition: 'bottom-right',
-
-        // How long (in milliseconds) a notification stays visible.
-        // 4000 = 4 seconds.  Set to 0 to keep on screen until clicked.
         notifDuration: 4000,
-
-        // Show how long the bypass took, e.g. "Done in 1.3s".
         showBypassTime: true,
-
-        // Show which bypasser handled the page in the notification footer.
         showSiteLabel: true,
-
-        // Smaller, less detailed notification cards.
         compactMode: false,
-
-        // Remove the notification the moment navigation starts.
         autoDismissOnRedirect: true,
-
-        // Show the "Unknown Link Bypasser · @Aro Moon" branding line in cards.
-        // Set to false for a cleaner, minimal look.
         notifShowBranding: true,
-
-        // Show the script version (e.g. "v6.8.8") in the branding line.
-        // Only visible when notifShowBranding is also true.
         notifShowVersion: true,
-
-        // Show notifications while a bypass is in progress (loading state).
         notifShowOnLoading: true,
-
-        // Show notifications on a successful bypass.
         notifShowOnSuccess: true,
-
-        // Show notifications when an error occurs.
         notifShowOnError: true,
-
-        // Click anywhere on a notification card to dismiss it early.
         notifClickToDismiss: false,
-
-        // Animate the loading icon with a spin effect while bypassing.
-        // Disable if the animation causes visual issues on your machine.
         notifAnimateIcon: true,
-
-        // Pause the auto-dismiss countdown while hovering over the card.
         notifPauseOnHover: false,
 
         // ┌─────────────────────────────────────────────────────────────────┐
         // │  SITE-SPECIFIC                                                  │
         // └─────────────────────────────────────────────────────────────────┘
-
-        // dl.surf — automatically inject the download bypass button.
-        // Set to false to disable the button entirely.
-        dlSurfAutoInject: true,
-
-        // Safelink — remove ads on safelink pages.
-        // Set to false to leave ads in place.
         blockAds: true,
-
-        // PhantomFluxKey — the URL opened when "Get Key" is clicked.
         phantomDirectUrl: 'https://pastefy.app/8PxwQFt8',
 
         // ┌─────────────────────────────────────────────────────────────────┐
         // │  ADVANCED — Cloudflare allowed referrers                        │
-        // │  Add new safelink domains here if the CF auto-click stops       │
-        // │  working on a site.  Keep each entry in single quotes, comma-   │
-        // │  separated.                                                     │
         // └─────────────────────────────────────────────────────────────────┘
         cfAllowedRefs: [
-            'airflowscript.com', 'dl.surf', 'tpi.li', 'lnbz.la',
+            'dl.surf', 'tpi.li', 'lnbz.la',
             'go.yorurl.com', 'go.caslinks.com', 'highlocus.shop', 'mtc1.',
             'shrtslug.biz', 'biovetro.net', 'technons.com',
             'tournguide.com', 'dailyjobposting.xyz', 'stfly.biz',
@@ -276,15 +238,13 @@
     // ── Load persisted config overrides ──────────────────────────────────
     try {
         const _saved = GM_getValue('ulb_config', null);
-        if(_saved) {
+        if (_saved) {
             const _parsed = JSON.parse(_saved);
-            for(const [k, v] of Object.entries(_parsed)) {
-                if(k in CONFIG) CONFIG[k] = v;
+            for (const [k, v] of Object.entries(_parsed)) {
+                if (k in CONFIG) CONFIG[k] = v;
             }
         }
-    } catch (_) {
-        /* storage not available or corrupt — use defaults */
-    }
+    } catch (_) { /* storage not available or corrupt — use defaults */ }
 
     // ╔══════════════════════════════════════════════════════════════════════╗
     // ║                    INTERNAL CODE — DO NOT EDIT                       ║
@@ -294,97 +254,71 @@
     // §1  CONSTANTS
     // ═══════════════════════════════════════════════════════════════════════
 
-    const VERSION = '6.9.3';
+    const VERSION = '7.0.0';
 
     // ── Diagnostics log ───────────────────────────────────────────────────
-    // Captures errors/warnings for the Diagnostics menu command.
     const _diagEntries = [];
     const _origConsoleError = console.error.bind(console);
-    const _origConsoleWarn = console.warn.bind(console);
+    const _origConsoleWarn  = console.warn.bind(console);
 
-    /** Serialize any value to a readable string for the diagnostics log. */
     function _diagSerialize(a) {
-        if(a === null) return 'null';
-        if(a === undefined) return 'undefined';
-        if(typeof a === 'string') return a;
-        if(typeof a !== 'object' && typeof a !== 'function') return String(a);
-        // Error objects — JSON.stringify gives "{}" so handle them explicitly
-        if(a instanceof Error) {
+        if (a === null)      return 'null';
+        if (a === undefined) return 'undefined';
+        if (typeof a === 'string') return a;
+        if (typeof a !== 'object' && typeof a !== 'function') return String(a);
+        if (a instanceof Error) {
             const parts = [`${a.name}: ${a.message}`];
-            if(a.cause) parts.push(`  cause: ${_diagSerialize(a.cause)}`);
-            if(a.stack) parts.push(`  stack: ${a.stack.split('\n').slice(0, 4).join(' | ')}`);
+            if (a.cause) parts.push(`  cause: ${_diagSerialize(a.cause)}`);
+            if (a.stack) parts.push(`  stack: ${a.stack.split('\n').slice(0, 4).join(' | ')}`);
             return parts.join('\n');
         }
-        // Response objects
-        if(typeof Response !== 'undefined' && a instanceof Response) {
+        if (typeof Response !== 'undefined' && a instanceof Response) {
             return `Response { status: ${a.status}, url: ${a.url} }`;
         }
-        // Plain object / array — safe stringify with circular guard
         try {
             const seen = new WeakSet();
             return JSON.stringify(a, (_k, v) => {
-                if(typeof v === 'object' && v !== null) {
-                    if(seen.has(v)) return '[Circular]';
+                if (typeof v === 'object' && v !== null) {
+                    if (seen.has(v)) return '[Circular]';
                     seen.add(v);
                 }
                 return v;
             });
-        } catch (_) {
-            return String(a);
-        }
+        } catch (_) { return String(a); }
     }
 
-    console.error = (...args) => {
-        _diagEntries.push({
-            level: 'ERROR',
-            ts: Date.now(),
-            msg: args.map(_diagSerialize).join(' ')
-        });
+    console.error = function (...args) {
+        _diagEntries.push({ level: 'ERROR', ts: Date.now(), msg: args.map(_diagSerialize).join(' ') });
         _origConsoleError(...args);
     };
-    console.warn = (...args) => {
-        _diagEntries.push({
-            level: 'WARN',
-            ts: Date.now(),
-            msg: args.map(_diagSerialize).join(' ')
-        });
+    console.warn = function (...args) {
+        _diagEntries.push({ level: 'WARN', ts: Date.now(), msg: args.map(_diagSerialize).join(' ') });
         _origConsoleWarn(...args);
     };
 
     const FORM_HOSTS = ['shrtslug.biz', 'biovetro.net', 'technons.com', 'tournguide.com', 'dailyjobposting.xyz', 'stfly.biz'];
-    const TPI_HOSTS = ['tpi.li'];
+    const TPI_HOSTS  = ['tpi.li', 'oii.la'];
 
     const NOTIFY_TYPES = {
-        info: {
-            accent: '#4f8ef7',
-            icon: 'ℹ'
-        },
-        success: {
-            accent: '#22c55e',
-            icon: '✔'
-        },
-        warn: {
-            accent: '#f59e0b',
-            icon: '⚠'
-        },
-        error: {
-            accent: '#ef4444',
-            icon: '✖'
-        },
-        loading: {
-            accent: '#a78bfa',
-            icon: '◌'
-        },
+        info:    { accent: '#4f8ef7', icon: 'ℹ' },
+        success: { accent: '#22c55e', icon: '✔' },
+        warn:    { accent: '#f59e0b', icon: '⚠' },
+        error:   { accent: '#ef4444', icon: '✖' },
+        loading: { accent: '#a78bfa', icon: '◌' },
     };
+
+    // ── Page location (used by router and gate logic) ──────────────────────
+    const host = location.hostname;
+    const path = location.pathname;
 
     // ═══════════════════════════════════════════════════════════════════════
     // §2  CORE UTILITIES
     // ═══════════════════════════════════════════════════════════════════════
 
-    /** Generate a random hex ID using the Web Crypto API. */
+    /** Generate a random hex ID. Falls back gracefully when randomUUID is absent (Firefox < 95). */
     function generateId() {
         const cr = window.crypto || window.msCrypto;
-        if(cr?.randomUUID) return cr.randomUUID().replace(/-/g, '');
+        if (cr && typeof cr.randomUUID === 'function') return cr.randomUUID().replace(/-/g, '');
         const arr = new Uint8Array(16);
         cr.getRandomValues(arr);
         return Array.from(arr, b => b.toString(16).padStart(2, '0')).join('');
@@ -393,18 +327,11 @@
     /** Promise-based delay. */
     const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-    /**
-     * Wraps fn so it executes at most once; subsequent calls return the
-     * same result.
-     */
+    /** Wraps fn so it executes at most once; subsequent calls return the same result. */
     function once(fn) {
-        let called = false,
-            result;
-        return (...args) => {
-            if(!called) {
-                called = true;
-                result = fn(...args);
-            }
+        let called = false, result;
+        return function (...args) {
+            if (!called) { called = true; result = fn(...args); }
             return result;
         };
     }
@@ -414,55 +341,42 @@
      * @returns {URL|null}
      */
     function safeUrl(str) {
-        if(typeof str !== 'string' || !str) return null;
+        if (typeof str !== 'string' || !str) return null;
         try {
             const u = new URL(str);
             return ['http:', 'https:'].includes(u.protocol) ? u : null;
-        } catch {
-            return null;
-        }
+        } catch (_) { return null; }
     }
 
     /** Run fn immediately if DOM is ready, otherwise wait for DOMContentLoaded. */
     function onReady(fn) {
-        if(document.readyState !== 'loading') fn();
-        else document.addEventListener('DOMContentLoaded', fn, {
-            once: true
-        });
+        if (document.readyState !== 'loading') fn();
+        else document.addEventListener('DOMContentLoaded', fn, { once: true });
     }
 
     /** Resolve with document.body once the DOM is ready. */
     const waitBody = () =>
-        document.body ?
-        Promise.resolve(document.body) :
-        new Promise(r => document.addEventListener('DOMContentLoaded', () => r(document.body), {
-            once: true
-        }));
+        document.body
+            ? Promise.resolve(document.body)
+            : new Promise(r => document.addEventListener('DOMContentLoaded', () => r(document.body), { once: true }));
 
     /**
      * Resolve with the first matching element, or reject after timeout.
-     * @param {string} sel     CSS selector
+     * @param {string} sel
      * @param {number} [interval=100]
      * @param {number} [timeout=20000]  0 = no timeout
      */
-    function waitForEl(sel, interval = 100, timeout = 20_000) {
+    function waitForEl(sel, interval = 100, timeout = 20000) {
         return new Promise((resolve, reject) => {
             const el = document.querySelector(sel);
-            if(el) return resolve(el);
+            if (el) return resolve(el);
             const iv = setInterval(() => {
                 const found = document.querySelector(sel);
-                if(found) {
-                    clearInterval(iv);
-                    clearTimeout(tid);
-                    resolve(found);
-                }
+                if (found) { clearInterval(iv); clearTimeout(tid); resolve(found); }
             }, interval);
-            const tid = timeout > 0 ?
-                setTimeout(() => {
-                    clearInterval(iv);
-                    reject(new Error(`waitForEl: "${sel}" not found after ${timeout}ms`));
-                }, timeout) :
-                null;
+            const tid = timeout > 0
+                ? setTimeout(() => { clearInterval(iv); reject(new Error(`waitForEl: "${sel}" not found after ${timeout}ms`)); }, timeout)
+                : null;
         });
     }
 
@@ -474,56 +388,35 @@
      */
     function pollUntil(fn, intervalMs = 200, maxTries = 150) {
         return new Promise((resolve, reject) => {
-            let tries = 0,
-                settled = false;
-            const settle = (ok, val) => {
-                if(!settled) {
-                    settled = true;
-                    ok ? resolve(val) : reject(val);
-                }
-            };
+            let tries = 0, settled = false;
+            const settle = (ok, val) => { if (!settled) { settled = true; ok ? resolve(val) : reject(val); } };
             const check = () => {
                 try {
                     const r = fn();
-                    if(r) {
-                        settle(true, r);
-                        return true;
-                    }
-                } catch (e) {
-                    settle(false, e);
-                    return true;
-                }
+                    if (r) { settle(true, r); return true; }
+                } catch (e) { settle(false, e); return true; }
                 return false;
             };
-            if(check()) return;
+            if (check()) return;
             const iv = setInterval(() => {
-                if(check() || ++tries >= maxTries) {
+                if (check() || ++tries >= maxTries) {
                     clearInterval(iv);
-                    if(!settled) settle(false, new Error('pollUntil: condition not met after max tries'));
+                    if (!settled) settle(false, new Error('pollUntil: condition not met after max tries'));
                 }
             }, intervalMs);
         });
     }
 
-    /**
-     * Click element by ID once it appears in the DOM.
-     */
+    /** Click element by ID once it appears in the DOM. */
     function clickWhenReady(id, label, maxTries = 100) {
-        const attempt = () => {
-            const el = document.getElementById(id);
-            if(el) {
-                el.click();
-                return true;
-            }
-            return false;
-        };
+        const attempt = () => { const el = document.getElementById(id); if (el) { el.click(); return true; } return false; };
         const init = () => {
-            if(attempt()) return;
+            if (attempt()) return;
             let tries = 0;
             const iv = setInterval(() => {
-                if(attempt() || ++tries >= maxTries) {
+                if (attempt() || ++tries >= maxTries) {
                     clearInterval(iv);
-                    if(tries >= maxTries) console.warn(`[ULB] ${label}: #${id} not found after ${maxTries} tries`);
+                    if (tries >= maxTries) console.warn(`[ULB] ${label}: #${id} not found after ${maxTries} tries`);
                 }
             }, 200);
         };
@@ -553,45 +446,35 @@
         const start = performance.now();
         return {
             elapsed: () => ((performance.now() - start) / 1000).toFixed(2),
-            label: () => `Done in ${((performance.now() - start) / 1000).toFixed(2)}s`,
+            label:   () => `Done in ${((performance.now() - start) / 1000).toFixed(2)}s`,
         };
     }
 
     /**
      * Fetch with an AbortController-based timeout so requests never hang forever.
      * Throws an AbortError (err.name === 'AbortError') on timeout.
-     * @param {string|Request} url
-     * @param {RequestInit}    [opts={}]
-     * @param {number}         [timeoutMs=15000]
      */
     async function fetchWithTimeout(url, opts = {}, timeoutMs = 15000) {
         const controller = new AbortController();
         const tid = setTimeout(() => controller.abort(), timeoutMs);
         try {
-            return await fetch(url, {
-                ...opts,
-                signal: controller.signal
-            });
+            return await fetch(url, { ...opts, signal: controller.signal });
         } finally {
             clearTimeout(tid);
         }
     }
 
-    /**
-     * Fetch URL and parse response as JSON.
-     * Throws on non-2xx status, timeout, or malformed JSON.
-     */
+    /** Fetch URL and parse response as JSON. Throws on non-2xx, timeout, or malformed JSON. */
     async function fetchJSON(url, opts = {}, timeoutMs = 15000) {
         const r = await fetchWithTimeout(url, opts, timeoutMs);
-        if(!r.ok) throw _httpError(r, 'Request');
+        if (!r.ok) throw _httpError(r, 'Request');
         return r.json();
     }
 
     /**
      * Build a human-readable error message for a failed HTTP response.
-     * Adds a plain-English explanation for common error codes.
      * @param {Response} r
-     * @param {string}   [context]  — optional label like 'API' or '/links/go'
+     * @param {string}   [context]
      * @returns {Error}
      */
     function _httpError(r, context = 'Request') {
@@ -614,64 +497,57 @@
         return err;
     }
 
-    // ─── submitForm ───────────────────────────────────────────────────────
     /**
-     * Submit a form robustly: tries requestSubmit() first, falls back to
-     * the prototype submit, then to clicking the first visible submit button.
+     * Submit a form robustly: tries requestSubmit() first (with polyfill for
+     * browsers that don't support it), then prototype submit, then click fallback.
      * @param {HTMLFormElement} form
      */
     function submitForm(form) {
         try {
-            if(typeof form.requestSubmit === 'function') form.requestSubmit();
-            else HTMLFormElement.prototype.submit.call(form);
+            if (typeof form.requestSubmit === 'function') {
+                form.requestSubmit();
+            } else {
+                // Polyfill: create and click a temporary submit button
+                HTMLFormElement.prototype.submit.call(form);
+            }
         } catch (_) {
             const btn = form.querySelector('button[type="submit"], input[type="submit"]');
-            if(btn) btn.click();
+            if (btn) btn.click();
         }
     }
 
-    // ─── spoofVisibilityHidden ────────────────────────────────────────────
     /**
-     * Temporarily spoof document.visibilityState as 'hidden' so that ad
-     * timers think the tab is backgrounded. Returns a restore() function.
-     * Dispatches visibilitychange on both spoof and restore.
-     * @returns {Function} restore — call when the spoof is no longer needed.
+     * Temporarily spoof document.visibilityState as 'hidden' so that ad timers
+     * think the tab is backgrounded. Returns a restore() function.
+     * @returns {Function} restore
      */
     function spoofVisibilityHidden() {
-        const desc = Object.getOwnPropertyDescriptor(Document.prototype, 'visibilityState');
-        Object.defineProperty(document, 'visibilityState', {
-            get: () => 'hidden',
-            configurable: true
-        });
-        document.dispatchEvent(new Event('visibilitychange'));
+        let desc;
+        try { desc = Object.getOwnPropertyDescriptor(Document.prototype, 'visibilityState'); } catch (_) { /* */ }
+        try {
+            Object.defineProperty(document, 'visibilityState', { get: () => 'hidden', configurable: true });
+            document.dispatchEvent(new Event('visibilitychange'));
+        } catch (_) { /* browser may block redefine */ }
         return function restore() {
-            try {
-                delete document.visibilityState;
-            } catch (_) {}
-            if(desc) Object.defineProperty(Document.prototype, 'visibilityState', desc);
+            try { delete document.visibilityState; } catch (_) { /* */ }
+            if (desc) {
+                try { Object.defineProperty(Document.prototype, 'visibilityState', desc); } catch (_) { /* */ }
+            }
             document.dispatchEvent(new Event('visibilitychange'));
         };
     }
 
-    // ─── waitForContinueBtn ───────────────────────────────────────────────
     /**
-     * Polls every 500 ms for #cross-snp2 or #btn7 to become visible, then
-     * clicks whichever appears first. Used by the apnahirework / crimejasoos
-     * / newsuchnaonline family of bypassers.
-     * @param {string} label       — Step label shown in the notification.
-     * @param {object} nh          — Notification handle from notify().
-     * @param {string} SITE        — Site label for the notification text.
-     * @param {number} [timeoutMs] — Give up after this many ms (default 60 s).
+     * Polls every 500 ms for #cross-snp2 or #btn7 to become visible, then clicks whichever
+     * appears first. Used by apnahirework / crimejasoos / newsuchnaonline bypassers.
      */
-    function waitForContinueBtn(label, nh, SITE, timeoutMs = 60_000) {
+    function waitForContinueBtn(label, nh, SITE, timeoutMs = 60000) {
         const check = setInterval(() => {
-            for(const id of ['cross-snp2', 'btn7']) {
+            for (const id of ['tp-snp2', 'cross-snp2', 'btn7']) {
                 const el = document.getElementById(id);
-                if(el && el.offsetParent !== null) {
+                if (el && el.offsetParent !== null) {
                     clearInterval(check);
-                    if(nh) nh.update(`${SITE} — ${label} — clicking Continue…`, 'loading', {
-                        site: SITE
-                    });
+                    if (nh) nh.update(`${SITE} — ${label} — clicking Continue…`, 'loading', { site: SITE });
                     el.click();
                     return;
                 }
@@ -684,43 +560,46 @@
     // §3  NOTIFICATION SYSTEM
     // ═══════════════════════════════════════════════════════════════════════
 
-    let _posCache = null;
+    // ── GM Clipboard helper ───────────────────────────────────────────────
+    function _gmCopy(text) {
+        try { GM_setClipboard(text, 'text'); return Promise.resolve(); } catch (_) { /* */ }
+        if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(text);
+        return Promise.reject(new Error('No clipboard API available'));
+    }
+
+    let _posCache   = null;
+    let _host          = null;
+    let _root          = null;
+    let _container     = null;
+    let _lastNotifMsg = '';
+    let _lastNotifTs  = 0;
+
     window.addEventListener('resize', () => {
         _posCache = null;
-        // Re-apply container sizing after orientation change / resize
-        if(_container?.isConnected) {
+        if (_container && _container.isConnected) {
             const mobile = _isMobile();
             _container.style.maxWidth = mobile ? 'calc(100vw - 20px)' : 'calc(100vw - 56px)';
-            _container.style.gap = mobile ? '7px' : '10px';
+            _container.style.gap      = mobile ? '7px' : '10px';
         }
-    }, {
-        passive: true
-    });
+    }, { passive: true });
 
     function _posStyles() {
-        if(_posCache) return _posCache;
+        if (_posCache) return _posCache;
         const p = CONFIG.notifPosition || 'bottom-right';
         const [v, h] = p.split('-');
         const mobile = _isMobile();
         const margin = mobile ? '10px' : '28px';
 
-        const vert = v === 'top' ?
-            `top:calc(${margin} + env(safe-area-inset-top,0px))` :
-            `bottom:calc(${margin} + env(safe-area-inset-bottom,0px))`;
-
-        const horiz = h === 'left' ?
-            `left:calc(${margin} + env(safe-area-inset-left,0px))` :
-            `right:calc(${margin} + env(safe-area-inset-right,0px))`;
-
-        const dir = v === 'top' ? 'column' : 'column-reverse';
+        const vert  = v === 'top'
+            ? `top:calc(${margin} + env(safe-area-inset-top,0px))`
+            : `bottom:calc(${margin} + env(safe-area-inset-bottom,0px))`;
+        const horiz = h === 'left'
+            ? `left:calc(${margin} + env(safe-area-inset-left,0px))`
+            : `right:calc(${margin} + env(safe-area-inset-right,0px))`;
+        const dir   = v === 'top' ? 'column' : 'column-reverse';
         const slide = h === 'left' ? 'translateX(-14px)' : 'translateX(14px)';
 
-        _posCache = {
-            vert,
-            horiz,
-            dir,
-            slide
-        };
+        _posCache = { vert, horiz, dir, slide };
         return _posCache;
     }
 
@@ -741,41 +620,20 @@
         'overscroll-behavior:contain',
     ].join(';');
 
-    const CSS_LABEL =
-        'font-size:10px;text-transform:uppercase;letter-spacing:1.4px;color:#555;display:block';
+    const CSS_LABEL = 'font-size:10px;text-transform:uppercase;letter-spacing:1.4px;color:#555;display:block';
 
-    let _host = null;
-    let _root = null;
-    let _container = null;
-
-    // Rate-limiter: suppress identical back-to-back notifications within 300 ms
-    let _lastNotifMsg = '';
-    let _lastNotifTs = 0;
-
-    /* =========================
-       CORE CONTAINER (SHADOW DOM)
-    ========================= */
+    // ─── Shadow-DOM container ─────────────────────────────────────────────
 
     function getContainer() {
-        if(_container?.isConnected) return _container;
+        if (_container && _container.isConnected) return _container;
 
-        const {
-            vert,
-            horiz,
-            dir
-        } = _posStyles();
+        const { vert, horiz, dir } = _posStyles();
 
-        // Host
-        if(!_host || !_host.isConnected) {
+        if (!_host || !_host.isConnected) {
             _host = document.createElement('div');
-            _host.id = '__ulb_host';
-
-            // Zero-size anchor at the top-left corner of the viewport.
-            // CRITICAL: no `contain:layout` or `contain:paint` — those create a
-            // new positioning containing block, which makes `position:fixed` inside
-            // the shadow root fixed relative to the host box, not the real viewport.
-            // A zero-size host with only `contain:style` keeps CSS isolation without
-            // corrupting the containing block.  Children use true viewport-fixed pos.
+            // No id/class/data attrs — a bare element is invisible to page querySelector.
+            // Zero-size fixed anchor — no contain:layout/paint so that position:fixed
+            // inside the shadow root stays relative to the real viewport.
             _host.style.cssText = [
                 'all:initial',
                 'display:block',
@@ -787,34 +645,30 @@
                 'overflow:visible',
                 'z-index:2147483647',
                 'pointer-events:none',
-                'contain:style',
+                'contain:style',          // style isolation only — no layout containment
             ].join(';');
 
             (document.documentElement || document.body).appendChild(_host);
 
-            _root = _host.attachShadow({
-                mode: 'open'
-            });
+            _root = _host.attachShadow({ mode: 'closed' });
 
             const style = document.createElement('style');
             style.textContent = `
-            * { margin:0; padding:0; box-sizing:border-box; }
-            :host { all: initial; }
-            @keyframes __ulb_spin { to { transform: rotate(360deg); } }
-            @media (prefers-reduced-motion: reduce) {
-                * { animation-duration:0.01ms!important; transition-duration:0.01ms!important; will-change:auto!important; }
-            }
-            button, a { -webkit-tap-highlight-color: transparent; }
-        `;
+                * { margin:0; padding:0; box-sizing:border-box; }
+                :host { all:initial; }
+                @keyframes ${_pfx}spin { to { transform:rotate(360deg); } }
+                @media (prefers-reduced-motion:reduce) {
+                    * { animation-duration:0.01ms !important; transition-duration:0.01ms !important; }
+                }
+                button, a { -webkit-tap-highlight-color:transparent; }
+            `;
             _root.appendChild(style);
         }
 
-        // Container (ONLY ONE EVER)
-        if(!_container || !_container.isConnected) {
+        if (!_container || !_container.isConnected) {
             _container = document.createElement('div');
-            _container.id = '__ulb_nc';
-
-            const mobile = _isMobile();
+            _container.id = _pfx+'nc';
+            const mobile  = _isMobile();
             const _margin = mobile ? '10px' : '28px';
             _container.style.cssText = [
                 'position:fixed',
@@ -827,8 +681,8 @@
                 'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif',
                 'transform:translate3d(0,0,0)',
                 'will-change:transform',
+                '-webkit-backface-visibility:hidden',   // Safari / older WebKit
                 'backface-visibility:hidden',
-                'perspective:1000px',
                 'isolation:isolate',
                 `max-width:${mobile ? 'calc(100vw - 20px)' : 'calc(100vw - 56px)'}`,
                 `max-height:calc(100vh - (${_margin} * 2) - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))`,
@@ -836,67 +690,46 @@
                 'overflow-x:visible',
                 'overscroll-behavior:contain',
             ].join(';');
-
             _root.appendChild(_container);
         }
 
         return _container;
     }
 
-    /* =========================
-       HELPERS
-    ========================= */
-
-    function ensureSpinStyle() {
-        getContainer();
-    }
 
     function mountCard(card) {
-        const {
-            slide
-        } = _posStyles();
-
-        // ── Height-animate wrapper so existing cards glide when a new one arrives ──
+        const { slide } = _posStyles();
         const wrap = document.createElement('div');
         wrap.style.cssText = 'max-height:0px;overflow:visible;transition:max-height .22s cubic-bezier(.4,0,.2,1)';
         card._ulbWrap = wrap;
-
-        card.style.transform = slide;
-        card.style.opacity = '0';
+        card.style.transform  = slide;
+        card.style.opacity    = '0';
         card.style.pointerEvents = 'auto';
-
         wrap.appendChild(card);
         getContainer().appendChild(wrap);
-
         requestAnimationFrame(() => {
-            // offsetHeight is valid now that card is in the DOM
             const h = card.offsetHeight || 200;
-            wrap.style.maxHeight = (h + 20) + 'px'; // +20 covers the inter-card gap
+            wrap.style.maxHeight = (h + 20) + 'px';
             requestAnimationFrame(() => {
-                card.style.opacity = '1';
+                card.style.opacity   = '1';
                 card.style.transform = 'translateX(0)';
             });
         });
-
         return card;
     }
 
     function dismissCard(card) {
-        if(card._ulbDismissed) return;
+        if (card._ulbDismissed) return;
         card._ulbDismissed = true;
-        const {
-            slide
-        } = _posStyles();
-        card.style.opacity = '0';
+        const { slide } = _posStyles();
+        card.style.opacity   = '0';
         card.style.transform = slide;
-
-        // After the card fades out, collapse the wrapper so siblings animate back
         setTimeout(() => {
             const wrap = card._ulbWrap;
-            if(wrap && wrap.isConnected) {
-                wrap.style.overflow = 'hidden';
+            if (wrap && wrap.isConnected) {
+                wrap.style.overflow   = 'hidden';
                 wrap.style.transition = 'max-height .2s ease';
-                wrap.style.maxHeight = '0px';
+                wrap.style.maxHeight  = '0px';
                 setTimeout(() => wrap.remove(), 220);
             } else {
                 card.remove();
@@ -904,106 +737,78 @@
         }, 250);
     }
 
-    /* =========================
-       MAIN NOTIFY SYSTEM
-    ========================= */
+    // ── Main notify() ─────────────────────────────────────────────────────
 
     function notify(message, type = 'info', duration, opts = {}) {
-        const dur = duration ?? CONFIG.notifDuration;
+        const dur = (duration !== undefined && duration !== null) ? duration : CONFIG.notifDuration;
 
-        // ── Respect show/hide flags ───────────────────────────────────────
-        const _showFlag = {
-            loading: 'notifShowOnLoading',
-            success: 'notifShowOnSuccess',
-            error: 'notifShowOnError'
-        };
-        if(_showFlag[type] && CONFIG[_showFlag[type]] === false) {
-            return {
-                update: () => {},
-                remove: () => {}
-            };
-        }
+        const _showFlag = { loading: 'notifShowOnLoading', success: 'notifShowOnSuccess', error: 'notifShowOnError' };
+        if (_showFlag[type] && CONFIG[_showFlag[type]] === false) return { update: () => {}, remove: () => {} };
 
-        // Suppress identical rapid duplicates (< 300 ms between same message)
         const _now = Date.now();
-        if(message === _lastNotifMsg && (_now - _lastNotifTs) < 300) {
-            return {
-                update: () => {},
-                remove: () => {}
-            };
-        }
+        if (message === _lastNotifMsg && (_now - _lastNotifTs) < 300) return { update: () => {}, remove: () => {} };
         _lastNotifMsg = message;
-        _lastNotifTs = _now;
+        _lastNotifTs  = _now;
 
-        if(!document.body) {
-            const h = {
-                update: () => {},
-                remove: () => {}
-            };
+        if (!document.body) {
+            const h = { update: () => {}, remove: () => {} };
             document.addEventListener('DOMContentLoaded', () => {
                 const r = notify(message, type, dur, opts);
                 h.update = r.update;
                 h.remove = r.remove;
-            }, {
-                once: true
-            });
+            }, { once: true });
             return h;
         }
 
-        ensureSpinStyle();
+        getContainer();
 
-        const mobile = _isMobile();
+        const mobile  = _isMobile();
         const compact = CONFIG.compactMode || mobile;
+        const { accent, icon } = NOTIFY_TYPES[type] || NOTIFY_TYPES.info;
 
-        const {
-            accent,
-            icon
-        } = NOTIFY_TYPES[type] || NOTIFY_TYPES.info;
-
-        const pad = mobile ? '6px 10px' :
-            CONFIG.compactMode ? '8px 12px' :
-            '12px 16px';
-        const mw = mobile ? 'min(170px,calc(100vw - 28px))' :
-            CONFIG.compactMode ? 'min(200px,calc(100vw - 56px))' :
-            'min(240px,calc(100vw - 56px))';
-        const maxW = mobile ? 'min(210px,calc(100vw - 28px))' :
-            CONFIG.compactMode ? 'min(280px,calc(100vw - 56px))' :
-            'min(320px,calc(100vw - 56px))';
+        const pad = mobile           ? '6px 10px'
+                  : CONFIG.compactMode ? '8px 12px'
+                  :                      '12px 16px';
+        const mw  = mobile           ? 'min(170px,calc(100vw - 28px))'
+                  : CONFIG.compactMode ? 'min(200px,calc(100vw - 56px))'
+                  :                      'min(240px,calc(100vw - 56px))';
+        const maxW = mobile          ? 'min(210px,calc(100vw - 28px))'
+                  : CONFIG.compactMode ? 'min(280px,calc(100vw - 56px))'
+                  :                      'min(320px,calc(100vw - 56px))';
 
         const card = document.createElement('div');
-        card.style.cssText =
-            `${CSS_CARD_BASE};border-left:3px solid ${accent};padding:${pad};min-width:${mw};max-width:${maxW};display:flex;align-items:flex-start;gap:${mobile ? '8px' : '10px'};touch-action:manipulation;-webkit-tap-highlight-color:transparent`;
+        card.style.cssText = `${CSS_CARD_BASE};border-left:3px solid ${accent};padding:${pad};min-width:${mw};max-width:${maxW};display:flex;align-items:flex-start;gap:${mobile ? '8px' : '10px'};touch-action:manipulation;-webkit-tap-highlight-color:transparent`;
 
         const iconEl = document.createElement('div');
-        iconEl.style.cssText =
-            `font-size:${mobile ? '12' : compact ? '13' : '15'}px;color:${accent};margin-top:1px;flex-shrink:0;display:flex;align-items:center;justify-content:center;width:1.1em;height:1.1em`;
+        iconEl.style.cssText = `font-size:${mobile ? '12' : compact ? '13' : '15'}px;color:${accent};margin-top:1px;flex-shrink:0;display:flex;align-items:center;justify-content:center;width:1.1em;height:1.1em`;
         iconEl.textContent = icon;
 
         const body = document.createElement('div');
         body.style.cssText = 'flex:1;min-width:0';
 
-        if(!compact && CONFIG.notifShowBranding !== false) {
+        if (!compact && CONFIG.notifShowBranding !== false) {
             const vtag = CONFIG.notifShowVersion !== false ? ` · v${VERSION}` : '';
-            body.innerHTML = `<div style="${CSS_LABEL};margin-bottom:3px">Unknown Link Bypasser · @Aro Moon${vtag}</div>`;
+            const lbl  = document.createElement('div');
+            lbl.style.cssText = `${CSS_LABEL};margin-bottom:3px`;
+            lbl.textContent   = `Unknown Link Bypasser · @Aro Moon${vtag}`;
+            body.appendChild(lbl);
         }
 
         const msg = document.createElement('div');
-        msg.style.cssText =
-            `font-size:${mobile ? '11' : compact ? '12' : '13'}px;line-height:1.4;color:#e0e0e0;word-break:break-word`;
-        msg.textContent = message;
-
+        msg.style.cssText = `font-size:${mobile ? '11' : compact ? '12' : '13'}px;line-height:1.4;color:#e0e0e0;word-break:break-word`;
+        msg.textContent   = message;
         body.appendChild(msg);
         card.append(iconEl, body);
 
-        // Trim oldest cards if stack gets too tall (max 5 visible)
-        if(_container) {
-            const _wraps = Array.from(_container.children);
-            if(_wraps.length >= 5) {
-                const _oldWrap = _wraps[0];
-                if(_oldWrap?.isConnected) {
-                    _oldWrap.style.overflow = 'hidden';
-                    _oldWrap.style.maxHeight = '0px';
-                    setTimeout(() => _oldWrap.remove(), 230);
+        // Trim oldest cards if stack gets too tall (max 5)
+        if (_container) {
+            const wraps = Array.from(_container.children);
+            if (wraps.length >= 5) {
+                const oldest = wraps[0];
+                if (oldest && oldest.isConnected) {
+                    oldest.style.overflow   = 'hidden';
+                    oldest.style.maxHeight  = '0px';
+                    setTimeout(() => oldest.remove(), 230);
                 }
             }
         }
@@ -1011,47 +816,36 @@
         mountCard(card);
 
         const setSpin = on => {
-            iconEl.style.animation = CONFIG.notifAnimateIcon !== false && on ?
-                '1s linear infinite __ulb_spin' : '';
+            iconEl.style.animation = CONFIG.notifAnimateIcon !== false && on
+                ? '1s linear infinite '+_pfx+'spin' : '';
         };
+        if (type === 'loading') setSpin(true);
 
-        if(type === 'loading') setSpin(true);
+        let timer, paused = false, remaining = dur, startedAt = dur > 0 ? Date.now() : null;
 
-        let timer;
-        let paused = false;
-        let remaining = dur;
-        let startedAt = dur > 0 ? Date.now() : null;
+        const remove = () => { clearTimeout(timer); dismissCard(card); };
 
-        const remove = () => {
-            clearTimeout(timer);
-            dismissCard(card);
-        };
-
-        const startTimer = (ms) => {
-            if(ms <= 0) return;
+        const startTimer = ms => {
+            if (ms <= 0) return;
             startedAt = Date.now();
             remaining = ms;
             timer = setTimeout(remove, ms);
         };
 
-        // ── notifClickToDismiss ──────────────────────────────────────────
-        if(CONFIG.notifClickToDismiss) {
+        if (CONFIG.notifClickToDismiss) {
             card.style.cursor = 'pointer';
-            card.addEventListener('click', remove, {
-                once: true
-            });
+            card.addEventListener('click', remove, { once: true });
         }
 
-        // ── notifPauseOnHover ────────────────────────────────────────────
-        if(CONFIG.notifPauseOnHover && dur > 0) {
+        if (CONFIG.notifPauseOnHover && dur > 0) {
             card.addEventListener('mouseenter', () => {
-                if(paused) return;
+                if (paused) return;
                 paused = true;
                 clearTimeout(timer);
                 remaining = Math.max(0, remaining - (Date.now() - (startedAt || Date.now())));
             });
             card.addEventListener('mouseleave', () => {
-                if(!paused) return;
+                if (!paused) return;
                 paused = false;
                 startTimer(remaining);
             });
@@ -1059,83 +853,73 @@
 
         const update = (newMsg, newType, newDurOrOpts) => {
             clearTimeout(timer);
-            paused = false;
-            // Reset dedup cache so this updated message isn't suppressed
-            _lastNotifMsg = '';
+            paused       = false;
+            _lastNotifMsg = '';   // reset dedup so this message isn't suppressed
             msg.textContent = newMsg;
-
-            if(newType && NOTIFY_TYPES[newType]) {
+            if (newType && NOTIFY_TYPES[newType]) {
                 const s = NOTIFY_TYPES[newType];
-                iconEl.textContent = s.icon;
-                iconEl.style.color = s.accent;
+                iconEl.textContent        = s.icon;
+                iconEl.style.color        = s.accent;
                 card.style.borderLeftColor = s.accent;
                 setSpin(newType === 'loading');
             }
-
-            if(typeof newDurOrOpts === 'number' && newDurOrOpts > 0) {
-                startTimer(newDurOrOpts);
-            } else if(typeof newDurOrOpts === 'object' && newDurOrOpts !== null) {
-                // Object opts (e.g. {site, time}) — no timer change, just refresh display
-            }
+            if (typeof newDurOrOpts === 'number' && newDurOrOpts > 0) startTimer(newDurOrOpts);
         };
 
-        if(dur > 0) startTimer(dur);
+        if (dur > 0) startTimer(dur);
 
-        return {
-            update,
-            remove
-        };
+        return { update, remove };
     }
 
-    /* =========================
-       EXPORT CORE API
-    ========================= */
+    // ── §3.2  SPECIAL CARDS ───────────────────────────────────────────────
 
-    function ensureUI() {
-        getContainer();
-    }
+    function ensureUI() { getContainer(); }
 
     /** Show a self-advancing countdown card, then call onDone. */
     function showCountdown(seconds, onDone, subtitle = 'Redirect queued') {
         const mobile = _isMobile();
-        const mw = mobile ? 'min(190px,calc(100vw - 28px))' : 'min(240px,calc(100vw - 56px))';
+        const mw  = mobile ? 'min(190px,calc(100vw - 28px))' : 'min(240px,calc(100vw - 56px))';
         const pad = mobile ? '10px 12px' : '14px 18px';
         const numSz = mobile ? '22px' : '30px';
+
         const card = document.createElement('div');
         card.style.cssText = `${CSS_CARD_BASE};border-left:3px solid #4f8ef7;padding:${pad};min-width:${mw}`;
+
+        const vTag = CONFIG.notifShowVersion !== false ? ` · v${VERSION}` : '';
+        const brandHtml = (!mobile && CONFIG.notifShowBranding !== false)
+            ? `<div style="${CSS_LABEL};margin-bottom:${mobile ? '4px' : '8px'}">Unknown Link Bypasser · @Aro Moon${vTag}</div>`
+            : '';
+
         card.innerHTML = `
-            ${(!mobile && CONFIG.notifShowBranding !== false) ? `<div style="${CSS_LABEL};margin-bottom:${mobile ? '4px' : '8px'}">Unknown Link Bypasser · @Aro Moon${CONFIG.notifShowVersion !== false ? ` · v${VERSION}` : ''}</div>` : ''}
+            ${brandHtml}
             <div style="display:flex;align-items:center;gap:${mobile ? '8px' : '12px'};margin-bottom:${mobile ? '7px' : '10px'}">
-                <div class="__ulb_cn" style="font-size:${numSz};font-weight:700;color:#fff;line-height:1;min-width:${mobile ? '32px' : '44px'}">${seconds}</div>
+                <div class="${_pfx}cn" style="font-size:${numSz};font-weight:700;color:#fff;line-height:1;min-width:${mobile ? '32px' : '44px'}">${seconds}</div>
                 <div style="color:#aaa;font-size:${mobile ? '10px' : '12px'};line-height:1.5">
-                    <div class="__ulb_cs">seconds remaining</div>
+                    <div class="${_pfx}cs">seconds remaining</div>
                     <div style="color:#555;font-size:${mobile ? '9px' : '10px'};margin-top:2px">${subtitle}</div>
                 </div>
             </div>
             <div style="background:rgba(255,255,255,.07);border-radius:999px;height:3px;overflow:hidden">
-                <div class="__ulb_cb" style="height:100%;width:100%;background:linear-gradient(90deg,#4f8ef7,#a78bfa);border-radius:999px;transition:width 1s linear"></div>
+                <div class="${_pfx}cb" style="height:100%;width:100%;background:linear-gradient(90deg,#4f8ef7,#a78bfa);border-radius:999px;transition:width 1s linear"></div>
             </div>`;
+
         mountCard(card);
 
-        const numEl = card.querySelector('.__ulb_cn');
-        const barEl = card.querySelector('.__ulb_cb');
-        const subEl = card.querySelector('.__ulb_cs');
+        const numEl = card.querySelector('.'+_pfx+'cn');
+        const barEl = card.querySelector('.'+_pfx+'cb');
+        const subEl = card.querySelector('.'+_pfx+'cs');
 
         let rem = seconds;
-        requestAnimationFrame(() => {
-            barEl.style.width = `${((seconds - 1) / seconds) * 100}%`;
-        });
+        requestAnimationFrame(() => { barEl.style.width = `${((seconds - 1) / seconds) * 100}%`; });
+
         const iv = setInterval(() => {
-            if(--rem <= 0) {
+            if (--rem <= 0) {
                 clearInterval(iv);
                 numEl.textContent = '0';
                 barEl.style.width = '0%';
                 subEl.textContent = 'done…';
                 card.style.borderLeftColor = '#22c55e';
-                setTimeout(() => {
-                    dismissCard(card);
-                    setTimeout(onDone, 280);
-                }, 400);
+                setTimeout(() => { dismissCard(card); setTimeout(onDone, 280); }, 400);
             } else {
                 numEl.textContent = rem;
                 barEl.style.width = `${(rem / seconds) * 100}%`;
@@ -1146,50 +930,61 @@
     /** Show a persistent success card with a manual fallback tap-link. */
     function showRedirectNotif(dest) {
         const mobile = _isMobile();
-        const mw = mobile ? 'min(190px,calc(100vw - 28px))' : 'min(240px,calc(100vw - 56px))';
+        const mw  = mobile ? 'min(190px,calc(100vw - 28px))' : 'min(240px,calc(100vw - 56px))';
         const mxw = mobile ? 'min(220px,calc(100vw - 28px))' : 'min(320px,calc(100vw - 56px))';
         const pad = mobile ? '10px 12px' : '14px 18px';
+
         const card = document.createElement('div');
         card.style.cssText = `${CSS_CARD_BASE};border-left:3px solid #22c55e;padding:${pad};min-width:${mw};max-width:${mxw}`;
+
+        const vTag = CONFIG.notifShowVersion !== false ? ` · v${VERSION}` : '';
+        const brandHtml = (!mobile && CONFIG.notifShowBranding !== false)
+            ? `<div style="${CSS_LABEL};margin-bottom:6px">Unknown Link Bypasser · @Aro Moon${vTag}</div>`
+            : '';
+
         card.innerHTML = `
-            ${(!mobile && CONFIG.notifShowBranding !== false) ? `<div style="${CSS_LABEL};margin-bottom:6px">Unknown Link Bypasser · @Aro Moon${CONFIG.notifShowVersion !== false ? ` · v${VERSION}` : ''}</div>` : ''}
+            ${brandHtml}
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:${mobile ? '7px' : '10px'}">
-                <div class="__ulb_ri" style="font-size:${mobile ? '13px' : '15px'};color:#22c55e;flex-shrink:0">✔</div>
-                <div class="__ulb_rm" style="font-size:${mobile ? '11px' : '13px'};color:#e0e0e0">Redirecting now…</div>
+                <div class="${_pfx}ri" style="font-size:${mobile ? '13px' : '15px'};color:#22c55e;flex-shrink:0">✔</div>
+                <div class="${_pfx}rm" style="font-size:${mobile ? '11px' : '13px'};color:#e0e0e0">Redirecting now…</div>
             </div>
             <a href="${dest}" style="display:flex;align-items:center;justify-content:center;text-align:center;font-size:${mobile ? '11px' : '12px'};color:#22c55e;text-decoration:none;padding:${mobile ? '0 10px' : '0 12px'};border:1px solid rgba(34,197,94,.35);border-radius:7px;background:rgba(34,197,94,.08);font-weight:600;touch-action:manipulation;min-height:44px;-webkit-tap-highlight-color:transparent">
                 Tap here if nothing happens
             </a>`;
+
         mountCard(card);
+
         setTimeout(() => {
-            const rm = card.querySelector('.__ulb_rm');
-            const ri = card.querySelector('.__ulb_ri');
-            if(rm) rm.textContent = 'Redirect may have stalled.';
-            if(ri) {
-                ri.textContent = '⚠';
-                ri.style.color = '#f59e0b';
-            }
+            const rm = card.querySelector('.'+_pfx+'rm');
+            const ri = card.querySelector('.'+_pfx+'ri');
+            if (rm) rm.textContent = 'Redirect may have stalled.';
+            if (ri) { ri.textContent = '⚠'; ri.style.color = '#f59e0b'; }
             card.style.borderLeftColor = '#f59e0b';
         }, 3000);
     }
 
     /** Show a persistent action button that opens url in a new tab. */
     function showDirectBypassBtn(label, url, subtitle = 'Direct Bypass Available') {
-        if(!document.body) {
-            document.addEventListener('DOMContentLoaded', () => showDirectBypassBtn(label, url, subtitle), {
-                once: true
-            });
+        if (!document.body) {
+            document.addEventListener('DOMContentLoaded', () => showDirectBypassBtn(label, url, subtitle), { once: true });
             return;
         }
-        ensureSpinStyle();
+        getContainer();
         const mobile = _isMobile();
-        const mw = mobile ? 'min(190px,calc(100vw - 28px))' : 'min(260px,calc(100vw - 56px))';
+        const mw  = mobile ? 'min(190px,calc(100vw - 28px))' : 'min(260px,calc(100vw - 56px))';
         const mxw = mobile ? 'min(220px,calc(100vw - 28px))' : 'min(340px,calc(100vw - 56px))';
         const pad = mobile ? '10px 12px' : '14px 18px';
+
         const card = document.createElement('div');
         card.style.cssText = `${CSS_CARD_BASE};border-left:3px solid #f59e0b;padding:${pad};min-width:${mw};max-width:${mxw};position:relative`;
+
+        const vTag = CONFIG.notifShowVersion !== false ? ` · v${VERSION}` : '';
+        const brandHtml = (!mobile && CONFIG.notifShowBranding !== false)
+            ? `<div style="${CSS_LABEL};margin-bottom:6px">Unknown Link Bypasser · @Aro Moon${vTag}</div>`
+            : '';
+
         card.innerHTML = `
-            ${(!mobile && CONFIG.notifShowBranding !== false) ? `<div style="${CSS_LABEL};margin-bottom:6px">Unknown Link Bypasser · @Aro Moon${CONFIG.notifShowVersion !== false ? ` · v${VERSION}` : ''}</div>` : ''}
+            ${brandHtml}
             <div style="font-size:${mobile ? '10px' : '11px'};color:#f59e0b;margin-bottom:${mobile ? '7px' : '10px'};font-weight:600;letter-spacing:.5px">${subtitle}</div>
             <a href="${url}" target="_blank" rel="noopener"
                style="display:flex;align-items:center;justify-content:center;text-align:center;
@@ -1201,66 +996,53 @@
                       -webkit-tap-highlight-color:transparent">
                 ⚡ ${label}
             </a>`;
-        const closeBtn = Object.assign(document.createElement('div'), {
-            style: 'position:absolute;top:8px;right:10px;font-size:14px;color:#555;cursor:pointer;padding:2px 5px;border-radius:4px',
-            textContent: '✕',
-        });
-        const dismiss = () => dismissCard(card);
-        closeBtn.addEventListener('click', () => dismiss());
+
+        const closeBtn = document.createElement('div');
+        closeBtn.style.cssText = 'position:absolute;top:8px;right:10px;font-size:14px;color:#555;cursor:pointer;padding:2px 5px;border-radius:4px';
+        closeBtn.textContent   = '✕';
+        closeBtn.addEventListener('click', () => dismissCard(card));
         card.appendChild(closeBtn);
         mountCard(card);
     }
 
-    // ── §3.5  KEY CARD ────────────────────────────────────────────────────
+    // ── §3.3  KEY CARD ────────────────────────────────────────────────────
 
     /**
-     * Display a persistent, copyable key card for bypassers that generate
-     * access keys (e.g. nexusdevs.fun, lua-key-vault).
-     * Fires a ULB toast notification on successful clipboard copy.
-     *
-     * @param {string} key       The key string to display.
-     * @param {string} site      Site label shown in the card header.
-     * @param {object} [timer]   makeTimer() instance — used for the elapsed label.
-     * @param {number} [autoDismissMs=30000]  Auto-dismiss delay in ms.
+     * Display a persistent, copyable key card.
+     * @param {string} key
+     * @param {string} site
+     * @param {object} [timer]   makeTimer() instance
+     * @param {number} [autoDismissMs=30000]
      * @param {object} [opts={}]
-     * @param {Date|string|number} [opts.expiresAt]  When the key expires — shows a
-     *   live countdown in the card and turns amber/red as it approaches zero.
+     * @param {Date|string|number} [opts.expiresAt]
      */
-    function showKeyCard(key, site, timer, autoDismissMs = 30_000, opts = {}) {
+    function showKeyCard(key, site, timer, autoDismissMs = 30000, opts = {}) {
         const mobile = _isMobile();
-        const vTag = CONFIG.notifShowVersion !== false ? ` · v${VERSION}` : '';
-        const brand = (!mobile && !CONFIG.compactMode && CONFIG.notifShowBranding !== false) ?
-            `<div style="${CSS_LABEL};margin-bottom:6px">Unknown Link Bypasser · @Aro Moon${vTag}</div>` :
-            '';
-        const timeLabel = timer ? timer.label() : '';
-        const mw = mobile ? 'min(190px,calc(100vw - 28px))' : 'min(280px,calc(100vw - 56px))';
+        const vTag   = CONFIG.notifShowVersion !== false ? ` · v${VERSION}` : '';
+        const brand  = (!mobile && !CONFIG.compactMode && CONFIG.notifShowBranding !== false)
+            ? `<div style="${CSS_LABEL};margin-bottom:6px">Unknown Link Bypasser · @Aro Moon${vTag}</div>`
+            : '';
+        const timeLabel   = timer ? timer.label() : '';
+        const mw  = mobile ? 'min(190px,calc(100vw - 28px))' : 'min(280px,calc(100vw - 56px))';
         const mxw = mobile ? 'min(220px,calc(100vw - 28px))' : 'min(360px,calc(100vw - 56px))';
         const pad = mobile ? '10px 12px' : '14px 18px';
 
-        // ── Expiry setup ──────────────────────────────────────────────────
-        const expiryTs = opts.expiresAt ? new Date(opts.expiresAt).getTime() : null;
+        const expiryTs  = opts.expiresAt ? new Date(opts.expiresAt).getTime() : null;
         const hasExpiry = expiryTs && !isNaN(expiryTs);
 
-        /** Format remaining ms into "Xh Ym Zs" or "Xm Ys" or "Xs" */
         function _fmtRemaining(ms) {
-            if(ms <= 0) return 'expired';
+            if (ms <= 0) return 'expired';
             const totalSec = Math.ceil(ms / 1000);
             const h = Math.floor(totalSec / 3600);
             const m = Math.floor((totalSec % 3600) / 60);
             const s = totalSec % 60;
-            if(h > 0) return `${h}h ${m}m ${s}s`;
-            if(m > 0) return `${m}m ${s}s`;
+            if (h > 0) return `${h}h ${m}m ${s}s`;
+            if (m > 0) return `${m}m ${s}s`;
             return `${s}s`;
         }
 
         const card = document.createElement('div');
-        card.style.cssText = [
-            CSS_CARD_BASE,
-            'border-left:3px solid #22c55e',
-            `padding:${pad}`,
-            `min-width:${mw}`,
-            `max-width:${mxw}`,
-        ].join(';');
+        card.style.cssText = [CSS_CARD_BASE, 'border-left:3px solid #22c55e', `padding:${pad}`, `min-width:${mw}`, `max-width:${mxw}`].join(';');
 
         card.innerHTML = `
             ${brand}
@@ -1271,119 +1053,96 @@
                     ${timeLabel ? `<div style="font-size:${mobile ? '9px' : '10px'};color:#888;margin-top:1px">${timeLabel}</div>` : ''}
                 </div>
             </div>
-            <div class="__ulb_kc_key" style="
+            <div class="${_pfx}kc_key" style="
                 font-family:monospace;font-size:${mobile ? '10px' : '11px'};color:#a5f3a0;
                 background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);
                 border-radius:6px;padding:${mobile ? '7px 8px' : '8px 10px'};word-break:break-all;
-                cursor:pointer;user-select:all;margin-bottom:${mobile ? '6px' : '8px'};line-height:1.5;
+                cursor:pointer;-webkit-user-select:all;-moz-user-select:all;user-select:all;margin-bottom:${mobile ? '6px' : '8px'};line-height:1.5;
                 touch-action:manipulation;min-height:44px;display:flex;align-items:center"
                 title="Tap to copy"></div>
             ${hasExpiry ? `
-            <div class="__ulb_kc_expiry" style="
+            <div class="${_pfx}kc_expiry" style="
                 font-size:${mobile ? '9px' : '10px'};color:#f59e0b;text-align:center;
                 margin-bottom:${mobile ? '4px' : '5px'};font-variant-numeric:tabular-nums">
-                Expires in <span class="__ulb_kc_exp_val"></span>
+                Expires in <span class="${_pfx}kc_exp_val"></span>
             </div>` : ''}
-            <div class="__ulb_kc_hint" style="font-size:${mobile ? '9px' : '10px'};color:#555;text-align:center">
+            <div class="${_pfx}kc_hint" style="font-size:${mobile ? '9px' : '10px'};color:#555;text-align:center">
                 tap to copy · auto-closes in ${Math.round(autoDismissMs / 1000)}s
             </div>`;
 
-        const keyEl = card.querySelector('.__ulb_kc_key');
-        const hintEl = card.querySelector('.__ulb_kc_hint');
-        const expValEl = hasExpiry ? card.querySelector('.__ulb_kc_exp_val') : null;
-        const expRowEl = hasExpiry ? card.querySelector('.__ulb_kc_expiry') : null;
+        const keyEl    = card.querySelector('.'+_pfx+'kc_key');
+        const hintEl   = card.querySelector('.'+_pfx+'kc_hint');
+        const expValEl = hasExpiry ? card.querySelector('.'+_pfx+'kc_exp_val')  : null;
+        const expRowEl = hasExpiry ? card.querySelector('.'+_pfx+'kc_expiry') : null;
         keyEl.textContent = key;
-
         mountCard(card);
 
-        // ── Live expiry countdown ─────────────────────────────────────────
-        if(hasExpiry && expValEl) {
+        // Live expiry countdown
+        let expiryIv = null;
+        if (hasExpiry && expValEl) {
             const updateExpiry = () => {
                 const rem = expiryTs - Date.now();
                 expValEl.textContent = _fmtRemaining(rem);
-
-                // Colour-shift: green → amber (≤5 min) → red (≤60 s)
-                if(rem <= 0) {
-                    expRowEl.style.color = '#ef4444';
-                    expValEl.textContent = 'expired';
-                    clearInterval(expiryIv);
-                } else if(rem <= 60_000) {
-                    expRowEl.style.color = '#ef4444'; // red
-                } else if(rem <= 300_000) {
-                    expRowEl.style.color = '#f59e0b'; // amber
-                } else {
-                    expRowEl.style.color = '#a3e635'; // lime-green — plenty of time
-                }
+                if      (rem <= 0)       { expRowEl.style.color = '#ef4444'; clearInterval(expiryIv); }
+                else if (rem <= 60000)   { expRowEl.style.color = '#ef4444'; }
+                else if (rem <= 300000)  { expRowEl.style.color = '#f59e0b'; }
+                else                     { expRowEl.style.color = '#a3e635'; }
             };
             updateExpiry();
-            const expiryIv = setInterval(updateExpiry, 1000);
-            // Clean up interval when card is dismissed
-            const origDismiss = card._ulbDismissed;
-            const _origDismissCard = dismissCard;
+            expiryIv = setInterval(updateExpiry, 1000);
             card._expiryIv = expiryIv;
         }
 
         keyEl.addEventListener('click', () => {
             _gmCopy(key).then(() => {
-                hintEl.textContent = '✔ Copied!';
-                hintEl.style.color = '#22c55e';
+                hintEl.textContent   = '✔ Copied!';
+                hintEl.style.color   = '#22c55e';
                 setTimeout(() => {
                     hintEl.textContent = `tap to copy · auto-closes in ${Math.round(autoDismissMs / 1000)}s`;
                     hintEl.style.color = '#555';
                 }, 2000);
             }).catch(() => {
-                // Fallback: select all text in the element
-                const sel = window.getSelection();
-                const range = document.createRange();
-                range.selectNodeContents(keyEl);
-                sel.removeAllRanges();
-                sel.addRange(range);
+                // Fallback — select all text so user can manually Ctrl+C
+                try {
+                    const sel   = window.getSelection();
+                    const range = document.createRange();
+                    range.selectNodeContents(keyEl);
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                } catch (_) { /* */ }
                 notify('Text selected — press Ctrl+C / ⌘C to copy', 'info', 3000);
             });
         });
 
         setTimeout(() => {
-            if(card._expiryIv) clearInterval(card._expiryIv);
+            if (card._expiryIv) clearInterval(card._expiryIv);
             dismissCard(card);
         }, autoDismissMs);
     }
 
-    // ── §3.6  BYPASS CONFIRMATION PROMPT ──────────────────────────────────
+    // ── §3.4  BYPASS CONFIRMATION PROMPT ─────────────────────────────────
 
-    /**
-     * Show a stylised confirmation card asking the user whether to bypass.
-     * onConfirm is called when "Yes" is clicked; onCancel when "Cancel" is clicked.
-     * @param {string}   siteLabel
-     * @param {Function} onConfirm
-     * @param {Function} [onCancel]
-     */
     function showBypassPrompt(siteLabel, onConfirm, onCancel) {
-        if(!document.body) {
-            document.addEventListener('DOMContentLoaded', () => showBypassPrompt(siteLabel, onConfirm, onCancel), {
-                once: true
-            });
+        if (!document.body) {
+            document.addEventListener('DOMContentLoaded', () => showBypassPrompt(siteLabel, onConfirm, onCancel), { once: true });
             return;
         }
-        ensureSpinStyle();
+        getContainer();
 
         const mobile = _isMobile();
-        const mw = mobile ? 'min(190px,calc(100vw - 28px))' : 'min(260px,calc(100vw - 56px))';
+        const mw  = mobile ? 'min(190px,calc(100vw - 28px))' : 'min(260px,calc(100vw - 56px))';
         const mxw = mobile ? 'min(220px,calc(100vw - 28px))' : 'min(340px,calc(100vw - 56px))';
         const pad = mobile ? '10px 12px' : '14px 16px';
 
         const card = document.createElement('div');
-        card.style.cssText = [
-            CSS_CARD_BASE,
-            'border-left:3px solid #4f8ef7',
-            `padding:${pad}`,
-            `min-width:${mw}`,
-            `max-width:${mxw}`,
-        ].join(';');
+        card.style.cssText = [CSS_CARD_BASE, 'border-left:3px solid #4f8ef7', `padding:${pad}`, `min-width:${mw}`, `max-width:${mxw}`].join(';');
 
-        const versionTag = CONFIG.notifShowVersion !== false ? ` · v${VERSION}` : '';
-        const brandLine = (!mobile && !CONFIG.compactMode && CONFIG.notifShowBranding !== false) ?
-            `<div style="${CSS_LABEL};margin-bottom:6px">Unknown Link Bypasser · @Aro Moon${versionTag}</div>` :
-            '';
+        const vTag = CONFIG.notifShowVersion !== false ? ` · v${VERSION}` : '';
+        const brandLine = (!mobile && !CONFIG.compactMode && CONFIG.notifShowBranding !== false)
+            ? `<div style="${CSS_LABEL};margin-bottom:6px">Unknown Link Bypasser · @Aro Moon${vTag}</div>`
+            : '';
+
+        const FF = `-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif`;
 
         card.innerHTML = `
             ${brandLine}
@@ -1395,22 +1154,22 @@
                 </div>
             </div>
             <div style="display:flex;gap:7px">
-                <button id="__ulb_ask_yes" style="
+                <button id="${_pfx}ask_yes" style="
                     flex:1;display:flex;align-items:center;justify-content:center;
                     padding:0;border:none;border-radius:7px;cursor:pointer;
                     background:linear-gradient(135deg,#4f8ef7,#3b6fd4);color:#fff;
                     font-size:${mobile ? '11px' : '12px'};font-weight:700;letter-spacing:.3px;
                     touch-action:manipulation;min-height:44px;-webkit-tap-highlight-color:transparent;
-                    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif">
+                    font-family:${FF}">
                     ✔ Yes
                 </button>
-                <button id="__ulb_ask_no" style="
+                <button id="${_pfx}ask_no" style="
                     flex:1;display:flex;align-items:center;justify-content:center;
                     padding:0;border:1px solid rgba(255,255,255,.1);border-radius:7px;cursor:pointer;
                     background:rgba(255,255,255,.06);color:#aaa;
                     font-size:${mobile ? '11px' : '12px'};font-weight:600;letter-spacing:.3px;
                     touch-action:manipulation;min-height:44px;-webkit-tap-highlight-color:transparent;
-                    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif">
+                    font-family:${FF}">
                     ✖ Cancel
                 </button>
             </div>`;
@@ -1419,101 +1178,75 @@
 
         const dismiss = () => dismissCard(card);
 
-        card.querySelector('#__ulb_ask_yes').addEventListener('click', () => {
-            dismiss();
-            onConfirm();
-        }, {
-            once: true
-        });
-
-        card.querySelector('#__ulb_ask_no').addEventListener('click', () => {
-            dismiss();
-            if(typeof onCancel === 'function') onCancel();
-        }, {
-            once: true
-        });
+        card.querySelector('#'+_pfx+'ask_yes').addEventListener('click', () => { dismiss(); onConfirm(); }, { once: true });
+        card.querySelector('#'+_pfx+'ask_no').addEventListener('click',  () => { dismiss(); if (typeof onCancel === 'function') onCancel(); }, { once: true });
     }
 
+    // ── SPA survival: re-attach notification host if removed from DOM ─────
+    const __ulbObserver = new MutationObserver(() => {
+        if (_host && !_host.isConnected) {
+            try { (document.documentElement || document.body).appendChild(_host); } catch (_) { /* */ }
+        }
+    });
+    __ulbObserver.observe(document.documentElement || document.body, { childList: true });
 
-    /**
-     * Returns true when the current page is a Cloudflare challenge interstitial
-     * ("Just a moment…", "Checking your browser", "Are you human?" etc.).
-     * Used to suppress the bypass prompt and auto-bypass when CF is actively
-     * challenging the visitor — the bypasser should wait until CF clears.
-     */
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // §4  CAPTCHA & CLOUDFLARE
+    // ═══════════════════════════════════════════════════════════════════════
+
+    // ─── CF challenge page detection ──────────────────────────────────────
+
     function _isCfChallengePage() {
         try {
-            // Known CF interstitial element IDs / attributes
-            if(document.getElementById('cf-wrapper') ||
-                document.getElementById('cf-challenge-running') ||
-                document.getElementById('challenge-running') ||
-                document.getElementById('cf-content') ||
-                document.querySelector('[data-cf-action]') ||
+            if (document.getElementById('cf-wrapper')            ||
+                document.getElementById('cf-challenge-running')  ||
+                document.getElementById('challenge-running')     ||
+                document.getElementById('cf-content')            ||
+                document.querySelector('[data-cf-action]')       ||
                 document.querySelector('meta[name="cf-challenge"]') ||
-                document.querySelector('meta[http-equiv="refresh"][content*="cf-chl"]')) return true;
+                document.querySelector('meta[http-equiv="refresh"][content*="cf-chl"]'))
+                return true;
 
-            // Title-based heuristics (reliable across CF versions)
             const title = (document.title || '').toLowerCase();
-            if(title.includes('just a moment') ||
+            if (title.includes('just a moment')         ||
                 title.includes('checking your browser') ||
-                title.includes('are you human') ||
-                title.includes('attention required') ||
-                title.includes('cloudflare') && title.includes('security')) return true;
+                title.includes('are you human')         ||
+                title.includes('attention required')    ||
+                (title.includes('cloudflare') && title.includes('security')))
+                return true;
 
-            // Body class flags CF sets on the challenge page
             const bc = (document.body && document.body.className) || '';
-            if(bc.includes('cf-im-under-attack') ||
-                bc.includes('challenge-running') ||
-                bc.includes('cf-challenge-running')) return true;
-        } catch (_) {}
+            if (bc.includes('cf-im-under-attack')   ||
+                bc.includes('challenge-running')     ||
+                bc.includes('cf-challenge-running'))
+                return true;
+        } catch (_) { /* */ }
         return false;
     }
 
     /**
-     * Gate function: shows a bypass confirmation prompt if CONFIG.askBeforeBypass
-     * is true, using sessionStorage to survive the reload.  If already confirmed
-     * (post-reload), askBeforeBypass is false, or the host is in autoBypassHosts,
-     * runs fn() immediately.
-     *
-     * In all paths, if a Cloudflare challenge interstitial is detected the gate
-     * exits silently — the bypasser must not run or show a prompt while CF is
-     * actively challenging the visitor.
-     *
-     * @param {string}   siteLabel  Human-readable site name shown in the prompt.
-     * @param {Function} fn         The bypasser function to call.
+     * Gate function: shows a bypass confirmation prompt (or bypasses immediately)
+     * respecting CONFIG.askBeforeBypass and CONFIG.autoBypassHosts.
+     * Silently exits if a Cloudflare challenge is active.
      */
     function _gateBypass(siteLabel, fn) {
-        // Helper: run fn only if no CF challenge is currently active.
-        // If the DOM isn't loaded yet, defer the check to DOMContentLoaded so
-        // that the CF interstitial elements have had a chance to render.
-        const _runIfNoCf = (action) => {
-            const check = () => {
-                if(!_isCfChallengePage()) action();
-                // If CF challenge IS active, do nothing — the page will reload
-                // on its own once CF clears and the bypasser will fire then.
-            };
-            if(document.readyState !== 'loading') check();
-            else document.addEventListener('DOMContentLoaded', check, {
-                once: true
-            });
+        const _runIfNoCf = action => {
+            const check = () => { if (!_isCfChallengePage()) action(); };
+            if (document.readyState !== 'loading') check();
+            else document.addEventListener('DOMContentLoaded', check, { once: true });
         };
 
-        // Always run immediately when asking is disabled.
-        if(!CONFIG.askBeforeBypass) {
+        if (!CONFIG.askBeforeBypass) { _runIfNoCf(fn); return; }
+
+        if (CONFIG.autoBypassHosts && CONFIG.autoBypassHosts.some(h => host.includes(h) || (host + path).includes(h))) {
             _runIfNoCf(fn);
             return;
         }
 
-        // Auto-bypass for user-configured hosts — no session tracking needed.
-        if(CONFIG.autoBypassHosts?.some(h => host.includes(h) || (host + path).includes(h))) {
-            _runIfNoCf(fn);
-            return;
-        }
-
-        // Unique key per URL so different pages don't share confirmation state.
-        const key = '__ulb_ask_' + location.href.replace(/[^a-zA-Z0-9]/g, '').slice(0, 60);
+        const key = 'ulb_ask_' + location.href.replace(/[^a-zA-Z0-9]/g, '').slice(0, 60);
         try {
-            if(sessionStorage.getItem(key) === '1') {
+            if (sessionStorage.getItem(key) === '1') {
                 sessionStorage.removeItem(key);
                 _runIfNoCf(fn);
                 return;
@@ -1522,41 +1255,132 @@
             _runIfNoCf(fn);
             return;
         }
-        // Not yet confirmed — show the prompt (but only if no CF challenge is active).
+
         const show = () => {
-            if(_isCfChallengePage()) return; // CF is running its own challenge — leave it alone
+            if (_isCfChallengePage()) return;
             showBypassPrompt(siteLabel, () => {
-                try {
-                    sessionStorage.setItem(key, '1');
-                } catch (_) {}
+                try { sessionStorage.setItem(key, '1'); } catch (_) { /* */ }
                 location.reload();
             });
         };
-        if(document.body) show();
-        else document.addEventListener('DOMContentLoaded', show, {
-            once: true
-        });
+        if (document.body) show();
+        else document.addEventListener('DOMContentLoaded', show, { once: true });
     }
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // §4  CAPTCHA & CLOUDFLARE
-    // ═══════════════════════════════════════════════════════════════════════
+    // ── Sitekey extraction ────────────────────────────────────────────────
 
     /** Try every known strategy to extract a Cloudflare Turnstile sitekey. */
     function getSiteKey(fallback = null) {
-        for(const sel of ['[data-sitekey]', '.cf-turnstile', 'iframe[src*="challenges.cloudflare.com"]']) {
+        for (const sel of ['[data-sitekey]', '.cf-turnstile', 'iframe[src*="challenges.cloudflare.com"]']) {
             const el = document.querySelector(sel);
-            if(!el) continue;
-            const k = el.dataset?.sitekey || el.getAttribute('data-sitekey');
-            if(k) return k;
+            if (!el) continue;
+            const k = el.dataset && el.dataset.sitekey ? el.dataset.sitekey : el.getAttribute('data-sitekey');
+            if (k) return k;
             const m = (el.getAttribute('src') || '').match(/[?&]sitekey=([^&]+)/);
-            if(m) return m[1];
+            if (m) return m[1];
         }
-        for(const s of document.querySelectorAll('script:not([src])')) {
+        for (const s of document.querySelectorAll('script:not([src])')) {
             const m = s.textContent.match(/sitekey['"::\s]+([0-9a-zA-Z_\-]{20,})/);
-            if(m) return m[1];
+            if (m) return m[1];
         }
         return fallback;
+    }
+
+    // ── Shared captcha overlay builder ────────────────────────────────────
+    // All three solvers (Turnstile, reCAPTCHA, hCaptcha) use an identical card
+    // layout. This helper builds the shared shell to avoid repetition.
+
+    function _buildCaptchaOverlay(headingText, subText) {
+        const hasMotion = window.matchMedia
+            ? window.matchMedia('(prefers-reduced-motion:no-preference)').matches !== false
+            : true;
+
+        const overlay = document.createElement('div');
+        // Use explicit top/right/bottom/left instead of `inset` for Firefox < 87 compat
+        overlay.style.cssText = [
+            'all:initial', 'position:fixed',
+            'top:0', 'right:0', 'bottom:0', 'left:0',
+            'z-index:2147483647',
+            'display:flex', 'align-items:center', 'justify-content:center',
+            'background:rgba(2,6,23,.88)',
+            hasMotion ? 'backdrop-filter:blur(6px)' : '',
+            hasMotion ? '-webkit-backdrop-filter:blur(6px)' : '',
+            'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif',
+            'transition:opacity .3s ease',
+        ].filter(Boolean).join(';');
+
+        const card = document.createElement('div');
+        card.style.cssText = [
+            'background:linear-gradient(145deg,#0f172a,#1e293b)',
+            'border:1px solid rgba(99,102,241,.35)', 'border-radius:18px',
+            'box-shadow:0 0 0 1px rgba(255,255,255,.04),0 32px 64px rgba(0,0,0,.7),0 0 80px rgba(99,102,241,.12)',
+            'padding:32px 28px 28px', 'display:flex', 'flex-direction:column',
+            'align-items:center', 'gap:16px',
+            'min-width:min(340px,calc(100vw - 32px))', 'max-width:calc(100vw - 48px)', 'position:relative',
+        ].join(';');
+
+        // Spinner
+        const spinWrap = document.createElement('div');
+        spinWrap.style.cssText = 'position:relative;width:48px;height:48px;flex-shrink:0';
+
+        const spinRing = document.createElement('div');
+        spinRing.className = _pfx+'captcha_ring';
+        spinRing.style.cssText = [
+            'position:absolute',
+            'top:0', 'right:0', 'bottom:0', 'left:0',
+            'border-radius:50%',
+            'border:3px solid rgba(99,102,241,.18)',
+            'border-top-color:#818cf8',
+            'animation:'+_pfx+'spin 0.9s linear infinite',
+        ].join(';');
+
+        const spinIcon = document.createElement('div');
+        spinIcon.style.cssText = 'position:absolute;top:0;right:0;bottom:0;left:0;display:flex;align-items:center;justify-content:center;font-size:22px';
+        spinIcon.textContent   = '🔓';
+        spinWrap.append(spinRing, spinIcon);
+
+        // Text block
+        const textWrap = document.createElement('div');
+        textWrap.style.cssText = 'text-align:center';
+
+        const heading = document.createElement('div');
+        heading.style.cssText  = 'font-size:15px;font-weight:700;color:#e2e8f0;letter-spacing:.3px;margin-bottom:5px';
+        heading.textContent     = headingText;
+
+        const sub = document.createElement('div');
+        sub.className           = _pfx+'captcha_sub';
+        sub.style.cssText       = 'font-size:12px;color:#64748b;line-height:1.5';
+        sub.textContent         = subText;
+
+        textWrap.append(heading, sub);
+
+        // Widget slot
+        const widgetDiv = document.createElement('div');
+        widgetDiv.className     = _pfx+'captcha_widget';
+        widgetDiv.style.cssText = 'border-radius:8px;overflow:hidden';
+
+        // Footer
+        const footer = document.createElement('div');
+        footer.style.cssText = 'font-size:10px;color:#334155;letter-spacing:1.2px;text-transform:uppercase;margin-top:4px';
+        footer.textContent   = `Unknown Link Bypasser · @Aro Moon${CONFIG.notifShowVersion !== false ? ` · v${VERSION}` : ''}`;
+
+        card.append(spinWrap, textWrap, widgetDiv, footer);
+
+        // Inject @keyframes scoped inside the overlay itself — never touches document.head
+        const _ks = document.createElement('style');
+        _ks.textContent = '@keyframes '+_pfx+'spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}';
+        overlay.appendChild(_ks);
+        overlay.appendChild(card);
+
+        const mount = () => {
+            overlay.style.opacity = '0';
+            (document.body || document.documentElement).appendChild(overlay);
+            requestAnimationFrame(() => { overlay.style.opacity = '1'; });
+        };
+        if (document.body) mount();
+        else document.addEventListener('DOMContentLoaded', mount, { once: true });
+
+        return { overlay, card, spinRing, sub, widgetDiv };
     }
 
     /**
@@ -1564,195 +1388,79 @@
      * Resolves with the token string, or rejects after 60 s.
      */
     function solveTurnstile(sitekey) {
-        if(!sitekey) return Promise.reject(new Error('[ULB/Turnstile] sitekey is required'));
+        if (!sitekey) return Promise.reject(new Error('[ULB/Turnstile] sitekey is required'));
         return new Promise((resolve, reject) => {
-            const cbName = '__ulb_tsCb_' + generateId();
+            const cbName = _pfx+'tsCb_' + generateId();
+            const { overlay, spinRing, sub, widgetDiv } = _buildCaptchaOverlay('Solving CAPTCHA', 'Please complete the challenge below if it appears…');
 
-            // Inject @keyframes into the main document so the overlay spinner works
-            // (the Shadow DOM keyframes are not accessible outside the shadow root).
-            if(!document.querySelector('style[data-ulb-spin]')) {
-                const ks = document.createElement('style');
-                ks.setAttribute('data-ulb-spin', '1');
-                ks.textContent = '@keyframes __ulb_spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }';
-                (document.head || document.documentElement).appendChild(ks);
-            }
+            overlay.id = _pfx+'ts_overlay';
+            spinRing.id = _pfx+'ts_ring';
+            sub.id      = _pfx+'ts_sub';
 
-            const overlay = document.createElement('div');
-            overlay.id = '__ulb_ts_overlay';
-            const _tsHasBlur = window.matchMedia?.('(prefers-reduced-motion:no-preference)').matches !== false;
-            overlay.style.cssText = [
-                'all:initial', 'position:fixed', 'inset:0', 'z-index:2147483647',
-                'display:flex', 'align-items:center', 'justify-content:center',
-                'background:rgba(2,6,23,.88)',
-                ...(_tsHasBlur ? ['backdrop-filter:blur(6px)', '-webkit-backdrop-filter:blur(6px)'] : []),
-                'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif',
-                'transition:opacity .3s ease',
-            ].join(';');
-
-            const card = document.createElement('div');
-            card.style.cssText = [
-                'background:linear-gradient(145deg,#0f172a,#1e293b)',
-                'border:1px solid rgba(99,102,241,.35)', 'border-radius:18px',
-                'box-shadow:0 0 0 1px rgba(255,255,255,.04),0 32px 64px rgba(0,0,0,.7),0 0 80px rgba(99,102,241,.12)',
-                'padding:32px 28px 28px', 'display:flex', 'flex-direction:column',
-                'align-items:center', 'gap:16px',
-                'min-width:340px', 'max-width:calc(100vw - 48px)', 'position:relative',
-            ].join(';');
-
-            const spinWrap = document.createElement('div');
-            spinWrap.style.cssText = 'position:relative;width:48px;height:48px;flex-shrink:0';
-            const spinRing = document.createElement('div');
-            spinRing.id = '__ulb_ts_ring';
-            spinRing.style.cssText = [
-                'position:absolute;inset:0;border-radius:50%',
-                'border:3px solid rgba(99,102,241,.18)',
-                'border-top-color:#818cf8',
-                'animation:__ulb_spin 0.9s linear infinite',
-            ].join(';');
-            const spinIcon = document.createElement('div');
-            spinIcon.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:22px';
-            spinIcon.textContent = '🔓';
-            spinWrap.append(spinRing, spinIcon);
-
-            const textWrap = document.createElement('div');
-            textWrap.style.cssText = 'text-align:center';
-            const heading = document.createElement('div');
-            heading.style.cssText = 'font-size:15px;font-weight:700;color:#e2e8f0;letter-spacing:.3px;margin-bottom:5px';
-            heading.textContent = 'Solving CAPTCHA';
-            const sub = document.createElement('div');
-            sub.id = '__ulb_ts_sub';
-            sub.style.cssText = 'font-size:12px;color:#64748b;line-height:1.5';
-            sub.textContent = 'Please complete the challenge below if it appears…';
-            textWrap.append(heading, sub);
-
-            const widgetDiv = document.createElement('div');
             widgetDiv.setAttribute('data-sitekey', sitekey);
             widgetDiv.setAttribute('data-callback', cbName);
             widgetDiv.setAttribute('data-theme', 'dark');
-            widgetDiv.style.cssText = 'border-radius:8px;overflow:hidden';
 
-            const footer = document.createElement('div');
-            footer.style.cssText = 'font-size:10px;color:#334155;letter-spacing:1.2px;text-transform:uppercase;margin-top:4px';
-            footer.textContent = `Unknown Link Bypasser · @Aro Moon${CONFIG.notifShowVersion !== false ? ` · v${VERSION}` : ''}`;
-
-            card.append(spinWrap, textWrap, widgetDiv, footer);
-            overlay.appendChild(card);
-
-            const mountOverlay = () => {
-                overlay.style.opacity = '0';
-                (document.body || document.documentElement).appendChild(overlay);
-                requestAnimationFrame(() => {
-                    overlay.style.opacity = '1';
-                });
-            };
-            if(document.body) mountOverlay();
-            else document.addEventListener('DOMContentLoaded', mountOverlay, {
-                once: true
-            });
-
-            // Trigger the CF-hook inside the freshly added Turnstile iframe via
-            // postMessage (cross-origin safe).  This covers sites that are NOT in
-            // cfAllowedRefs and would otherwise get no auto-click.
+            // Trigger CF hook inside freshly-added Turnstile iframes via postMessage
             const autoClickObs = new MutationObserver(() => {
                 overlay.querySelectorAll('iframe').forEach(fr => {
-                    try {
-                        fr.contentWindow?.postMessage({
-                            __ulb_triggerClick: true
-                        }, '*');
-                    } catch (_) {}
+                    try { fr.contentWindow && fr.contentWindow.postMessage({ [_pfx + 'triggerClick']: true }, '*'); } catch (_) { /* cross-origin */ }
                 });
             });
-            autoClickObs.observe(overlay, {
-                childList: true,
-                subtree: true
-            });
+            autoClickObs.observe(overlay, { childList: true, subtree: true });
 
-            const timeout = setTimeout(() => {
-                cleanup();
-                reject(new Error('[ULB/Turnstile] timed out after 60s'));
-            }, 60_000);
+            const timeout = setTimeout(() => { cleanup(); reject(new Error('[ULB/Turnstile] timed out after 60s')); }, 60000);
 
-            // Polling fallback: if a debugger statement pauses JS at the moment
-            // Turnstile fires its callback the promise would never resolve.
-            // We independently poll getResponse() and the hidden input so a solve
-            // is detected even if the callback was missed.
             let _pollInterval = null;
-            let _tokenFired = false;
-            let _widgetId = null;
+            let _tokenFired   = false;
+            let _widgetId     = null;
 
             function cleanup() {
                 clearTimeout(timeout);
-                if(_pollInterval) {
-                    clearInterval(_pollInterval);
-                    _pollInterval = null;
-                }
+                if (_pollInterval) { clearInterval(_pollInterval); _pollInterval = null; }
                 autoClickObs.disconnect();
-                try {
-                    delete unsafeWindow[cbName];
-                } catch (_) {}
+                try { delete _uw[cbName]; } catch (_) { /* */ }
                 overlay.style.opacity = '0';
-                setTimeout(() => overlay.remove(), 350);
+                setTimeout(() => { try { overlay.remove(); } catch (_) { /* */ } }, 350);
             }
 
             const onToken = token => {
-                if(_tokenFired) return; // guard: only fire once
+                if (_tokenFired) return;
                 _tokenFired = true;
-                const sub2 = overlay.querySelector('#__ulb_ts_sub');
-                if(sub2) sub2.textContent = 'Solved ✓ — redirecting…';
-                const ring = overlay.querySelector('#__ulb_ts_ring');
-                if(ring) {
-                    ring.style.borderTopColor = '#22c55e';
-                    ring.style.animationDuration = '0.3s';
-                }
-                setTimeout(() => {
-                    cleanup();
-                    resolve(token);
-                }, 400);
+                const sub2 = overlay.querySelector('#'+_pfx+'ts_sub');
+                const ring = overlay.querySelector('#'+_pfx+'ts_ring');
+                if (sub2) sub2.textContent = 'Solved ✓ — redirecting…';
+                if (ring) { ring.style.borderTopColor = '#22c55e'; ring.style.webkitAnimationDuration = '0.3s'; ring.style.animationDuration = '0.3s'; }
+                setTimeout(() => { cleanup(); resolve(token); }, 400);
             };
-            unsafeWindow[cbName] = onToken;
+
+            try { _uw[cbName] = onToken; } catch (_) { window[cbName] = onToken; }
 
             function _startSolvePoll() {
-                if(_pollInterval) return;
+                if (_pollInterval) return;
                 _pollInterval = setInterval(() => {
-                    if(_tokenFired) {
-                        clearInterval(_pollInterval);
-                        return;
-                    }
-                    const ts = unsafeWindow.turnstile;
-                    // Method 1 — turnstile.getResponse() API (works even when callback was skipped)
+                    if (_tokenFired) { clearInterval(_pollInterval); return; }
                     try {
-                        const resp = (_widgetId != null) ?
-                            ts?.getResponse?.(_widgetId) :
-                            ts?.getResponse?.();
-                        if(resp && typeof resp === 'string' && resp.length > 20) {
-                            onToken(resp);
-                            return;
-                        }
-                    } catch (_) {}
-                    // Method 2 — the hidden input Turnstile fills after a solve
+                        const ts   = _uw.turnstile;
+                        const resp = (_widgetId != null) ? ts && ts.getResponse && ts.getResponse(_widgetId) : ts && ts.getResponse && ts.getResponse();
+                        if (resp && typeof resp === 'string' && resp.length > 20) { onToken(resp); return; }
+                    } catch (_) { /* */ }
                     const inp = widgetDiv.querySelector('[name="cf-turnstile-response"]');
-                    if(inp?.value?.length > 20) {
-                        onToken(inp.value);
-                    }
+                    if (inp && inp.value && inp.value.length > 20) onToken(inp.value);
                 }, 300);
             }
 
             const tryRenderApi = () => {
-                const ts = unsafeWindow.turnstile;
-                if(!ts?.render) return false;
+                const ts = _uw.turnstile;
+                if (!ts || !ts.render) return false;
                 try {
                     _widgetId = ts.render(widgetDiv, {
                         sitekey,
                         theme: 'dark',
                         size: 'normal',
                         callback: onToken,
-                        'expired-callback': () => {
-                            _tokenFired = false;
-                            if(_widgetId != null) ts.reset?.(_widgetId);
-                        },
-                        'error-callback': () => {
-                            if(_widgetId != null) ts.reset?.(_widgetId);
-                        }
+                        'expired-callback': () => { _tokenFired = false; if (_widgetId != null && ts.reset) ts.reset(_widgetId); },
+                        'error-callback':   () => { if (_widgetId != null && ts.reset) ts.reset(_widgetId); },
                     });
                     _startSolvePoll();
                     return true;
@@ -1762,198 +1470,128 @@
                 }
             };
 
-            if(!tryRenderApi()) {
-                if(!document.querySelector('script[src*="challenges.cloudflare.com/turnstile"]')) {
-                    const s = Object.assign(document.createElement('script'), {
-                        src: 'https://challenges.cloudflare.com/turnstile/v0/api.js',
-                        async: true,
-                    });
-                    s.onload = () => {
-                        tryRenderApi();
-                        _startSolvePoll();
-                    };
+            if (!tryRenderApi()) {
+                if (!document.querySelector('script[src*="challenges.cloudflare.com/turnstile"]')) {
+                    const s = document.createElement('script');
+                    s.src   = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+                    s.async = true;
+                    s.onload  = () => { tryRenderApi(); _startSolvePoll(); };
+                    s.onerror = () => { cleanup(); reject(new Error('[ULB/Turnstile] failed to load Turnstile script')); };
                     document.head.appendChild(s);
                 } else {
-                    const poll = setInterval(() => {
-                        if(tryRenderApi()) {
-                            clearInterval(poll);
-                            _startSolvePoll();
-                        }
-                    }, 150);
-                    setTimeout(() => clearInterval(poll), 10_000);
+                    const poll = setInterval(() => { if (tryRenderApi()) { clearInterval(poll); _startSolvePoll(); } }, 150);
+                    setTimeout(() => clearInterval(poll), 10000);
                 }
             }
         });
     }
 
-    // ── reCAPTCHA v2 Audio Solver ──────────────────────────────────────────
-    //
-    //  Architecture mirrors the Turnstile solver exactly:
-    //    • solveRecaptcha([sitekey]) is called from main-page bypassers.
-    //      It auto-detects the sitekey, shows a full-screen overlay identical
-    //      to the Turnstile one, and renders the real reCAPTCHA v2 widget
-    //      inside it via grecaptcha.render() (loading the API script if needed).
-    //    • _runRecaptchaFrameSolver() runs inside the google.com/recaptcha/*
-    //      iframes that grecaptcha.render() creates (matched by @match).
-    //      It clicks the checkbox, switches to the audio challenge, grabs the
-    //      .mp3 URL, and POSTs it to the engageub transcription service via
-    //      GM_xmlhttpRequest.  On a valid response it fills #audio-response
-    //      and clicks Verify — which fires the grecaptcha callback back in the
-    //      overlay, resolving the promise and dismissing the UI.
+    // ── reCAPTCHA v2 Audio Solver ─────────────────────────────────────────
 
-    const _RC_SERVERS = ['https://engageub.pythonanywhere.com', 'https://engageub1.pythonanywhere.com'];
-    const _rcLatency = _RC_SERVERS.map(() => 10000);
+    const _RC_SERVERS  = ['https://engageub.pythonanywhere.com', 'https://engageub1.pythonanywhere.com'];
+    const _rcLatency   = _RC_SERVERS.map(() => 10000);
 
     function _rcPingServers() {
         _RC_SERVERS.forEach((url, i) => {
             const start = Date.now();
             GM_xmlhttpRequest({
-                method: 'GET',
-                url,
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
+                method: 'GET', url,
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 timeout: 8000,
-                onload(r) {
-                    if(r?.responseText === '0') _rcLatency[i] = Date.now() - start;
-                },
-                onerror() {},
+                onload (r) { if (r && r.responseText === '0') _rcLatency[i] = Date.now() - start; },
+                onerror  () {},
                 ontimeout() {},
             });
         });
     }
 
-    /** Return the URL of whichever transcription server last had lowest latency. */
     function _rcBestServer() {
-        let minLat = Infinity,
-            best = _RC_SERVERS[0];
-        _rcLatency.forEach((lat, i) => {
-            if(lat <= minLat) {
-                minLat = lat;
-                best = _RC_SERVERS[i];
-            }
-        });
+        let minLat = Infinity, best = _RC_SERVERS[0];
+        _rcLatency.forEach((lat, i) => { if (lat <= minLat) { minLat = lat; best = _RC_SERVERS[i]; } });
         return best;
     }
 
-    /**
-     * POST an audio challenge URL to the transcription service.
-     * Returns a Promise<string> with the recognised text, or rejects on failure.
-     */
     function _rcGetAudioText(audioUrl, lang) {
         return new Promise((resolve, reject) => {
             const url = audioUrl.replace('recaptcha.net', 'google.com');
             GM_xmlhttpRequest({
                 method: 'POST',
                 url: _rcBestServer(),
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 data: `input=${encodeURIComponent(url)}&lang=${lang || 'en-US'}`,
                 timeout: 60000,
-                onload(r) {
-                    const text = r?.responseText?.trim();
-                    if(!text || text === '0' || text.includes('<') || text.includes('>') ||
-                        text.length < 2 || text.length > 50) {
+                onload (r) {
+                    const text = r && r.responseText && r.responseText.trim();
+                    if (!text || text === '0' || text.includes('<') || text.includes('>') || text.length < 2 || text.length > 50) {
                         reject(new Error(`[ULB/reCAPTCHA] Bad transcription: "${text}"`));
-                    } else {
-                        resolve(text);
-                    }
+                    } else { resolve(text); }
                 },
-                onerror() {
-                    reject(new Error('[ULB/reCAPTCHA] GM_xmlhttpRequest network error'));
-                },
-                ontimeout() {
-                    reject(new Error('[ULB/reCAPTCHA] Transcription request timed out'));
-                },
+                onerror  () { reject(new Error('[ULB/reCAPTCHA] GM_xmlhttpRequest network error')); },
+                ontimeout() { reject(new Error('[ULB/reCAPTCHA] Transcription request timed out')); },
             });
         });
     }
 
-    /**
-     * Runs inside google.com/recaptcha/* iframes.
-     * Polls every 4 s to drive the audio-challenge flow from start to finish.
-     */
+    /** Runs inside google.com/recaptcha/* iframes — drives the audio-challenge flow. */
     function _runRecaptchaFrameSolver() {
         const MAX_ATTEMPTS = 5;
         const lang = document.documentElement.getAttribute('lang') || 'en-US';
-        let requestCount = 0;
-        let solved = false;
-        let waitingForResp = false;
-        let lastAudioUrl = '';
+        let requestCount = 0, solved = false, waitingForResp = false, lastAudioUrl = '';
 
         const SEL = {
-            CHECKBOX: '.recaptcha-checkbox-border',
-            AUDIO_BTN: '#recaptcha-audio-button',
-            AUDIO_SRC: '#audio-source',
+            CHECKBOX:   '.recaptcha-checkbox-border',
+            AUDIO_BTN:  '#recaptcha-audio-button',
+            AUDIO_SRC:  '#audio-source',
             RESP_FIELD: '.rc-audiochallenge-response-field',
             RESP_INPUT: '#audio-response',
-            AUDIO_ERR: '.rc-audiochallenge-error-message',
-            RELOAD: '#recaptcha-reload-button',
-            VERIFY: '#recaptcha-verify-button',
-            STATUS: '#recaptcha-accessible-status',
-            IMG_SEL: '#rc-imageselect',
-            DOSBLOCK: '.rc-doscaptcha-body',
+            AUDIO_ERR:  '.rc-audiochallenge-error-message',
+            RELOAD:     '#recaptcha-reload-button',
+            VERIFY:     '#recaptcha-verify-button',
+            STATUS:     '#recaptcha-accessible-status',
+            IMG_SEL:    '#rc-imageselect',
+            DOSBLOCK:   '.rc-doscaptcha-body',
         };
 
         const isHidden = el => !el || el.offsetParent === null;
         const q = sel => document.querySelector(sel);
+        const initialStatus = q(SEL.STATUS) ? q(SEL.STATUS).innerText : '';
 
-        const initialStatus = q(SEL.STATUS)?.innerText ?? '';
-
-        // Determine fastest server before first attempt
         _rcPingServers();
 
         const iv = setInterval(async () => {
             try {
-                if(solved || requestCount > MAX_ATTEMPTS) {
-                    clearInterval(iv);
-                    return;
+                if (solved || requestCount > MAX_ATTEMPTS) { clearInterval(iv); return; }
+
+                if (q(SEL.STATUS) && q(SEL.STATUS).innerText !== initialStatus) {
+                    solved = true; console.log('[ULB/reCAPTCHA] Solved ✓'); clearInterval(iv); return;
                 }
 
-                // ── Solved? ──────────────────────────────────────────────
-                if(q(SEL.STATUS) && q(SEL.STATUS).innerText !== initialStatus) {
-                    solved = true;
-                    console.log('[ULB/reCAPTCHA] Solved ✓');
-                    clearInterval(iv);
-                    return;
-                }
+                if (q(SEL.CHECKBOX) && !isHidden(q(SEL.CHECKBOX))) q(SEL.CHECKBOX).click();
 
-                // ── Click checkbox ───────────────────────────────────────
-                if(q(SEL.CHECKBOX) && !isHidden(q(SEL.CHECKBOX))) {
-                    q(SEL.CHECKBOX).click();
-                }
-
-                // ── Switch to audio challenge ────────────────────────────
-                if(q(SEL.AUDIO_BTN) && !isHidden(q(SEL.AUDIO_BTN)) && q(SEL.IMG_SEL)) {
-                    q(SEL.AUDIO_BTN).click();
-                }
+                if (q(SEL.AUDIO_BTN) && !isHidden(q(SEL.AUDIO_BTN)) && q(SEL.IMG_SEL)) q(SEL.AUDIO_BTN).click();
 
                 const audioEl = q(SEL.AUDIO_SRC);
 
-                // ── Reload if stale audio or error ───────────────────────
-                if((!waitingForResp && audioEl?.src && lastAudioUrl === audioEl.src && q(SEL.RELOAD)) ||
-                    (q(SEL.AUDIO_ERR)?.innerText?.length > 0 && q(SEL.RELOAD) && !q(SEL.RELOAD).disabled)) {
+                if ((!waitingForResp && audioEl && audioEl.src && lastAudioUrl === audioEl.src && q(SEL.RELOAD)) ||
+                    (q(SEL.AUDIO_ERR) && q(SEL.AUDIO_ERR).innerText && q(SEL.AUDIO_ERR).innerText.length > 0 && q(SEL.RELOAD) && !q(SEL.RELOAD).disabled)) {
                     q(SEL.RELOAD).click();
                     return;
                 }
 
-                // ── New audio URL → transcribe ───────────────────────────
-                if(!waitingForResp && audioEl?.src?.length > 0 &&
+                if (!waitingForResp && audioEl && audioEl.src && audioEl.src.length > 0 &&
                     lastAudioUrl !== audioEl.src &&
                     q(SEL.RESP_FIELD) && !isHidden(q(SEL.RESP_FIELD)) &&
                     q(SEL.RESP_INPUT) && !q(SEL.RESP_INPUT).value &&
-                    q(SEL.AUDIO_BTN)?.style.display === 'none' &&
+                    q(SEL.AUDIO_BTN) && q(SEL.AUDIO_BTN).style.display === 'none' &&
                     requestCount <= MAX_ATTEMPTS) {
 
                     waitingForResp = true;
-                    lastAudioUrl = audioEl.src;
+                    lastAudioUrl   = audioEl.src;
                     requestCount++;
 
                     try {
                         const text = await _rcGetAudioText(audioEl.src, lang);
-                        // Confirm the audio URL hasn't rotated while we awaited
-                        if(q(SEL.AUDIO_SRC)?.src === lastAudioUrl &&
+                        if (q(SEL.AUDIO_SRC) && q(SEL.AUDIO_SRC).src === lastAudioUrl &&
                             q(SEL.RESP_INPUT) && !q(SEL.RESP_INPUT).value &&
                             q(SEL.VERIFY)) {
                             q(SEL.RESP_INPUT).value = text;
@@ -1966,8 +1604,7 @@
                     }
                 }
 
-                // ── Stop on bot-detection wall ───────────────────────────
-                if(q(SEL.DOSBLOCK)?.innerText?.length > 0) {
+                if (q(SEL.DOSBLOCK) && q(SEL.DOSBLOCK).innerText && q(SEL.DOSBLOCK).innerText.length > 0) {
                     console.warn('[ULB/reCAPTCHA] Automated queries detected — stopping');
                     clearInterval(iv);
                 }
@@ -1980,29 +1617,26 @@
 
     /** Try every known strategy to extract a reCAPTCHA v2 sitekey from the page. */
     function getRecaptchaSiteKey(fallback = null) {
-        // Strategy 1 — .g-recaptcha or any element with data-sitekey
-        for(const sel of ['.g-recaptcha[data-sitekey]', 'div[data-sitekey]', '[data-sitekey]']) {
+        for (const sel of ['.g-recaptcha[data-sitekey]', 'div[data-sitekey]', '[data-sitekey]']) {
             const el = document.querySelector(sel);
-            const k = el?.dataset?.sitekey || el?.getAttribute('data-sitekey');
-            if(k && k.length > 20) return k;
+            const k  = el && (el.dataset && el.dataset.sitekey || el.getAttribute('data-sitekey'));
+            if (k && k.length > 20) return k;
         }
-        // Strategy 2 — grecaptcha.render / sitekey in inline scripts
-        for(const s of document.querySelectorAll('script:not([src])')) {
+        for (const s of document.querySelectorAll('script:not([src])')) {
             const t = s.textContent;
-            for(const re of [
-                    /['"]sitekey['"]\s*:\s*['"]([0-9A-Za-z_\-]{20,})['"]/,
-                    /sitekey\s*[=:,]\s*['"]([0-9A-Za-z_\-]{20,})['"]/,
-                    /data-sitekey=['"]([0-9A-Za-z_\-]{20,})['"]/,
-                ]) {
+            for (const re of [
+                /['"]sitekey['"]\s*:\s*['"]([0-9A-Za-z_\-]{20,})['"]/,
+                /sitekey\s*[=:,]\s*['"]([0-9A-Za-z_\-]{20,})['"]/,
+                /data-sitekey=['"]([0-9A-Za-z_\-]{20,})['"]/,
+            ]) {
                 const m = t.match(re);
-                if(m) return m[1];
+                if (m) return m[1];
             }
         }
-        // Strategy 3 — already-rendered iframe src param
         const fr = document.querySelector('iframe[src*="recaptcha"][src*="anchor"]');
-        if(fr) {
+        if (fr) {
             const m = fr.src.match(/[?&]k=([0-9A-Za-z_\-]{20,})/);
-            if(m) return m[1];
+            if (m) return m[1];
         }
         return fallback;
     }
@@ -2011,187 +1645,77 @@
      * Show a full-screen overlay, render the reCAPTCHA v2 widget inside it,
      * and let _runRecaptchaFrameSolver handle the audio bypass in the iframes.
      * Resolves with the g-recaptcha-response token, or rejects after 120 s.
-     *
-     * @param {string} [sitekey]  Override; auto-detected from page if omitted.
-     * @returns {Promise<string>}
      */
     function solveRecaptcha(sitekey) {
-        if(CONFIG.autoRecaptcha === false)
+        if (CONFIG.autoRecaptcha === false)
             return Promise.reject(new Error('[ULB/reCAPTCHA] autoRecaptcha is disabled'));
 
         const key = sitekey || getRecaptchaSiteKey();
-        if(!key) return Promise.reject(new Error('[ULB/reCAPTCHA] could not find sitekey on page'));
+        if (!key) return Promise.reject(new Error('[ULB/reCAPTCHA] could not find sitekey on page'));
 
         return new Promise((resolve, reject) => {
-            const cbName = '__ulb_rcCb_' + generateId();
+            const cbName = _pfx+'rcCb_' + generateId();
+            const { overlay, spinRing, sub, widgetDiv } = _buildCaptchaOverlay('Solving reCAPTCHA', 'Switching to audio challenge…');
 
-            // Inject spin @keyframes into the main document (same as Turnstile)
-            if(!document.querySelector('style[data-ulb-spin]')) {
-                const ks = document.createElement('style');
-                ks.setAttribute('data-ulb-spin', '1');
-                ks.textContent = '@keyframes __ulb_spin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }';
-                (document.head || document.documentElement).appendChild(ks);
-            }
+            overlay.id  = _pfx+'rc_overlay';
+            spinRing.id = _pfx+'rc_ring';
+            sub.id      = _pfx+'rc_sub';
+            widgetDiv.id = _pfx+'rc_widget';
 
-            // ── Overlay (identical layout to solveTurnstile) ───────────────
-            const overlay = document.createElement('div');
-            overlay.id = '__ulb_rc_overlay';
-            overlay.style.cssText = [
-                'all:initial', 'position:fixed', 'inset:0', 'z-index:2147483647',
-                'display:flex', 'align-items:center', 'justify-content:center',
-                'background:rgba(2,6,23,.82)', 'backdrop-filter:blur(6px)',
-                '-webkit-backdrop-filter:blur(6px)',
-                'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif',
-                'transition:opacity .3s ease',
-            ].join(';');
-
-            const card = document.createElement('div');
-            card.style.cssText = [
-                'background:linear-gradient(145deg,#0f172a,#1e293b)',
-                'border:1px solid rgba(99,102,241,.35)', 'border-radius:18px',
-                'box-shadow:0 0 0 1px rgba(255,255,255,.04),0 32px 64px rgba(0,0,0,.7),0 0 80px rgba(99,102,241,.12)',
-                'padding:32px 28px 28px', 'display:flex', 'flex-direction:column',
-                'align-items:center', 'gap:16px',
-                'min-width:340px', 'max-width:calc(100vw - 48px)', 'position:relative',
-            ].join(';');
-
-            // Spinner
-            const spinWrap = document.createElement('div');
-            spinWrap.style.cssText = 'position:relative;width:48px;height:48px;flex-shrink:0';
-            const spinRing = document.createElement('div');
-            spinRing.id = '__ulb_rc_ring';
-            spinRing.style.cssText = [
-                'position:absolute;inset:0;border-radius:50%',
-                'border:3px solid rgba(99,102,241,.18)',
-                'border-top-color:#818cf8',
-                'animation:__ulb_spin 0.9s linear infinite',
-            ].join(';');
-            const spinIcon = document.createElement('div');
-            spinIcon.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:22px';
-            spinIcon.textContent = '🔓';
-            spinWrap.append(spinRing, spinIcon);
-
-            // Text block
-            const textWrap = document.createElement('div');
-            textWrap.style.cssText = 'text-align:center';
-            const heading = document.createElement('div');
-            heading.style.cssText = 'font-size:15px;font-weight:700;color:#e2e8f0;letter-spacing:.3px;margin-bottom:5px';
-            heading.textContent = 'Solving reCAPTCHA';
-            const sub = document.createElement('div');
-            sub.id = '__ulb_rc_sub';
-            sub.style.cssText = 'font-size:12px;color:#64748b;line-height:1.5';
-            sub.textContent = 'Switching to audio challenge…';
-            textWrap.append(heading, sub);
-
-            // Widget container — grecaptcha.render() targets this div
-            const widgetDiv = document.createElement('div');
-            widgetDiv.id = '__ulb_rc_widget';
-            widgetDiv.style.cssText = 'border-radius:8px;overflow:hidden';
-
-            // Footer branding
-            const footer = document.createElement('div');
-            footer.style.cssText = 'font-size:10px;color:#334155;letter-spacing:1.2px;text-transform:uppercase;margin-top:4px';
-            footer.textContent = `Unknown Link Bypasser · @Aro Moon${CONFIG.notifShowVersion !== false ? ` · v${VERSION}` : ''}`;
-
-            card.append(spinWrap, textWrap, widgetDiv, footer);
-            overlay.appendChild(card);
-
-            const mountOverlay = () => {
-                overlay.style.opacity = '0';
-                (document.body || document.documentElement).appendChild(overlay);
-                requestAnimationFrame(() => {
-                    overlay.style.opacity = '1';
-                });
-            };
-            if(document.body) mountOverlay();
-            else document.addEventListener('DOMContentLoaded', mountOverlay, {
-                once: true
-            });
-
-            let _tokenFired = false;
-            let _widgetId = null;
+            let _tokenFired   = false;
+            let _widgetId     = null;
             let _pollInterval = null;
 
-            const timeout = setTimeout(() => {
-                cleanup();
-                reject(new Error('[ULB/reCAPTCHA] timed out after 120s'));
-            }, 120_000);
+            const timeout = setTimeout(() => { cleanup(); reject(new Error('[ULB/reCAPTCHA] timed out after 120s')); }, 120000);
 
             function cleanup() {
                 clearTimeout(timeout);
-                if(_pollInterval) {
-                    clearInterval(_pollInterval);
-                    _pollInterval = null;
-                }
-                try {
-                    delete unsafeWindow[cbName];
-                } catch (_) {}
-                try {
-                    delete unsafeWindow['__ulb_rcLoad_' + cbName];
-                } catch (_) {}
+                if (_pollInterval) { clearInterval(_pollInterval); _pollInterval = null; }
+                try { delete _uw[cbName]; }            catch (_) { /* */ }
+                try { delete _uw[_pfx+'rcLoad_' + cbName]; } catch (_) { /* */ }
                 overlay.style.opacity = '0';
-                setTimeout(() => overlay.remove(), 350);
+                setTimeout(() => { try { overlay.remove(); } catch (_) { /* */ } }, 350);
             }
 
             const onToken = token => {
-                if(_tokenFired) return; // fire exactly once
+                if (_tokenFired) return;
                 _tokenFired = true;
-                const sub2 = overlay.querySelector('#__ulb_rc_sub');
-                if(sub2) sub2.textContent = 'Solved ✓ — redirecting…';
-                const ring = overlay.querySelector('#__ulb_rc_ring');
-                if(ring) {
-                    ring.style.borderTopColor = '#22c55e';
-                    ring.style.animationDuration = '0.3s';
-                }
-                setTimeout(() => {
-                    cleanup();
-                    resolve(token);
-                }, 400);
+                const sub2 = overlay.querySelector('#'+_pfx+'rc_sub');
+                const ring = overlay.querySelector('#'+_pfx+'rc_ring');
+                if (sub2) sub2.textContent = 'Solved ✓ — redirecting…';
+                if (ring) { ring.style.borderTopColor = '#22c55e'; ring.style.webkitAnimationDuration = '0.3s'; ring.style.animationDuration = '0.3s'; }
+                setTimeout(() => { cleanup(); resolve(token); }, 400);
             };
-            unsafeWindow[cbName] = onToken;
+            try { _uw[cbName] = onToken; } catch (_) { window[cbName] = onToken; }
 
-            // ── Polling fallback — catches solves the callback may miss ──
             function _startPoll() {
-                if(_pollInterval) return;
+                if (_pollInterval) return;
                 _pollInterval = setInterval(() => {
-                    if(_tokenFired) {
-                        clearInterval(_pollInterval);
-                        return;
-                    }
-                    // Method 1 — grecaptcha.getResponse()
+                    if (_tokenFired) { clearInterval(_pollInterval); return; }
                     try {
-                        const resp = (_widgetId != null) ?
-                            unsafeWindow.grecaptcha?.getResponse?.(_widgetId) :
-                            unsafeWindow.grecaptcha?.getResponse?.();
-                        if(resp?.length > 20) {
-                            onToken(resp);
-                            return;
-                        }
-                    } catch (_) {}
-                    // Method 2 — the hidden textarea reCAPTCHA populates after a solve
+                        const rc   = _uw.grecaptcha;
+                        const resp = (_widgetId != null)
+                            ? rc && rc.getResponse && rc.getResponse(_widgetId)
+                            : rc && rc.getResponse && rc.getResponse();
+                        if (resp && resp.length > 20) { onToken(resp); return; }
+                    } catch (_) { /* */ }
                     const ta = widgetDiv.querySelector('[name="g-recaptcha-response"]') ||
-                        document.querySelector('[name="g-recaptcha-response"]');
-                    if(ta?.value?.length > 20) onToken(ta.value);
+                               document.querySelector('[name="g-recaptcha-response"]');
+                    if (ta && ta.value && ta.value.length > 20) onToken(ta.value);
                 }, 500);
             }
 
-            // ── Render the widget via grecaptcha API ────────────────────
             const tryRenderApi = () => {
-                const rc = unsafeWindow.grecaptcha;
-                if(!rc?.render) return false;
+                const rc = _uw.grecaptcha;
+                if (!rc || !rc.render) return false;
                 try {
                     _widgetId = rc.render(widgetDiv, {
                         sitekey: key,
-                        theme: 'dark',
-                        size: 'normal',
+                        theme:   'dark',
+                        size:    'normal',
                         callback: onToken,
-                        'expired-callback': () => {
-                            _tokenFired = false;
-                            if(_widgetId != null) rc.reset?.(_widgetId);
-                        },
-                        'error-callback': () => {
-                            if(_widgetId != null) rc.reset?.(_widgetId);
-                        },
+                        'expired-callback': () => { _tokenFired = false; if (_widgetId != null && rc.reset) rc.reset(_widgetId); },
+                        'error-callback':   () => { if (_widgetId != null && rc.reset) rc.reset(_widgetId); },
                     });
                     _startPoll();
                     return true;
@@ -2201,46 +1725,128 @@
                 }
             };
 
-            // If the reCAPTCHA API script isn't loaded yet, inject it
-            if(!tryRenderApi()) {
+            if (!tryRenderApi()) {
                 const existing = document.querySelector(
                     'script[src*="google.com/recaptcha/api.js"], script[src*="recaptcha/api"]'
                 );
-                if(!existing) {
-                    const loadCb = '__ulb_rcLoad_' + cbName;
-                    unsafeWindow[loadCb] = () => {
-                        tryRenderApi();
-                        _startPoll();
-                    };
-                    const s = Object.assign(document.createElement('script'), {
-                        src: `https://www.google.com/recaptcha/api.js?render=explicit&onload=${loadCb}`,
-                        async: true,
-                    });
+                if (!existing) {
+                    const loadCb = _pfx+'rcLoad_' + cbName;
+                    try { _uw[loadCb] = () => { tryRenderApi(); _startPoll(); }; } catch (_) { window[loadCb] = () => { tryRenderApi(); _startPoll(); }; }
+                    const s = document.createElement('script');
+                    s.src   = `https://www.google.com/recaptcha/api.js?render=explicit&onload=${loadCb}`;
+                    s.async = true;
+                    s.onerror = () => { cleanup(); reject(new Error('[ULB/reCAPTCHA] failed to load reCAPTCHA script')); };
                     (document.head || document.documentElement).appendChild(s);
                 } else {
-                    // API script present but not ready yet — poll until it is
-                    const poll = setInterval(() => {
-                        if(tryRenderApi()) {
-                            clearInterval(poll);
-                            _startPoll();
-                        }
-                    }, 150);
-                    setTimeout(() => clearInterval(poll), 10_000);
+                    const poll = setInterval(() => { if (tryRenderApi()) { clearInterval(poll); _startPoll(); } }, 150);
+                    setTimeout(() => clearInterval(poll), 10000);
                 }
             }
         });
     }
 
-    // ── Cloudflare Challenge Frame Hook ────────────────────────────────────
+    /**
+     * Reusable CAPTCHA overlay — currently supports hCaptcha.
+     * Hides all ULB toasts while active, restores on cleanup.
+     */
+    function createCaptchaUI({ type = 'hcaptcha', sitekey, version, showVersion = true }) {
+        return new Promise((resolve, reject) => {
+            const _hideNotifs = () => {
+                if (_host) {
+                    _host.style.setProperty('visibility', 'hidden', 'important');
+                    _host.style.setProperty('opacity', '0', 'important');
+                    _host.style.setProperty('pointer-events', 'none', 'important');
+                }
+            };
+            const _restoreNotifs = () => {
+                if (_host) {
+                    _host.style.removeProperty('visibility');
+                    _host.style.removeProperty('opacity');
+                    _host.style.removeProperty('pointer-events');
+                }
+            };
+            _hideNotifs();
+            const _notifObs = new MutationObserver(_hideNotifs);
+            _notifObs.observe(document.documentElement, { childList: true, subtree: true });
+
+            const cbName = _pfx+'captchaCb_' + generateId();
+            let _fired = false;
+
+            const { overlay, sub: subEl, widgetDiv } = _buildCaptchaOverlay(
+                'Solving CAPTCHA',
+                'Please complete the challenge below if it appears…'
+            );
+            overlay.id = _pfx+'hc_overlay';
+
+            const timeout = setTimeout(() => { cleanup(); reject(new Error('[ULB/captcha] timed out after 90s')); }, 90000);
+
+            function cleanup() {
+                clearTimeout(timeout);
+                _notifObs.disconnect();
+                _restoreNotifs();
+                try { delete _uw[cbName]; } catch (_) { /* */ }
+                overlay.style.opacity = '0';
+                setTimeout(() => { try { overlay.remove(); } catch (_) { /* */ } }, 350);
+            }
+
+            const _onToken = token => {
+                if (_fired) return;
+                _fired = true;
+                const s    = overlay.querySelector('.'+_pfx+'captcha_sub');
+                const ring = overlay.querySelector('.'+_pfx+'captcha_ring');
+                if (s)    s.textContent = 'Solved ✓ — continuing…';
+                if (ring) { ring.style.borderTopColor = '#22c55e'; ring.style.webkitAnimationDuration = '0.3s'; ring.style.animationDuration = '0.3s'; }
+                setTimeout(() => { cleanup(); resolve(token); }, 400);
+            };
+            try { _uw[cbName] = _onToken; } catch (_) { window[cbName] = _onToken; }
+
+            if (type === 'hcaptcha') {
+                const tryRender = () => {
+                    const hc = _uw.hcaptcha;
+                    if (!hc || !hc.render) return false;
+                    try {
+                        hc.render(widgetDiv, { sitekey, theme: 'dark', callback: cbName });
+                        return true;
+                    } catch (e) {
+                        cleanup();
+                        reject(new Error('hCaptcha render failed: ' + e.message));
+                        return true;
+                    }
+                };
+                if (!tryRender()) {
+                    if (!document.querySelector('script[src*="js.hcaptcha.com"]')) {
+                        const s = document.createElement('script');
+                        s.src   = 'https://js.hcaptcha.com/1/api.js';
+                        s.async = true;
+                        s.onload  = () => tryRender();
+                        s.onerror = () => { cleanup(); reject(new Error('[ULB/hCaptcha] failed to load hCaptcha script')); };
+                        document.head.appendChild(s);
+                    } else {
+                        const poll = setInterval(() => { if (tryRender()) clearInterval(poll); }, 150);
+                        setTimeout(() => clearInterval(poll), 15000);
+                    }
+                }
+                return;
+            }
+
+            cleanup();
+            reject(new Error(`[ULB/captcha] unknown type: "${type}"`));
+        });
+    }
+
+    // ── Cloudflare Challenge Frame Hook ───────────────────────────────────
+
     function _runCfHook() {
-        // Proxy isTrusted=true on every event so CF sees a real interaction
-        const _origAdd = EventTarget.prototype.addEventListener;
-        EventTarget.prototype.addEventListener = function (type, listener, options) {
+        // Proxy isTrusted=true on every event so CF sees a real interaction.
+        // Note: in Firefox content scripts, patching EventTarget.prototype is
+        // allowed when @grant unsafeWindow is declared and we use _uw.
+        const _origAdd = _uw.EventTarget.prototype.addEventListener;
+        _uw.EventTarget.prototype.addEventListener = function (type, listener, options) {
             return _origAdd.call(this, type, function (e) {
                 return listener.call(this, new Proxy(e, {
-                    get(t, p) {
-                        if(p === 'isTrusted') return true;
-                        if(p === 'origin' && location.hash.includes('origin='))
+                    get (t, p) {
+                        if (p === 'isTrusted') return true;
+                        if (p === 'origin' && location.hash.includes('origin='))
                             return decodeURIComponent(location.hash.split('origin=')[1]);
                         const v = t[p];
                         return typeof v === 'function' ? v.bind(t) : v;
@@ -2250,30 +1856,19 @@
         };
 
         const frameId = (location.hash.match(/[#&]ulbid=([^&]+)/) || [])[1] || '';
-        let _clicked = false;
+        let _clicked  = false;
 
         function clickCheckbox(cb) {
-            if(!cb || cb.checked) return;
+            if (!cb || cb.checked) return;
             _clicked = true;
             try {
-                window.parent.postMessage({
-                    __ulb: true,
-                    __ulb_clicked: true,
-                    id: frameId
-                }, '*');
-            } catch (_) {}
+                window.parent.postMessage({ [_pfx+'_m']: true, [_pfx + 'clicked']: true, id: frameId }, '*');
+            } catch (_) { /* cross-origin — ignore */ }
 
-            // Fire the full mouse event chain CF expects, then call .click()
             const rect = cb.getBoundingClientRect();
-            const cx = rect.left + rect.width / 2;
-            const cy = rect.top + rect.height / 2;
-            const evOpts = {
-                bubbles: true,
-                cancelable: true,
-                view: window,
-                clientX: cx,
-                clientY: cy
-            };
+            const cx   = rect.left + rect.width  / 2;
+            const cy   = rect.top  + rect.height / 2;
+            const evOpts = { bubbles: true, cancelable: true, view: window, clientX: cx, clientY: cy };
             ['mouseover', 'mousemove', 'mousedown', 'mouseup', 'click'].forEach(type =>
                 cb.dispatchEvent(new MouseEvent(type, evOpts))
             );
@@ -2282,330 +1877,98 @@
 
         function tryClick(root) {
             const cb = root.querySelector('input[type=checkbox]');
-            if(cb && !cb.checked) clickCheckbox(cb);
+            if (cb && !cb.checked) clickCheckbox(cb);
         }
 
-        // Intercept attachShadow so we observe every shadow root CF creates
         const shadowObs = new MutationObserver(muts => {
-            for(const m of muts)
+            for (const m of muts) {
                 m.addedNodes.forEach(n => {
-                    if(n.nodeType !== 1) return;
-                    const cb = n.matches?.('input[type=checkbox]') ? n : n.querySelector('input[type=checkbox]');
-                    if(cb && !cb.checked) clickCheckbox(cb);
+                    if (n.nodeType !== 1) return;
+                    const cb = (typeof n.matches === 'function' && n.matches('input[type=checkbox]')) ? n : (n.querySelector && n.querySelector('input[type=checkbox]'));
+                    if (cb && !cb.checked) clickCheckbox(cb);
                 });
+            }
         });
 
-        const _origShadow = Element.prototype.attachShadow;
-        Element.prototype.attachShadow = function (opt) {
+        const _origShadow = (_uw.Element || Element).prototype.attachShadow;
+        (_uw.Element || Element).prototype.attachShadow = function (opt) {
             const root = _origShadow.call(this, opt);
-            shadowObs.observe(root, {
-                childList: true,
-                subtree: true
-            });
+            shadowObs.observe(root, { childList: true, subtree: true });
             Promise.resolve().then(() => tryClick(root));
             return root;
         };
 
-        // Also scan any shadow roots already present at run time
         document.querySelectorAll('*').forEach(el => {
-            if(el.shadowRoot) {
-                shadowObs.observe(el.shadowRoot, {
-                    childList: true,
-                    subtree: true
-                });
+            if (el.shadowRoot) {
+                shadowObs.observe(el.shadowRoot, { childList: true, subtree: true });
                 tryClick(el.shadowRoot);
             }
         });
 
-        // Retry every 200 ms in case the checkbox appears after we ran
         const retry = setInterval(() => {
-            if(_clicked) {
-                clearInterval(retry);
-                return;
-            }
+            if (_clicked) { clearInterval(retry); return; }
             tryClick(document);
-            document.querySelectorAll('*').forEach(el => {
-                if(el.shadowRoot) tryClick(el.shadowRoot);
-            });
+            document.querySelectorAll('*').forEach(el => { if (el.shadowRoot) tryClick(el.shadowRoot); });
         }, 200);
-        setTimeout(() => clearInterval(retry), 30_000);
+        setTimeout(() => clearInterval(retry), 30000);
     }
 
-    // Early return: only the CF hook runs inside challenge iframes.
-    // Guard: only hook Turnstile iframes whose parent page is a known bypass-target.
-    // Running unconditionally broke legitimate Turnstile verification on arbitrary sites
-    // because the isTrusted-proxy and auto-click interfere with CF's bot-detection.
-    if(location.hostname === 'challenges.cloudflare.com') {
-        const _cfRef = document.referrer || '';
+    // Early returns for CF challenge iframes and reCAPTCHA iframes
+
+    if (location.hostname === 'challenges.cloudflare.com') {
+        const _cfRef     = document.referrer || '';
         const _cfAllowed = CONFIG.cfAllowedRefs || [];
-        // Also allow when the parent explicitly tagged the frame via #ulbid= hash
-        if(_cfAllowed.some(r => r && _cfRef.includes(r)) || location.hash.includes('ulbid=')) {
+        if (_cfAllowed.some(r => r && _cfRef.includes(r)) || location.hash.includes('ulbid=')) {
             _runCfHook();
         }
-        // If referrer is unknown/not in the list, leave the iframe completely alone.
         return;
     }
 
-    // Early return: run the reCAPTCHA audio solver inside google recaptcha iframes.
-    if(CONFIG.autoRecaptcha !== false &&
+    if (CONFIG.autoRecaptcha !== false &&
         (location.hostname === 'www.google.com' || location.hostname === 'recaptcha.net') &&
         location.pathname.includes('/recaptcha/')) {
         _runRecaptchaFrameSolver();
         return;
     }
 
-    /**
-     * Reusable CAPTCHA overlay for any bypasser — currently supports hCaptcha.
-     * Hides ALL notify toasts (including late-mounted ones) while active,
-     * then restores them on cleanup.
-     *
-     * Usage:
-     *   const token = await createCaptchaUI({ type: 'hcaptcha', sitekey: '…' });
-     *
-     * @param {object} opts
-     * @param {'hcaptcha'} opts.type       - captcha provider (extend as needed)
-     * @param {string}     opts.sitekey    - provider sitekey
-     * @param {string}    [opts.version]   - VERSION string for footer
-     * @param {boolean}   [opts.showVersion=true]
-     */
-    function createCaptchaUI({
-        type = 'hcaptcha',
-        sitekey,
-        version,
-        showVersion = true
-    }) {
-        return new Promise((resolve, reject) => {
-            // ── Hide ALL toasts (now and any mounted while overlay is open) ─
-            const _hideNotifs = () => {
-                document.querySelectorAll('#__ulb_host, [id^="__ulb_toast"]').forEach(el => {
-                    el.style.setProperty('visibility', 'hidden', 'important');
-                    el.style.setProperty('opacity', '0', 'important');
-                    el.style.setProperty('pointer-events', 'none', 'important');
-                });
-            };
-            const _restoreNotifs = () => {
-                document.querySelectorAll('#__ulb_host, [id^="__ulb_toast"]').forEach(el => {
-                    el.style.removeProperty('visibility');
-                    el.style.removeProperty('opacity');
-                    el.style.removeProperty('pointer-events');
-                });
-            };
-            _hideNotifs();
-            const _notifObs = new MutationObserver(_hideNotifs);
-            _notifObs.observe(document.documentElement, {
-                childList: true,
-                subtree: true
-            });
-
-            const cbName = '__ulb_captchaCb_' + generateId();
-            let _fired = false;
-
-            // ── Spin keyframe (once) ───────────────────────────────────────
-            if(!document.querySelector('style[data-ulb-spin]')) {
-                const ks = document.createElement('style');
-                ks.setAttribute('data-ulb-spin', '1');
-                ks.textContent = '@keyframes __ulb_spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}';
-                (document.head || document.documentElement).appendChild(ks);
-            }
-
-            // ── Overlay ────────────────────────────────────────────────────
-            const hasMotion = window.matchMedia?.('(prefers-reduced-motion:no-preference)').matches !== false;
-            const overlay = document.createElement('div');
-            overlay.id = '__ulb_hc_overlay';
-            overlay.style.cssText = [
-                'all:initial', 'position:fixed', 'inset:0', 'z-index:2147483647',
-                'display:flex', 'align-items:center', 'justify-content:center',
-                'background:rgba(2,6,23,.88)',
-                ...(hasMotion ? ['backdrop-filter:blur(6px)', '-webkit-backdrop-filter:blur(6px)'] : []),
-                'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif',
-                'transition:opacity .3s ease',
-            ].join(';');
-
-            const card = document.createElement('div');
-            card.style.cssText = [
-                'background:linear-gradient(145deg,#0f172a,#1e293b)',
-                'border:1px solid rgba(99,102,241,.35)', 'border-radius:18px',
-                'box-shadow:0 0 0 1px rgba(255,255,255,.04),0 32px 64px rgba(0,0,0,.7),0 0 80px rgba(99,102,241,.12)',
-                'padding:32px 28px 28px', 'display:flex', 'flex-direction:column',
-                'align-items:center', 'gap:16px',
-                'min-width:340px', 'max-width:calc(100vw - 48px)', 'position:relative',
-            ].join(';');
-
-            const spinWrap = document.createElement('div');
-            spinWrap.style.cssText = 'position:relative;width:48px;height:48px;flex-shrink:0';
-            const spinRing = document.createElement('div');
-            spinRing.id = '__ulb_captcha_ring';
-            spinRing.style.cssText = [
-                'position:absolute;inset:0;border-radius:50%',
-                'border:3px solid rgba(99,102,241,.18)',
-                'border-top-color:#818cf8',
-                'animation:__ulb_spin 0.9s linear infinite',
-            ].join(';');
-            const spinIcon = document.createElement('div');
-            spinIcon.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:22px';
-            spinIcon.textContent = '🔓';
-            spinWrap.append(spinRing, spinIcon);
-
-            const textWrap = document.createElement('div');
-            textWrap.style.cssText = 'text-align:center';
-            const heading = document.createElement('div');
-            heading.style.cssText = 'font-size:15px;font-weight:700;color:#e2e8f0;letter-spacing:.3px;margin-bottom:5px';
-            heading.textContent = 'Solving CAPTCHA';
-            const subEl = document.createElement('div');
-            subEl.id = '__ulb_captcha_sub';
-            subEl.style.cssText = 'font-size:12px;color:#64748b;line-height:1.5';
-            subEl.textContent = 'Please complete the challenge below if it appears…';
-            textWrap.append(heading, subEl);
-
-            const widgetDiv = document.createElement('div');
-            widgetDiv.style.cssText = 'border-radius:8px;overflow:hidden';
-
-            const footer = document.createElement('div');
-            footer.style.cssText = 'font-size:10px;color:#334155;letter-spacing:1.2px;text-transform:uppercase;margin-top:4px';
-            footer.textContent = `Unknown Link Bypasser · @Aro Moon${showVersion && version ? ` · v${version}` : ''}`;
-
-            card.append(spinWrap, textWrap, widgetDiv, footer);
-            overlay.appendChild(card);
-
-            const mount = () => {
-                overlay.style.opacity = '0';
-                (document.body || document.documentElement).appendChild(overlay);
-                requestAnimationFrame(() => {
-                    overlay.style.opacity = '1';
-                });
-            };
-            document.body ? mount() : document.addEventListener('DOMContentLoaded', mount, {
-                once: true
-            });
-
-            // ── Cleanup ────────────────────────────────────────────────────
-            const timeout = setTimeout(() => {
-                cleanup();
-                reject(new Error('[ULB/captcha] timed out after 90s'));
-            }, 90_000);
-
-            function cleanup() {
-                clearTimeout(timeout);
-                _notifObs.disconnect();
-                _restoreNotifs();
-                try {
-                    delete unsafeWindow[cbName];
-                } catch (_) {}
-                overlay.style.opacity = '0';
-                setTimeout(() => overlay.remove(), 350);
-            }
-
-            // ── Solved callback (shared by all providers) ──────────────────
-            const _onToken = token => {
-                if(_fired) return;
-                _fired = true;
-                const s = overlay.querySelector('#__ulb_captcha_sub');
-                if(s) s.textContent = 'Solved ✓ — continuing…';
-                const ring = overlay.querySelector('#__ulb_captcha_ring');
-                if(ring) {
-                    ring.style.borderTopColor = '#22c55e';
-                    ring.style.animationDuration = '0.3s';
-                }
-                setTimeout(() => {
-                    cleanup();
-                    resolve(token);
-                }, 400);
-            };
-            unsafeWindow[cbName] = _onToken;
-
-            // ── Provider: hCaptcha ─────────────────────────────────────────
-            if(type === 'hcaptcha') {
-                const tryRender = () => {
-                    const hc = unsafeWindow.hcaptcha;
-                    if(!hc?.render) return false;
-                    try {
-                        hc.render(widgetDiv, {
-                            sitekey,
-                            theme: 'dark',
-                            callback: cbName
-                        });
-                        return true;
-                    } catch (e) {
-                        cleanup();
-                        reject(new Error('hCaptcha render failed: ' + e.message));
-                        return true;
-                    }
-                };
-                if(!tryRender()) {
-                    if(!document.querySelector('script[src*="js.hcaptcha.com"]')) {
-                        const s = Object.assign(document.createElement('script'), {
-                            src: 'https://js.hcaptcha.com/1/api.js',
-                            async: true,
-                        });
-                        s.onload = () => tryRender();
-                        document.head.appendChild(s);
-                    } else {
-                        const poll = setInterval(() => {
-                            if(tryRender()) clearInterval(poll);
-                        }, 150);
-                        setTimeout(() => clearInterval(poll), 15_000);
-                    }
-                }
-                return;
-            }
-
-            // ── Unknown provider ───────────────────────────────────────────
-            cleanup();
-            reject(new Error(`[ULB/captcha] unknown type: "${type}"`));
-        });
-    }
+    // Do not run inside iframes — only execute on the top-level page.
+    if (window.self !== window.top) return;
 
     // ═══════════════════════════════════════════════════════════════════════
     // §5  SHARED BYPASSER HELPERS
     // ═══════════════════════════════════════════════════════════════════════
 
-    /**
-     * Create a standard error handler bound to a notification handle.
-     */
+    /** Create a standard error handler bound to a notification handle. */
     function makeErrHandler(siteLabel, nh, msClose = 6000) {
         return (label, err) => {
-            console.error(`[ULB/${siteLabel}] ${label}`, err ?? '');
-            // HTTP errors already contain the full human-readable description —
-            // showing them directly is cleaner than prepending "site: label —".
-            const msg = err?._isHttp ?
-                err.message :
-                `${siteLabel}: ${label}${err?.message ? ` — ${err.message}` : ''}`;
-            if(nh) {
+            console.error(`[ULB/${siteLabel}] ${label}`, err || '');
+            const msg = err && err._isHttp
+                ? err.message
+                : `${siteLabel}: ${label}${err && err.message ? ` — ${err.message}` : ''}`;
+            if (nh) {
                 nh.update(msg, 'error');
                 setTimeout(() => nh.remove(), msClose);
             } else {
-                notify(msg, 'error', msClose, {
-                    site: siteLabel
-                });
+                notify(msg, 'error', msClose, { site: siteLabel });
             }
         };
     }
 
-    /**
-     * Validate url and redirect, showing a manual-redirect fallback card.
-     */
+    /** Validate url and redirect, showing a manual-redirect fallback card. */
     function safeRedirect(url, nh, opts = {}) {
-        const {
-            t,
-            siteLabel,
-            autoDismiss = CONFIG.autoDismissOnRedirect
-        } = opts;
-        if(!safeUrl(url)) {
-            const msg = `Invalid or unsafe redirect URL`;
-            console.error(`[ULB/${siteLabel ?? 'ULB'}] ${msg}:`, url);
-            if(nh) {
+        const { t, siteLabel, autoDismiss = CONFIG.autoDismissOnRedirect } = opts;
+        if (!safeUrl(url)) {
+            const msg = 'Invalid or unsafe redirect URL';
+            console.error(`[ULB/${siteLabel || 'ULB'}] ${msg}:`, url);
+            if (nh) {
                 nh.update(`${siteLabel ? siteLabel + ': ' : ''}${msg}`, 'error');
                 setTimeout(() => nh.remove(), 6000);
             } else {
-                notify(msg, 'error', 6000, siteLabel ? {
-                    site: siteLabel
-                } : {});
+                notify(msg, 'error', 6000, siteLabel ? { site: siteLabel } : {});
             }
             return false;
         }
-        if(nh) {
-            setTimeout(() => nh.remove(), autoDismiss ? 300 : 800);
-        }
+        if (nh) setTimeout(() => nh.remove(), autoDismiss ? 300 : 800);
         showRedirectNotif(url);
         location.href = url;
         return true;
@@ -2615,56 +1978,30 @@
 
     function _lnbzGetAppVars() {
         try {
-            const v = unsafeWindow.app_vars;
-            if(v && typeof v === 'object') return v;
-        } catch (_) {}
-        for(const s of document.querySelectorAll('script:not([src])')) {
+            const v = _uw.app_vars;
+            if (v && typeof v === 'object') return v;
+        } catch (_) { /* */ }
+        for (const s of document.querySelectorAll('script:not([src])')) {
             const m = s.textContent.match(/var\s+app_vars\s*=\s*(\{[\s\S]*?\});/);
-            if(m) {
-                try {
-                    return JSON.parse(m[1]);
-                } catch (_) {}
-            }
+            if (m) { try { return JSON.parse(m[1]); } catch (_) { /* */ } }
         }
         return null;
     }
 
     function _lnbzWaitForAppVars(cb, timeoutMs = 8000) {
         const v = _lnbzGetAppVars();
-        if(v) {
-            cb(v);
-            return;
-        }
+        if (v) { cb(v); return; }
 
         let done = false;
-        const safeCb = val => {
-            if(!done) {
-                done = true;
-                cb(val);
-            }
-        };
-
-        const start = Date.now();
-        const obs = new MutationObserver(() => {
+        const safeCb = val => { if (!done) { done = true; cb(val); } };
+        const start  = Date.now();
+        const obs    = new MutationObserver(() => {
             const v2 = _lnbzGetAppVars();
-            if(v2) {
-                obs.disconnect();
-                safeCb(v2);
-                return;
-            }
-            if(Date.now() - start > timeoutMs) {
-                obs.disconnect();
-                safeCb(null);
-            }
+            if (v2) { obs.disconnect(); safeCb(v2); return; }
+            if (Date.now() - start > timeoutMs) { obs.disconnect(); safeCb(null); }
         });
-        obs.observe(document.documentElement, {
-            childList: true,
-            subtree: true
-        });
-        setTimeout(() => {
-            obs.disconnect();
-            safeCb(_lnbzGetAppVars());
-        }, timeoutMs);
+        obs.observe(document.documentElement, { childList: true, subtree: true });
+        setTimeout(() => { obs.disconnect(); safeCb(_lnbzGetAppVars()); }, timeoutMs);
     }
 
     function _lnbzWaitForAppVarsAsync(timeoutMs = 8000) {
@@ -2673,45 +2010,31 @@
 
     /**
      * Generic /links/go bypasser for encurta.net-system sites.
-     *
-     * PAGE A (captcha)  — form without ad_form_data → solve Turnstile → submit
-     * PAGE B (go-link)  — [name="ad_form_data"] present →
-     *                      read countdown from app_vars.counter_value →
-     *                      wait → POST /links/go → redirect
-     *
-     * Sites: lnbz.la, 4br.me, go.yorurl.com, go.caslinks.com,
-     *        short-jambo.com, short-jambo.ink
+     * PAGE A (captcha)  — no ad_form_data → solve Turnstile → submit
+     * PAGE B (go-link)  — ad_form_data present → countdown → POST /links/go → redirect
      */
     function _runLinksGoBypasser(siteLabel, captchaSiteKey) {
-        const t = makeTimer();
-        const nh = notify(`${siteLabel} — detecting page…`, 'loading', 0, {
-            site: siteLabel
-        });
-
+        const t  = makeTimer();
+        const nh = notify(`${siteLabel} — detecting page…`, 'loading', 0, { site: siteLabel });
         const handleError = (label, err) => {
             console.error(`[ULB/${siteLabel}] ${label}`, err);
-            nh.update(`${siteLabel}: ${label}${err?.message ? ` — ${err.message}` : ''}`, 'error');
+            nh.update(`${siteLabel}: ${label}${err && err.message ? ` — ${err.message}` : ''}`, 'error');
             setTimeout(() => nh.remove(), 7000);
         };
 
-        const doGoFetch = async (adEl) => {
-            nh.update(`${siteLabel} — fetching destination…`, 'loading', {
-                site: siteLabel
-            });
+        const doGoFetch = async adEl => {
+            nh.update(`${siteLabel} — fetching destination…`, 'loading', { site: siteLabel });
             try {
                 const form = adEl.closest('form') || document.querySelector('#go-link') || document.querySelector('form');
                 let body;
-                if(form) {
+                if (form) {
                     const params = new URLSearchParams();
-                    form.querySelectorAll('input[type="hidden"]').forEach(inp => {
-                        if(inp.name) params.append(inp.name, inp.value);
-                    });
-                    if(!params.has('_method')) params.set('_method', 'POST');
+                    form.querySelectorAll('input[type="hidden"]').forEach(inp => { if (inp.name) params.append(inp.name, inp.value); });
+                    if (!params.has('_method')) params.set('_method', 'POST');
                     body = params.toString();
                 } else {
                     body = '_method=POST&ad_form_data=' + encodeURIComponent(adEl.value);
                 }
-
                 const r = await fetchWithTimeout('/links/go', {
                     method: 'POST',
                     headers: {
@@ -2722,253 +2045,424 @@
                     credentials: 'include',
                     body,
                 }, 15000);
-                if(!r.ok) throw _httpError(r, '/links/go');
+                if (!r.ok) throw _httpError(r, '/links/go');
                 let d;
-                try {
-                    d = await r.json();
-                } catch {
-                    throw new Error('Response was not valid JSON');
-                }
+                try { d = await r.json(); } catch (_) { throw new Error('Response was not valid JSON'); }
                 const dest = d.url || d.data;
-                if(!dest) throw new Error('No destination URL in server response');
-                safeRedirect(dest, nh, {
-                    t,
-                    siteLabel
-                });
-            } catch (err) {
-                handleError('go-link POST failed', err);
-            }
+                if (!dest) throw new Error('No destination URL in server response');
+                safeRedirect(dest, nh, { t, siteLabel });
+            } catch (err) { handleError('go-link POST failed', err); }
         };
 
-        const runGoPage = (adEl) => {
-            nh.update(`${siteLabel} — reading countdown…`, 'loading', {
-                site: siteLabel
-            });
+        const runGoPage = adEl => {
+            nh.update(`${siteLabel} — reading countdown…`, 'loading', { site: siteLabel });
             _lnbzWaitForAppVars(vars => {
-                const secs = Math.max(1, parseInt(vars?.counter_value, 10) || 15);
-                nh.update(`${siteLabel} — redirecting in ${secs}s…`, 'loading', {
-                    site: siteLabel
-                });
+                const secs = Math.max(1, parseInt(vars && vars.counter_value, 10) || 15);
+                nh.update(`${siteLabel} — redirecting in ${secs}s…`, 'loading', { site: siteLabel });
                 showCountdown(secs, () => doGoFetch(adEl), `${siteLabel} bypass`);
             });
         };
 
-        const runCaptchaPage = async (form) => {
-            if(!CONFIG.autoCaptcha) {
-                nh.update(`${siteLabel} — solve captcha manually to continue…`, 'info', 0, {
-                    site: siteLabel
-                });
+        const runCaptchaPage = async form => {
+            if (!CONFIG.autoTurnstile) {
+                nh.update(`${siteLabel} — solve captcha manually to continue…`, 'info', 0, { site: siteLabel });
                 return;
             }
-
-            nh.update(`${siteLabel} — solving captcha…`, 'loading', {
-                site: siteLabel
-            });
-
+            nh.update(`${siteLabel} — solving captcha…`, 'loading', { site: siteLabel });
             let sitekey = captchaSiteKey;
-            if(!sitekey) {
+            if (!sitekey) {
                 const vars = await _lnbzWaitForAppVarsAsync(5000);
-                sitekey = vars?.turnstile_site_key || getSiteKey();
+                sitekey = (vars && vars.turnstile_site_key) || getSiteKey();
             }
-            if(!sitekey) {
-                handleError('could not find Turnstile sitekey', null);
-                return;
-            }
-
+            if (!sitekey) { handleError('could not find Turnstile sitekey', null); return; }
             let token;
-            try {
-                token = await solveTurnstile(sitekey);
-            } catch (e) {
-                handleError('Turnstile solve failed', e);
-                return;
-            }
+            try { token = await solveTurnstile(sitekey); } catch (e) { handleError('Turnstile solve failed', e); return; }
 
             let input = form.querySelector('[name="cf-turnstile-response"]');
-            if(!input) {
-                input = Object.assign(document.createElement('input'), {
-                    type: 'hidden',
-                    name: 'cf-turnstile-response'
-                });
+            if (!input) {
+                input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'cf-turnstile-response';
                 form.appendChild(input);
             }
             input.value = token;
 
-            const widgetInput = document.getElementById('cf-chl-widget-qg0yr_response') ||
-                document.querySelector('.cf-turnstile [name$="_response"]');
-            if(widgetInput && widgetInput !== input) widgetInput.value = token;
+            const widgetInput = document.getElementById('cf-chl-widget-qg0yr_response') || document.querySelector('.cf-turnstile [name$="_response"]');
+            if (widgetInput && widgetInput !== input) widgetInput.value = token;
 
             const submitBtn = document.getElementById('invisibleCaptchaShortlink') ||
-                form.querySelector('button[type="submit"][disabled], input[type="submit"][disabled]');
-            if(submitBtn) submitBtn.disabled = false;
+                              form.querySelector('button[type="submit"][disabled], input[type="submit"][disabled]');
+            if (submitBtn) submitBtn.disabled = false;
 
-            nh.update(`${siteLabel} — submitting…`, 'loading', {
-                site: siteLabel
-            });
-
-            try {
-                submitForm(form);
-            } catch (e) {
-                console.warn('[ULB/lnbz] form submit failed, trying click fallback:', e);
+            nh.update(`${siteLabel} — submitting…`, 'loading', { site: siteLabel });
+            try { submitForm(form); } catch (_) {
                 const btn2 = form.querySelector('button[type="submit"], input[type="submit"]');
-                if(btn2) btn2.click();
+                if (btn2) btn2.click();
             }
         };
 
         const detect = () => {
             const adEl = document.querySelector('[name="ad_form_data"]');
-            if(adEl) {
-                runGoPage(adEl);
-                return true;
-            }
+            if (adEl) { runGoPage(adEl); return true; }
             const form = document.getElementById('link-view') || document.querySelector('form');
-            if(form) {
-                runCaptchaPage(form);
-                return true;
-            }
+            if (form) { runCaptchaPage(form); return true; }
             return false;
         };
 
         const init = () => {
-            if(detect()) return;
+            if (detect()) return;
             let tries = 0;
             const iv = setInterval(() => {
-                if(detect()) {
-                    clearInterval(iv);
-                    return;
-                }
-                if(++tries > 200) {
-                    clearInterval(iv);
-                    handleError('page structure not recognised after 20s', null);
-                }
+                if (detect()) { clearInterval(iv); return; }
+                if (++tries > 200) { clearInterval(iv); handleError('page structure not recognised after 20s', null); }
             }, 100);
         };
-
         onReady(init);
+    }
+
+    // ── §5.4  SCAM WARNING UTILITY ────────────────────────────────────────
+
+    function showScamWarning(opts) {
+        const {
+            site = location.hostname,
+                reason = 'This site has been flagged as malicious.',
+                details = '',
+                actionUrl = '',
+                actionLabel = '🔒 Take Action',
+                logTag = site,
+        } = opts;
+
+        try {
+            _uw.fetch = () => Promise.reject(new Error('[ULB] blocked'));
+        } catch (_) {}
+        try {
+            _uw.XMLHttpRequest.prototype.open = function () {
+                console.warn(`[ULB/${logTag}] XHR blocked`);
+            };
+        } catch (_) {}
+
+        const mount = () => {
+            document.querySelectorAll('script, style, link, img, video, audio, iframe, canvas, svg:not(#'+_pfx+'svg)').forEach(el => el.remove());
+            if(document.body) {
+                document.body.innerHTML = '';
+                document.body.style.cssText = 'margin:0;padding:0;overflow:hidden;background:#060006;';
+            }
+
+            const st = Object.assign(document.createElement('style'), {
+                id: _pfx+'scam_style',
+                textContent: `
+                *, *::before, *::after { box-sizing: border-box; }
+                @keyframes ${_pfx}bg_fade { from { opacity: 0; } to { opacity: 1; } }
+                @keyframes ${_pfx}card_in { 0% { opacity: 0; transform: scale(.92) translateY(24px); } 60% { opacity: 1; transform: scale(1.01) translateY(-3px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+                @keyframes ${_pfx}stripe_flicker { 0% { opacity: 1; } 8% { opacity: 0.4; } 12% { opacity: 1; } 20% { opacity: 0.65; } 24% { opacity: 1; } 100% { opacity: 1; } }
+                @keyframes ${_pfx}headline_pulse { 0%,100% { color: #ff3333; } 50% { color: #ff7070; } }
+                @keyframes ${_pfx}domain_blink { 0%,100% { border-color: #440044; } 50% { border-color: #990099; } }
+                @keyframes ${_pfx}scanline { 0% { transform: translateY(-100%); } 100% { transform: translateY(100vh); } }
+                #${_pfx}overlay { position: fixed; inset: 0; z-index: 2147483647; background: #060006; display: flex; align-items: center; justify-content: center; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; overflow-y: auto; animation: ${_pfx}bg_fade .15s ease-out forwards; }
+                #${_pfx}scanline { position: fixed; inset: 0; z-index: 2147483646; pointer-events: none; overflow: hidden; }
+                #${_pfx}scanline::after { content: ''; display: block; width: 100%; height: 80px; background: linear-gradient(to bottom, transparent, rgba(255,30,30,.07), transparent); animation: ${_pfx}scanline .6s ease-in .05s 1; }
+                #${_pfx}card { max-width: 480px; width: 100%; background: #0d000d; border: 2px solid #cc0000; border-top: 4px solid #ff2222; color: #fff; overflow: hidden; opacity: 0; animation: ${_pfx}card_in .4s cubic-bezier(.22,.68,0,1.1) .1s forwards; }
+                #${_pfx}stripe { animation: ${_pfx}stripe_flicker 1s ease-out .15s 1; }
+                #${_pfx}headline { animation: ${_pfx}headline_pulse 2.5s ease-in-out .5s infinite; }
+                #${_pfx}domain { animation: ${_pfx}domain_blink 2s ease-in-out 1s infinite; }
+                #${_pfx}back_btn, #${_pfx}action_btn { transition: all .15s; }
+                #${_pfx}back_btn:hover { background: rgba(255,255,255,.06) !important; color: #aaa !important; border-color: #550055 !important; }
+                #${_pfx}action_btn:hover { background: #4752c4 !important; }
+                `,
+            });
+            (document.head || document.documentElement).appendChild(st);
+
+            const scanline = Object.assign(document.createElement('div'), {
+                id: _pfx+'scanline'
+            });
+            document.documentElement.appendChild(scanline);
+
+            const overlay = Object.assign(document.createElement('div'), {
+                id: _pfx+'overlay'
+            });
+            const card = Object.assign(document.createElement('div'), {
+                id: _pfx+'card'
+            });
+
+            const stripe = Object.assign(document.createElement('div'), {
+                id: _pfx+'stripe'
+            });
+            Object.assign(stripe.style, {
+                background: '#ff2222',
+                padding: '8px 20px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px'
+            });
+            const stripeIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            stripeIcon.setAttribute('width', '16');
+            stripeIcon.setAttribute('height', '16');
+            stripeIcon.setAttribute('viewBox', '0 0 16 16');
+            stripeIcon.setAttribute('fill', 'none');
+            stripeIcon.innerHTML = '<path d="M8 1L1 14h14L8 1z" fill="#fff"/><path d="M8 6v4M8 11v1.5" stroke="#cc0000" stroke-width="1.5" stroke-linecap="round"/>';
+            const stripeText = Object.assign(document.createElement('span'), {
+                textContent: 'Security Warning — Unknown Link Bypasser'
+            });
+            Object.assign(stripeText.style, {
+                fontSize: '11px',
+                fontWeight: '700',
+                letterSpacing: '2px',
+                textTransform: 'uppercase',
+                color: '#fff'
+            });
+            stripe.append(stripeIcon, stripeText);
+
+            const body = document.createElement('div');
+            Object.assign(body.style, {
+                padding: '24px 22px 20px'
+            });
+
+            const headline = Object.assign(document.createElement('div'), {
+                id: _pfx+'headline',
+                textContent: 'SCAM DETECTED'
+            });
+            Object.assign(headline.style, {
+                fontSize: '22px',
+                fontWeight: '900',
+                letterSpacing: '1px',
+                textTransform: 'uppercase',
+                color: '#ff3333',
+                marginBottom: '4px',
+                lineHeight: '1.1'
+            });
+
+            const subline = Object.assign(document.createElement('div'), {
+                textContent: 'Do not proceed — this site is dangerous'
+            });
+            Object.assign(subline.style, {
+                fontSize: '12px',
+                color: '#666',
+                letterSpacing: '2px',
+                textTransform: 'uppercase',
+                marginBottom: '18px',
+                borderBottom: '1px solid #1e001e',
+                paddingBottom: '14px'
+            });
+
+            const domainBox = Object.assign(document.createElement('div'), {
+                id: _pfx+'domain'
+            });
+            Object.assign(domainBox.style, {
+                background: '#180018',
+                border: '1px solid #440044',
+                padding: '10px 14px',
+                marginBottom: '14px'
+            });
+            const domainText = Object.assign(document.createElement('span'), {
+                textContent: site
+            });
+            Object.assign(domainText.style, {
+                fontSize: '13px',
+                color: '#ff9999',
+                fontFamily: 'monospace',
+                fontWeight: '600',
+                letterSpacing: '0.5px'
+            });
+            domainBox.appendChild(domainText);
+
+            const reasonBox = document.createElement('div');
+            Object.assign(reasonBox.style, {
+                background: '#1a0000',
+                borderLeft: '3px solid #ff2222',
+                padding: '12px 14px',
+                marginBottom: '10px',
+                fontSize: '13px',
+                color: '#ffaaaa',
+                fontWeight: '700',
+                lineHeight: '1.5'
+            });
+            reasonBox.textContent = reason;
+
+            let detailsEl = null;
+            if(details) {
+                detailsEl = Object.assign(document.createElement('div'), {
+                    textContent: details
+                });
+                Object.assign(detailsEl.style, {
+                    fontSize: '12px',
+                    color: '#556',
+                    lineHeight: '1.75',
+                    marginBottom: '20px',
+                    padding: '10px 12px',
+                    background: '#0a000a',
+                    border: '1px solid #1a001a'
+                });
+            }
+
+            const divider = document.createElement('div');
+            Object.assign(divider.style, {
+                borderTop: '1px solid #1e001e',
+                margin: '0 0 16px'
+            });
+
+            let actionBtn = null;
+            if(actionUrl) {
+                actionBtn = Object.assign(document.createElement('a'), {
+                    id: _pfx+'action_btn',
+                    href: actionUrl,
+                    target: '_blank',
+                    rel: 'noopener noreferrer',
+                    textContent: actionLabel
+                });
+                Object.assign(actionBtn.style, {
+                    display: 'block',
+                    background: '#5865f2',
+                    color: '#fff',
+                    fontWeight: '700',
+                    fontSize: '13px',
+                    textDecoration: 'none',
+                    padding: '11px 20px',
+                    marginBottom: '8px',
+                    textAlign: 'center',
+                    letterSpacing: '0.5px',
+                    border: '1px solid #4752c4',
+                    cursor: 'pointer'
+                });
+            }
+
+            const backBtn = Object.assign(document.createElement('button'), {
+                id: _pfx+'back_btn',
+                textContent: '← Go Back to Safety'
+            });
+            Object.assign(backBtn.style, {
+                background: 'transparent',
+                border: '1px solid #2a002a',
+                color: '#666',
+                fontSize: '12px',
+                fontWeight: '600',
+                padding: '9px 22px',
+                cursor: 'pointer',
+                width: '100%',
+                letterSpacing: '1px',
+                textTransform: 'uppercase'
+            });
+            backBtn.addEventListener('click', () => {
+                window.location.href = 'https://www.google.com';
+            });
+
+            body.append(headline, subline, domainBox, reasonBox);
+            if(detailsEl) body.appendChild(detailsEl);
+            body.append(divider);
+            if(actionBtn) body.appendChild(actionBtn);
+            body.appendChild(backBtn);
+
+            const footer = Object.assign(document.createElement('div'), {
+                textContent: 'Unknown Link Bypasser · @Aro Moon — Scam Protection'
+            });
+            Object.assign(footer.style, {
+                background: '#080008',
+                borderTop: '1px solid #1a001a',
+                padding: '8px 22px',
+                fontSize: '10px',
+                color: '#2a002a',
+                letterSpacing: '1.5px',
+                textTransform: 'uppercase'
+            });
+
+            card.append(stripe, body, footer);
+            overlay.appendChild(card);
+            document.documentElement.appendChild(overlay);
+            try {
+                document.body.style.overflow = 'hidden';
+            } catch (_) {}
+            console.warn(`[ULB/ScamWarning] Blocked: ${site} — ${reason}`);
+        };
+
+        if(document.body) mount();
+        else document.addEventListener('DOMContentLoaded', mount, {
+            once: true
+        });
     }
 
     // ═══════════════════════════════════════════════════════════════════════
     // §5.5  CONFIG MENU UI
     // ═══════════════════════════════════════════════════════════════════════
-    // The config overlay lives inside the shared notification shadow root
-    // (_root / _host).  That host is already kept alive on every page by
-    // __ulbObserver, so all DOM-survival work is free.  No separate host,
-    // no separate observer, no second shadow root, no <dialog>.
-    // ─────────────────────────────────────────────────────────────────────
+
     function _showConfigMenu() {
-        // Ensure the shared notification shadow host/root exist.
         getContainer();
 
-        // Toggle: close if already open.
-        if(_root.getElementById('__ulb_cfg')) {
-            _root.getElementById('__ulb_cfg').remove();
-            const cs = _root.getElementById('__ulb_cfg_style');
-            if(cs) cs.remove();
+        if (_root.getElementById(_pfx+'cfg')) {
+            _root.getElementById(_pfx+'cfg').remove();
+            const cs = _root.getElementById(_pfx+'cfg_style');
+            if (cs) cs.remove();
             return;
         }
 
-        // ── Scoped styles injected into the shared shadow root ────────────
-        // Using a <style> tag only for things that cannot be set inline:
-        // pseudo-element scrollbars, :focus-visible rings, select arrow.
         const cfgStyle = document.createElement('style');
-        cfgStyle.id = '__ulb_cfg_style';
+        cfgStyle.id = _pfx+'cfg_style';
         cfgStyle.textContent = `
-            #__ulb_cfg ::-webkit-scrollbar            { width: 6px }
-            #__ulb_cfg ::-webkit-scrollbar-track      { background: #0a0a18 }
-            #__ulb_cfg ::-webkit-scrollbar-thumb      { background: #3b3b6b; border-radius: 3px }
-            #__ulb_cfg ::-webkit-scrollbar-thumb:hover{ background: #5555a0 }
-            #__ulb_cfg select {
+            #${_pfx}cfg ::-webkit-scrollbar            { width:6px }
+            #${_pfx}cfg ::-webkit-scrollbar-track      { background:#0a0a18 }
+            #${_pfx}cfg ::-webkit-scrollbar-thumb      { background:#3b3b6b; border-radius:3px }
+            #${_pfx}cfg ::-webkit-scrollbar-thumb:hover{ background:#5555a0 }
+            #${_pfx}cfg select {
                 -webkit-appearance:none; -moz-appearance:none; appearance:none;
                 background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237070a0'/%3E%3C/svg%3E");
                 background-repeat:no-repeat; background-position:right 10px center; padding-right:30px!important;
             }
-            #__ulb_cfg select option { background:#0a0a18; color:#d0d0ee }
-            #__ulb_cfg button:focus-visible,
-            #__ulb_cfg input:focus-visible,
-            #__ulb_cfg select:focus-visible,
-            #__ulb_cfg textarea:focus-visible { outline:2px solid #6366f1; outline-offset:2px }
+            #${_pfx}cfg select option { background:#0a0a18; color:#d0d0ee }
+            #${_pfx}cfg button:focus-visible,
+            #${_pfx}cfg input:focus-visible,
+            #${_pfx}cfg select:focus-visible,
+            #${_pfx}cfg textarea:focus-visible { outline:2px solid #6366f1; outline-offset:2px }
         `;
         _root.appendChild(cfgStyle);
 
-        // ── Overlay ───────────────────────────────────────────────────────
-        // Fixed, viewport-filling backdrop inside the shared shadow root.
-        // pointer-events:auto because the host element is pointer-events:none.
         const overlay = document.createElement('div');
-        overlay.id = '__ulb_cfg';
+        overlay.id = _pfx+'cfg';
         overlay.style.cssText = [
-            'position:fixed', 'inset:0',
-            'z-index:2147483647', // one above notification container
-            'pointer-events:auto',
+            'position:fixed', 'top:0', 'right:0', 'bottom:0', 'left:0',
+            'z-index:2147483647', 'pointer-events:auto',
             'background:rgba(0,0,0,.82)',
             'display:flex', 'align-items:center', 'justify-content:center',
             'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif',
             'overscroll-behavior:contain',
         ].join(';');
 
-        // ── Panel ─────────────────────────────────────────────────────────
         const panel = document.createElement('div');
         const _cfgMobile = _isMobile();
         panel.style.cssText = [
             'background:#1a1a2e', 'color:#e2e2f0',
             'border:1px solid #3b3b6b', `border-radius:${_cfgMobile ? '8px' : '12px'}`,
             `width:${_cfgMobile ? '100vw' : 'min(680px,96vw)'}`,
-            `max-height:${_cfgMobile ? '92dvh' : 'min(700px,90vh)'}`,
+            // Use vh instead of dvh for Firefox < 101 compat
+            `max-height:${_cfgMobile ? '92vh' : 'min(700px,90vh)'}`,
             'display:flex', 'flex-direction:column',
             'box-shadow:0 24px 64px rgba(0,0,0,.8)',
             'overflow:hidden', 'position:relative',
             _cfgMobile ? 'margin:auto 0 0 0' : '',
         ].filter(Boolean).join(';');
 
-        // ── Header ────────────────────────────────────────────────────────
         const header = document.createElement('div');
         header.style.cssText = [
             'display:flex', 'align-items:center', 'justify-content:space-between',
             'padding:16px 20px', 'border-bottom:1px solid #2e2e52',
             'background:#16162a', 'flex-shrink:0',
         ].join(';');
-        const vTag = `v${VERSION}`;
         header.innerHTML =
             `<div style="display:flex;align-items:center;gap:10px">` +
             `<span style="font-size:20px">⏣</span>` +
             `<span style="font-size:16px;font-weight:700;letter-spacing:.3px">ULB Config</span>` +
-            `<span style="font-size:11px;color:#7070a0;background:#0a0a18;border:1px solid #2e2e52;` +
-            `border-radius:4px;padding:2px 7px">${vTag}</span>` +
+            `<span style="font-size:11px;color:#7070a0;background:#0a0a18;border:1px solid #2e2e52;border-radius:4px;padding:2px 7px">v${VERSION}</span>` +
             `</div>` +
-            `<button id="__ulb_cfg_close" title="Close (Esc)" style="` +
-            `background:none;border:none;color:#7070a0;font-size:20px;cursor:pointer;` +
-            `line-height:1;padding:4px 8px;border-radius:5px;transition:color .15s,background .15s;` +
-            `min-width:36px;min-height:36px;display:flex;align-items:center;justify-content:center">✕</button>`;
+            `<button id="${_pfx}cfg_close" title="Close (Esc)" style="background:none;border:none;color:#7070a0;font-size:20px;cursor:pointer;line-height:1;padding:4px 8px;border-radius:5px;transition:color .15s,background .15s;min-width:36px;min-height:36px;display:flex;align-items:center;justify-content:center">✕</button>`;
 
-        // ── Body (scrollable) ─────────────────────────────────────────────
         const body = document.createElement('div');
-        body.style.cssText = [
-            'padding:20px', 'overflow-y:auto', 'flex:1',
-            'display:flex', 'flex-direction:column', 'gap:20px',
-            'overscroll-behavior:contain',
-        ].join(';');
+        body.style.cssText = ['padding:20px', 'overflow-y:auto', 'flex:1', 'display:flex', 'flex-direction:column', 'gap:20px', 'overscroll-behavior:contain'].join(';');
 
-        // ── Footer ────────────────────────────────────────────────────────
         const footer = document.createElement('div');
-        footer.style.cssText = [
-            'padding:14px 20px', 'border-top:1px solid #2e2e52',
-            'background:#16162a', 'display:flex', 'align-items:center',
-            'justify-content:space-between', 'flex-shrink:0', 'gap:10px',
-            'flex-wrap:wrap',
-        ].join(';');
+        footer.style.cssText = ['padding:14px 20px', 'border-top:1px solid #2e2e52', 'background:#16162a', 'display:flex', 'align-items:center', 'justify-content:space-between', 'flex-shrink:0', 'gap:10px', 'flex-wrap:wrap'].join(';');
         footer.innerHTML =
-            `<button id="__ulb_cfg_reset" style="background:#1e1e38;border:1px solid #3b3b6b;` +
-            `color:#9090c0;font-size:13px;padding:8px 16px;border-radius:7px;cursor:pointer;` +
-            `transition:color .15s,background .15s;min-height:36px">Reset to defaults</button>` +
+            `<button id="${_pfx}cfg_reset" style="background:#1e1e38;border:1px solid #3b3b6b;color:#9090c0;font-size:13px;padding:8px 16px;border-radius:7px;cursor:pointer;transition:color .15s,background .15s;min-height:36px">Reset to defaults</button>` +
             `<div style="display:flex;gap:10px">` +
-            `<button id="__ulb_cfg_cancel" style="background:#1e1e38;border:1px solid #3b3b6b;` +
-            `color:#9090c0;font-size:13px;padding:8px 18px;border-radius:7px;cursor:pointer;` +
-            `transition:color .15s,background .15s;min-height:36px">Cancel</button>` +
-            `<button id="__ulb_cfg_save" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);` +
-            `border:none;color:#fff;font-size:13px;font-weight:600;padding:8px 22px;` +
-            `border-radius:7px;cursor:pointer;box-shadow:0 2px 10px rgba(99,102,241,.4);` +
-            `transition:opacity .15s;min-height:36px">Save &amp; Reload</button>` +
+            `<button id="${_pfx}cfg_cancel" style="background:#1e1e38;border:1px solid #3b3b6b;color:#9090c0;font-size:13px;padding:8px 18px;border-radius:7px;cursor:pointer;transition:color .15s,background .15s;min-height:36px">Cancel</button>` +
+            `<button id="${_pfx}cfg_save" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);border:none;color:#fff;font-size:13px;font-weight:600;padding:8px 22px;border-radius:7px;cursor:pointer;box-shadow:0 2px 10px rgba(99,102,241,.4);transition:opacity .15s;min-height:36px">Save &amp; Reload</button>` +
             `</div>`;
-
-        // ── Builder helpers ───────────────────────────────────────────────
 
         const INP_BASE = [
             'background:#0a0a18', 'border:1px solid #3b3b6b', 'color:#d0d0ee',
@@ -2980,16 +2474,14 @@
         const mkSection = title => {
             const sec = document.createElement('div');
             const lbl = document.createElement('div');
-            lbl.style.cssText = 'font-size:11px;font-weight:700;text-transform:uppercase;' +
-                'letter-spacing:.8px;color:#6060a0;margin-bottom:12px;padding-bottom:6px;' +
-                'border-bottom:1px solid #2a2a4a';
+            lbl.style.cssText = 'font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#6060a0;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid #2a2a4a';
             lbl.textContent = title;
             sec.appendChild(lbl);
             return sec;
         };
 
         const mkRow = (labelText, desc) => {
-            const row = document.createElement('div');
+            const row  = document.createElement('div');
             row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:8px 0;gap:12px';
             const info = document.createElement('div');
             info.style.cssText = 'flex:1;min-width:0';
@@ -3003,15 +2495,15 @@
         const mkToggle = key => {
             const wrap = document.createElement('label');
             wrap.style.cssText = 'position:relative;display:inline-block;width:40px;height:22px;flex-shrink:0;cursor:pointer;touch-action:manipulation';
-            const inp = document.createElement('input');
-            inp.type = 'checkbox';
+            const inp   = document.createElement('input');
+            inp.type    = 'checkbox';
             inp.dataset.key = key;
-            inp.checked = !!CONFIG[key];
+            inp.checked  = !!CONFIG[key];
             inp.style.cssText = 'opacity:0;width:0;height:0;position:absolute';
             const track = document.createElement('span');
-            track.style.cssText = `position:absolute;inset:0;border-radius:22px;transition:background .2s;cursor:pointer;background:${inp.checked ? '#6366f1' : '#2e2e52'}`;
-            const knob = document.createElement('span');
-            knob.style.cssText = `position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:3px;transition:left .2s;left:${inp.checked ? '21px' : '3px'}`;
+            track.style.cssText = `position:absolute;top:0;right:0;bottom:0;left:0;border-radius:22px;transition:background .2s;cursor:pointer;background:${inp.checked ? '#6366f1' : '#2e2e52'}`;
+            const knob  = document.createElement('span');
+            knob.style.cssText  = `position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:3px;transition:left .2s;left:${inp.checked ? '21px' : '3px'}`;
             inp.addEventListener('change', () => {
                 track.style.background = inp.checked ? '#6366f1' : '#2e2e52';
                 knob.style.left = inp.checked ? '21px' : '3px';
@@ -3023,26 +2515,26 @@
 
         const mkText = (key, placeholder = '') => {
             const inp = document.createElement('input');
-            inp.type = 'text';
+            inp.type  = 'text';
             inp.dataset.key = key;
-            inp.value = CONFIG[key] ?? '';
+            inp.value = CONFIG[key] !== undefined ? CONFIG[key] : '';
             inp.placeholder = placeholder;
             inp.style.cssText = `${INP_BASE};width:220px`;
             inp.addEventListener('focus', () => inp.style.borderColor = '#6366f1');
-            inp.addEventListener('blur', () => inp.style.borderColor = '#3b3b6b');
+            inp.addEventListener('blur',  () => inp.style.borderColor = '#3b3b6b');
             return inp;
         };
 
         const mkNumber = (key, min, max) => {
             const inp = document.createElement('input');
-            inp.type = 'number';
+            inp.type  = 'number';
             inp.dataset.key = key;
-            inp.value = CONFIG[key] ?? 0;
-            if(min !== undefined) inp.min = min;
-            if(max !== undefined) inp.max = max;
+            inp.value = CONFIG[key] !== undefined ? CONFIG[key] : 0;
+            if (min !== undefined) inp.min = min;
+            if (max !== undefined) inp.max = max;
             inp.style.cssText = `${INP_BASE};width:100px`;
             inp.addEventListener('focus', () => inp.style.borderColor = '#6366f1');
-            inp.addEventListener('blur', () => inp.style.borderColor = '#3b3b6b');
+            inp.addEventListener('blur',  () => inp.style.borderColor = '#3b3b6b');
             return inp;
         };
 
@@ -3050,24 +2542,24 @@
             const sel = document.createElement('select');
             sel.dataset.key = key;
             sel.style.cssText = `${INP_BASE};cursor:pointer`;
-            for(const [val, label] of options) {
+            for (const [val, label] of options) {
                 const opt = document.createElement('option');
-                opt.value = val;
+                opt.value       = val;
                 opt.textContent = label;
-                if(CONFIG[key] === val) opt.selected = true;
+                if (CONFIG[key] === val) opt.selected = true;
                 sel.appendChild(opt);
             }
             sel.addEventListener('focus', () => sel.style.borderColor = '#6366f1');
-            sel.addEventListener('blur', () => sel.style.borderColor = '#3b3b6b');
+            sel.addEventListener('blur',  () => sel.style.borderColor = '#3b3b6b');
             return sel;
         };
 
         const mkTextarea = (key, placeholder = '') => {
             const ta = document.createElement('textarea');
-            ta.dataset.key = key;
-            ta.value = (CONFIG[key] || []).join('\n');
-            ta.placeholder = placeholder;
-            ta.rows = 5;
+            ta.dataset.key  = key;
+            ta.value        = (CONFIG[key] || []).join('\n');
+            ta.placeholder  = placeholder;
+            ta.rows         = 5;
             ta.style.cssText = [
                 'background:#0a0a18', 'border:1px solid #3b3b6b', 'color:#d0d0ee',
                 'font-size:12px', 'font-family:monospace', 'padding:8px 10px',
@@ -3076,31 +2568,21 @@
                 'transition:border-color .15s', 'line-height:1.5',
             ].join(';');
             ta.addEventListener('focus', () => ta.style.borderColor = '#6366f1');
-            ta.addEventListener('blur', () => ta.style.borderColor = '#3b3b6b');
+            ta.addEventListener('blur',  () => ta.style.borderColor = '#3b3b6b');
             return ta;
         };
 
-        // Helper: append a control row to a section
-        const addRow = (sec, lbl, desc, ctrl) => {
-            const row = mkRow(lbl, desc);
-            row.appendChild(ctrl);
-            sec.appendChild(row);
-        };
+        const addRow = (sec, lbl, desc, ctrl) => { const row = mkRow(lbl, desc); row.appendChild(ctrl); sec.appendChild(row); };
 
         // ── Sections ──────────────────────────────────────────────────────
 
         const secBypass = mkSection('Bypass Behaviour');
         addRow(secBypass, 'Ask before bypass', 'Show a confirmation card before running any bypass', mkToggle('askBeforeBypass'));
-        addRow(secBypass, 'Auto-solve captchas', 'Automatically solve Cloudflare Turnstile captchas', mkToggle('autoCaptcha'));
+        addRow(secBypass, 'Auto-solve Turnstile', 'Automatically solve Cloudflare Turnstile captchas', mkToggle('autoTurnstile'));
 
         const secNotif = mkSection('Notifications');
         addRow(secNotif, 'Position', 'Where toast notifications appear on screen',
-            mkSelect('notifPosition', [
-                ['bottom-right', 'Bottom Right'],
-                ['bottom-left', 'Bottom Left'],
-                ['top-right', 'Top Right'],
-                ['top-left', 'Top Left']
-            ]));
+            mkSelect('notifPosition', [['bottom-right','Bottom Right'],['bottom-left','Bottom Left'],['top-right','Top Right'],['top-left','Top Left']]));
         addRow(secNotif, 'Duration (ms)', 'How long a notification stays on screen — 0 = until clicked', mkNumber('notifDuration', 0));
         addRow(secNotif, 'Show bypass time', 'Display "Done in 1.3s" in the success notification', mkToggle('showBypassTime'));
         addRow(secNotif, 'Show site label', 'Show which bypasser handled the page in the footer', mkToggle('showSiteLabel'));
@@ -3116,7 +2598,6 @@
         addRow(secNotif, 'Pause on hover', 'Pause the auto-dismiss countdown while hovering over the card', mkToggle('notifPauseOnHover'));
 
         const secSite = mkSection('Site-Specific');
-        addRow(secSite, 'dl.surf auto-inject', 'Automatically inject the download bypass button on dl.surf', mkToggle('dlSurfAutoInject'));
         addRow(secSite, 'Block ads (safelink)', 'Remove ads on safelink pages', mkToggle('blockAds'));
         addRow(secSite, 'PhantomFluxKey URL', 'URL opened when "Get Key" is clicked', mkText('phantomDirectUrl', 'https://...'));
 
@@ -3137,202 +2618,99 @@
         overlay.appendChild(panel);
         _root.appendChild(overlay);
 
-        // ── Close / open helpers ──────────────────────────────────────────
         const closeMenu = () => {
             overlay.remove();
-            const cs = _root.getElementById('__ulb_cfg_style');
-            if(cs) cs.remove();
+            const cs = _root.getElementById(_pfx+'cfg_style');
+            if (cs) cs.remove();
         };
 
-        // Keyboard: Escape closes
-        const onKey = e => {
-            if(e.key === 'Escape') {
-                closeMenu();
-                document.removeEventListener('keydown', onKey);
-            }
-        };
+        const onKey = e => { if (e.key === 'Escape') { closeMenu(); document.removeEventListener('keydown', onKey); } };
         document.addEventListener('keydown', onKey);
+        overlay.addEventListener('click', e => { if (e.target === overlay) closeMenu(); });
 
-        // Click backdrop to close
-        overlay.addEventListener('click', e => {
-            if(e.target === overlay) closeMenu();
-        });
+        const close     = _root.getElementById(_pfx+'cfg_close');
+        const cancel    = _root.getElementById(_pfx+'cfg_cancel');
+        const resetBtn  = _root.getElementById(_pfx+'cfg_reset');
+        const saveBtn   = _root.getElementById(_pfx+'cfg_save');
 
-        const close = _root.getElementById('__ulb_cfg_close');
-        const cancel = _root.getElementById('__ulb_cfg_cancel');
-        const resetBtn = _root.getElementById('__ulb_cfg_reset');
-        const saveBtn = _root.getElementById('__ulb_cfg_save');
-
-        close.onclick = closeMenu;
+        close.onclick  = closeMenu;
         cancel.onclick = closeMenu;
 
-        // Hover tints for secondary buttons
-        for(const [btn, fg] of [
-                [close, '#7070a0'],
-                [cancel, '#9090c0'],
-                [resetBtn, '#9090c0']
-            ]) {
-            btn.addEventListener('mouseenter', () => {
-                btn.style.color = '#d0d0ee';
-                btn.style.background = 'rgba(255,255,255,.06)';
-            });
-            btn.addEventListener('mouseleave', () => {
-                btn.style.color = fg;
-                btn.style.background = btn === close ? 'none' : '#1e1e38';
-            });
+        for (const [btn, fg] of [[close,'#7070a0'],[cancel,'#9090c0'],[resetBtn,'#9090c0']]) {
+            btn.addEventListener('mouseenter', () => { btn.style.color = '#d0d0ee'; btn.style.background = 'rgba(255,255,255,.06)'; });
+            btn.addEventListener('mouseleave', () => { btn.style.color = fg; btn.style.background = btn === close ? 'none' : '#1e1e38'; });
         }
         saveBtn.addEventListener('mouseenter', () => saveBtn.style.opacity = '.85');
         saveBtn.addEventListener('mouseleave', () => saveBtn.style.opacity = '1');
 
-        // ── Inline reset confirmation ─────────────────────────────────────
+        // Inline reset confirmation
         resetBtn.onclick = () => {
-            if(_root.getElementById('__ulb_cfg_rc')) return; // prevent double-open
+            if (_root.getElementById(_pfx+'cfg_rc')) return;
             const rc = document.createElement('div');
-            rc.id = '__ulb_cfg_rc';
-            rc.style.cssText = [
-                'position:absolute', 'inset:0', 'border-radius:12px',
-                'background:rgba(10,10,24,.96)', 'backdrop-filter:blur(4px)',
-                'display:flex', 'flex-direction:column',
-                'align-items:center', 'justify-content:center',
-                'gap:14px', 'z-index:10', 'padding:24px',
-            ].join(';');
+            rc.id = _pfx+'cfg_rc';
+            rc.style.cssText = ['position:absolute','top:0','right:0','bottom:0','left:0','border-radius:12px','background:rgba(10,10,24,.96)','backdrop-filter:blur(4px)','-webkit-backdrop-filter:blur(4px)','display:flex','flex-direction:column','align-items:center','justify-content:center','gap:14px','z-index:10','padding:24px'].join(';');
             rc.innerHTML =
                 `<div style="font-size:15px;font-weight:700;color:#e2e2f0">Reset all settings?</div>` +
-                `<div style="font-size:12px;color:#6060a0;text-align:center;line-height:1.6">` +
-                `This will restore every option to its default value and reload the page.</div>` +
+                `<div style="font-size:12px;color:#6060a0;text-align:center;line-height:1.6">This will restore every option to its default value and reload the page.</div>` +
                 `<div style="display:flex;gap:12px">` +
-                `<button id="__ulb_rc_no"  style="background:#1e1e38;border:1px solid #3b3b6b;color:#9090c0;` +
-                `font-size:13px;padding:8px 20px;border-radius:7px;cursor:pointer;min-height:36px">Cancel</button>` +
-                `<button id="__ulb_rc_yes" style="background:linear-gradient(135deg,#ef4444,#dc2626);border:none;` +
-                `color:#fff;font-size:13px;font-weight:600;padding:8px 20px;border-radius:7px;cursor:pointer;min-height:36px">` +
-                `Yes, reset</button>` +
+                `<button id="${_pfx}rc_no"  style="background:#1e1e38;border:1px solid #3b3b6b;color:#9090c0;font-size:13px;padding:8px 20px;border-radius:7px;cursor:pointer;min-height:36px">Cancel</button>` +
+                `<button id="${_pfx}rc_yes" style="background:linear-gradient(135deg,#ef4444,#dc2626);border:none;color:#fff;font-size:13px;font-weight:600;padding:8px 20px;border-radius:7px;cursor:pointer;min-height:36px">Yes, reset</button>` +
                 `</div>`;
             panel.appendChild(rc);
-            _root.getElementById('__ulb_rc_no').onclick = () => rc.remove();
-            _root.getElementById('__ulb_rc_yes').onclick = () => {
-                try {
-                    GM_setValue('ulb_config', null);
-                } catch (_) {}
+            _root.getElementById(_pfx+'rc_no').onclick  = () => rc.remove();
+            _root.getElementById(_pfx+'rc_yes').onclick = () => {
+                // Use empty string — GM_setValue(key, null) behaves inconsistently
+                // in Violentmonkey and Greasemonkey 4 on Firefox.
+                try { GM_setValue('ulb_config', ''); } catch (_) { /* */ }
                 closeMenu();
                 location.reload();
             };
         };
 
-        // ── Save ──────────────────────────────────────────────────────────
+        // Save
         saveBtn.onclick = () => {
             const overrides = {};
-            panel.querySelectorAll('input[type="checkbox"][data-key]').forEach(el => {
-                overrides[el.dataset.key] = el.checked;
-            });
-            panel.querySelectorAll('input[type="text"][data-key]').forEach(el => {
-                overrides[el.dataset.key] = el.value.trim();
-            });
-            panel.querySelectorAll('input[type="number"][data-key]').forEach(el => {
-                overrides[el.dataset.key] = Math.max(0, Number(el.value) || 0);
-            });
-            panel.querySelectorAll('select[data-key]').forEach(el => {
-                overrides[el.dataset.key] = el.value;
-            });
-            panel.querySelectorAll('textarea[data-key]').forEach(el => {
-                overrides[el.dataset.key] = el.value.split('\n').map(l => l.trim()).filter(Boolean);
-            });
-            try {
-                GM_setValue('ulb_config', JSON.stringify(overrides));
-            } catch (_) {}
+            panel.querySelectorAll('input[type="checkbox"][data-key]').forEach(el => { overrides[el.dataset.key] = el.checked; });
+            panel.querySelectorAll('input[type="text"][data-key]').forEach(el => { overrides[el.dataset.key] = el.value.trim(); });
+            panel.querySelectorAll('input[type="number"][data-key]').forEach(el => { overrides[el.dataset.key] = Math.max(0, Number(el.value) || 0); });
+            panel.querySelectorAll('select[data-key]').forEach(el => { overrides[el.dataset.key] = el.value; });
+            panel.querySelectorAll('textarea[data-key]').forEach(el => { overrides[el.dataset.key] = el.value.split('\n').map(l => l.trim()).filter(Boolean); });
+            try { GM_setValue('ulb_config', JSON.stringify(overrides)); } catch (_) { /* */ }
             closeMenu();
             location.reload();
         };
     }
 
-
     // ═══════════════════════════════════════════════════════════════════════
     // §6  ROUTER
     // ═══════════════════════════════════════════════════════════════════════
 
-    const host = location.hostname;
-    const path = location.pathname;
-
-    // ── Global: make invisible Turnstile widgets visible ──────────────────
-    // Only runs on sites where the bypasser needs to expose the widget to the
-    // user (autoCaptcha:false fallback). Scoped to specific hosts to avoid
-    // interfering with sites' own invisible Turnstile bot-detection flows.
-    (function _patchInvisibleTurnstiles() {
-        const NEEDS_PATCH = [
-            'ouo.io', 'ouo.press', // explicit invisible widget
-            'gplinks.co', // captchaButton flow
-            'bstlar.com', 'wareguardv2.xyz', // may render invisible
-            'lnbz.la', '4br.me', 'go.yorurl.com',
-            'go.caslinks.com', 'highlocus.shop',
-            'short-jambo.com', 'short-jambo.ink',
-            'arolinks.com', 'upfilesgo.com',
-        ];
-        if(!NEEDS_PATCH.some(h => location.hostname.includes(h))) return;
-
-        const patch = el => {
-            if(el.nodeType !== 1) return;
-            if(el.classList?.contains('cf-turnstile') && el.getAttribute('data-size') === 'invisible') {
-                el.setAttribute('data-size', 'normal');
-            }
-            el.querySelectorAll?.('.cf-turnstile[data-size="invisible"]').forEach(w => w.setAttribute('data-size', 'normal'));
-        };
-        patch(document.documentElement);
-        new MutationObserver(muts => {
-            for(const m of muts) m.addedNodes.forEach(patch);
-        }).observe(document.documentElement, {
-            childList: true,
-            subtree: true
-        });
-    })();
-
-    // ── GM Clipboard helper (uses GM_setClipboard with navigator.clipboard fallback) ──
-    function _gmCopy(text) {
-        try {
-            GM_setClipboard(text, 'text');
-            return Promise.resolve();
-        } catch (_) {
-            return navigator.clipboard?.writeText(text) ?? Promise.reject(new Error('No clipboard API'));
+    // ── Safe bypasser dispatch — accepts a direct function reference ────────
+    // JS hoists function declarations within the IIFE, so every bypasser in §7
+    // is already in scope here. Passing the reference directly (no string lookup,
+    // no eval, no registry) works in every browser and every GM flavour.
+    function _run(siteLabel, fn) {
+        if (typeof fn !== 'function') {
+            console.warn('[ULB] Bypasser for "' + siteLabel + '" not found or not yet declared');
+            return;
         }
+        _gateBypass(siteLabel, fn);
     }
 
-    // ── SPA survival: re-attach notification host if removed from DOM ────────
-    const __ulbObserver = new MutationObserver(() => {
-        if(_host && !_host.isConnected) {
-            try {
-                (document.documentElement || document.body).appendChild(_host);
-            } catch (_) {}
-        }
-    });
-    __ulbObserver.observe(document.documentElement || document.body, {
-        childList: true
-    });
+    // ── Config menu command ───────────────────────────────────────────────
+    try { GM_registerMenuCommand('Config', _showConfigMenu); } catch (_) { /* not available */ }
 
-    // ── Config menu command ────────────────────────────────────────────────
-    try {
-        GM_registerMenuCommand('Config', _showConfigMenu);
-    } catch (_) {
-        /* GM_registerMenuCommand not available */
-    }
-
-    // ── Diagnostics menu command ───────────────────────────────────────────
+    // ── Diagnostics menu command ──────────────────────────────────────────
     try {
         GM_registerMenuCommand('ULB Diagnostics', () => {
             const now = new Date();
-            const gmAvail = fn => {
-                try {
-                    return typeof eval(fn) === 'function' ? '✔' : '✘';
-                } catch (_) {
-                    return '✘';
-                }
-            };
-            const cfgLines = Object.entries(CONFIG)
+            const cfgLines  = Object.entries(CONFIG)
                 .filter(([k]) => !['cfAllowedRefs', 'autoBypassHosts'].includes(k))
-                .map(([k, v]) => `  ${k}: ${JSON.stringify(v)}`)
-                .join('\n');
+                .map(([k, v]) => `  ${k}: ${JSON.stringify(v)}`).join('\n');
             const hostLines = (CONFIG.autoBypassHosts || []).map(h => `  - ${h}`).join('\n');
-            const diagLines = _diagEntries.length ?
-                _diagEntries.slice(-30).map(e => `  [${e.level}] ${new Date(e.ts).toISOString().slice(11,19)} ${e.msg}`).join('\n') :
-                '  (none)';
-
+            const diagLines = _diagEntries.length
+                ? _diagEntries.slice(-30).map(e => `  [${e.level}] ${new Date(e.ts).toISOString().slice(11,19)} ${e.msg}`).join('\n')
+                : '  (none)';
             const report = [
                 `╔══════════════════════════════════════════════╗`,
                 `║   Unknown Link Bypasser — Diagnostics        ║`,
@@ -3348,9 +2726,6 @@
                 ``,
                 `── ENVIRONMENT ──────────────────────────────`,
                 `UserAgent : ${navigator.userAgent}`,
-                `GM_setClipboard      : ${gmAvail('GM_setClipboard')}`,
-                `GM_registerMenuCommand : ${gmAvail('GM_registerMenuCommand')}`,
-                `unsafeWindow         : ${typeof unsafeWindow !== 'undefined' ? '✔' : '✘'}`,
                 ``,
                 `── CONFIG ────────────────────────────────────`,
                 cfgLines,
@@ -3364,105 +2739,97 @@
                 `══════════════════════════════════════════════`,
             ].join('\n');
 
-            _gmCopy(report).then(() => {
-                notify('Diagnostics copied to clipboard ✔', 'success', 3000);
-            }).catch(() => {
-                notify('Copy failed — check the browser console', 'error', 4000);
-                console.log('[ULB] Diagnostics report:\n', report);
-            });
+            _gmCopy(report)
+                .then(()  => notify('Diagnostics copied to clipboard ✔', 'success', 3000))
+                .catch(() => { notify('Copy failed — check the browser console', 'error', 4000); console.log('[ULB] Diagnostics report:\n', report); });
         });
-    } catch (_) {
-        /* GM_registerMenuCommand not available (e.g. non-TM runner) */
-    }
+    } catch (_) { /* not available */ }
 
+    // ── Route dispatch ────────────────────────────────────────────────────
     try {
-        if(host.includes('dl.surf')) _gateBypass('dl.surf', runDlSurf);
-        else if(host.includes('airflowscript.com')) _gateBypass('airflowscript.com', runAirflowBypasser);
-        else if(host.includes('bstlar.com')) _gateBypass('bstlar.com', runBstlarBypasser);
-        else if(host.includes('wareguardv2.xyz')) _gateBypass('wareguardv2.xyz', runWareguardBypasser);
-        else if(host.includes('subnise.com')) _gateBypass('subnise.com', runSubniseBypasser);
-        else if(host.includes('reshortfly.com')) _gateBypass('reshortfly.com', runReshortflyBypasser);
-        else if(host.includes('avnsgames.com')) _gateBypass('avnsgames.com', runAvnsGamesInterstitial);
-        else if(host.includes('lnbz.la')) _gateBypass('lnbz.la', runLnbzLaBypasser);
-        else if(host.includes('bloxscript.live')) _gateBypass('bloxscript.live', runBloxscriptScamWarning);
-        else if(host.includes('jankariweb')) _gateBypass(host, runJoberBypasser);
-        else if(host.includes('apnahirework.com')) _gateBypass('apnahirework.com', runApnahireworkBypasser);
-        else if(host.includes('crimejasoos.in')) _gateBypass('crimejasoos.in', runCrimejasoosBypasser);
-        else if(host.includes('newsuchnaonline.com')) _gateBypass('newsuchnaonline.com', runNewsuchnaonlineBypasser);
-        else if(host.includes('jober.factwiz.online')) _gateBypass('jober.factwiz.online', runJoberFacwizBypasser);
-        else if(host.includes('how2guidess.com')) _gateBypass('how2guidess.com', runHow2GuidesBypasser);
-        else if(host.includes('go.yorurl.com')) _gateBypass('go.yorurl.com', runYorurlBypasser);
-        else if(
-            host.includes('go.caslinks.com') ||
-            host.includes('highlocus.shop')
-        ) _gateBypass(host, runCasLinksBypasser);
-        else if(host.includes('gplinks.co')) _gateBypass('gplinks.co', runGpLinksBypasser);
-        else if(host.includes('powergam.online')) _gateBypass('powergam.online', runPowergamBypasser);
-        else if(host.includes('4br.me')) _gateBypass('4br.me', run4BrMeBypasser);
-        else if(host.includes('rojgarhindi.in')) _gateBypass('rojgarhindi.in', runRojgarhindiBypasser);
-        else if(host.includes('v0-phantomfluxkey.vercel.app')) _gateBypass('phantomfluxkey', runPhantomFluxKeyBypasser);
-        else if(host.includes('link-unlock.com')) _gateBypass('link-unlock.com', runLinkUnlockBypasser);
-        else if(host.includes('link4sub.com')) _gateBypass('link4sub.com', runLink4SubBypasser);
-        else if(host.includes('tapvietcode.com')) _gateBypass('tapvietcode.com', runTapVietCodeBypasser);
-        else if(host.includes('short-jambo.ink')) _gateBypass('short-jambo.ink', runShortJamboInkBypasser);
-        else if(host.includes('short-jambo.com')) _gateBypass('short-jambo.com', runShortJamboDotComBypasser);
-        else if(
-            /fastcars\d*\.com/.test(host) ||
-            host.includes('bigcarinsurance.com')
-        ) _gateBypass(host, runFastcarsBypasser);
-        else if(host.includes('sub4unlock.co')) _gateBypass('sub4unlock.co', runSub4UnlockBypasser);
-        else if(host.includes('app.khaddavi.net')) _gateBypass('app.khaddavi.net', runKhaddaviBypasser);
-        else if(host.includes('sfl.gl')) _gateBypass('sfl.gl', runSflGlBypasser);
-        else if(host.includes('ytsubme.com')) _gateBypass('ytsubme.com', runYtSubMeBypasser);
-        else if(host.includes('aylink.co')) _gateBypass('aylink.co', runAylinkBypasser);
-        else if(
-            host.includes('hehehub-acsu123.pythonanywhere.com') &&
-            /[?&]hwid=[\w.]+/.test(location.search)
-        ) _gateBypass('hehehub', runHehehubSkipper);
-        else if(host.includes('fluorine.s3ren1ty.xyz')) _gateBypass('fluorine.s3ren1ty.xyz', runFluorineBypasser);
-        else if(host.includes('getpolsec.com')) _gateBypass('getpolsec.com', runGetPolSecBypasser);
-        else if(
-            host.includes('biplabtewary.com') ||
-            host.includes('mwgamesyt.com.br') ||
-            host.includes('topjogosvip.online') ||
-            host.includes('legacyagency.com.br')
-        ) _gateBypass(host, runButtonFinderBypasser);
-        else if(host.includes('rekonise.com')) _gateBypass('rekonise.com', runRekoniseBypasser);
-        else if(host.includes('go.linkify.ru')) _gateBypass('go.linkify.ru', runLinkifyRuBypasser);
-        else if(host.includes('arolinks.com')) _gateBypass('arolinks.com', runArolinksBypasser);
-        else if(host.includes('spdmteam.com')) _gateBypass('spdmteam.com', runSpdmTeamBypasser);
-        else if(host.includes('linkunlocker.com')) _gateBypass('linkunlocker.com', runLinkUnlockerBypasser);
-        else if(host.includes('mboost.me')) _gateBypass('mboost.me', runMboostBypasser);
-        else if(host.includes('sub2unlock.netlify.app')) _gateBypass('sub2unlock', runSub2UnlockBypasser);
-        else if(host.includes('krnl-ios.com')) _gateBypass('krnl-ios.com', runKrnlIosBypasser);
-        else if(host.includes('scoplidrop.com')) _gateBypass('scoplidrop.com', runScoplidropBypasser);
-        else if(host.includes('ouo.io') ||
-            host.includes('ouo.press')
-        ) _gateBypass(host, runOuoBypasser);
-        else if(host.includes('nexusdevs.fun') && (path.startsWith('/getkey') || /[?&]h=/.test(location.search) || /[?&]hwid=/.test(location.search))) {
-            runNexusAdblock();
-            _gateBypass('nexusdevs.fun', runNexusBypasser);
-        } else if(host.includes('encurtai.online')) _gateBypass('encurtai.online', runEncurtaiBypasser);
-        else if(host.includes('pandadevelopment.net') && path.includes('/getkey/')) _gateBypass('pandadevelopment.net', runPandaDevelopmentBypasser);
-        else if(host.includes('lua-key-vault.vercel.app')) _gateBypass('lua-key-vault', runLuaKeyVaultBypasser);
-        else if(host.includes('start-get-key.pages.dev')) _gateBypass('start-get-key.pages.dev', runStartGetKeyBypasser);
-        else if(host.includes('bstshrt.com')) _gateBypass('bstshrt.com', runBstshrtBypasser);
-        else if(host.includes('upfilesgo.com')) _gateBypass('upfilesgo.com', runUpfilesGoBypasser);
-        else if(host.includes('boblox-script.com')) _gateBypass('boblox-script.com', runBobloxScriptBypasser);
-        else if(host.includes('dusarisalary.com')) _gateBypass(host, runUnlockLinkFinderBypasser);
-        else if(host.includes('sub2unlock.io') && path.length > 1) _gateBypass(host, runUnlockLinkFinderBypasser);
-        else if(host.includes('sub2unlock.io')) {
-            /* homepage — do nothing */
-        } else if(host.includes('checkpoint2keyhub.vercel.app') || host.includes('checkpoint3keyhub.vercel.app')) _gateBypass('Keyhub', runKeyhubBypasser);
-        else if(host.includes('orca-key-system.vercel.app')) _gateBypass('orca-key-system', runOrcaKeySystemBypasser);
-        else if(host.includes('razelol.vercel.app')) _gateBypass('razelol', runRazelolBypasser);
-        else if(host.includes('whatwhatboy.com') && path.includes('scoobyontop2')) _gateBypass('scoobyontop2', runScoobyontopBypasser);
-        else if(host.includes('vayuhub.space') && /[?&]hwid=/.test(location.search)) _gateBypass('vayuhub.space', runVayuHubBypasser);
-        else if(host.includes('socialwolvez.com')) _gateBypass('socialwolvez.com', runSocialWolvezBypasser);
-        else if(host.includes('mobile3.hubsocial.chat') && path.length > 1) _gateBypass('hubsocial.chat', runHubsocialBypasser);
-        else if(TPI_HOSTS.some(h => host.includes(h))) _gateBypass(host, runTpiLiBypasser);
-        else if(FORM_HOSTS.some(h => host.includes(h))) _gateBypass(host, runFormBypasser);
-        else _gateBypass(host, runSafelinkBypasser);
+        if      (host.includes('dl.surf'))                    _run('dl.surf', runDlSurf);
+        else if (host.includes('bstlar.com'))                 _run('bstlar.com', runBstlarBypasser);
+        else if (host.includes('wareguardv2.xyz'))            _run('wareguardv2.xyz', runWareguardBypasser);
+        else if (host.includes('subnise.com'))                _run('subnise.com', runSubniseBypasser);
+        else if (host.includes('reshortfly.com'))             _run('reshortfly.com', runReshortflyBypasser);
+        else if (host.includes('avnsgames.com'))              _run('avnsgames.com', runAvnsGamesInterstitial);
+        else if (host.includes('lnbz.la'))                    _run('lnbz.la', runLnbzLaBypasser);
+        else if (host.includes('bloxscript.live'))            _run('bloxscript.live', runBloxscriptScamWarning);
+        else if (host.includes('jankariweb'))                 _run(host, runJoberBypasser);
+        else if (host.includes('apnahirework.com'))           _run('apnahirework.com', runApnahireworkBypasser);
+        else if (host.includes('crimejasoos.in'))             _run('crimejasoos.in', runCrimejasoosBypasser);
+        else if (host.includes('newsuchnaonline.com'))        _run('newsuchnaonline.com', runNewsuchnaonlineBypasser);
+        else if (host.includes('jober.factwiz.online'))       _run('jober.factwiz.online', runJoberFacwizBypasser);
+        else if (host.includes('how2guidess.com'))            _run('how2guidess.com', runHow2GuidesBypasser);
+        else if (host.includes('go.yorurl.com'))              _run('go.yorurl.com', runYorurlBypasser);
+        else if (host.includes('go.caslinks.com') || host.includes('highlocus.shop'))
+                                                              _run(host, runCasLinksBypasser);
+        else if (host.includes('gplinks.co'))                 _run('gplinks.co', runGpLinksBypasser);
+        else if (host.includes('powergam.online'))            _run('powergam.online', runPowergamBypasser);
+        else if (host.includes('4br.me'))                     _run('4br.me', run4BrMeBypasser);
+        else if (host.includes('rojgarhindi.in'))             _run('rojgarhindi.in', runRojgarhindiBypasser);
+        else if (host.includes('v0-phantomfluxkey.vercel.app')) _run('phantomfluxkey', runPhantomFluxKeyBypasser);
+        else if (host.includes('link-unlock.com'))            _run('link-unlock.com', runLinkUnlockBypasser);
+        else if (host.includes('link4sub.com'))               _run('link4sub.com', runLink4SubBypasser);
+        else if (host.includes('tapvietcode.com'))            _run('tapvietcode.com', runTapVietCodeBypasser);
+        else if (host.includes('short-jambo.ink'))            _run('short-jambo.ink', runShortJamboInkBypasser);
+        else if (host.includes('short-jambo.com'))            _run('short-jambo.com', runShortJamboDotComBypasser);
+        else if (/fastcars\d*\.com/.test(host) || host.includes('bigcarinsurance.com'))
+                                                              _run(host, runFastcarsBypasser);
+        else if (host.includes('sub4unlock.co'))              _run('sub4unlock.co', runSub4UnlockBypasser);
+        else if (host.includes('app.khaddavi.net'))           _run('app.khaddavi.net', runKhaddaviBypasser);
+        else if (host.includes('sfl.gl'))                     _run('sfl.gl', runSflGlBypasser);
+        else if (host.includes('ytsubme.com'))                _run('ytsubme.com', runYtSubMeBypasser);
+        else if (host.includes('aylink.co'))                  _run('aylink.co', runAylinkBypasser);
+        else if (host.includes('hehehub-acsu123.pythonanywhere.com') && /[?&]hwid=[\w.]+/.test(location.search))
+                                                              _run('hehehub', runHehehubSkipper);
+        else if (host.includes('fluorine.s3ren1ty.xyz'))     _run('fluorine.s3ren1ty.xyz', runFluorineBypasser);
+        else if (host.includes('getpolsec.com'))              _run('getpolsec.com', runGetPolSecBypasser);
+        else if (host.includes('biplabtewary.com') || host.includes('mwgamesyt.com.br') ||
+                 host.includes('topjogosvip.online') || host.includes('legacyagency.com.br'))
+                                                              _run(host, runButtonFinderBypasser);
+        else if (host.includes('rekonise.com'))               _run('rekonise.com', runRekoniseBypasser);
+        else if (host.includes('go.linkify.ru'))              _run('go.linkify.ru', runLinkifyRuBypasser);
+        else if (host.includes('arolinks.com') ||
+                 host.includes('theimmigrationworld.com') ||
+                 host.includes('srtak.com') ||
+                 host.includes('vplink.in'))                  _run(host, runArolinksBypasser);
+        else if (host.includes('spdmteam.com'))               _run('spdmteam.com', runSpdmTeamBypasser);
+        else if (host.includes('linkunlocker.com'))           _run('linkunlocker.com', runLinkUnlockerBypasser);
+        else if (host.includes('mboost.me'))                  _run('mboost.me', runMboostBypasser);
+        else if (host.includes('sub2unlock.netlify.app'))     _run('sub2unlock', runSub2UnlockBypasser);
+        else if (host.includes('krnl-ios.com'))               _run('krnl-ios.com', runKrnlIosBypasser);
+        else if (host.includes('scoplidrop.com'))             _run('scoplidrop.com', runScoplidropBypasser);
+        else if (host.includes('ouo.io') || host.includes('ouo.press'))
+                                                              _run(host, runOuoBypasser);
+        else if (host.includes('encurtai.online'))            _run('encurtai.online', runEncurtaiBypasser);
+        else if (host.includes('pandadevelopment.net') && path.includes('/getkey/'))
+                                                              _run('pandadevelopment.net', runPandaDevelopmentBypasser);
+        else if (host.includes('lua-key-vault.vercel.app'))   _run('lua-key-vault', runLuaKeyVaultBypasser);
+        else if (host.includes('start-get-key.pages.dev'))    _run('start-get-key.pages.dev', runStartGetKeyBypasser);
+        else if (host.includes('bstshrt.com'))                _run('bstshrt.com', runBstshrtBypasser);
+        else if (host.includes('upfilesgo.com'))              _run('upfilesgo.com', runUpfilesGoBypasser);
+        else if (host.includes('boblox-script.com'))          _run('boblox-script.com', runBobloxScriptBypasser);
+        else if (host.includes('dusarisalary.com'))           _run(host, runUnlockLinkFinderBypasser);
+        else if (host.includes('sub2unlock.io') && path.length > 1)
+                                                              _run(host, runUnlockLinkFinderBypasser);
+        else if (host.includes('sub2unlock.io'))              { /* homepage — do nothing */ }
+        else if (host.includes('checkpoint2keyhub.vercel.app') || host.includes('checkpoint3keyhub.vercel.app'))
+                                                              _run('Keyhub', runKeyhubBypasser);
+        else if (host.includes('orca-key-system.vercel.app')) _run('orca-key-system', runOrcaKeySystemBypasser);
+        else if (host.includes('razelol.vercel.app'))         _run('razelol', runRazelolBypasser);
+        else if (host.includes('whatwhatboy.com') && path.includes('scoobyontop2'))
+                                                              _run('scoobyontop2', runScoobyontopBypasser);
+        else if (host.includes('vayuhub.space') && /[?&]hwid=/.test(location.search))
+                                                              _run('vayuhub.space', runVayuHubBypasser);
+        else if (host.includes('socialwolvez.com'))           _run('socialwolvez.com', runSocialWolvezBypasser);
+        else if (host.includes('mobile3.hubsocial.chat') && path.length > 1)
+                                                              _run('hubsocial.chat', runHubsocialBypasser);
+        else if (host.includes('urbanstorm.uk'))            _run('urbanstorm.uk', runUrbanstormBypasser);
+        else if (TPI_HOSTS.some(h => host.includes(h)))       _run(host, runTpiLiBypasser);
+        else if (FORM_HOSTS.some(h => host.includes(h)))      _run(host, runFormBypasser);
+        else                                                   _run(host, runSafelinkBypasser);
+
     } catch (routerErr) {
         console.error('[ULB] Uncaught router error:', routerErr);
         notify(`ULB: unexpected error — ${routerErr.message}`, 'error', 8000);
@@ -3471,6 +2838,20 @@
     // ═══════════════════════════════════════════════════════════════════════
     // §7  BYPASSERS
     // ═══════════════════════════════════════════════════════════════════════
+    // Available helpers: they depend on are available:
+    //   notify()            showCountdown()       showRedirectNotif()
+    //   showDirectBypassBtn() showKeyCard()        showBypassPrompt()
+    //   showScamWarning()   safeRedirect()        makeErrHandler()
+    //   solveTurnstile()    solveRecaptcha()      createCaptchaUI()
+    //   fetchWithTimeout()  fetchJSON()           _httpError()
+    //   submitForm()        spoofVisibilityHidden() waitForContinueBtn()
+    //   _lnbzWaitForAppVars() _lnbzWaitForAppVarsAsync() _runLinksGoBypasser()
+    //   getSiteKey()        getRecaptchaSiteKey() makeTimer()
+    //   pollUntil()         waitForEl()           onReady()  waitBody()
+    //   sleep()             once()                safeUrl()  isIOS()
+    //   clickWhenReady()    generateId()
+    //   _uw  (safe unsafeWindow reference)
+    //   CONFIG  VERSION  host  path
 
     // ── PhantomFluxKey ─────────────────────────────────────────────────────
     // v0-phantomfluxkey.vercel.app hosts a multi-step key system that
@@ -3484,14 +2865,7 @@
 
 
     // ── dl.surf ────────────────────────────────────────────────────────────
-    // dl.surf/f/<slug> is a file-hosting front-end that requires solving a
-    // Turnstile captcha before issuing a download URL. This bypasser:
-    //   1. Injects a "Download via Bypasser" button in place of the normal one.
-    //   2. On click: GET /api/file/request-download/file/<slug>/ → download token.
-    //   3. Solve Turnstile automatically using the site's own sitekey.
-    //   4. POST /api/file/new-download-file/ {token, captcha_token} → real URL.
-    //   5. Trigger download via <a download> (plus window.open on iOS).
-    // Also watches for SPA navigation and re-injects the button after URL changes.
+    // dl.surf/f/<slug>: GET token → solve Turnstile → POST for download URL → trigger download
 
     function runDlSurf() {
         const API = 'https://backendapi.dl.surf/api/file';
@@ -3507,9 +2881,7 @@
         };
 
         const getToken = () => dlFetch(`${API}/request-download/file/${slug}/`, {
-            headers: {
-                Accept: 'application/json'
-            }
+            headers: { Accept: 'application/json' }
         }).then(d => d.token);
 
         const getDownloadUrl = (tk, cap) => dlFetch(`${API}/new-download-file/`, {
@@ -3520,178 +2892,42 @@
                 Origin: location.origin,
                 Referer: location.href,
             },
-            body: JSON.stringify({
-                token: tk,
-                captcha_token: cap
-            }),
+            body: JSON.stringify({ token: tk, captcha_token: cap }),
         }).then(d => d.url || d.download_url || d.link || d);
 
-        const btn = Object.assign(document.createElement('button'), {
-            title: 'Unknown Link Bypasser — Auto Download',
-            innerHTML: 'Download via Bypasser',
-        });
+        const SITE = 'dl.surf';
+        const t = makeTimer();
+        const nh = notify(`${SITE} — starting download bypass…`, 'loading', 0, { site: SITE });
+        const handleError = makeErrHandler(SITE, nh, 8000);
 
-        let nh = null;
-        const setStatus = (msg, type, extra) => nh ? nh.update(msg, type, extra) : (nh = notify(msg, type, 0, extra));
-
-        function injectBtn() {
-            const orig = document.querySelector('button[title="Continue to Download"]');
-            if(orig) {
-                btn.className = orig.className;
-                btn.style.cssText = orig.style.cssText;
-                btn.style.backgroundColor = btn.style.borderColor = '#dc2626';
-                orig.replaceWith(btn);
-            } else {
-                Object.assign(btn.style, {
-                    position: 'fixed',
-                    bottom: 'calc(24px + env(safe-area-inset-bottom,0px))',
-                    right: 'calc(24px + env(safe-area-inset-right,0px))',
-                    zIndex: 99999,
-                    padding: '12px 22px',
-                    backgroundColor: '#dc2626',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    fontFamily: 'Segoe UI,Arial,sans-serif',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    minHeight: '44px',
-                    touchAction: 'manipulation',
-                });
-                document.body.appendChild(btn);
-            }
-            notify('dl.surf — bypass button ready, click to download', 'info', undefined, {
-                site: 'dl.surf'
-            });
-        }
-
-        if(!CONFIG.dlSurfAutoInject) {
-            notify('dl.surf — auto-inject is disabled in CONFIG.dlSurfAutoInject', 'info', undefined, {
-                site: 'dl.surf'
-            });
-            return;
-        }
-
-        let lastHref = location.href,
-            injectIv = null;
-
-        function startInjecting() {
-            btn.innerHTML = 'Download via Bypasser';
-            btn.disabled = false;
-            clearInterval(injectIv);
-            injectIv = setInterval(() => {
-                if(btn.isConnected) return;
-                if(document.querySelector('button[title="Continue to Download"]')) {
-                    clearInterval(injectIv);
-                    injectBtn();
-                }
-            }, 200);
-            setTimeout(() => {
-                clearInterval(injectIv);
-                if(!btn.isConnected) injectBtn();
-            }, 15_000);
-        }
-
-        const hrefCheck = () => {
-            if(location.href !== lastHref) {
-                lastHref = location.href;
-                startInjecting();
-            }
-        };
-        // MutationObserver on <title> covers most SPA navigations;
-        // history API overrides cover pushState/replaceState.
-        new MutationObserver(hrefCheck).observe(document.querySelector('title') || document.head, {
-            childList: true,
-            subtree: true
-        });
-        const _origPush = history.pushState.bind(history);
-        const _origReplace = history.replaceState.bind(history);
-        history.pushState = function () {
-            _origPush.apply(this, arguments);
-            hrefCheck();
-        };
-        history.replaceState = function () {
-            _origReplace.apply(this, arguments);
-            hrefCheck();
-        };
-        window.addEventListener('popstate', hrefCheck, {
-            passive: true
-        });
-        startInjecting();
-
-        btn.addEventListener('click', async () => {
-            btn.disabled = true;
-            const t = makeTimer();
+        const run = async () => {
             try {
-                setStatus('Requesting download token…', 'loading', {
-                    site: 'dl.surf'
-                });
+                nh.update(`${SITE} — requesting token…`, 'loading', { site: SITE });
                 const token = await getToken();
-                setStatus('Solving captcha automatically…', 'loading', {
-                    site: 'dl.surf'
-                });
+                nh.update(`${SITE} — solving captcha…`, 'loading', { site: SITE });
                 const cap = await solveTurnstile(DL_KEY);
-                setStatus('Fetching download URL…', 'loading', {
-                    site: 'dl.surf'
-                });
+                nh.update(`${SITE} — fetching download URL…`, 'loading', { site: SITE });
                 const url = await getDownloadUrl(token, cap);
                 if(typeof url === 'string' && url.startsWith('http')) {
-                    setStatus('Download started!', 'success', {
-                        site: 'dl.surf',
-                        time: t.elapsed() + 's'
-                    });
+                    nh.update(`${SITE} — done in ${t.elapsed()}s — download started!`, 'success', { site: SITE });
                     const a = Object.assign(document.createElement('a'), {
-                        href: url,
-                        download: '',
-                        target: '_blank',
-                        rel: 'noopener'
+                        href: url, download: '', target: '_blank', rel: 'noopener'
                     });
                     document.body.appendChild(a);
-                    try {
-                        a.click();
-                    } catch (_) {}
+                    try { a.click(); } catch (_) {}
                     a.remove();
                     if(isIOS()) window.open(url, '_blank');
+                    setTimeout(() => nh.remove(), 4000);
                 } else {
-                    setStatus('Unexpected response — check console.', 'warn', {
-                        site: 'dl.surf'
-                    });
+                    handleError('unexpected API response — check console', null);
                     console.warn('[ULB/dl.surf] unexpected download URL response:', url);
                 }
-                setTimeout(() => {
-                    nh?.remove();
-                    nh = null;
-                }, 4000);
             } catch (err) {
-                console.error('[ULB/dl.surf]', err);
-                setStatus(`Error: ${err.message}`, 'error', {
-                    site: 'dl.surf'
-                });
-                setTimeout(() => {
-                    nh?.remove();
-                    nh = null;
-                }, 5000);
-            } finally {
-                btn.disabled = false;
+                handleError('bypass failed', err);
             }
-        });
-    }
+        };
 
-    // ── airflowscript.com ──────────────────────────────────────────────────
-    // airflowscript.com/key gates access behind a "join our Discord" step
-    // that sets a localStorage flag before proceeding. This bypasser fakes
-    // that flag (airflow_discord_done = true) and reloads, causing the site
-    // to believe the Discord step was already completed and skip it.
-
-    function runAirflowBypasser() {
-        const KEY = 'airflow_discord_done';
-        if(localStorage.getItem(KEY) === 'true') return;
-        notify('airflowscript.com — faking Discord step, reloading…', 'loading', 3000, {
-            site: 'airflowscript.com'
-        });
-        localStorage.setItem(KEY, 'true');
-        location.reload();
+        onReady(run);
     }
 
     // ── bstlar.com ─────────────────────────────────────────────────────────
@@ -3838,8 +3074,7 @@
     // 3-second countdown before redirecting.
 
     function runTpiLiBypasser() {
-        const SITE = 'tpi.li';
-        const DELAY = 3;
+        const SITE = location.hostname;
         const t = makeTimer();
         let nh = null;
 
@@ -3879,13 +3114,8 @@
                 }
                 return;
             }
-            if(nh) nh.update(`${SITE} — decoded. Redirecting in ${DELAY}s…`, 'loading', {
-                site: SITE
-            });
-            showCountdown(DELAY, () => safeRedirect(dest, nh, {
-                t,
-                siteLabel: SITE
-            }), `${SITE} bypass`);
+            // Instant redirect — no countdown delay
+            safeRedirect(dest, nh, { t, siteLabel: SITE });
         }
 
         function init() {
@@ -3924,6 +3154,36 @@
         onReady(init);
     }
 
+    // ── urbanstorm.uk/02/links.html ──────────────────────────────────────────
+    // Fetches an obfuscated payload from the Project-Stark GitHub repo,
+    // extracts the first quoted token, base64-decodes it, then redirects if
+    // it looks like a URL or surfaces it as a key card otherwise.
+
+    function runUrbanstormBypasser() {
+        const SITE = 'urbanstorm.uk';
+        const t  = makeTimer();
+        const nh = notify(`${SITE} — fetching link…`, 'loading', 0, { site: SITE });
+        const handleError = makeErrHandler(SITE, nh, 7000);
+
+        fetch('https://raw.githubusercontent.com/Urbanstormm/Project-Stark/main/vgYZApyrZC')
+            .then(r => {
+                if (!r.ok) throw new Error(`GitHub fetch failed (HTTP ${r.status})`);
+                return r.text();
+            })
+            .then(text => {
+                const m = text.match(/"(.+?)"/);
+                if (!m) throw new Error('No quoted token found in payload');
+                const decoded = atob(m[1]);
+                if (/^https?:\/\//.test(decoded)) {
+                    safeRedirect(decoded, nh, { t, siteLabel: SITE });
+                } else {
+                    nh.remove();
+                    showKeyCard(decoded, SITE, t);
+                }
+            })
+            .catch(err => handleError('bypass failed', err));
+    }
+
     // ── safelink (generic) ─────────────────────────────────────────────────
     // Handles any safelink-platform site not covered by a more specific
     // bypasser (shrtslug.biz, biovetro.net, technons.com, tournguide.com,
@@ -3931,7 +3191,7 @@
     //
     // The safelink platform uses a JavaScript variable (app_vars / safelink_vars)
     // to expose the encoded destination. Three extraction strategies are tried:
-    //   1. unsafeWindow.app_vars / safelink_vars direct read
+    //   1. _uw.app_vars / safelink_vars direct read
     //   2. Regex-parse the first matching inline <script> block
     //   3. Brute-force scan of all inline scripts for known key names
     // Once a URL is found it is base64-decoded (atob) and validated.
@@ -4095,7 +3355,7 @@
             return _qs.call(this, sel);
         };
 
-        const RETRY_KEY = '__ulb_shrtslug_extra_delay';
+        const RETRY_KEY = _pfx+'shrtslug_extra_delay';
         const extraDelaySec = parseInt(sessionStorage.getItem(RETRY_KEY) || '0', 10);
         const t = makeTimer();
 
@@ -4169,7 +3429,7 @@
                 });
                 setTimeout(() => nh?.remove(), 3000);
                 if(final.toLowerCase().startsWith('http')) window.location = final;
-                else unsafeWindow.setup_special_link?.(final) ?? console.warn('[ULB/FormBypasser] setup_special_link missing for:', final);
+                else _uw.setup_special_link?.(final) ?? console.warn('[ULB/FormBypasser] setup_special_link missing for:', final);
             } else if(next_page && speed_token) {
                 setStatus('Next step — continuing…', 'loading', {
                     site: host
@@ -4356,7 +3616,7 @@
             const btn = document.getElementById('yuidea-btmbtn');
             if(!btn?.href) return false;
             try {
-                if(typeof unsafeWindow.yuideascrolldown === 'function') unsafeWindow.yuideascrolldown();
+                if(typeof _uw.yuideascrolldown === 'function') _uw.yuideascrolldown();
             } catch (_) {}
             safeRedirect(btn.href, nh, {
                 t,
@@ -4379,265 +3639,6 @@
             }, 100);
         };
         onReady(init);
-    }
-
-    // ── Scam Warning Utility ───────────────────────────────────────────────
-
-    function showScamWarning(opts) {
-        const {
-            site = location.hostname,
-                reason = 'This site has been flagged as malicious.',
-                details = '',
-                actionUrl = '',
-                actionLabel = '🔒 Take Action',
-                logTag = site,
-        } = opts;
-
-        try {
-            unsafeWindow.fetch = () => Promise.reject(new Error('[ULB] blocked'));
-        } catch (_) {}
-        try {
-            unsafeWindow.XMLHttpRequest.prototype.open = function () {
-                console.warn(`[ULB/${logTag}] XHR blocked`);
-            };
-        } catch (_) {}
-
-        const mount = () => {
-            document.querySelectorAll('script, style, link, img, video, audio, iframe, canvas, svg:not(#__ulb_svg)').forEach(el => el.remove());
-            if(document.body) {
-                document.body.innerHTML = '';
-                document.body.style.cssText = 'margin:0;padding:0;overflow:hidden;background:#060006;';
-            }
-
-            const st = Object.assign(document.createElement('style'), {
-                id: '__ulb_scam_style',
-                textContent: `
-                *, *::before, *::after { box-sizing: border-box; }
-                @keyframes __ulb_bg_fade { from { opacity: 0; } to { opacity: 1; } }
-                @keyframes __ulb_card_in { 0% { opacity: 0; transform: scale(.92) translateY(24px); } 60% { opacity: 1; transform: scale(1.01) translateY(-3px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
-                @keyframes __ulb_stripe_flicker { 0% { opacity: 1; } 8% { opacity: 0.4; } 12% { opacity: 1; } 20% { opacity: 0.65; } 24% { opacity: 1; } 100% { opacity: 1; } }
-                @keyframes __ulb_headline_pulse { 0%,100% { color: #ff3333; } 50% { color: #ff7070; } }
-                @keyframes __ulb_domain_blink { 0%,100% { border-color: #440044; } 50% { border-color: #990099; } }
-                @keyframes __ulb_scanline { 0% { transform: translateY(-100%); } 100% { transform: translateY(100vh); } }
-                #__ulb_overlay { position: fixed; inset: 0; z-index: 2147483647; background: #060006; display: flex; align-items: center; justify-content: center; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; overflow-y: auto; animation: __ulb_bg_fade .15s ease-out forwards; }
-                #__ulb_scanline { position: fixed; inset: 0; z-index: 2147483646; pointer-events: none; overflow: hidden; }
-                #__ulb_scanline::after { content: ''; display: block; width: 100%; height: 80px; background: linear-gradient(to bottom, transparent, rgba(255,30,30,.07), transparent); animation: __ulb_scanline .6s ease-in .05s 1; }
-                #__ulb_card { max-width: 480px; width: 100%; background: #0d000d; border: 2px solid #cc0000; border-top: 4px solid #ff2222; color: #fff; overflow: hidden; opacity: 0; animation: __ulb_card_in .4s cubic-bezier(.22,.68,0,1.1) .1s forwards; }
-                #__ulb_stripe { animation: __ulb_stripe_flicker 1s ease-out .15s 1; }
-                #__ulb_headline { animation: __ulb_headline_pulse 2.5s ease-in-out .5s infinite; }
-                #__ulb_domain { animation: __ulb_domain_blink 2s ease-in-out 1s infinite; }
-                #__ulb_back_btn, #__ulb_action_btn { transition: all .15s; }
-                #__ulb_back_btn:hover { background: rgba(255,255,255,.06) !important; color: #aaa !important; border-color: #550055 !important; }
-                #__ulb_action_btn:hover { background: #4752c4 !important; }
-                `,
-            });
-            (document.head || document.documentElement).appendChild(st);
-
-            const scanline = Object.assign(document.createElement('div'), {
-                id: '__ulb_scanline'
-            });
-            document.documentElement.appendChild(scanline);
-
-            const overlay = Object.assign(document.createElement('div'), {
-                id: '__ulb_overlay'
-            });
-            const card = Object.assign(document.createElement('div'), {
-                id: '__ulb_card'
-            });
-
-            const stripe = Object.assign(document.createElement('div'), {
-                id: '__ulb_stripe'
-            });
-            Object.assign(stripe.style, {
-                background: '#ff2222',
-                padding: '8px 20px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px'
-            });
-            const stripeIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-            stripeIcon.setAttribute('width', '16');
-            stripeIcon.setAttribute('height', '16');
-            stripeIcon.setAttribute('viewBox', '0 0 16 16');
-            stripeIcon.setAttribute('fill', 'none');
-            stripeIcon.innerHTML = '<path d="M8 1L1 14h14L8 1z" fill="#fff"/><path d="M8 6v4M8 11v1.5" stroke="#cc0000" stroke-width="1.5" stroke-linecap="round"/>';
-            const stripeText = Object.assign(document.createElement('span'), {
-                textContent: 'Security Warning — Unknown Link Bypasser'
-            });
-            Object.assign(stripeText.style, {
-                fontSize: '11px',
-                fontWeight: '700',
-                letterSpacing: '2px',
-                textTransform: 'uppercase',
-                color: '#fff'
-            });
-            stripe.append(stripeIcon, stripeText);
-
-            const body = document.createElement('div');
-            Object.assign(body.style, {
-                padding: '24px 22px 20px'
-            });
-
-            const headline = Object.assign(document.createElement('div'), {
-                id: '__ulb_headline',
-                textContent: 'SCAM DETECTED'
-            });
-            Object.assign(headline.style, {
-                fontSize: '22px',
-                fontWeight: '900',
-                letterSpacing: '1px',
-                textTransform: 'uppercase',
-                color: '#ff3333',
-                marginBottom: '4px',
-                lineHeight: '1.1'
-            });
-
-            const subline = Object.assign(document.createElement('div'), {
-                textContent: 'Do not proceed — this site is dangerous'
-            });
-            Object.assign(subline.style, {
-                fontSize: '12px',
-                color: '#666',
-                letterSpacing: '2px',
-                textTransform: 'uppercase',
-                marginBottom: '18px',
-                borderBottom: '1px solid #1e001e',
-                paddingBottom: '14px'
-            });
-
-            const domainBox = Object.assign(document.createElement('div'), {
-                id: '__ulb_domain'
-            });
-            Object.assign(domainBox.style, {
-                background: '#180018',
-                border: '1px solid #440044',
-                padding: '10px 14px',
-                marginBottom: '14px'
-            });
-            const domainText = Object.assign(document.createElement('span'), {
-                textContent: site
-            });
-            Object.assign(domainText.style, {
-                fontSize: '13px',
-                color: '#ff9999',
-                fontFamily: 'monospace',
-                fontWeight: '600',
-                letterSpacing: '0.5px'
-            });
-            domainBox.appendChild(domainText);
-
-            const reasonBox = document.createElement('div');
-            Object.assign(reasonBox.style, {
-                background: '#1a0000',
-                borderLeft: '3px solid #ff2222',
-                padding: '12px 14px',
-                marginBottom: '10px',
-                fontSize: '13px',
-                color: '#ffaaaa',
-                fontWeight: '700',
-                lineHeight: '1.5'
-            });
-            reasonBox.textContent = reason;
-
-            let detailsEl = null;
-            if(details) {
-                detailsEl = Object.assign(document.createElement('div'), {
-                    textContent: details
-                });
-                Object.assign(detailsEl.style, {
-                    fontSize: '12px',
-                    color: '#556',
-                    lineHeight: '1.75',
-                    marginBottom: '20px',
-                    padding: '10px 12px',
-                    background: '#0a000a',
-                    border: '1px solid #1a001a'
-                });
-            }
-
-            const divider = document.createElement('div');
-            Object.assign(divider.style, {
-                borderTop: '1px solid #1e001e',
-                margin: '0 0 16px'
-            });
-
-            let actionBtn = null;
-            if(actionUrl) {
-                actionBtn = Object.assign(document.createElement('a'), {
-                    id: '__ulb_action_btn',
-                    href: actionUrl,
-                    target: '_blank',
-                    rel: 'noopener noreferrer',
-                    textContent: actionLabel
-                });
-                Object.assign(actionBtn.style, {
-                    display: 'block',
-                    background: '#5865f2',
-                    color: '#fff',
-                    fontWeight: '700',
-                    fontSize: '13px',
-                    textDecoration: 'none',
-                    padding: '11px 20px',
-                    marginBottom: '8px',
-                    textAlign: 'center',
-                    letterSpacing: '0.5px',
-                    border: '1px solid #4752c4',
-                    cursor: 'pointer'
-                });
-            }
-
-            const backBtn = Object.assign(document.createElement('button'), {
-                id: '__ulb_back_btn',
-                textContent: '← Go Back to Safety'
-            });
-            Object.assign(backBtn.style, {
-                background: 'transparent',
-                border: '1px solid #2a002a',
-                color: '#666',
-                fontSize: '12px',
-                fontWeight: '600',
-                padding: '9px 22px',
-                cursor: 'pointer',
-                width: '100%',
-                letterSpacing: '1px',
-                textTransform: 'uppercase'
-            });
-            backBtn.addEventListener('click', () => {
-                window.location.href = 'https://www.google.com';
-            });
-
-            body.append(headline, subline, domainBox, reasonBox);
-            if(detailsEl) body.appendChild(detailsEl);
-            body.append(divider);
-            if(actionBtn) body.appendChild(actionBtn);
-            body.appendChild(backBtn);
-
-            const footer = Object.assign(document.createElement('div'), {
-                textContent: 'Unknown Link Bypasser · @Aro Moon — Scam Protection'
-            });
-            Object.assign(footer.style, {
-                background: '#080008',
-                borderTop: '1px solid #1a001a',
-                padding: '8px 22px',
-                fontSize: '10px',
-                color: '#2a002a',
-                letterSpacing: '1.5px',
-                textTransform: 'uppercase'
-            });
-
-            card.append(stripe, body, footer);
-            overlay.appendChild(card);
-            document.documentElement.appendChild(overlay);
-            try {
-                document.body.style.overflow = 'hidden';
-            } catch (_) {}
-            console.warn(`[ULB/ScamWarning] Blocked: ${site} — ${reason}`);
-        };
-
-        if(document.body) mount();
-        else document.addEventListener('DOMContentLoaded', mount, {
-            once: true
-        });
     }
 
     // ── bloxscript.live ────────────────────────────────────────────────────
@@ -4724,27 +3725,20 @@
                 nh.update(`${SITE} — bypassing ad countdown…`, 'loading', {
                     site: SITE
                 });
-                unsafeWindow.count = -1;
-                unsafeWindow.timer?.();
-                // After the timer, wait for either #cross-snp2 or #btn7 to become visible
+                _uw.count = -1;
+                _uw.timer?.();
+                // After the timer, wait for either #tp-snp2, #cross-snp2, or #btn7 to become visible
                 const check = setInterval(() => {
-                    const btn = document.getElementById('cross-snp2');
-                    if(btn && btn.offsetParent !== null) {
-                        clearInterval(check);
-                        nh.update(`${SITE} — clicking continue…`, 'loading', {
-                            site: SITE
-                        });
-                        btn.click();
-                        return;
-                    }
-                    const btn7 = document.getElementById('btn7');
-                    if(btn7 && btn7.offsetParent !== null) {
-                        clearInterval(check);
-                        nh.update(`${SITE} — clicking continue…`, 'loading', {
-                            site: SITE
-                        });
-                        btn7.click();
-                        return;
+                    for (const id of ['tp-snp2', 'cross-snp2', 'btn7']) {
+                        const b = document.getElementById(id);
+                        if(b && b.offsetParent !== null) {
+                            clearInterval(check);
+                            nh.update(`${SITE} — clicking continue…`, 'loading', {
+                                site: SITE
+                            });
+                            b.click();
+                            return;
+                        }
                     }
                 }, 500);
                 setTimeout(() => clearInterval(check), 60000);
@@ -4757,23 +3751,16 @@
                 // After timer runs, click whichever continue button appears
                 const waitAndClickContinue = () => {
                     const check = setInterval(() => {
-                        const btn = document.getElementById('cross-snp2');
-                        if(btn && btn.offsetParent !== null) {
-                            clearInterval(check);
-                            nh.update(`${SITE} — step ${step.current}/${step.total} — clicking continue…`, 'loading', {
-                                site: SITE
-                            });
-                            btn.click();
-                            return;
-                        }
-                        const btn7 = document.getElementById('btn7');
-                        if(btn7 && btn7.offsetParent !== null) {
-                            clearInterval(check);
-                            nh.update(`${SITE} — step ${step.current}/${step.total} — clicking continue…`, 'loading', {
-                                site: SITE
-                            });
-                            btn7.click();
-                            return;
+                        for (const id of ['tp-snp2', 'cross-snp2', 'btn7']) {
+                            const b = document.getElementById(id);
+                            if(b && b.offsetParent !== null) {
+                                clearInterval(check);
+                                nh.update(`${SITE} — step ${step.current}/${step.total} — clicking continue…`, 'loading', {
+                                    site: SITE
+                                });
+                                b.click();
+                                return;
+                            }
                         }
                     }, 500);
                     setTimeout(() => clearInterval(check), 60000);
@@ -4788,8 +3775,8 @@
                         nh.update(`${SITE} — step ${step.current}/${step.total} — bypassing…`, 'loading', {
                             site: SITE
                         });
-                        unsafeWindow.count = -1;
-                        unsafeWindow.timer?.();
+                        _uw.count = -1;
+                        _uw.timer?.();
                         waitAndClickContinue();
                     }, 33000);
                 } else {
@@ -4798,18 +3785,18 @@
                     nh.update(`${SITE} — step ${step.current}/${step.total} — bypassing…`, 'loading', {
                         site: SITE
                     });
-                    unsafeWindow.count = -1;
-                    unsafeWindow.timer?.();
+                    _uw.count = -1;
+                    _uw.timer?.();
                     waitAndClickContinue();
                 }
                 return;
             }
 
             // Fallback: original click-based advance
-            const hasNextBtn = typeof unsafeWindow.nextbtn === 'function';
+            const hasNextBtn = typeof _uw.nextbtn === 'function';
             const tryAdvance = () => {
                 if(hasNextBtn) {
-                    unsafeWindow.nextbtn();
+                    _uw.nextbtn();
                     return true;
                 }
                 const btn = document.getElementById('cross-snp2');
@@ -4817,8 +3804,7 @@
                     btn.click();
                     return true;
                 }
-                window.location.href = '/readmore';
-                return true;
+                return false;
             };
 
             const hasCountdown = !!document.getElementById('link1s-time');
@@ -4838,13 +3824,16 @@
 
             if(hasCountdown) {
                 const check = setInterval(() => {
-                    const btn = document.getElementById('cross-snp2');
-                    if(btn && btn.offsetParent !== null) {
-                        clearInterval(check);
-                        nh.update(`${SITE} — advancing…`, 'loading', {
-                            site: SITE
-                        });
-                        tryAdvance();
+                    for (const id of ['tp-snp2', 'cross-snp2']) {
+                        const b = document.getElementById(id);
+                        if(b && b.offsetParent !== null) {
+                            clearInterval(check);
+                            nh.update(`${SITE} — advancing…`, 'loading', {
+                                site: SITE
+                            });
+                            tryAdvance();
+                            return;
+                        }
                     }
                 }, 500);
                 setTimeout(() => clearInterval(check), 30000);
@@ -4895,8 +3884,8 @@
                 nh.update(`${SITE} — bypassing ad countdown…`, 'loading', {
                     site: SITE
                 });
-                unsafeWindow.count = -1;
-                unsafeWindow.timer?.();
+                _uw.count = -1;
+                _uw.timer?.();
                 waitForContinueBtn('countdown', nh, SITE);
                 return;
             }
@@ -4913,8 +3902,8 @@
                     nh.update(`${SITE} — step ${step.current}/${step.total} — bypassing…`, 'loading', {
                         site: SITE
                     });
-                    unsafeWindow.count = -1;
-                    unsafeWindow.timer?.();
+                    _uw.count = -1;
+                    _uw.timer?.();
                     waitForContinueBtn(`step ${step.current}/${step.total}`, nh, SITE);
                     return;
                 }
@@ -4960,8 +3949,8 @@
                 nh.update(`${SITE} — bypassing ad countdown…`, 'loading', {
                     site: SITE
                 });
-                unsafeWindow.count = -1;
-                unsafeWindow.timer?.();
+                _uw.count = -1;
+                _uw.timer?.();
                 waitForContinueBtn('countdown', nh, SITE);
                 return;
             }
@@ -4988,8 +3977,8 @@
                         nh.update(`${SITE} — ${label} — bypassing…`, 'loading', {
                             site: SITE
                         });
-                        unsafeWindow.count = -1;
-                        unsafeWindow.timer?.();
+                        _uw.count = -1;
+                        _uw.timer?.();
                         waitForContinueBtn(label, nh, SITE);
                     }, subtitle);
                     return;
@@ -5023,8 +4012,8 @@
                 nh.update(`${SITE} — clicking Get Link…`, 'loading', {
                     site: SITE
                 });
-                unsafeWindow.count = -1;
-                unsafeWindow.timer?.();
+                _uw.count = -1;
+                _uw.timer?.();
                 getlinkBtn.click();
                 waitForContinueBtn('get-link', nh, SITE, 30_000);
                 return;
@@ -5380,7 +4369,7 @@
             const cbName = document.querySelector('[data-callback]')?.dataset?.callback;
             if(cbName) {
                 try {
-                    if(typeof unsafeWindow[cbName] === 'function') unsafeWindow[cbName](token);
+                    if(typeof _uw[cbName] === 'function') _uw[cbName](token);
                 } catch (_) {}
             }
 
@@ -5504,10 +4493,10 @@
             //    new ones it tries to register are silently dropped.
             // We save the real functions first so our own code (showCountdown,
             // sleep, notify, etc.) still works via the saved references.
-            const _realSetTimeout = unsafeWindow.setTimeout.bind(unsafeWindow);
-            const _realSetInterval = unsafeWindow.setInterval.bind(unsafeWindow);
-            const _realClearTimeout = unsafeWindow.clearTimeout.bind(unsafeWindow);
-            const _realClearInterval = unsafeWindow.clearInterval.bind(unsafeWindow);
+            const _realSetTimeout = _uw.setTimeout.bind(_uw);
+            const _realSetInterval = _uw.setInterval.bind(_uw);
+            const _realClearTimeout = _uw.clearTimeout.bind(_uw);
+            const _realClearInterval = _uw.clearInterval.bind(_uw);
 
             // Kill everything running right now.
             let _nukeId = _realSetTimeout(() => {}, 0);
@@ -5517,8 +4506,8 @@
             }
 
             // Freeze the page — any new timer it tries to set is a no-op.
-            unsafeWindow.setTimeout = () => -1;
-            unsafeWindow.setInterval = () => -1;
+            _uw.setTimeout = () => -1;
+            _uw.setInterval = () => -1;
 
             // Replace the on-page countdown UI with our status text.
             const timerDiv = document.getElementById('myTimerDiv');
@@ -5598,7 +4587,7 @@
     //     the form. The server validates the token and redirects.
     //
     //   Link page — no Turnstile widget. Uses a three-variable auth flow:
-    //     1. Read _a, _t, _d from unsafeWindow or inline scripts.
+    //     1. Read _a, _t, _d from _uw or inline scripts.
     //     2. POST /get/tk {_a, _t, _d} → { status, th } (session token).
     //     3. POST /links/go2 {alias, csrf, tkn} → { url } (final destination).
     //     Link page is delayed by 1 s to allow the page's own JS to populate
@@ -5635,7 +4624,7 @@
             const cbName = document.querySelector('.cf-turnstile')?.dataset?.callback;
             if(cbName) {
                 try {
-                    if(typeof unsafeWindow[cbName] === 'function') unsafeWindow[cbName](token);
+                    if(typeof _uw[cbName] === 'function') _uw[cbName](token);
                 } catch (_) {}
             }
 
@@ -5665,11 +4654,11 @@
                 }
                 return '';
             };
-            const _a = unsafeWindow._a || scrapeVar('_a');
-            const _t = unsafeWindow._t || scrapeVar('_t');
-            const _d = unsafeWindow._d || scrapeVar('_d');
+            const _a = _uw._a || scrapeVar('_a');
+            const _t = _uw._t || scrapeVar('_t');
+            const _d = _uw._d || scrapeVar('_d');
             const alias = location.pathname.split('/').filter(Boolean).pop() || '';
-            const csrf = unsafeWindow?.app?.csrf ?? document.querySelector('[name="csrf"]')?.value ?? '';
+            const csrf = _uw?.app?.csrf ?? document.querySelector('[name="csrf"]')?.value ?? '';
 
             try {
                 nh.update(`${SITE} — getting tk…`, 'loading', {
@@ -6216,8 +5205,8 @@
             const ta = document.querySelector('[name="h-captcha-response"]');
             if(ta?.value?.length > 20) return ta.value;
             try {
-                if(typeof unsafeWindow.hcaptcha?.getResponse === 'function') {
-                    const r = unsafeWindow.hcaptcha.getResponse();
+                if(typeof _uw.hcaptcha?.getResponse === 'function') {
+                    const r = _uw.hcaptcha.getResponse();
                     if(r?.length > 20) return r;
                 }
             } catch (_) {}
@@ -6228,7 +5217,7 @@
             const ta = document.querySelector('[name="g-recaptcha-response"], #g-recaptcha-response');
             if(ta?.value?.length > 20) return ta.value;
             try {
-                const r = unsafeWindow.grecaptcha?.getResponse?.();
+                const r = _uw.grecaptcha?.getResponse?.();
                 if(r?.length > 20) return r;
             } catch (_) {}
             return '';
@@ -6363,7 +5352,7 @@
     // Layout B: form/captcha page → /links/go POST (encurta.net platform)
 
     function runArolinksBypasser() {
-        const SITE = 'arolinks.com';
+        const SITE = location.hostname;
         const t = makeTimer();
         const nh = notify(`${SITE} — detecting page…`, 'loading', 0, {
             site: SITE
@@ -6383,25 +5372,17 @@
                     nh.update(`${SITE} — step ${step.current}/${step.total} — bypassing…`, 'loading', {
                         site: SITE
                     });
-                    unsafeWindow.count = -1;
-                    unsafeWindow.timer?.();
+                    _uw.count = -1;
+                    _uw.timer?.();
                     const check = setInterval(() => {
-                        const b7 = document.getElementById('btn7');
-                        if(b7 && b7.offsetParent !== null) {
-                            clearInterval(check);
-                            nh.update(`${SITE} — clicking Continue…`, 'loading', {
-                                site: SITE
-                            });
-                            b7.click();
-                            return;
-                        }
-                        const cross = document.getElementById('cross-snp2');
-                        if(cross && cross.offsetParent !== null) {
-                            clearInterval(check);
-                            nh.update(`${SITE} — clicking Continue…`, 'loading', {
-                                site: SITE
-                            });
-                            cross.click();
+                        for (const id of ['tp-snp2', 'btn7', 'cross-snp2']) {
+                            const b = document.getElementById(id);
+                            if(b && b.offsetParent !== null) {
+                                clearInterval(check);
+                                nh.update(`${SITE} — clicking Continue…`, 'loading', { site: SITE });
+                                b.click();
+                                return;
+                            }
                         }
                     }, 500);
                     setTimeout(() => clearInterval(check), 60000);
@@ -6414,25 +5395,17 @@
                 nh.update(`${SITE} — bypassing ad countdown…`, 'loading', {
                     site: SITE
                 });
-                unsafeWindow.count = -1;
-                unsafeWindow.timer?.();
+                _uw.count = -1;
+                _uw.timer?.();
                 const check = setInterval(() => {
-                    const cross = document.getElementById('cross-snp2');
-                    if(cross && cross.offsetParent !== null) {
-                        clearInterval(check);
-                        nh.update(`${SITE} — clicking Continue…`, 'loading', {
-                            site: SITE
-                        });
-                        cross.click();
-                        return;
-                    }
-                    const b7 = document.getElementById('btn7');
-                    if(b7 && b7.offsetParent !== null) {
-                        clearInterval(check);
-                        nh.update(`${SITE} — clicking Continue…`, 'loading', {
-                            site: SITE
-                        });
-                        b7.click();
+                    for (const id of ['tp-snp2', 'cross-snp2', 'btn7']) {
+                        const b = document.getElementById(id);
+                        if(b && b.offsetParent !== null) {
+                            clearInterval(check);
+                            nh.update(`${SITE} — clicking Continue…`, 'loading', { site: SITE });
+                            b.click();
+                            return;
+                        }
                     }
                 }, 500);
                 setTimeout(() => clearInterval(check), 60000);
@@ -6763,523 +5736,6 @@
         onReady(init);
     }
 
-    // ── http://nexusdevs.fun ──────────────────────────────────────────────────────────
-    // Full automated key-system flow for nexusdevs.fun/getkey.
-    // Flow:
-    //   1.  Generate ECDSA P-256 keypair for request signing.
-    //   2.  Read hwid_hash from ?h= / ?hwid= param (or prompt as fallback).
-    //   3.  GET  /api/getkey/route-config       → dynamic route paths
-    //   4.  POST /api/v2/{interaction}          → interaction_token
-    //   5.  Solve hCaptcha (1/5)
-    //   6.  POST /api/v2/{init}                → token + steps[]
-    //   7.  GET  /api/oauth/me                 → verify Discord is linked
-    //   8.  Solve hCaptcha (2/5)
-    //   9.  POST /api/v2/{complete_discord}
-    //   10. For each ad step:
-    //         POST /api/v2/{start_step}        → step_nonce + challenge
-    //         Solve hCaptcha (3–4/5) in parallel with sleep(wait + 1s)
-    //         POST /api/v2/{complete_step}     → step_nonce + challenge back
-    //                                            (too_fast / bypass_dct → retry once)
-    //   11. Solve hCaptcha (5/5)
-    //   12. POST /api/v2/{generate}            → key sent to Discord DMs.
-
-    function runNexusAdblock() {
-
-        // ── VECTOR 14 — window.chrome (realistic runtime object) ─────────────
-        try {
-            if(!window.chrome) {
-                const _chrome = {
-                    app: {
-                        isInstalled: false
-                    },
-                    runtime: {
-                        id: undefined,
-                        connect: () => {},
-                        sendMessage: () => {},
-                        onMessage: {
-                            addListener: () => {},
-                            removeListener: () => {}
-                        },
-                    },
-                    loadTimes: function () {
-                        const now = Date.now() / 1000;
-                        return {
-                            commitLoadTime: now - 1,
-                            connectionInfo: 'h2',
-                            finishDocumentLoadTime: now,
-                            finishLoadTime: now,
-                            firstPaintAfterLoadTime: 0,
-                            firstPaintTime: now - 0.5,
-                            navigationType: 'Other',
-                            npnNegotiatedProtocol: 'h2',
-                            requestTime: now - 2,
-                            startLoadTime: now - 2,
-                            wasAlternateProtocolAvailable: false,
-                            wasFetchedViaSpdy: true,
-                            wasNpnNegotiated: true,
-                        };
-                    },
-                    csi: function () {
-                        return {
-                            startE: Date.now(),
-                            onloadT: Date.now(),
-                            pageT: 1000,
-                            tran: 15
-                        };
-                    },
-                };
-                Object.defineProperty(window, 'chrome', {
-                    get: () => _chrome,
-                    configurable: true
-                });
-            }
-        } catch (_) {}
-        // ── VECTOR 8 — Brave flag ─────────────────────────────────────────────
-        try {
-            Object.defineProperty(navigator, 'brave', {
-                get: () => undefined,
-                configurable: true
-            });
-        } catch (_) {}
-
-        // ── VECTOR 6 — __nexusAds proxy ───────────────────────────────────────
-        const _NX_LOADED_KEYS = [
-            'adsenseLoaded', 'adsterraSocialLoaded', 'adsterraPopLoaded',
-            'adsterraLeaderboardLoaded', 'adsterraSideTallLoaded', 'adsterraSideBoxLoaded',
-            'adsterraInlineBarLoaded', 'adsterraMobileBarLoaded', 'adsterraBoxLoaded', 'adsterraNativeLoaded',
-        ];
-        const _NX_BLOCKED_KEYS = [
-            'adsenseBlocked', 'adsterraSocialBlocked', 'adsterraPopBlocked',
-            'adsterraLeaderboardBlocked', 'adsterraSideTallBlocked', 'adsterraSideBoxBlocked',
-            'adsterraInlineBarBlocked', 'adsterraMobileBarBlocked', 'adsterraBoxBlocked', 'adsterraNativeBlocked',
-        ];
-        const _adStore = {};
-        _NX_LOADED_KEYS.forEach(k => (_adStore[k] = true));
-        _NX_BLOCKED_KEYS.forEach(k => (_adStore[k] = false));
-        const _adProxy = new Proxy(_adStore, {
-            set(t, p, v) {
-                if(typeof p === 'string' && p.endsWith('Blocked')) {
-                    t[p] = false;
-                    return true;
-                }
-                t[p] = v;
-                return true;
-            },
-            get(t, p) {
-                if(typeof p === 'string' && p.endsWith('Blocked')) return false;
-                if(typeof p === 'string' && p.endsWith('Loaded')) return true;
-                return Reflect.get(t, p);
-            },
-        });
-        try {
-            Object.defineProperty(window, '__nexusAds', {
-                get: () => _adProxy,
-                set: () => true,
-                configurable: false
-            });
-        } catch (_) {}
-
-        // ── VECTOR 7 — fetch interceptor ─────────────────────────────────────
-        const _nx_origFetch = window.fetch.bind(window);
-        window.fetch = function (input, init) {
-            const url = (typeof input === 'string') ? input : (input instanceof URL) ? input.href : (input?.url ?? '');
-            if(url.includes('/api/getkey/report-adblock'))
-                return Promise.resolve(new Response(JSON.stringify({
-                    status: 'ok'
-                }), {
-                    status: 200,
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                }));
-            return _nx_origFetch(input, init);
-        };
-
-        // ── VECTORS 2, 3, 4 — querySelector / querySelectorAll / getElementById
-        const _NX_QSA_BLOCK = [/tampermonkey|greasemonkey|violentmonkey|userscript/i, /data-ulb-spin/i, /z-index:\s*2147483647/i];
-        const _NX_ID_BLOCK = [/^__ulb_host$/, /^__ulb_hc_overlay$/];
-        const _nx_protoQS = Document.prototype.querySelector;
-        const _nx_protoQSA = Document.prototype.querySelectorAll;
-        const _nx_protoGEI = Document.prototype.getElementById;
-        Document.prototype.querySelector = function (s) {
-            if(typeof s === 'string' && _NX_QSA_BLOCK.some(r => r.test(s))) return null;
-            return _nx_protoQS.call(this, s);
-        };
-        Document.prototype.querySelectorAll = function (s) {
-            if(typeof s === 'string' && _NX_QSA_BLOCK.some(r => r.test(s))) return document.createDocumentFragment().querySelectorAll(':not(*)');
-            return _nx_protoQSA.call(this, s);
-        };
-        Document.prototype.getElementById = function (id) {
-            if(typeof id === 'string' && _NX_ID_BLOCK.some(r => r.test(id))) return null;
-            return _nx_protoGEI.call(this, id);
-        };
-        document.querySelector = Document.prototype.querySelector.bind(document);
-        document.querySelectorAll = Document.prototype.querySelectorAll.bind(document);
-        document.getElementById = Document.prototype.getElementById.bind(document);
-
-        // ── VECTOR 5 — Bait element visibility ───────────────────────────────
-        const _NX_BAIT_CLASSES = ['adsbox', 'ad-banner', 'ad-unit', 'text-ad', 'sponsored'];
-        const _nx_isBait = el => el instanceof Element && _NX_BAIT_CLASSES.some(c => el.classList.contains(c));
-
-        function _nx_restoreBait(el) {
-            if(!_nx_isBait(el) || (el.style.left !== '-9999px' && el.style.top !== '-9999px')) return;
-            el.style.setProperty('display', 'block', 'important');
-            el.style.setProperty('visibility', 'visible', 'important');
-            el.style.setProperty('opacity', '1', 'important');
-            el.style.setProperty('width', '1px', 'important');
-            el.style.setProperty('height', '1px', 'important');
-        }
-        const _nx_origGCS = window.getComputedStyle.bind(window);
-        window.getComputedStyle = function (el, pseudo) {
-            const style = _nx_origGCS(el, pseudo);
-            if(!_nx_isBait(el)) return style;
-            return new Proxy(style, {
-                get(t, p) {
-                    if(p === 'display') return 'block';
-                    if(p === 'visibility') return 'visible';
-                    if(p === 'opacity') return '1';
-                    const v = Reflect.get(t, p);
-                    return typeof v === 'function' ? v.bind(t) : v;
-                }
-            });
-        };
-        const _nx_baitObs = new MutationObserver(mutations => {
-            for(const m of mutations) {
-                if(m.type === 'childList') m.addedNodes.forEach(n => {
-                    if(n.nodeType === 1) _nx_restoreBait(n);
-                });
-                else if(m.type === 'attributes') _nx_restoreBait(m.target);
-            }
-        });
-        const _nx_startBaitObs = () => _nx_baitObs.observe(document.body || document.documentElement, {
-            childList: true,
-            subtree: true,
-            attributes: true,
-            attributeFilter: ['style', 'class']
-        });
-        document.body ? _nx_startBaitObs() : document.addEventListener('DOMContentLoaded', _nx_startBaitObs, {
-            once: true
-        });
-
-        // ── VECTOR 11 — Gate overlay nuclear fallback ─────────────────────────
-        const _nx_nukeOverlay = () => document.querySelectorAll('.gate-overlay, .gate-panel').forEach(el => el.remove());
-        const _nx_gateObs = new MutationObserver(_nx_nukeOverlay);
-        const _nx_startGateObs = () => _nx_gateObs.observe(document.body || document.documentElement, {
-            childList: true,
-            subtree: true
-        });
-        document.body ? _nx_startGateObs() : document.addEventListener('DOMContentLoaded', _nx_startGateObs, {
-            once: true
-        });
-        window.addEventListener('load', _nx_nukeOverlay, {
-            once: true
-        });
-    }
-
-
-    async function runNexusBypasser() {
-        const SITE = 'nexusdevs.fun';
-        const BASE = 'https://keyserver.nexusdevs.fun';
-        const SITEKEY = 'c2ae9104-814c-4e0c-8e28-e4145e2064c2';
-
-        const t = makeTimer();
-        const nh = notify(`${SITE} — starting key flow…`, 'loading', 0, {
-            site: SITE
-        });
-        const handleError = makeErrHandler(SITE, nh, 10000);
-
-        // ── Captcha helper ─────────────────────────────────────────────────────
-        const solveCaptcha = () => createCaptchaUI({
-            sitekey: SITEKEY,
-            version: VERSION,
-            showVersion: CONFIG.notifShowVersion !== false,
-        });
-
-        const run = async () => {
-            try {
-                // ── Upfront notice ─────────────────────────────────────────────
-                notify(
-                    `⚠️ ${SITE} — You will need to solve 5 captchas. Sorry for the inconvenience — this is due to new Nexus security measures. Adblockers are safe to use.`,
-                    'info',
-                    30000, {
-                        site: SITE
-                    }
-                );
-
-                // ── Route Config ───────────────────────────────────────────────
-                nh.update(`${SITE} — fetching route config…`, 'loading', 0, {
-                    site: SITE
-                });
-                const routeConfig = await fetch(`${BASE}/api/getkey/route-config`).then(r => r.json());
-                if(routeConfig.status !== 'ok') throw new Error('Route config fetch failed');
-                const R = routeConfig.routes;
-                const v2 = (routeKey) => `${BASE}/api/v2${R[routeKey]}`;
-
-                // ── Keypair ────────────────────────────────────────────────────
-                const k = await crypto.subtle.generateKey({
-                        name: 'ECDSA',
-                        namedCurve: 'P-256'
-                    },
-                    true,
-                    ['sign', 'verify']
-                );
-                const pub = await crypto.subtle.exportKey('jwk', k.publicKey);
-                const privKey = k.privateKey;
-
-                // ── HWID ───────────────────────────────────────────────────────
-                const hwid =
-                    new URLSearchParams(location.search).get('h') ||
-                    new URLSearchParams(location.search).get('hwid') ||
-                    prompt('Enter hwid_hash (h= in URL):');
-                if(!hwid) throw new Error('No HWID provided');
-
-                // ── ENV ────────────────────────────────────────────────────────
-                const env = {
-                    webdriver: false,
-                    userAgent: navigator.userAgent,
-                    languagesLength: navigator.languages?.length || 1,
-                    platform: navigator.platform,
-                    hardwareConcurrency: navigator.hardwareConcurrency || 2,
-                    maxTouchPoints: navigator.maxTouchPoints || 0,
-                    fetchLooksNative: true,
-                    fetchName: 'fetch',
-                };
-
-                // ── Proof helper ───────────────────────────────────────────────
-                let _tok = '';
-                const b64 = (b) =>
-                    btoa([...new Uint8Array(b)].map(x => String.fromCharCode(x)).join(''))
-                    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-
-                const proof = async (epName, extra = {}) => {
-                    const ts = Date.now();
-                    const nonce = [...crypto.getRandomValues(new Uint8Array(16))]
-                        .map(b => b.toString(16).padStart(2, '0')).join('');
-                    const payload = [
-                        'v1', epName, _tok, ts, nonce,
-                        ...(extra.step != null ? [extra.step] : []),
-                    ].join(':');
-                    const sig = await crypto.subtle.sign({
-                            name: 'ECDSA',
-                            hash: 'SHA-256'
-                        },
-                        privKey,
-                        new TextEncoder().encode(payload)
-                    );
-                    return {
-                        ts,
-                        nonce,
-                        signature: b64(sig)
-                    };
-                };
-
-                // ── Interaction token ──────────────────────────────────────────
-                nh.update(`${SITE} — getting interaction token…`, 'loading', 0, {
-                    site: SITE
-                });
-                const interactionRes = await fetch(v2('interaction'), {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({}),
-                }).then(r => r.json());
-                const interaction_token = interactionRes.token;
-                if(!interaction_token) throw new Error('Failed to get interaction token');
-
-                // ── hCaptcha (init) ────────────────────────────────────────────
-                nh.update(`${SITE} — solving captcha 1/5 (init)…`, 'loading', 0, {
-                    site: SITE
-                });
-                const hcaptchaInit = await solveCaptcha();
-
-                // ── Init ───────────────────────────────────────────────────────
-                nh.update(`${SITE} — initialising…`, 'loading', 0, {
-                    site: SITE
-                });
-                const init = await fetch(v2('init'), {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        hwid_hash: hwid,
-                        requested_product: '',
-                        timestamp: Date.now(),
-                        interaction_token,
-                        hcaptcha_token: hcaptchaInit,
-                        client_pubkey: pub,
-                        client_env: env,
-                    }),
-                }).then(r => r.json());
-
-                if(init.status !== 'success') throw new Error('Init failed: ' + (init.message || JSON.stringify(init)));
-
-                _tok = init.token;
-                const steps = init.steps || [];
-                nh.update(`${SITE} — init OK — ${steps.length} step(s)…`, 'loading', 0, {
-                    site: SITE
-                });
-
-                // ── Discord check ──────────────────────────────────────────────
-                nh.update(`${SITE} — checking Discord link…`, 'loading', 0, {
-                    site: SITE
-                });
-                const me = await fetch(`${BASE}/api/oauth/me`, {
-                    credentials: 'include'
-                }).then(r => r.json());
-
-                if(!me.user) {
-                    nh.update(`${SITE} — Discord not linked — opening OAuth…`, 'warn', 0, {
-                        site: SITE
-                    });
-                    window.open(`${BASE}/api/oauth/discord?intent=getkey`);
-                    throw new Error('Discord not linked — link it and retry');
-                }
-
-                nh.update(`${SITE} — Discord linked ✔`, 'loading', 0, {
-                    site: SITE
-                });
-
-                // ── hCaptcha (discord) ─────────────────────────────────────────
-                nh.update(`${SITE} — solving captcha 2/5 (discord)…`, 'loading', 0, {
-                    site: SITE
-                });
-                const hcaptchaDiscord = await solveCaptcha();
-
-                // ── complete-discord ───────────────────────────────────────────
-                await fetch(v2('complete_discord'), {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        token: _tok,
-                        hcaptcha_token: hcaptchaDiscord,
-                        proof: await proof('complete-discord'),
-                    }),
-                }).then(r => r.json());
-
-                // ── Steps ──────────────────────────────────────────────────────
-                const adSteps = steps.filter(s => s.type !== 'discord');
-                let captchaNum = 3;
-
-                for(const s of steps) {
-                    nh.update(`${SITE} — step ${s.step}/${steps.length} (${s.type})…`, 'loading', 0, {
-                        site: SITE
-                    });
-
-                    if(s.type === 'discord') {
-                        await sleep(3000);
-                        continue;
-                    }
-
-                    // start-step
-                    const startRes = await fetch(v2('start_step'), {
-                        method: 'POST',
-                        credentials: 'include',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            token: _tok,
-                            step: s.step,
-                            proof: await proof('start-step', {
-                                step: s.step
-                            }),
-                        }),
-                    }).then(r => r.json());
-
-                    const step_nonce = startRes.step_nonce || '';
-                    const challenge = startRes.challenge || '';
-                    const waitMs = (Number(s.wait) || 20) * 1000 + 1000;
-
-                    // ── Solve captcha and wait in parallel ─────────────────────
-                    nh.update(`${SITE} — step ${s.step} — solve captcha ${captchaNum}/5 while waiting ${waitMs / 1000}s…`, 'loading', 0, {
-                        site: SITE
-                    });
-                    const [hcaptchaStep] = await Promise.all([
-                        solveCaptcha(),
-                        sleep(waitMs),
-                    ]);
-                    captchaNum++;
-
-                    // complete-step
-                    const completeStep = async () => fetch(v2('complete_step'), {
-                        method: 'POST',
-                        credentials: 'include',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            token: _tok,
-                            step: s.step,
-                            step_nonce,
-                            challenge,
-                            hcaptcha_token: hcaptchaStep,
-                            proof: await proof('complete-step', {
-                                step: s.step
-                            }),
-                        }),
-                    }).then(r => r.json());
-
-                    let res = await completeStep();
-
-                    if(res.status === 'too_fast' || res.status === 'bypass_dct') {
-                        const extra = (res.remaining || 5) * 1000;
-                        nh.update(`${SITE} — step ${s.step} retry — waiting extra ${extra / 1000}s…`, 'loading', 0, {
-                            site: SITE
-                        });
-                        await sleep(extra);
-                        res = await completeStep();
-                    }
-                }
-
-                // ── hCaptcha (generate) ────────────────────────────────────────
-                nh.update(`${SITE} — solving captcha 5/5 (generate)…`, 'loading', 0, {
-                    site: SITE
-                });
-                const hcaptchaGen = await solveCaptcha();
-
-                // ── Generate ───────────────────────────────────────────────────
-                nh.update(`${SITE} — generating key…`, 'loading', 0, {
-                    site: SITE
-                });
-                await sleep(500);
-
-                const gen = await fetch(v2('generate'), {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        token: _tok,
-                        hcaptcha_token: hcaptchaGen,
-                        proof: await proof('generate'),
-                    }),
-                }).then(r => r.json());
-
-                if(gen.status === 'success') {
-                    nh.remove();
-                    notify(`${SITE} — key sent to Discord DMs Successfully! — done in ${t.elapsed()}s`, 'success', 12000, {
-                        site: SITE
-                    });
-                } else {
-                    throw new Error('Key generation failed: ' + (gen.message || JSON.stringify(gen)));
-                }
-
-            } catch (err) {
-                handleError('bypass failed', err);
-            }
-        };
-
-        onReady(run);
-    }
-
     // ── encurtai.online ────────────────────────────────────────────────────
     // Fetches the real destination URL from the sbxebooks public-link API
     // using the last path segment as the slug, then redirects immediately.
@@ -7417,128 +5873,21 @@
     }
 
     // ── linkunlocker.com ───────────────────────────────────────────────────
-    // linkunlocker.com is a Next.js app. The page state is serialised across
-    // multiple inline self.next_f.push([...]) script tags. This bypasser:
-    //   1. Concatenates all next_f push payloads, unescaping \" and \n.
-    //   2. Regex-extracts _id (the link's MongoDB ObjectId) and
-    //      _secureTarget5 (an obfuscated destination token) from the JSON blob.
-    //   3. Builds a Next.js router-state-tree header for the current slug.
-    //   4. POST ?__nextpstate=<ACTION_FETCH> { _id } → fetches the link record.
-    //   5. POST ?__nextpstate=<ACTION_UNLOCK> { _id, _secureTarget5 } → unlocks
-    //      the link and returns { destinationUrl } as the final destination.
 
     function runLinkUnlockerBypasser() {
         const SITE = 'linkunlocker.com';
-        const ACTION_FETCH = '4060549de4ea75f30236a465a814e69abf3bfa21c0';
-        const ACTION_UNLOCK = '40d7308c40dad062e5adb4d01ec6517dd30dd7efa0';
-
-        const t = makeTimer();
-        const nh = notify(`${SITE} — extracting link data…`, 'loading', 0, {
-            site: SITE
-        });
+        const t  = makeTimer();
+        const nh = notify(`${SITE} — unlocking…`, 'loading', 0, { site: SITE });
         const handleError = makeErrHandler(SITE, nh, 7000);
-
-        const run = async () => {
-            try {
-                // Build the Next.js router-state header using the current slug.
-                const slug = location.pathname.split('/').pop();
-                const nextState = JSON.stringify([
-                    '',
-                    {
-                        children: [
-                            ['slug', slug, 'd'],
-                            {
-                                children: ['__PAGE__', {}, null, null]
-                            },
-                            null, null
-                        ]
-                    },
-                    null, null, true
-                ]);
-                const headers = {
-                    'accept': 'text/x-component',
-                    'content-type': 'text/plain;charset=UTF-8',
-                    'next-router-state-tree': nextState,
-                };
-
-                // Step 1 — scrape _id and _secureTarget5 from inline Next.js scripts.
-                nh.update(`${SITE} — scanning page scripts…`, 'loading', {
-                    site: SITE
-                });
-                let raw = '';
-                document.querySelectorAll('script').forEach(s => {
-                    if(s.textContent.includes('next_f.push')) {
-                        const m = s.textContent.match(/push\(\[\d+,\s*"(.+)"\]\)/);
-                        if(m) raw += m[1].replace(/\\"/g, '"').replace(/\\n/g, '\n');
-                    }
-                });
-
-                const dataMatch = raw.match(/"_id":"([a-f0-9]{24})".*?"_secureTarget5":"([^"]+)"/);
-                if(!dataMatch) throw new Error('Could not find _id / _secureTarget5 in page scripts');
-                const [, id, secureTarget] = dataMatch;
-
-                // adDestination shortcut — site skips unlock entirely when present.
-                const adDest = (raw.match(/"adDestination":"([^"]+)"/) || [])[1] || null;
-                if(adDest) {
-                    safeRedirect(adDest, nh, {
-                        t,
-                        siteLabel: SITE
-                    });
-                    return;
-                }
-
-                // Step 2 — fetch request token.
-                nh.update(`${SITE} — fetching request token…`, 'loading', {
-                    site: SITE
-                });
-                const r1 = await fetch(location.href, {
-                    method: 'POST',
-                    headers: {
-                        ...headers,
-                        'next-action': ACTION_FETCH
-                    },
-                    body: JSON.stringify([id]),
-                });
-                if(!r1.ok) throw _httpError(r1, 'Token request');
-                const t1 = await r1.text();
-                const tkM = t1.match(/"token":"([^"]+)"/);
-                if(!tkM) throw new Error('No token found in token-fetch response');
-                const token = tkM[1];
-
-                // Step 3 — unlock and get destination URL.
-                nh.update(`${SITE} — unlocking destination…`, 'loading', {
-                    site: SITE
-                });
-                const r2 = await fetch(location.href, {
-                    method: 'POST',
-                    headers: {
-                        ...headers,
-                        'next-action': ACTION_UNLOCK
-                    },
-                    body: JSON.stringify([{
-                        encryptedUrl: secureTarget,
-                        requestToken: token,
-                        unlockerId: id,
-                        useAdDestination: false,
-                        adDestination: null,
-                    }]),
-                });
-                if(!r2.ok) throw _httpError(r2, 'Unlock request');
-                const t2 = await r2.text();
-                const urlM = t2.match(/"url":"(.*?)(?<!\\)"/);
-                if(!urlM) throw new Error('No url field in unlock response');
-                const dest = urlM[1].replace(/\\/g, '');
-
-                safeRedirect(dest, nh, {
-                    t,
-                    siteLabel: SITE
-                });
-            } catch (err) {
-                handleError('bypass failed', err);
-            }
-        };
-
-        onReady(run);
+        const s  = location.pathname.split('/').pop();
+        fetch(`/api/unlock/${s}`, { method: 'POST' })
+            .then(r => r.json())
+            .then(d => {
+                if (!d || !d.token) throw new Error('No token returned from API');
+                const dest = `${location.origin}/api/unlock/${s}?t=${d.token}`;
+                safeRedirect(dest, nh, { t, siteLabel: SITE });
+            })
+            .catch(err => handleError('bypass failed', err));
     }
 
     // ── lua-key-vault.vercel.app ───────────────────────────────────────────
@@ -7607,7 +5956,7 @@
 
     // ── mboost.me ──────────────────────────────────────────────────────────
     // The page embeds a JS object `data = { targeturl: "..." }`.
-    // We read it from unsafeWindow or parse inline scripts, then redirect.
+    // We read it from _uw or parse inline scripts, then redirect.
 
     function runMboostBypasser() {
         const SITE = 'mboost.me';
@@ -7618,9 +5967,9 @@
         const handleError = makeErrHandler(SITE, nh, 7000);
 
         const tryExtract = () => {
-            // Strategy 1: read from unsafeWindow.data.targeturl
+            // Strategy 1: read from _uw.data.targeturl
             try {
-                const d = unsafeWindow.data;
+                const d = _uw.data;
                 if(d && d.targeturl) {
                     safeRedirect(d.targeturl, nh, {
                         t,
@@ -7655,8 +6004,8 @@
     }
 
     // ── sub2unlock.netlify.app ─────────────────────────────────────────────
-    // Hooks WebSocket at document-start so no messages are missed.
-    // Looks for the download URL at data.d.b.d.download in WS payloads.
+    // Hooks Firebase Realtime Database at document-start.
+    // Watches /pages/<id> for a download URL and redirects when it appears.
 
     function runSub2UnlockBypasser() {
         const SITE = 'sub2unlock';
@@ -7667,27 +6016,53 @@
 
         let redirected = false;
 
-        const W = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
-        const OrigWS = W.WebSocket;
-
-        W.WebSocket = function (u, p) {
-            const s = new OrigWS(u, p);
-            s.addEventListener('message', e => {
-                if(redirected) return;
-                try {
-                    const d = JSON.parse(e.data)?.d?.b?.d?.download;
-                    if(d) {
+        const run = () => {
+            try {
+                const id = new URLSearchParams(location.search).get('id');
+                if (!id) {
+                    nh.update(`${SITE}: no ?id= parameter found`, 'error');
+                    setTimeout(() => nh.remove(), 6000);
+                    return;
+                }
+                const db = _uw.firebase && typeof _uw.firebase.database === 'function'
+                    ? _uw.firebase.database()
+                    : null;
+                if (!db) {
+                    nh.update(`${SITE}: Firebase not available`, 'error');
+                    setTimeout(() => nh.remove(), 6000);
+                    return;
+                }
+                const ref = db.ref(`/pages/${id}`);
+                ref.on('value', snapshot => {
+                    if (redirected) return;
+                    const val = snapshot.val();
+                    if (val && val.download) {
                         redirected = true;
-                        safeRedirect(d, nh, {
-                            t,
-                            siteLabel: SITE
-                        });
+                        safeRedirect(val.download, nh, { t, siteLabel: SITE });
                     }
-                } catch (_) {}
-            });
-            return s;
+                });
+            } catch (err) {
+                nh.update(`${SITE}: error — ${err.message}`, 'error');
+                setTimeout(() => nh.remove(), 6000);
+            }
         };
-        W.WebSocket.prototype = OrigWS.prototype;
+
+        // Firebase is loaded by the page — wait for it to be available
+        if (_uw.firebase && typeof _uw.firebase.database === 'function') {
+            run();
+        } else {
+            let tries = 0;
+            const iv = setInterval(() => {
+                if (_uw.firebase && typeof _uw.firebase.database === 'function') {
+                    clearInterval(iv);
+                    run();
+                } else if (++tries > 60) {
+                    clearInterval(iv);
+                    nh.update(`${SITE}: Firebase did not load after 30s`, 'error');
+                    setTimeout(() => nh.remove(), 6000);
+                }
+            }, 500);
+        }
     }
 
     // ── www.scoplidrop.com ─────────────────────────────────────────────────
@@ -7874,7 +6249,7 @@
     //
     //  All .cf-turnstile[data-size="invisible"] widgets on the page are patched to
     //  "normal" size globally (via _patchInvisibleTurnstiles at startup), so the
-    //  widget is always visible when autoCaptcha is false. (it was mainly a test)
+    //  widget is always visible when autoTurnstile is false. (it was mainly a test)
 
     function runOuoBypasser() {
         const SITE = location.hostname; // dynamic: works for both ouo.io and ouo.press
@@ -7949,7 +6324,7 @@
                 }
 
                 // ── Page A: /<id> — solve Turnstile (visible) → submit #form-captcha ──
-                if(!CONFIG.autoCaptcha) {
+                if(!CONFIG.autoTurnstile) {
                     // Make the page's own widget visible so the user can interact with it
                     document.querySelectorAll('.cf-turnstile').forEach(el => {
                         el.setAttribute('data-size', 'normal');
@@ -8088,7 +6463,7 @@
 
         const init = async () => {
             try {
-                if(!CONFIG.autoCaptcha) {
+                if(!CONFIG.autoTurnstile) {
                     document.querySelectorAll('.cf-turnstile').forEach(el => {
                         el.setAttribute('data-size', 'normal');
                         el.style.cssText = 'display:block!important;visibility:visible!important;opacity:1!important';
@@ -8466,13 +6841,6 @@
         onReady(init);
     }
 
-    // ── socialwolvez.com/app/l/* ───────────────────────────────────────────
-    // Next.js streams server data into self.__next_f (an array of strings).
-    // The destination URL is embedded in that payload as "url":"<href>".
-    // We poll until the array is populated, extract the first match, and
-    // redirect — identical logic to the one-liner below, fully integrated:
-    //   location.href=((self.__next_f||[]).join("").match(/"url":"(.*?)"/)||[])[1]
-
     // ── vayuhub.space/getkey ───────────────────────────────────────────────
     // vayuhub.space/getkey?hwid=<hwid> is a two-checkpoint HWID key system.
     // Flow per checkpoint n (1 then 2):
@@ -8587,6 +6955,13 @@
         onReady(run);
     }
 
+    // ── socialwolvez.com/app/l/* ───────────────────────────────────────────
+    // Next.js streams server data into self.__next_f (an array of strings).
+    // The destination URL is embedded in that payload as "url":"<href>".
+    // We poll until the array is populated, extract the first match, and
+    // redirect — identical logic to the one-liner below, fully integrated:
+    //   location.href=((self.__next_f||[]).join("").match(/"url":"(.*?)"/)||[])[1]
+
     function runSocialWolvezBypasser() {
         const SITE = 'socialwolvez.com';
         const t = makeTimer();
@@ -8596,7 +6971,7 @@
         const handleError = makeErrHandler(SITE, nh, 7000);
 
         const tryExtract = () => {
-            const raw = (unsafeWindow.self.__next_f || []).join('');
+            const raw = (_uw.self.__next_f || []).join('');
             if(!raw) return false;
             const m = raw.match(/"url":"(.*?)"/);
             // Unescape any Unicode escape sequences Next.js may encode (e.g. \u002F → /)
