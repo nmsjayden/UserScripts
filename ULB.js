@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Unknown Link Bypasser
-// @version      7.0.0
-// @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live(SCAM WARNING) + go.yorurl.com + jankariweb + newsuchnaonline + bigcarinsurance + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + highlocus.shop + gplinks.co + powergam.online + getpolsec.com + hehehub + sub4unlock.co + app.khaddavi.net + sfl.gl + ytsubme.com + aylink.co + biplabtewary.com + mwgamesyt.com.br + topjogosvip.online + legacyagency.com.br + 4br.me + short-jambo.com/ink + fastcars + fluorine.s3ren1ty.xyz + go.linkify.ru + arolinks.com + theimmigrationworld.com + srtak.com + vplink.in + spdmteam.com + linkunlocker.com + mboost.me + sub2unlock.netlify.app + krnl-ios.com + ouo.io + start-get-key.pages.dev + bstshrt.com + rekonise.com + boblox-script.com + dusarisalary.com + sub2unlock.io + checkpoint2keyhub.vercel.app + checkpoint3keyhub.vercel.app + orca-key-system.vercel.app + razelol.vercel.app + whatwhatboy.com/scoobyontop2 + vayuhub.space. Made by @Aro Moon
+// @version      7.0.2
+// @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live(SCAM WARNING) + go.yorurl.com + jankariweb + newsuchnaonline + bigcarinsurance + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + highlocus.shop + gplinks.co + powergam.online + getpolsec.com + hehehub + sub4unlock.co + app.khaddavi.net + sfl.gl + ytsubme.com + aylink.co + biplabtewary.com + mwgamesyt.com.br + topjogosvip.online + legacyagency.com.br + 4br.me + short-jambo.com/ink + fastcars + fluorine.s3ren1ty.xyz + go.linkify.ru + arolinks.com + theimmigrationworld.com + srtak.com + vplink.in + spdmteam.com + linkunlocker.com + mboost.me + sub2unlock.netlify.app + krnl-ios.com + ouo.io + start-get-key.pages.dev + bstshrt.com + rekonise.com + boblox-script.com + dusarisalary.com + sub2unlock.io + checkpoint2keyhub.vercel.app + checkpoint3keyhub.vercel.app + orca-key-system.vercel.app + razelol.vercel.app + whatwhatboy.com/scoobyontop2 + vayuhub.space + rekonise.org/rks + worldpopulation.live. Made by @Aro Moon
 // @author       @Aro Moon
 // @include      /^https:\/\/mtc\d+\.[^/]+\.[a-z.]+\//
 // @include      /^https?:\/\/(?:\w+\.)?fastcars\d+\.com\//
@@ -88,6 +88,10 @@
 // @match        https://vplink.in/*
 // @match        https://mobile3.hubsocial.chat/*
 // @match        https://urbanstorm.uk/*
+// @match        https://rekonise.org/rks/*
+// @match        https://worldpopulation.live/*
+// @match        https://link4m.net/*
+// @match        https://link4m.co/*
 // @grant        GM_addElement
 // @grant        GM_xmlhttpRequest
 // @grant        unsafeWindow
@@ -113,7 +117,7 @@
     'use strict';
 
     // ── Runtime element-prefix — random per page-load so page scripts cannot
-    //    detect ULB by scanning the DOM for known IDs or class names.(@Ryu >:c) ────────
+    //    detect ULB by scanning the DOM for known IDs or class names. ────────
     const _pfx = (function(){
         // Must start with a letter — CSS selectors reject IDs/classes beginning with a digit.
         try {
@@ -189,6 +193,7 @@
             'checkpoint3keyhub.vercel.app',
             'theimmigrationworld.com',
             'srtak.com',
+            'worldpopulation.live',
         ],
 
         // ┌─────────────────────────────────────────────────────────────────┐
@@ -233,6 +238,36 @@
             'short-jambo.com', 'short-jambo.ink',
             'arolinks.com', 'ouo.io', 'ouo.press',
         ],
+
+        // ┌─────────────────────────────────────────────────────────────────┐
+        // │  RECAPTCHA ALLOWED REFERRERS                                    │
+        // │  The reCAPTCHA frame solver only fires when the parent page     │
+        // │  referrer contains one of these strings.  Add any new sites     │
+        // │  that embed reCAPTCHA as part of their bypass flow here.        │
+        // └─────────────────────────────────────────────────────────────────┘
+        rcAllowedRefs: [
+            'ouo.io', 'ouo.press',
+            'gplinks.co',
+            'getpolsec.com',
+            'lnbz.la',
+            'dl.surf',
+            'tpi.li',
+            'go.caslinks.com',
+            'go.yorurl.com',
+            'shrtslug.biz',
+            'biovetro.net',
+            'technons.com',
+            'tournguide.com',
+            'dailyjobposting.xyz',
+            'stfly.biz',
+            'highlocus.shop',
+            'arolinks.com',
+            '4br.me',
+            'short-jambo.com',
+            'short-jambo.ink',
+            'link4m.co',
+            'link4m.net',
+        ],
     };
 
     // ── Load persisted config overrides ──────────────────────────────────
@@ -254,7 +289,7 @@
     // §1  CONSTANTS
     // ═══════════════════════════════════════════════════════════════════════
 
-    const VERSION = '7.0.0';
+    const VERSION = '7.0.2';
 
     // ── Diagnostics log ───────────────────────────────────────────────────
     const _diagEntries = [];
@@ -295,6 +330,16 @@
         _diagEntries.push({ level: 'WARN', ts: Date.now(), msg: args.map(_diagSerialize).join(' ') });
         _origConsoleWarn(...args);
     };
+    // Stealth: spoof .toString() so overridden console methods look native.
+    // Pages that call console.error.toString() or check .name will see the
+    // same output as an unmodified browser console method.
+    try {
+        const _nativeStr = () => 'function () { [native code] }';
+        Object.defineProperty(console.error, 'toString',  { value: _nativeStr, configurable: true });
+        Object.defineProperty(console.error, 'name',      { value: 'error',    configurable: true });
+        Object.defineProperty(console.warn,  'toString',  { value: _nativeStr, configurable: true });
+        Object.defineProperty(console.warn,  'name',      { value: 'warn',     configurable: true });
+    } catch (_) { /* browser may block — non-fatal */ }
 
     const FORM_HOSTS = ['shrtslug.biz', 'biovetro.net', 'technons.com', 'tournguide.com', 'dailyjobposting.xyz', 'stfly.biz'];
     const TPI_HOSTS  = ['tpi.li', 'oii.la'];
@@ -310,6 +355,57 @@
     // ── Page location (used by router and gate logic) ──────────────────────
     const host = location.hostname;
     const path = location.pathname;
+
+
+    // ── link4m — Cloudflare WARP trace spoof ────────────────────────────────
+    // link4m fires fetch('https://1.1.1.1/cdn-cgi/trace') synchronously during
+    // page init — before DOMContentLoaded and therefore before _gateBypass can
+    // ever run.  The intercept MUST be installed here at document-start.
+    //
+    // This is still "bypass-scoped" in every meaningful sense:
+    //   • host-gated  — only installs on link4m.co / link4m.net
+    //   • idempotent  — patched once via _warpSpoofInstalled flag
+    //   • unobtrusive — only intercepts the one exact WARP trace URL;
+    //                   all other fetch calls pass through untouched
+    //
+    // _gateBypass cannot be used here because it depends on DOM helpers
+    // (sessionStorage, document.body) that don't exist at document-start.
+
+    let _warpSpoofInstalled = false;
+
+    function _installWarpSpoof() {
+        if (_warpSpoofInstalled) return;
+        _warpSpoofInstalled = true;
+        try {
+            // Must patch _uw (unsafeWindow) — ULB uses @grant directives so
+            // `window` inside the script is a sandbox wrapper.  The page's own
+            // scripts call unsafeWindow.fetch; patching the sandbox copy is a no-op.
+            const _uwOrig = _uw.fetch.bind(_uw);
+            _uw.fetch = function (...args) {
+                if (typeof args[0] === 'string' && args[0] === 'https://1.1.1.1/cdn-cgi/trace') {
+                    return Promise.resolve({
+                        ok: true, status: 200,
+                        text: () => Promise.resolve('warp=on\nloc=xx')
+                    });
+                }
+                return _uwOrig(...args);
+            };
+            try {
+                Object.defineProperty(_uw.fetch, 'toString',
+                    { value: () => 'function fetch() { [native code] }', configurable: true });
+            } catch (_) { /* non-fatal */ }
+        } catch (_) {
+            // Fallback for environments where sandbox == page window (e.g. GM4).
+            const _orig = window.fetch;
+            window.fetch = function (...args) {
+                if (typeof args[0] === 'string' && args[0] === 'https://1.1.1.1/cdn-cgi/trace') {
+                    return Promise.resolve({ ok: true, status: 200, text: () => Promise.resolve('warp=on\nloc=xx') });
+                }
+                return _orig.apply(this, args);
+            };
+        }
+    }
+
 
     // ═══════════════════════════════════════════════════════════════════════
     // §2  CORE UTILITIES
@@ -1230,17 +1326,29 @@
      * respecting CONFIG.askBeforeBypass and CONFIG.autoBypassHosts.
      * Silently exits if a Cloudflare challenge is active.
      */
-    function _gateBypass(siteLabel, fn) {
+    /**
+     * @param {string}        siteLabel
+     * @param {Function}      fn        - the bypasser to run
+     * @param {Function|null} [preRun]  - optional hook called immediately
+     *   (synchronously, before any gate/DOM logic) when a bypass is confirmed.
+     *   Use for things that must be in place at document-start, e.g. WARP spoof.
+     */
+    function _gateBypass(siteLabel, fn, preRun) {
         const _runIfNoCf = action => {
             const check = () => { if (!_isCfChallengePage()) action(); };
             if (document.readyState !== 'loading') check();
             else document.addEventListener('DOMContentLoaded', check, { once: true });
         };
 
-        if (!CONFIG.askBeforeBypass) { _runIfNoCf(fn); return; }
+        // Wrap fn so preRun always fires first (synchronously) before the bypasser.
+        const _fnWithPre = preRun
+            ? (...args) => { try { preRun(); } catch (_) { /* non-fatal */ } fn(...args); }
+            : fn;
+
+        if (!CONFIG.askBeforeBypass) { _runIfNoCf(_fnWithPre); return; }
 
         if (CONFIG.autoBypassHosts && CONFIG.autoBypassHosts.some(h => host.includes(h) || (host + path).includes(h))) {
-            _runIfNoCf(fn);
+            _runIfNoCf(_fnWithPre);
             return;
         }
 
@@ -1248,17 +1356,19 @@
         try {
             if (sessionStorage.getItem(key) === '1') {
                 sessionStorage.removeItem(key);
-                _runIfNoCf(fn);
+                _runIfNoCf(_fnWithPre);
                 return;
             }
         } catch (_) {
-            _runIfNoCf(fn);
+            _runIfNoCf(_fnWithPre);
             return;
         }
 
         const show = () => {
             if (_isCfChallengePage()) return;
             showBypassPrompt(siteLabel, () => {
+                // preRun fires here too — user confirmed, about to reload into bypass.
+                if (preRun) { try { preRun(); } catch (_) { /* non-fatal */ } }
                 try { sessionStorage.setItem(key, '1'); } catch (_) { /* */ }
                 location.reload();
             });
@@ -1566,9 +1676,9 @@
                     solved = true; console.log('[ULB/reCAPTCHA] Solved ✓'); clearInterval(iv); return;
                 }
 
-                if (q(SEL.CHECKBOX) && !isHidden(q(SEL.CHECKBOX))) q(SEL.CHECKBOX).click();
+                if (q(SEL.CHECKBOX) && !isHidden(q(SEL.CHECKBOX)) && !q(SEL.AUDIO_BTN)) q(SEL.CHECKBOX).click();
 
-                if (q(SEL.AUDIO_BTN) && !isHidden(q(SEL.AUDIO_BTN)) && q(SEL.IMG_SEL)) q(SEL.AUDIO_BTN).click();
+                if (q(SEL.AUDIO_BTN) && !isHidden(q(SEL.AUDIO_BTN))) q(SEL.AUDIO_BTN).click();
 
                 const audioEl = q(SEL.AUDIO_SRC);
 
@@ -1854,6 +1964,12 @@
                 }));
             }, options);
         };
+        // Stealth: make the override look native to .toString() checks.
+        try {
+            const _etNative = () => 'function addEventListener() { [native code] }';
+            Object.defineProperty(_uw.EventTarget.prototype.addEventListener, 'toString', { value: _etNative, configurable: true });
+            Object.defineProperty(_uw.EventTarget.prototype.addEventListener, 'name',     { value: 'addEventListener', configurable: true });
+        } catch (_) { /* non-fatal */ }
 
         const frameId = (location.hash.match(/[#&]ulbid=([^&]+)/) || [])[1] || '';
         let _clicked  = false;
@@ -1897,6 +2013,13 @@
             Promise.resolve().then(() => tryClick(root));
             return root;
         };
+        // Stealth: make the override look native to .toString() checks.
+        try {
+            const _asNative = () => 'function attachShadow() { [native code] }';
+            const _ElemProto = (_uw.Element || Element).prototype;
+            Object.defineProperty(_ElemProto.attachShadow, 'toString', { value: _asNative, configurable: true });
+            Object.defineProperty(_ElemProto.attachShadow, 'name',     { value: 'attachShadow', configurable: true });
+        } catch (_) { /* non-fatal */ }
 
         document.querySelectorAll('*').forEach(el => {
             if (el.shadowRoot) {
@@ -1927,7 +2050,16 @@
     if (CONFIG.autoRecaptcha !== false &&
         (location.hostname === 'www.google.com' || location.hostname === 'recaptcha.net') &&
         location.pathname.includes('/recaptcha/')) {
-        _runRecaptchaFrameSolver();
+        // Gate: only solve when the embedding page is a known bypass target.
+        // Without this check the solver fires on every reCAPTCHA iframe on
+        // the internet (login forms, comment boxes, checkout pages, etc.).
+        const _rcRef     = document.referrer || '';
+        const _rcAllowed = (CONFIG.rcAllowedRefs && CONFIG.rcAllowedRefs.length)
+            ? CONFIG.rcAllowedRefs
+            : (CONFIG.cfAllowedRefs || []);
+        if (_rcAllowed.some(r => r && _rcRef.includes(r))) {
+            _runRecaptchaFrameSolver();
+        }
         return;
     }
 
@@ -2689,12 +2821,12 @@
     // JS hoists function declarations within the IIFE, so every bypasser in §7
     // is already in scope here. Passing the reference directly (no string lookup,
     // no eval, no registry) works in every browser and every GM flavour.
-    function _run(siteLabel, fn) {
+    function _run(siteLabel, fn, opts) {
         if (typeof fn !== 'function') {
             console.warn('[ULB] Bypasser for "' + siteLabel + '" not found or not yet declared');
             return;
         }
-        _gateBypass(siteLabel, fn);
+        _gateBypass(siteLabel, fn, opts && opts.preRun || null);
     }
 
     // ── Config menu command ───────────────────────────────────────────────
@@ -2826,9 +2958,13 @@
         else if (host.includes('mobile3.hubsocial.chat') && path.length > 1)
                                                               _run('hubsocial.chat', runHubsocialBypasser);
         else if (host.includes('urbanstorm.uk'))            _run('urbanstorm.uk', runUrbanstormBypasser);
+        else if (host.includes('rekonise.org') && path.startsWith('/rks/'))
+                                                              _run('rekonise.org', runRekoniseOrgBypasser);
+        else if (host.includes('link4m.'))                    _run(host, runLink4MBypasser, { preRun: _installWarpSpoof });
+        else if (host.includes('worldpopulation.live'))       _run('worldpopulation.live', runWorldPopulationBypasser);
         else if (TPI_HOSTS.some(h => host.includes(h)))       _run(host, runTpiLiBypasser);
         else if (FORM_HOSTS.some(h => host.includes(h)))      _run(host, runFormBypasser);
-        else                                                   _run(host, runSafelinkBypasser);
+        else                                                  _run(host, runSafelinkBypasser);
 
     } catch (routerErr) {
         console.error('[ULB] Uncaught router error:', routerErr);
@@ -7036,6 +7172,221 @@
         };
 
         onReady(init);
+    }
+
+    // ── rekonise.org/rks/* ────────────────────────────────────────────────────
+    // rekonise.org (distinct from rekonise.com) uses a plain server-side PHP
+    // unlock endpoint rather than an Angular API.
+    //
+    // Flow:
+    //   POST /unlock_logic.php  body: shortUrlCode=<last path segment of /rks/…>
+    //   ← plain-text destination URL (or empty on failure)
+    //
+    // The @match rule already restricts this to /rks/* paths so the path guard
+    // here is a belt-and-braces safety check.
+
+    function runRekoniseOrgBypasser() {
+        const SITE = 'rekonise.org';
+        const t    = makeTimer();
+        const nh   = notify(`${SITE} — unlocking…`, 'loading', 0, { site: SITE });
+        const handleError = makeErrHandler(SITE, nh, 7000);
+
+        const run = async () => {
+            try {
+                // Belt-and-braces: confirm we are on an /rks/<code> path
+                const parts = location.pathname.split('/').filter(Boolean);
+                if (parts[0] !== 'rks' || parts.length < 2) {
+                    nh.remove();
+                    return;
+                }
+                const shortUrlCode = parts[parts.length - 1];
+
+                nh.update(`${SITE} — fetching destination…`, 'loading', { site: SITE });
+
+                const r = await fetchWithTimeout('/unlock_logic.php', {
+                    method: 'POST',
+                    body: new URLSearchParams({ shortUrlCode }),
+                    credentials: 'same-origin',
+                }, 15000);
+                if (!r.ok) throw _httpError(r, 'unlock_logic.php');
+
+                const dest = (await r.text()).trim();
+                if (!dest || !safeUrl(dest))
+                    throw new Error('unlock_logic.php returned an empty or invalid URL');
+
+                safeRedirect(dest, nh, { t, siteLabel: SITE });
+            } catch (err) {
+                handleError('unlock failed', err);
+            }
+        };
+
+        onReady(run);
+    }
+
+    // ── worldpopulation.live/* ────────────────────────────────────────────────
+    // worldpopulation.live wraps its destination in a "wpsafe" link widget.
+    // The real URL is encoded as a base64 JSON blob in the `safelink_redirect`
+    // query parameter of the anchor inside #wpsafe-link.
+    //
+    // Extraction:
+    //   1. Poll for #wpsafe-link a to appear in the DOM.
+    //   2. Parse its href as a URL and read safelink_redirect param.
+    //   3. atob() → JSON.parse() → .safelink → redirect.
+    //
+    // Error path: if the element never appears, or the JSON is malformed,
+    //   or the decoded URL fails safeUrl(), an error notification is shown.
+
+    function runWorldPopulationBypasser() {
+        const SITE = 'worldpopulation.live';
+        const t    = makeTimer();
+        const nh   = notify(`${SITE} — reading safelink…`, 'loading', 0, { site: SITE });
+        const handleError = makeErrHandler(SITE, nh, 7000);
+
+        const tryExtract = () => {
+            const anchor = document.querySelector('#wpsafe-link a');
+            if (!anchor) return false;
+            try {
+                const href = anchor.href || anchor.getAttribute('href');
+                if (!href) return false;
+
+                const param = new URL(href, location.href).searchParams.get('safelink_redirect');
+                if (!param) return false;
+
+                let dest;
+                try {
+                    dest = JSON.parse(atob(param)).safelink;
+                } catch (_) {
+                    return false;   // malformed base64 / JSON — keep polling
+                }
+
+                if (!safeUrl(dest)) return false;
+
+                safeRedirect(dest, nh, { t, siteLabel: SITE });
+                return true;
+            } catch (_) {
+                return false;
+            }
+        };
+
+        const init = () => {
+            if (tryExtract()) return;
+            pollUntil(tryExtract, 150, 100).catch(() => {
+                handleError('#wpsafe-link anchor not found or safelink_redirect param missing', null);
+            });
+        };
+
+        onReady(init);
+    }
+
+
+    // ── link4m.co / link4m.net ─────────────────────────────────────────────────
+    // link4m gates every short-link behind a reCAPTCHA v2 check plus a proprietary
+    // captcha-validation endpoint. The site also runs a Cloudflare WARP trace check
+    // (spoofed at document-start above so it always passes).
+    //
+    // Flow:
+    //   1. Spoof https://1.1.1.1/cdn-cgi/trace → "warp=on" (applied at page start).
+    //   2. Poll the DOM for alias + code, read from #captcha-html-wrapper dataset
+    //      or from hidden inputs #alias / #code.
+    //   3. Auto-solve reCAPTCHA v2 via ULB's solveRecaptcha() full-screen overlay
+    //      with audio bypass (respects CONFIG.autoRecaptcha).
+    //   4. POST g-recaptcha-response + alias + code to /links/check-captcha.
+    //   5. On success redirect to data.url via safeRedirect(); on failure surface
+    //      a descriptive error notification via makeErrHandler().
+
+    function runLink4MBypasser() {
+        const SITE    = host;                                      // link4m.co or link4m.net
+        const SITEKEY = '6LcQsTQgAAAAADNQ_pCfukfvS0i9lk4oJTVSs5bZ';
+        const API     = 'https://link4m.co/links/check-captcha';
+        const t       = makeTimer();
+        const nh      = notify(`${SITE} — reading link parameters…`, 'loading', 0, { site: SITE });
+        const handleError = makeErrHandler(SITE, nh, 8000);
+
+        /** Try to extract alias + code from the DOM; returns null if not ready yet. */
+        const getParams = () => {
+            const wrapper = document.getElementById('captcha-html-wrapper');
+            const alias   = (wrapper && wrapper.dataset && wrapper.dataset.alias)
+                         || ((document.querySelector('#alias') || {}).value)
+                         || null;
+            const code    = (wrapper && wrapper.dataset && wrapper.dataset.code)
+                         || ((document.querySelector('#code') || {}).value)
+                         || null;
+            return (alias && code) ? { alias, code } : null;
+        };
+
+        const run = async () => {
+            // ── Step 1: locate alias + code ──────────────────────────────────
+            let params = getParams();
+            if (!params) {
+                nh.update(`${SITE} — waiting for link parameters…`, 'loading', { site: SITE });
+                try {
+                    await pollUntil(() => !!getParams(), 150, 100);
+                    params = getParams();
+                } catch (_) {
+                    handleError('alias/code not found on page after 15 s', null);
+                    return;
+                }
+            }
+
+            const { alias, code } = params;
+
+            // ── Step 2: solve reCAPTCHA using ULB's built-in solver ──────────
+            // solveRecaptcha() shows the shared full-screen overlay, renders the
+            // widget with sitekey, and drives the audio-challenge bypass in the
+            // reCAPTCHA iframe (via _runRecaptchaFrameSolver) automatically.
+            if (CONFIG.autoRecaptcha === false) {
+                nh.update(`${SITE} — solve the reCAPTCHA to continue…`, 'warn', 0, { site: SITE });
+                return;
+            }
+
+            nh.update(`${SITE} — solving reCAPTCHA…`, 'loading', { site: SITE });
+
+            let rcToken;
+            try {
+                rcToken = await solveRecaptcha(SITEKEY);
+            } catch (e) {
+                handleError('reCAPTCHA solve failed', e);
+                return;
+            }
+
+            // ── Step 3: POST token + params to check-captcha endpoint ────────
+            nh.update(`${SITE} — verifying with server…`, 'loading', { site: SITE });
+
+            try {
+                const body = new URLSearchParams();
+                body.append('g-recaptcha-response', rcToken);
+                body.append('alias', alias);
+                body.append('code', code);
+
+                const r = await fetchWithTimeout(API, {
+                    method:      'POST',
+                    headers:     { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body:        body.toString(),
+                    credentials: 'include',
+                }, 20000);
+
+                if (!r.ok) throw _httpError(r, 'check-captcha');
+
+                let data;
+                try { data = await r.json(); }
+                catch (_) { throw new Error('check-captcha response was not valid JSON'); }
+
+                if (data.success && data.url) {
+                    safeRedirect(data.url, nh, { t, siteLabel: SITE });
+                } else {
+                    handleError(
+                        data.info
+                            ? `server rejected captcha — ${data.info}`
+                            : 'check-captcha returned no destination URL',
+                        null
+                    );
+                }
+            } catch (err) {
+                handleError('POST to check-captcha failed', err);
+            }
+        };
+
+        onReady(run);
     }
 
 })();
