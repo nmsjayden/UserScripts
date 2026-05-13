@@ -1,113 +1,144 @@
 // ==UserScript==
 // @name         Unknown Link Bypasser
-// @version      7.0.2
-// @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live(SCAM WARNING) + go.yorurl.com + jankariweb + newsuchnaonline + bigcarinsurance + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + highlocus.shop + gplinks.co + powergam.online + getpolsec.com + hehehub + sub4unlock.co + app.khaddavi.net + sfl.gl + ytsubme.com + aylink.co + biplabtewary.com + mwgamesyt.com.br + topjogosvip.online + legacyagency.com.br + 4br.me + short-jambo.com/ink + fastcars + fluorine.s3ren1ty.xyz + go.linkify.ru + arolinks.com + theimmigrationworld.com + srtak.com + vplink.in + spdmteam.com + linkunlocker.com + mboost.me + sub2unlock.netlify.app + krnl-ios.com + ouo.io + start-get-key.pages.dev + bstshrt.com + rekonise.com + boblox-script.com + dusarisalary.com + sub2unlock.io + checkpoint2keyhub.vercel.app + checkpoint3keyhub.vercel.app + orca-key-system.vercel.app + razelol.vercel.app + whatwhatboy.com/scoobyontop2 + vayuhub.space + rekonise.org/rks + worldpopulation.live. Made by @Aro Moon
+// @version      7.0.8
+// @description  Safelink bypasser + dl.surf + form-based + tpi.li + bstlar + wareguardv2 + subnise + reshortfly + lnbz.la + bloxscript.live(SCAM WARNING) + scriptblox.club(SCAM WARNING) + scriptix.live(SCAM WARNING) + scripgamex.live(SCAM WARNING) + go.yorurl.com + jankariweb + newsuchnaonline + bigcarinsurance + how2guidess.com + phantomfluxkey + link-unlock.com + link4sub.com/tapvietcode.com + rojgarhindi.in + go.caslinks.com + highlocus.shop + gplinks.co + powergam.online + sanadegreecollege.in + getpolsec.com + hehehub + sub4unlock.co + sub4unlock.com + sub4unlock.pro + app.khaddavi.net + sfl.gl + ytsubme.com + aylink.co + biplabtewary.com + mwgamesyt.com.br + topjogosvip.online + legacyagency.com.br + 4br.me + short-jambo.com/ink + fastcars + fluorine.s3ren1ty.xyz + go.linkify.ru + arolinks.com + theimmigrationworld.com + srtak.com + vplink.in + spdmteam.com + linkunlocker.com + mboost.me + sub2unlock.netlify.app + krnl-ios.com + ouo.io + start-get-key.pages.dev + bstshrt.com + rekonise.com + boblox-script.com + dusarisalary.com + sub2unlock.io + checkpoint2keyhub.vercel.app + checkpoint3keyhub.vercel.app + orca-key-system.vercel.app + razelol.vercel.app + whatwhatboy.com/scoobyontop2 + vayuhub.space + rekonise.org/rks + worldpopulation.live + noctrunhub.xyz + captainmanjirokeys.vercel.app + londonstlol/SakuraKeys + anonlink.io + bloxhub.click + prizvan-luajava-mlbb.lovable.app + test-hub-keysystem.online + shrinkme.click + en.mrproblogger.com. Made by @Aro Moon
 // @author       @Aro Moon
 // @include      /^https:\/\/mtc\d+\.[^/]+\.[a-z.]+\//
 // @include      /^https?:\/\/(?:\w+\.)?fastcars\d+\.com\//
-// @match        https://dl.surf/f/*
-// @match        https://shrtslug.biz/*
-// @match        https://biovetro.net/*
-// @match        https://technons.com/*
-// @match        https://tournguide.com/*
-// @match        https://dailyjobposting.xyz/*
-// @match        https://tpi.li/*
-// @match        https://oii.la/*
-// @match        https://challenges.cloudflare.com/*
-// @match        https://www.google.com/recaptcha/*
-// @match        https://recaptcha.net/recaptcha/*
-// @match        https://stfly.biz/*
-// @match        https://bstlar.com/*
-// @match        https://wareguardv2.xyz/checkpoint*
-// @match        https://subnise.com/link/*
-// @match        https://reshortfly.com/*
-// @match        https://lnbz.la/*
-// @match        https://avnsgames.com/*
-// @match        https://bloxscript.live/*
-// @match        https://*.jankariweb.online/*
-// @match        https://newsuchnaonline.com/*
-// @match        https://*.bigcarinsurance.com/*
-// @match        https://highlocus.shop/*
-// @match        https://how2guidess.com/*
-// @match        https://go.yorurl.com/*
-// @match        https://v0-phantomfluxkey.vercel.app/*
-// @match        https://link-unlock.com/*
-// @match        https://link4sub.com/*
-// @match        https://*.tapvietcode.com/*
-// @match        https://rojgarhindi.in/*
-// @match        https://go.caslinks.com/*
-// @match        https://gplinks.co/*
-// @match        https://powergam.online/*
 // @match        https://4br.me/*
-// @match        https://short-jambo.com/*
-// @match        https://short-jambo.ink/*
-// @match        https://sub4unlock.co/*
-// @match        https://app.khaddavi.net/*
-// @match        https://sfl.gl/ready/go*
-// @match        https://biplabtewary.com/*
-// @match        https://mwgamesyt.com.br/*
-// @match        https://topjogosvip.online/*
-// @match        https://legacyagency.com.br/*
-// @match        https://www.ytsubme.com/s2u*
-// @match        https://aylink.co/*
-// @match        https://getpolsec.com/ad/*
-// @match        https://hehehub-acsu123.pythonanywhere.com/api/getkey*
-// @match        https://fluorine.s3ren1ty.xyz/getkey*
-// @match        https://go.linkify.ru/*
-// @match        https://arolinks.com/*
+// @match        https://anonlink.io/*
 // @match        https://apnahirework.com/*
-// @match        https://crimejasoos.in/*
-// @match        https://jober.factwiz.online/*
-// @match        https://spdmteam.com/social/*
-// @match        https://linkunlocker.com/*
-// @match        https://encurtai.online/*
-// @match        https://new.pandadevelopment.net/getkey/*
-// @match        https://lua-key-vault.vercel.app/*
-// @match        https://mboost.me/*
-// @match        https://sub2unlock.netlify.app/*
-// @match        https://krnl-ios.com/ads.html*
-// @match        https://ouo.io/*
-// @match        https://ouo.press/*
-// @match        https://start-get-key.pages.dev/
-// @match        https://bstshrt.com/u/*
-// @match        https://upfilesgo.com/*
-// @match        https://www.scoplidrop.com/entry*
-// @match        https://rekonise.com/*
+// @match        https://app.khaddavi.net/*
+// @match        https://arolinks.com/*
+// @match        https://avnsgames.com/*
+// @match        https://aylink.co/*
+// @match        https://*.bigcarinsurance.com/*
+// @match        https://biovetro.net/*
+// @match        https://biplabtewary.com/*
+// @match        https://bloxhub.click/get-key.php
+// @match        https://bloxscript.live/*
 // @match        https://boblox-script.com/get-key*
-// @match        https://dusarisalary.com/*
-// @match        https://sub2unlock.io/*
-// @match        https://socialwolvez.com/app/l/*
+// @match        https://bstlar.com/*
+// @match        https://bstshrt.com/u/*
+// @match        https://captainmanjirokeys.vercel.app/*
+// @match        https://challenges.cloudflare.com/*
 // @match        https://checkpoint2keyhub.vercel.app/*
 // @match        https://checkpoint3keyhub.vercel.app/*
-// @match        https://orca-key-system.vercel.app/*
-// @match        https://razelol.vercel.app/*
-// @match        https://whatwhatboy.com/scoobyontop2.html
-// @match        https://vayuhub.space/getkey*
-// @match        https://www.theimmigrationworld.com/*
-// @match        https://srtak.com/*
-// @match        https://vplink.in/*
-// @match        https://mobile3.hubsocial.chat/*
-// @match        https://urbanstorm.uk/*
-// @match        https://rekonise.org/rks/*
-// @match        https://worldpopulation.live/*
-// @match        https://link4m.net/*
+// @match        https://crimejasoos.in/*
+// @match        https://dailyjobposting.xyz/*
+// @match        https://dl.surf/f/*
+// @match        https://dusarisalary.com/*
+// @match        https://earndrive.in/*
+// @match        https://earnbox.in/*
+// @match        https://en.mrproblogger.com/*
+// @match        https://encurtai.online/*
+// @match        https://fluorine.s3ren1ty.xyz/getkey*
+// @match        https://getpolsec.com/ad/*
+// @match        https://go.caslinks.com/*
+// @match        https://go.just2earn.com/*
+// @match        https://go.linkify.ru/*
+// @match        https://go.yorurl.com/*
+// @match        https://gplinks.co/*
+// @match        https://hehehub-acsu123.pythonanywhere.com/api/getkey*
+// @match        https://highlocus.shop/*
+// @match        https://how2guidess.com/*
+// @match        https://*.jankariweb.online/*
+// @match        https://jober.djtrackhub.in/*
+// @match        https://jober.factwiz.online/*
+// @match        https://jobnoid.net/*
+// @match        https://krnl-ios.com/ads.html*
+// @match        https://legacyagency.com.br/*
+// @match        https://link-unlock.com/*
 // @match        https://link4m.co/*
+// @match        https://link4m.net/*
+// @match        https://link4sub.com/*
+// @match        https://linkunlocker.com/*
+// @match        https://lnbz.la/*
+// @match        https://londonstlol.github.io/Keysaasasdasd/key_page.html
+// @match        https://lua-key-vault.vercel.app/*
+// @match        https://luau.pro/get-key*
+// @match        https://mboost.me/*
+// @match        https://mobile3.hubsocial.chat/*
+// @match        https://mwgamesyt.com.br/*
+// @match        https://new.pandadevelopment.net/getkey/*
+// @match        https://newsuchnaonline.com/*
+// @match        https://noctrunhub.xyz/*
+// @match        https://oii.la/*
+// @match        https://orca-key-system.vercel.app/*
+// @match        https://ouo.io/*
+// @match        https://ouo.press/*
+// @match        https://powergam.online/*
+// @match        https://prizvan-luajava-mlbb.lovable.app/*
+// @match        https://razelol.vercel.app/*
+// @match        https://recaptcha.net/recaptcha/*
+// @match        https://rekonise.com/*
+// @match        https://rekonise.org/rks/*
+// @match        https://reshortfly.com/*
+// @match        https://rojgarhindi.in/*
+// @match        https://sanadegreecollege.in/*
+// @match        https://sarkarijobcorner.com/*
+// @match        https://scripgamex.live/*
+// @match        https://scriptblox.club/*
+// @match        https://scriptix.live/*
+// @match        https://sfl.gl/ready/go*
+// @match        https://short-jambo.com/*
+// @match        https://short-jambo.ink/*
+// @match        https://shrinkme.click/*
+// @match        https://shrtslug.biz/*
+// @match        https://socialwolvez.com/app/l/*
+// @match        https://spdmteam.com/social/*
+// @match        https://srtak.com/*
+// @match        https://start-get-key.pages.dev/
+// @match        https://startuplearners.com/*
+// @match        https://stfly.biz/*
+// @match        https://sub2unlock.io/*
+// @match        https://sub2unlock.netlify.app/*
+// @match        https://sub4unlock.co/*
+// @match        https://sub4unlock.com/*
+// @match        https://sub4unlock.pro/*
+// @match        https://subnise.com/link/*
+// @match        https://*.tapvietcode.com/*
+// @match        https://technons.com/*
+// @match        https://test-hub-keysystem.online/flow.html?id=*
+// @match        https://themezon.net/*
+// @match        https://thewiar.org/*
+// @match        https://topjogosvip.online/*
+// @match        https://tournguide.com/*
+// @match        https://tpi.li/*
+// @match        https://upfilesgo.com/*
+// @match        https://urbanstorm.uk/*
+// @match        https://v0-phantomfluxkey.vercel.app/*
+// @match        https://vayuhub.space/getkey*
+// @match        https://vplink.in/*
+// @match        https://wareguardv2.xyz/checkpoint*
+// @match        https://whatwhatboy.com/scoobyontop2.html
+// @match        https://worldpopulation.live/*
+// @match        https://www.google.com/recaptcha/*
+// @match        https://www.scoplidrop.com/entry*
+// @match        https://www.theimmigrationworld.com/*
+// @match        https://www.ytsubme.com/s2u*
 // @grant        GM_addElement
-// @grant        GM_xmlhttpRequest
-// @grant        unsafeWindow
+// @grant        GM_getValue
 // @grant        GM_registerMenuCommand
 // @grant        GM_setClipboard
-// @grant        GM_getValue
 // @grant        GM_setValue
-// @connect      challenges.cloudflare.com
-// @connect      www.scoplidrop.com
+// @grant        GM_xmlhttpRequest
+// @grant        unsafeWindow
 // @connect      boblox-script.com
-// @connect      key-system-hub.vercel.app
+// @connect      challenges.cloudflare.com
 // @connect      engageub.pythonanywhere.com
 // @connect      engageub1.pythonanywhere.com
+// @connect      fycabqualwerxrmsokiy.supabase.co
+// @connect      key-system-hub.vercel.app
+// @connect      lua-key-vault.vercel.app
+// @connect      luau.pro
+// @connect      nlcwreopotnsqcbqphri.supabase.co
 // @connect      oaqxcsejqhsvchqetrzc.supabase.co
-// @connect      vayuhub.space
 // @connect      raw.githubusercontent.com
+// @connect      test-hub-keysystem.online
+// @connect      vayuhub.space
+// @connect      vplink.in
+// @connect      www.scoplidrop.com
 // @run-at       document-start
 // @downloadURL  https://raw.githubusercontent.com/nmsjayden/UserScripts/main/ULB.js
 // @updateURL    https://raw.githubusercontent.com/nmsjayden/UserScripts/main/ULB.js
@@ -158,12 +189,16 @@
         // └─────────────────────────────────────────────────────────────────┘
         autoBypassHosts: [
             'bloxscript.live',
+            'scripgamex.live',
+            'scriptblox.club',
+            'scriptix.live',
             'avnsgames.com',
             'rojgarhindi.in',
             'newsuchnaonline.com',
             'biovetro.net',
             'technons.com',
             'tournguide.com',
+            'obnoid.net',
             'dailyjobposting.xyz',
             'tapvietcode.com',
             'go.caslinks.com',
@@ -185,6 +220,8 @@
             'legacyagency.com.br',
             '4br.me',
             'jober.factwiz.online',
+            'jober.jankariweb.online',
+            'how2guidess.com',
             'v0-phantomfluxkey.vercel.app',
             'go.yorurl.com',
             'scoplidrop.com',
@@ -193,8 +230,25 @@
             'checkpoint3keyhub.vercel.app',
             'theimmigrationworld.com',
             'srtak.com',
+            'startuplearners.com',
             'worldpopulation.live',
+            'link4m.net',
+            'jober.djtrackhub.in',
+            'earndrive.in',
+            'earnbox.in',
+            'sarkarijobcorner.com',
+            'thewiar.org',
+            'go.just2earn.com',
+            'en.mrproblogger.com',
+            'themezon.net',
+            'vplink.in',
+            'arolinks.com',
         ],
+
+        // ┌─────────────────────────────────────────────────────────────────┐
+        // │  SHRTSLUG / FORM-BASED HOSTS                                    │
+        // └─────────────────────────────────────────────────────────────────┘
+        formHosts: ['shrtslug.biz', 'biovetro.net', 'technons.com', 'tournguide.com', 'dailyjobposting.xyz', 'stfly.biz', 'jobnoid.net'],
 
         // ┌─────────────────────────────────────────────────────────────────┐
         // │  CAPTCHA                                                        │
@@ -226,57 +280,29 @@
         blockAds: true,
         phantomDirectUrl: 'https://pastefy.app/8PxwQFt8',
 
-        // ┌─────────────────────────────────────────────────────────────────┐
-        // │  ADVANCED — Cloudflare allowed referrers                        │
-        // └─────────────────────────────────────────────────────────────────┘
-        cfAllowedRefs: [
-            'dl.surf', 'tpi.li', 'lnbz.la',
-            'go.yorurl.com', 'go.caslinks.com', 'highlocus.shop', 'mtc1.',
-            'shrtslug.biz', 'biovetro.net', 'technons.com',
-            'tournguide.com', 'dailyjobposting.xyz', 'stfly.biz',
-            'gplinks.co', '4br.me',
-            'short-jambo.com', 'short-jambo.ink',
-            'arolinks.com', 'ouo.io', 'ouo.press',
-        ],
-
-        // ┌─────────────────────────────────────────────────────────────────┐
-        // │  RECAPTCHA ALLOWED REFERRERS                                    │
-        // │  The reCAPTCHA frame solver only fires when the parent page     │
-        // │  referrer contains one of these strings.  Add any new sites     │
-        // │  that embed reCAPTCHA as part of their bypass flow here.        │
-        // └─────────────────────────────────────────────────────────────────┘
-        rcAllowedRefs: [
-            'ouo.io', 'ouo.press',
-            'gplinks.co',
-            'getpolsec.com',
-            'lnbz.la',
-            'dl.surf',
-            'tpi.li',
-            'go.caslinks.com',
-            'go.yorurl.com',
-            'shrtslug.biz',
-            'biovetro.net',
-            'technons.com',
-            'tournguide.com',
-            'dailyjobposting.xyz',
-            'stfly.biz',
-            'highlocus.shop',
-            'arolinks.com',
-            '4br.me',
-            'short-jambo.com',
-            'short-jambo.ink',
-            'link4m.co',
-            'link4m.net',
-        ],
     };
 
     // ── Load persisted config overrides ──────────────────────────────────
+    // Array-valued keys (autoBypassHosts, formHosts) are MERGED with the
+    // hardcoded defaults so that hosts added in code are always present,
+    // even when the user has a saved config from an older version.
+    // Scalar keys (booleans, strings, numbers) are replaced as before.
     try {
         const _saved = GM_getValue('ulb_config', null);
         if (_saved) {
             const _parsed = JSON.parse(_saved);
             for (const [k, v] of Object.entries(_parsed)) {
-                if (k in CONFIG) CONFIG[k] = v;
+                if (!(k in CONFIG)) continue;
+                if (Array.isArray(CONFIG[k]) && Array.isArray(v)) {
+                    // Merge: keep all hardcoded entries, append any user-added ones
+                    const _merged = [...CONFIG[k]];
+                    for (const _entry of v) {
+                        if (_entry && !_merged.includes(_entry)) _merged.push(_entry);
+                    }
+                    CONFIG[k] = _merged;
+                } else {
+                    CONFIG[k] = v;
+                }
             }
         }
     } catch (_) { /* storage not available or corrupt — use defaults */ }
@@ -289,7 +315,7 @@
     // §1  CONSTANTS
     // ═══════════════════════════════════════════════════════════════════════
 
-    const VERSION = '7.0.2';
+    const VERSION = '7.0.7';
 
     // ── Diagnostics log ───────────────────────────────────────────────────
     const _diagEntries = [];
@@ -341,7 +367,7 @@
         Object.defineProperty(console.warn,  'name',      { value: 'warn',     configurable: true });
     } catch (_) { /* browser may block — non-fatal */ }
 
-    const FORM_HOSTS = ['shrtslug.biz', 'biovetro.net', 'technons.com', 'tournguide.com', 'dailyjobposting.xyz', 'stfly.biz'];
+    const FORM_HOSTS = CONFIG.formHosts && CONFIG.formHosts.length ? CONFIG.formHosts : ['shrtslug.biz', 'biovetro.net', 'technons.com', 'tournguide.com', 'dailyjobposting.xyz', 'stfly.biz', 'jobnoid.net'];
     const TPI_HOSTS  = ['tpi.li', 'oii.la'];
 
     const NOTIFY_TYPES = {
@@ -640,8 +666,10 @@
     function waitForContinueBtn(label, nh, SITE, timeoutMs = 60000) {
         const check = setInterval(() => {
             for (const id of ['tp-snp2', 'cross-snp2', 'btn7']) {
-                const el = document.getElementById(id);
-                if (el && el.offsetParent !== null) {
+                // getElementById covers <a> variant; querySelector covers <button> variant
+                const el = document.getElementById(id) ||
+                           document.querySelector(`button.tp-btn#${id}`);
+                if (el && (el.offsetParent !== null || el.getBoundingClientRect().width > 0)) {
                     clearInterval(check);
                     if (nh) nh.update(`${SITE} — ${label} — clicking Continue…`, 'loading', { site: SITE });
                     el.click();
@@ -873,7 +901,7 @@
                   :                      'min(320px,calc(100vw - 56px))';
 
         const card = document.createElement('div');
-        card.style.cssText = `${CSS_CARD_BASE};border-left:3px solid ${accent};padding:${pad};min-width:${mw};max-width:${maxW};display:flex;align-items:flex-start;gap:${mobile ? '8px' : '10px'};touch-action:manipulation;-webkit-tap-highlight-color:transparent`;
+        card.style.cssText = `${CSS_CARD_BASE};padding:${pad};min-width:${mw};max-width:${maxW};display:flex;align-items:flex-start;gap:${mobile ? '8px' : '10px'};touch-action:manipulation;-webkit-tap-highlight-color:transparent`;
 
         const iconEl = document.createElement('div');
         iconEl.style.cssText = `font-size:${mobile ? '12' : compact ? '13' : '15'}px;color:${accent};margin-top:1px;flex-shrink:0;display:flex;align-items:center;justify-content:center;width:1.1em;height:1.1em`;
@@ -956,7 +984,6 @@
                 const s = NOTIFY_TYPES[newType];
                 iconEl.textContent        = s.icon;
                 iconEl.style.color        = s.accent;
-                card.style.borderLeftColor = s.accent;
                 setSpin(newType === 'loading');
             }
             if (typeof newDurOrOpts === 'number' && newDurOrOpts > 0) startTimer(newDurOrOpts);
@@ -979,7 +1006,7 @@
         const numSz = mobile ? '22px' : '30px';
 
         const card = document.createElement('div');
-        card.style.cssText = `${CSS_CARD_BASE};border-left:3px solid #4f8ef7;padding:${pad};min-width:${mw}`;
+        card.style.cssText = `${CSS_CARD_BASE};padding:${pad};min-width:${mw}`;
 
         const vTag = CONFIG.notifShowVersion !== false ? ` · v${VERSION}` : '';
         const brandHtml = (!mobile && CONFIG.notifShowBranding !== false)
@@ -996,7 +1023,7 @@
                 </div>
             </div>
             <div style="background:rgba(255,255,255,.07);border-radius:999px;height:3px;overflow:hidden">
-                <div class="${_pfx}cb" style="height:100%;width:100%;background:linear-gradient(90deg,#4f8ef7,#a78bfa);border-radius:999px;transition:width 1s linear"></div>
+                <div class="${_pfx}cb" style="height:100%;width:100%;background:linear-gradient(90deg,#4f8ef7,#22c55e);border-radius:999px;transition:width 1s linear"></div>
             </div>`;
 
         mountCard(card);
@@ -1014,7 +1041,7 @@
                 numEl.textContent = '0';
                 barEl.style.width = '0%';
                 subEl.textContent = 'done…';
-                card.style.borderLeftColor = '#22c55e';
+
                 setTimeout(() => { dismissCard(card); setTimeout(onDone, 280); }, 400);
             } else {
                 numEl.textContent = rem;
@@ -1031,7 +1058,7 @@
         const pad = mobile ? '10px 12px' : '14px 18px';
 
         const card = document.createElement('div');
-        card.style.cssText = `${CSS_CARD_BASE};border-left:3px solid #22c55e;padding:${pad};min-width:${mw};max-width:${mxw}`;
+        card.style.cssText = `${CSS_CARD_BASE};padding:${pad};min-width:${mw};max-width:${mxw}`;
 
         const vTag = CONFIG.notifShowVersion !== false ? ` · v${VERSION}` : '';
         const brandHtml = (!mobile && CONFIG.notifShowBranding !== false)
@@ -1041,7 +1068,7 @@
         card.innerHTML = `
             ${brandHtml}
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:${mobile ? '7px' : '10px'}">
-                <div class="${_pfx}ri" style="font-size:${mobile ? '13px' : '15px'};color:#22c55e;flex-shrink:0">✔</div>
+                <div class="${_pfx}ri" style="font-size:${mobile ? '13px' : '15px'};color:#22c55e;flex-shrink:0">✓</div>
                 <div class="${_pfx}rm" style="font-size:${mobile ? '11px' : '13px'};color:#e0e0e0">Redirecting now…</div>
             </div>
             <a href="${dest}" style="display:flex;align-items:center;justify-content:center;text-align:center;font-size:${mobile ? '11px' : '12px'};color:#22c55e;text-decoration:none;padding:${mobile ? '0 10px' : '0 12px'};border:1px solid rgba(34,197,94,.35);border-radius:7px;background:rgba(34,197,94,.08);font-weight:600;touch-action:manipulation;min-height:44px;-webkit-tap-highlight-color:transparent">
@@ -1055,7 +1082,7 @@
             const ri = card.querySelector('.'+_pfx+'ri');
             if (rm) rm.textContent = 'Redirect may have stalled.';
             if (ri) { ri.textContent = '⚠'; ri.style.color = '#f59e0b'; }
-            card.style.borderLeftColor = '#f59e0b';
+
         }, 3000);
     }
 
@@ -1072,7 +1099,7 @@
         const pad = mobile ? '10px 12px' : '14px 18px';
 
         const card = document.createElement('div');
-        card.style.cssText = `${CSS_CARD_BASE};border-left:3px solid #f59e0b;padding:${pad};min-width:${mw};max-width:${mxw};position:relative`;
+        card.style.cssText = `${CSS_CARD_BASE};padding:${pad};min-width:${mw};max-width:${mxw};position:relative`;
 
         const vTag = CONFIG.notifShowVersion !== false ? ` · v${VERSION}` : '';
         const brandHtml = (!mobile && CONFIG.notifShowBranding !== false)
@@ -1081,11 +1108,11 @@
 
         card.innerHTML = `
             ${brandHtml}
-            <div style="font-size:${mobile ? '10px' : '11px'};color:#f59e0b;margin-bottom:${mobile ? '7px' : '10px'};font-weight:600;letter-spacing:.5px">${subtitle}</div>
+            <div style="font-size:${mobile ? '10px' : '11px'};color:#f59e0b;margin-bottom:${mobile ? '7px' : '10px'};font-weight:600">${subtitle}</div>
             <a href="${url}" target="_blank" rel="noopener"
                style="display:flex;align-items:center;justify-content:center;text-align:center;
                       font-size:${mobile ? '12px' : '13px'};font-weight:700;color:#fff;
-                      text-decoration:none;padding:0 ${mobile ? '10px' : '14px'};border-radius:8px;
+                      text-decoration:none;padding:0 ${mobile ? '10px' : '14px'};border-radius:6px;
                       background:linear-gradient(135deg,#f59e0b,#d97706);
                       box-shadow:0 2px 10px rgba(245,158,11,.35);
                       touch-action:manipulation;min-height:44px;
@@ -1138,12 +1165,12 @@
         }
 
         const card = document.createElement('div');
-        card.style.cssText = [CSS_CARD_BASE, 'border-left:3px solid #22c55e', `padding:${pad}`, `min-width:${mw}`, `max-width:${mxw}`].join(';');
+        card.style.cssText = [CSS_CARD_BASE, `padding:${pad}`, `min-width:${mw}`, `max-width:${mxw}`].join(';');
 
         card.innerHTML = `
             ${brand}
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:${mobile ? '7px' : '10px'}">
-                <div style="font-size:${mobile ? '13px' : '16px'};color:#22c55e;flex-shrink:0">✔</div>
+                <div style="font-size:${mobile ? '13px' : '16px'};color:#22c55e;flex-shrink:0">✓</div>
                 <div>
                     <div style="font-size:${mobile ? '11px' : '13px'};font-weight:600;color:#e0e0e0">Key retrieved — ${site}</div>
                     ${timeLabel ? `<div style="font-size:${mobile ? '9px' : '10px'};color:#888;margin-top:1px">${timeLabel}</div>` : ''}
@@ -1152,7 +1179,7 @@
             <div class="${_pfx}kc_key" style="
                 font-family:monospace;font-size:${mobile ? '10px' : '11px'};color:#a5f3a0;
                 background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);
-                border-radius:6px;padding:${mobile ? '7px 8px' : '8px 10px'};word-break:break-all;
+                border-radius:5px;padding:${mobile ? '7px 8px' : '8px 10px'};word-break:break-all;
                 cursor:pointer;-webkit-user-select:all;-moz-user-select:all;user-select:all;margin-bottom:${mobile ? '6px' : '8px'};line-height:1.5;
                 touch-action:manipulation;min-height:44px;display:flex;align-items:center"
                 title="Tap to copy"></div>
@@ -1231,7 +1258,7 @@
         const pad = mobile ? '10px 12px' : '14px 16px';
 
         const card = document.createElement('div');
-        card.style.cssText = [CSS_CARD_BASE, 'border-left:3px solid #4f8ef7', `padding:${pad}`, `min-width:${mw}`, `max-width:${mxw}`].join(';');
+        card.style.cssText = [CSS_CARD_BASE, `padding:${pad}`, `min-width:${mw}`, `max-width:${mxw}`].join(';');
 
         const vTag = CONFIG.notifShowVersion !== false ? ` · v${VERSION}` : '';
         const brandLine = (!mobile && !CONFIG.compactMode && CONFIG.notifShowBranding !== false)
@@ -1252,21 +1279,21 @@
             <div style="display:flex;gap:7px">
                 <button id="${_pfx}ask_yes" style="
                     flex:1;display:flex;align-items:center;justify-content:center;
-                    padding:0;border:none;border-radius:7px;cursor:pointer;
+                    padding:0;border:none;border-radius:6px;cursor:pointer;
                     background:linear-gradient(135deg,#4f8ef7,#3b6fd4);color:#fff;
-                    font-size:${mobile ? '11px' : '12px'};font-weight:700;letter-spacing:.3px;
+                    font-size:${mobile ? '11px' : '12px'};font-weight:700;
                     touch-action:manipulation;min-height:44px;-webkit-tap-highlight-color:transparent;
                     font-family:${FF}">
-                    ✔ Yes
+                    ✓ Yes
                 </button>
                 <button id="${_pfx}ask_no" style="
                     flex:1;display:flex;align-items:center;justify-content:center;
-                    padding:0;border:1px solid rgba(255,255,255,.1);border-radius:7px;cursor:pointer;
-                    background:rgba(255,255,255,.06);color:#aaa;
-                    font-size:${mobile ? '11px' : '12px'};font-weight:600;letter-spacing:.3px;
+                    padding:0;border:1px solid rgba(255,255,255,.09);border-radius:6px;cursor:pointer;
+                    background:rgba(255,255,255,.05);color:#aaa;
+                    font-size:${mobile ? '11px' : '12px'};font-weight:600;
                     touch-action:manipulation;min-height:44px;-webkit-tap-highlight-color:transparent;
                     font-family:${FF}">
-                    ✖ Cancel
+                    × Cancel
                 </button>
             </div>`;
 
@@ -1410,7 +1437,7 @@
         overlay.style.cssText = [
             'all:initial', 'position:fixed',
             'top:0', 'right:0', 'bottom:0', 'left:0',
-            'z-index:2147483647',
+            'z-index:1999999998',    // below browser-injected captcha challenge iframes (2000000000)
             'display:flex', 'align-items:center', 'justify-content:center',
             'background:rgba(2,6,23,.88)',
             hasMotion ? 'backdrop-filter:blur(6px)' : '',
@@ -1467,7 +1494,7 @@
         // Widget slot
         const widgetDiv = document.createElement('div');
         widgetDiv.className     = _pfx+'captcha_widget';
-        widgetDiv.style.cssText = 'border-radius:8px;overflow:hidden';
+        widgetDiv.style.cssText = 'border-radius:8px;';
 
         // Footer
         const footer = document.createElement('div');
@@ -1569,8 +1596,21 @@
                         theme: 'dark',
                         size: 'normal',
                         callback: onToken,
-                        'expired-callback': () => { _tokenFired = false; if (_widgetId != null && ts.reset) ts.reset(_widgetId); },
-                        'error-callback':   () => { if (_widgetId != null && ts.reset) ts.reset(_widgetId); },
+                        'expired-callback': () => {
+                            _tokenFired = false;
+                            if (_widgetId != null && ts.reset) ts.reset(_widgetId);
+                            // Re-trigger click in all iframes so the challenge re-solves automatically
+                            overlay.querySelectorAll('iframe').forEach(fr => {
+                                try { fr.contentWindow && fr.contentWindow.postMessage({ [_pfx + 'triggerClick']: true }, '*'); } catch (_) { /* cross-origin */ }
+                            });
+                        },
+                        'error-callback':   () => {
+                            if (_widgetId != null && ts.reset) ts.reset(_widgetId);
+                            // Re-trigger click in all iframes after error reset
+                            overlay.querySelectorAll('iframe').forEach(fr => {
+                                try { fr.contentWindow && fr.contentWindow.postMessage({ [_pfx + 'triggerClick']: true }, '*'); } catch (_) { /* cross-origin */ }
+                            });
+                        },
                     });
                     _startSolvePoll();
                     return true;
@@ -1585,7 +1625,14 @@
                     const s = document.createElement('script');
                     s.src   = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
                     s.async = true;
-                    s.onload  = () => { tryRenderApi(); _startSolvePoll(); };
+                    s.onload  = () => {
+                        tryRenderApi();
+                        _startSolvePoll();
+                        // Re-trigger any iframes that appeared before the API was ready
+                        setTimeout(() => overlay.querySelectorAll('iframe').forEach(fr => {
+                            try { fr.contentWindow && fr.contentWindow.postMessage({ [_pfx + 'triggerClick']: true }, '*'); } catch (_) { /* cross-origin */ }
+                        }), 600);
+                    };
                     s.onerror = () => { cleanup(); reject(new Error('[ULB/Turnstile] failed to load Turnstile script')); };
                     document.head.appendChild(s);
                 } else {
@@ -1644,12 +1691,17 @@
 
     /** Runs inside google.com/recaptcha/* iframes — drives the audio-challenge flow. */
     function _runRecaptchaFrameSolver() {
+        _patchEventTrust(window);
+
         const MAX_ATTEMPTS = 5;
         const lang = document.documentElement.getAttribute('lang') || 'en-US';
         let requestCount = 0, solved = false, waitingForResp = false, lastAudioUrl = '';
 
         const SEL = {
+            // .recaptcha-checkbox-border is the element reCAPTCHA actually binds its
+            // click listener to — same target the working reference solver uses.
             CHECKBOX:   '.recaptcha-checkbox-border',
+            CHECKMARK:  '.recaptcha-checkbox-checkmark',
             AUDIO_BTN:  '#recaptcha-audio-button',
             AUDIO_SRC:  '#audio-source',
             RESP_FIELD: '.rc-audiochallenge-response-field',
@@ -1663,38 +1715,80 @@
         };
 
         const isHidden = el => !el || el.offsetParent === null;
-        const q = sel => document.querySelector(sel);
+        const q        = sel => document.querySelector(sel);
         const initialStatus = q(SEL.STATUS) ? q(SEL.STATUS).innerText : '';
 
         _rcPingServers();
 
+        /**
+         * Click the reCAPTCHA checkbox.
+         * One .click() on #recaptcha-anchor is all that's needed — confirmed reliable.
+         * Firing multiple clicks (e.g. on checkmark + anchor) causes reCAPTCHA to
+         * toggle on→off→on→off and end up unchecked. Do NOT use _trustedClick here;
+         * the full mouse-event sequence confuses reCAPTCHA's state machine on the
+         * checkbox. Plain .click() on the anchor is what the browser itself would do.
+         */
+        function _clickCheckbox() {
+            const cbEl = q(SEL.CHECKBOX);
+            if (cbEl) { try { cbEl.click(); } catch (_) {} }
+        }
+
+        // ── MutationObserver: click the instant the checkbox appears in the DOM ──
+        // This fires immediately when reCAPTCHA injects its elements, with no
+        // dependency on the poll interval. The interval below acts as a backup.
+        let _cbClicked = false;
+        const _cbObs = new MutationObserver(() => {
+            if (solved || _cbClicked) return;
+            const cbEl = q(SEL.CHECKBOX);
+            if (cbEl && !isHidden(cbEl) && cbEl.getAttribute('aria-checked') !== 'true' && !q(SEL.AUDIO_BTN)) {
+                _cbClicked = true;
+                _clickCheckbox();
+                // Allow retry after 2s if click didn't register
+                setTimeout(() => { _cbClicked = false; }, 2000);
+            }
+        });
+        _cbObs.observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['aria-checked', 'style'] });
+
         const iv = setInterval(async () => {
             try {
-                if (solved || requestCount > MAX_ATTEMPTS) { clearInterval(iv); return; }
+                if (solved || requestCount > MAX_ATTEMPTS) { clearInterval(iv); _cbObs.disconnect(); return; }
 
-                if (q(SEL.STATUS) && q(SEL.STATUS).innerText !== initialStatus) {
-                    solved = true; console.log('[ULB/reCAPTCHA] Solved ✓'); clearInterval(iv); return;
+                const statusEl = q(SEL.STATUS);
+                if (statusEl && statusEl.innerText !== initialStatus) {
+                    solved = true; clearInterval(iv); _cbObs.disconnect(); return;
                 }
 
-                if (q(SEL.CHECKBOX) && !isHidden(q(SEL.CHECKBOX)) && !q(SEL.AUDIO_BTN)) q(SEL.CHECKBOX).click();
+                const cbEl      = q(SEL.CHECKBOX);
+                const audioBtn  = q(SEL.AUDIO_BTN);
+                const audioEl   = q(SEL.AUDIO_SRC);
+                const respField = q(SEL.RESP_FIELD);
+                const respInput = q(SEL.RESP_INPUT);
+                const verifyBtn = q(SEL.VERIFY);
+                const reloadBtn = q(SEL.RELOAD);
+                const errEl     = q(SEL.AUDIO_ERR);
+                const dosEl     = q(SEL.DOSBLOCK);
 
-                if (q(SEL.AUDIO_BTN) && !isHidden(q(SEL.AUDIO_BTN))) q(SEL.AUDIO_BTN).click();
+                // Interval click: only if MutationObserver hasn't already fired for this attempt
+                if (!_cbClicked && cbEl && !isHidden(cbEl) && cbEl.getAttribute('aria-checked') !== 'true' && !audioBtn) {
+                    _clickCheckbox();
+                }
 
-                const audioEl = q(SEL.AUDIO_SRC);
+                if (audioBtn && !isHidden(audioBtn)) {
+                    _trustedClick(audioBtn);
+                }
 
-                if ((!waitingForResp && audioEl && audioEl.src && lastAudioUrl === audioEl.src && q(SEL.RELOAD)) ||
-                    (q(SEL.AUDIO_ERR) && q(SEL.AUDIO_ERR).innerText && q(SEL.AUDIO_ERR).innerText.length > 0 && q(SEL.RELOAD) && !q(SEL.RELOAD).disabled)) {
-                    q(SEL.RELOAD).click();
+                if ((!waitingForResp && audioEl && audioEl.src && lastAudioUrl === audioEl.src && reloadBtn) ||
+                    (errEl && errEl.innerText && errEl.innerText.length > 0 && reloadBtn && !reloadBtn.disabled)) {
+                    _trustedClick(reloadBtn);
                     return;
                 }
 
                 if (!waitingForResp && audioEl && audioEl.src && audioEl.src.length > 0 &&
                     lastAudioUrl !== audioEl.src &&
-                    q(SEL.RESP_FIELD) && !isHidden(q(SEL.RESP_FIELD)) &&
-                    q(SEL.RESP_INPUT) && !q(SEL.RESP_INPUT).value &&
-                    q(SEL.AUDIO_BTN) && q(SEL.AUDIO_BTN).style.display === 'none' &&
+                    respField && !isHidden(respField) &&
+                    respInput && !respInput.value &&
+                    audioBtn && audioBtn.style.display === 'none' &&
                     requestCount <= MAX_ATTEMPTS) {
-
                     waitingForResp = true;
                     lastAudioUrl   = audioEl.src;
                     requestCount++;
@@ -1703,26 +1797,26 @@
                         const text = await _rcGetAudioText(audioEl.src, lang);
                         if (q(SEL.AUDIO_SRC) && q(SEL.AUDIO_SRC).src === lastAudioUrl &&
                             q(SEL.RESP_INPUT) && !q(SEL.RESP_INPUT).value &&
-                            q(SEL.VERIFY)) {
+                            verifyBtn) {
                             q(SEL.RESP_INPUT).value = text;
-                            q(SEL.VERIFY).click();
+                            _trustedClick(verifyBtn);
                         }
                     } catch (e) {
-                        console.warn('[ULB/reCAPTCHA]', e.message, '— will retry');
+                        console.warn('[ULB/reCAPTCHA]', e.message);
                     } finally {
                         waitingForResp = false;
                     }
                 }
 
-                if (q(SEL.DOSBLOCK) && q(SEL.DOSBLOCK).innerText && q(SEL.DOSBLOCK).innerText.length > 0) {
+                if (dosEl && dosEl.innerText && dosEl.innerText.length > 0) {
                     console.warn('[ULB/reCAPTCHA] Automated queries detected — stopping');
-                    clearInterval(iv);
+                    clearInterval(iv); _cbObs.disconnect();
                 }
             } catch (e) {
                 console.error('[ULB/reCAPTCHA] Frame solver error:', e.message);
-                clearInterval(iv);
+                clearInterval(iv); _cbObs.disconnect();
             }
-        }, 4000);
+        }, 800);
     }
 
     /** Try every known strategy to extract a reCAPTCHA v2 sitekey from the page. */
@@ -1765,6 +1859,55 @@
 
         return new Promise((resolve, reject) => {
             const cbName = _pfx+'rcCb_' + generateId();
+
+            // Grant helpers. No dedup — bframe may need re-granting after its listener loads.
+            const _rawGrant = win => { try { win.postMessage({ __ulbRcGrant: '__ulb_rc__' }, '*'); } catch(_){} };
+            const _attachReactive = win => {
+                const l = e => {
+                    if (!e.data || e.data.__ulbRcReady !== '__ulb_rc__' || e.source !== win) return;
+                    _rawGrant(win);
+                };
+                window.addEventListener('message', l);
+                return l;
+            };
+
+            // data-ulb-rc="anchor"/"bframe" marks our iframes in devtools.
+            const ULB_RC_ATTR = 'data-ulb-rc';
+            const _markFrame = (el, role) => { try { el.setAttribute(ULB_RC_ATTR, role); } catch(_){} };
+
+            let _bframeObs = null, _bfReactiveL = null, _anchorReactiveL = null;
+
+            const _grantOurFrames = () => {
+                const anchor = widgetDiv.querySelector('iframe');
+                if (!anchor) return;
+                if (!anchor.hasAttribute(ULB_RC_ATTR)) {
+                    _markFrame(anchor, 'anchor');
+                    _anchorReactiveL = _attachReactive(anchor.contentWindow);
+                }
+                _rawGrant(anchor.contentWindow);
+
+                const suffix = anchor.name && anchor.name.startsWith('a-') ? anchor.name.slice(2) : null;
+                if (!suffix) return;
+
+                const bframe = document.querySelector('iframe[name="c-' + suffix + '"]');
+                if (bframe) {
+                    if (!bframe.hasAttribute(ULB_RC_ATTR)) {
+                        _markFrame(bframe, 'bframe');
+                        _bfReactiveL = _attachReactive(bframe.contentWindow);
+                    }
+                    _rawGrant(bframe.contentWindow);
+                } else if (!_bframeObs) {
+                    _bframeObs = new MutationObserver(() => {
+                        const bf = document.querySelector('iframe[name="c-' + suffix + '"]');
+                        if (!bf) return;
+                        _markFrame(bf, 'bframe');
+                        _bfReactiveL = _attachReactive(bf.contentWindow);
+                        [0, 300, 800].forEach(ms => setTimeout(() => _rawGrant(bf.contentWindow), ms));
+                        _bframeObs.disconnect(); _bframeObs = null;
+                    });
+                    _bframeObs.observe(document.body, { childList: true, subtree: true });
+                }
+            };
             const { overlay, spinRing, sub, widgetDiv } = _buildCaptchaOverlay('Solving reCAPTCHA', 'Switching to audio challenge…');
 
             overlay.id  = _pfx+'rc_overlay';
@@ -1780,6 +1923,9 @@
 
             function cleanup() {
                 clearTimeout(timeout);
+                if (_bframeObs)       { _bframeObs.disconnect(); _bframeObs = null; }
+                if (_bfReactiveL)     { window.removeEventListener('message', _bfReactiveL);     _bfReactiveL = null; }
+                if (_anchorReactiveL) { window.removeEventListener('message', _anchorReactiveL); _anchorReactiveL = null; }
                 if (_pollInterval) { clearInterval(_pollInterval); _pollInterval = null; }
                 try { delete _uw[cbName]; }            catch (_) { /* */ }
                 try { delete _uw[_pfx+'rcLoad_' + cbName]; } catch (_) { /* */ }
@@ -1809,30 +1955,49 @@
                             : rc && rc.getResponse && rc.getResponse();
                         if (resp && resp.length > 20) { onToken(resp); return; }
                     } catch (_) { /* */ }
-                    const ta = widgetDiv.querySelector('[name="g-recaptcha-response"]') ||
-                               document.querySelector('[name="g-recaptcha-response"]');
+                    // Strictly scope to our overlay's widgetDiv — never fall through
+                    // to document.querySelector which could capture the page's own
+                    // hidden textarea and resolve with the wrong / empty token.
+                    const ta = widgetDiv.querySelector('[name="g-recaptcha-response"]');
                     if (ta && ta.value && ta.value.length > 20) onToken(ta.value);
-                }, 500);
+                }, 300);
             }
 
-            const tryRenderApi = () => {
+            const _doRender = () => {
                 const rc = _uw.grecaptcha;
-                if (!rc || !rc.render) return false;
                 try {
                     _widgetId = rc.render(widgetDiv, {
-                        sitekey: key,
-                        theme:   'dark',
-                        size:    'normal',
+                        sitekey:  key,
+                        theme:    'dark',
+                        size:     'normal',
                         callback: onToken,
                         'expired-callback': () => { _tokenFired = false; if (_widgetId != null && rc.reset) rc.reset(_widgetId); },
                         'error-callback':   () => { if (_widgetId != null && rc.reset) rc.reset(_widgetId); },
                     });
                     _startPoll();
-                    return true;
+                    // Anchor appears in widgetDiv shortly after render.
+                    // Bframe appears later (after checkbox click) — _grantOurFrames
+                    // sets up a MutationObserver to catch it automatically.
+                    [100, 500, 1200].forEach(ms => setTimeout(_grantOurFrames, ms));
                 } catch (e) {
                     console.warn('[ULB/reCAPTCHA] grecaptcha.render() threw:', e);
-                    return false;
                 }
+            };
+
+            // tryRenderApi: use grecaptcha.ready() so we wait for the full
+            // internal runtime — not just the existence of grecaptcha.render.
+            // On pages where the API script is already loading, grecaptcha may
+            // be defined with .render present but not yet functional, causing
+            // render() to silently fail without ready().
+            const tryRenderApi = () => {
+                const rc = _uw.grecaptcha;
+                if (!rc || !rc.render) return false;
+                if (typeof rc.ready === 'function') {
+                    rc.ready(_doRender);
+                } else {
+                    _doRender();
+                }
+                return true;
             };
 
             if (!tryRenderApi()) {
@@ -1841,15 +2006,35 @@
                 );
                 if (!existing) {
                     const loadCb = _pfx+'rcLoad_' + cbName;
-                    try { _uw[loadCb] = () => { tryRenderApi(); _startPoll(); }; } catch (_) { window[loadCb] = () => { tryRenderApi(); _startPoll(); }; }
+                    const _onLoad = () => {
+                        const rc = _uw.grecaptcha;
+                        if (rc && typeof rc.ready === 'function') {
+                            rc.ready(_doRender);
+                        } else {
+                            _doRender();
+                        }
+                    };
+                    try { _uw[loadCb] = _onLoad; } catch (_) { window[loadCb] = _onLoad; }
                     const s = document.createElement('script');
                     s.src   = `https://www.google.com/recaptcha/api.js?render=explicit&onload=${loadCb}`;
                     s.async = true;
                     s.onerror = () => { cleanup(); reject(new Error('[ULB/reCAPTCHA] failed to load reCAPTCHA script')); };
                     (document.head || document.documentElement).appendChild(s);
                 } else {
-                    const poll = setInterval(() => { if (tryRenderApi()) { clearInterval(poll); _startPoll(); } }, 150);
-                    setTimeout(() => clearInterval(poll), 10000);
+                    // API script tag exists but grecaptcha isn't ready yet.
+                    // Poll until grecaptcha is present, then use ready() to
+                    // ensure the runtime is fully initialized before rendering.
+                    const poll = setInterval(() => {
+                        const rc = _uw.grecaptcha;
+                        if (!rc || !rc.render) return;
+                        clearInterval(poll);
+                        if (typeof rc.ready === 'function') {
+                            rc.ready(_doRender);
+                        } else {
+                            _doRender();
+                        }
+                    }, 150);
+                    setTimeout(() => { clearInterval(poll); }, 15000);
                 }
             }
         });
@@ -1944,32 +2129,89 @@
         });
     }
 
-    // ── Cloudflare Challenge Frame Hook ───────────────────────────────────
+    // ── Shared isTrusted helpers ──────────────────────────────────────────
 
-    function _runCfHook() {
-        // Proxy isTrusted=true on every event so CF sees a real interaction.
-        // Note: in Firefox content scripts, patching EventTarget.prototype is
-        // allowed when @grant unsafeWindow is declared and we use _uw.
-        const _origAdd = _uw.EventTarget.prototype.addEventListener;
-        _uw.EventTarget.prototype.addEventListener = function (type, listener, options) {
+    /**
+     * Patch EventTarget.prototype.addEventListener on `win` so that every event
+     * reaching a listener appears with isTrusted=true.
+     * Idempotent — safe to call multiple times on the same window object.
+     *
+     * @param {Window} win          - The window whose EventTarget to patch
+     *                                (use `_uw` for the host page, `window` inside iframes).
+     * @param {Object} [extraGetters] - Optional map of additional property overrides
+     *                                  to bake into the Proxy (e.g. { origin: fn(t,e) }).
+     *                                  Each value may be a plain value or a function
+     *                                  receiving (originalTarget, originalEvent).
+     */
+    function _patchEventTrust(win, extraGetters) {
+        if (!win || win.__ulbTrustPatched) return;
+        win.__ulbTrustPatched = true;
+        const _origAdd = win.EventTarget.prototype.addEventListener;
+        win.EventTarget.prototype.addEventListener = function (type, listener, opts) {
             return _origAdd.call(this, type, function (e) {
                 return listener.call(this, new Proxy(e, {
                     get (t, p) {
                         if (p === 'isTrusted') return true;
-                        if (p === 'origin' && location.hash.includes('origin='))
-                            return decodeURIComponent(location.hash.split('origin=')[1]);
+                        if (extraGetters && Object.prototype.hasOwnProperty.call(extraGetters, p)) {
+                            const ov = extraGetters[p];
+                            return typeof ov === 'function' ? ov(t, e) : ov;
+                        }
                         const v = t[p];
                         return typeof v === 'function' ? v.bind(t) : v;
                     }
                 }));
-            }, options);
+            }, opts);
         };
-        // Stealth: make the override look native to .toString() checks.
+        // Stealth: make the patched method look native to .toString() checks.
         try {
-            const _etNative = () => 'function addEventListener() { [native code] }';
-            Object.defineProperty(_uw.EventTarget.prototype.addEventListener, 'toString', { value: _etNative, configurable: true });
-            Object.defineProperty(_uw.EventTarget.prototype.addEventListener, 'name',     { value: 'addEventListener', configurable: true });
+            const _n = () => 'function addEventListener() { [native code] }';
+            Object.defineProperty(win.EventTarget.prototype.addEventListener, 'toString', { value: _n, configurable: true });
+            Object.defineProperty(win.EventTarget.prototype.addEventListener, 'name',     { value: 'addEventListener', configurable: true });
         } catch (_) { /* non-fatal */ }
+    }
+
+    /**
+     * Dispatch a full trusted mouse-event sequence (mouseover → mousemove →
+     * mousedown → mouseup → click) on `el` centred on its bounding rect, then
+     * call el.click().  Works on any element — div, span, input, button, etc.
+     *
+     * Must be called in a context where _patchEventTrust has already been applied
+     * to the window, so that listeners see isTrusted=true on every event.
+     *
+     * @param {Element} el
+     */
+function _trustedClick(el) {
+    if (!el) return;
+
+    const r = el.getBoundingClientRect();
+    const cx = r.left + r.width / 2;
+    const cy = r.top + r.height / 2;
+
+    const mo = {
+        bubbles: true,
+        cancelable: true,
+        clientX: cx,
+        clientY: cy
+    };
+
+    for (const type of ['mouseover', 'mousemove', 'mousedown', 'mouseup', 'click']) {
+        el.dispatchEvent(new MouseEvent(type, mo));
+    }
+
+    el.click();
+}
+
+    // ── Cloudflare Challenge Frame Hook ───────────────────────────────────
+
+    function _runCfHook() {
+        // Patch EventTarget on the CF challenge window so every event appears
+        // isTrusted=true. Also expose the `origin` override via extraGetters so
+        // the CF widget's origin check passes when the hash carries origin=…
+        _patchEventTrust(_uw, {
+            origin: (t, e) => location.hash.includes('origin=')
+                ? decodeURIComponent(location.hash.split('origin=')[1])
+                : t.origin,
+        });
 
         const frameId = (location.hash.match(/[#&]ulbid=([^&]+)/) || [])[1] || '';
         let _clicked  = false;
@@ -1980,15 +2222,7 @@
             try {
                 window.parent.postMessage({ [_pfx+'_m']: true, [_pfx + 'clicked']: true, id: frameId }, '*');
             } catch (_) { /* cross-origin — ignore */ }
-
-            const rect = cb.getBoundingClientRect();
-            const cx   = rect.left + rect.width  / 2;
-            const cy   = rect.top  + rect.height / 2;
-            const evOpts = { bubbles: true, cancelable: true, view: window, clientX: cx, clientY: cy };
-            ['mouseover', 'mousemove', 'mousedown', 'mouseup', 'click'].forEach(type =>
-                cb.dispatchEvent(new MouseEvent(type, evOpts))
-            );
-            cb.click();
+            _trustedClick(cb);
         }
 
         function tryClick(root) {
@@ -2029,7 +2263,21 @@
         });
 
         const retry = setInterval(() => {
-            if (_clicked) { clearInterval(retry); return; }
+            // If we already clicked but the checkbox became unchecked again (Turnstile "click again"
+            // re-challenge), reset the flag so we click it once more.
+            if (_clicked) {
+                const cbCheck = document.querySelector('input[type=checkbox]') || (() => {
+                    for (const el of document.querySelectorAll('*')) {
+                        if (el.shadowRoot) {
+                            const c = el.shadowRoot.querySelector('input[type=checkbox]');
+                            if (c) return c;
+                        }
+                    }
+                    return null;
+                })();
+                if (cbCheck && !cbCheck.checked) _clicked = false;
+                else return; // checkbox still checked — nothing to do
+            }
             tryClick(document);
             document.querySelectorAll('*').forEach(el => { if (el.shadowRoot) tryClick(el.shadowRoot); });
         }, 200);
@@ -2039,27 +2287,69 @@
     // Early returns for CF challenge iframes and reCAPTCHA iframes
 
     if (location.hostname === 'challenges.cloudflare.com') {
-        const _cfRef     = document.referrer || '';
-        const _cfAllowed = CONFIG.cfAllowedRefs || [];
-        if (_cfAllowed.some(r => r && _cfRef.includes(r)) || location.hash.includes('ulbid=')) {
+        // Only activate inside iframes that ULB's own solveTurnstile() created.
+        // We confirm this by waiting for the triggerClick postMessage that
+        // solveTurnstile() sends to every iframe it spawns — no referrer list needed.
+        window.addEventListener('message', function _ulbCfGrant(e) {
+            if (!e.data || !e.data[_pfx + 'triggerClick']) return;
+            window.removeEventListener('message', _ulbCfGrant);
             _runCfHook();
-        }
+        });
         return;
     }
 
     if (CONFIG.autoRecaptcha !== false &&
         (location.hostname === 'www.google.com' || location.hostname === 'recaptcha.net') &&
         location.pathname.includes('/recaptcha/')) {
-        // Gate: only solve when the embedding page is a known bypass target.
-        // Without this check the solver fires on every reCAPTCHA iframe on
-        // the internet (login forms, comment boxes, checkout pages, etc.).
-        const _rcRef     = document.referrer || '';
-        const _rcAllowed = (CONFIG.rcAllowedRefs && CONFIG.rcAllowedRefs.length)
-            ? CONFIG.rcAllowedRefs
-            : (CONFIG.cfAllowedRefs || []);
-        if (_rcAllowed.some(r => r && _rcRef.includes(r))) {
-            _runRecaptchaFrameSolver();
+
+        _patchEventTrust(window);
+
+
+        // ── Anchor iframe: wait for grant, then click checkbox ──────────────
+        if (location.href.includes('anchor')) {
+            const _tryClick = () => { const el = document.querySelector('.recaptcha-checkbox-border'); if (el) { el.click(); return true; } return false; };
+            const _clickWhenReady = () => {
+                if (!_tryClick()) {
+                    const obs = new MutationObserver(() => { if (_tryClick()) obs.disconnect(); });
+                    obs.observe(document.documentElement, { childList: true, subtree: true });
+                    setTimeout(() => obs.disconnect(), 15000);
+                }
+            };
+            let _anchorGranted = false;
+            window.addEventListener('message', function _ulbAnchorGrant(e) {
+                if (_anchorGranted || !e.data || e.data.__ulbRcGrant !== '__ulb_rc__') return;
+                _anchorGranted = true;
+                clearInterval(_ulbAnchorRetryIv);
+                window.removeEventListener('message', _ulbAnchorGrant);
+                _clickWhenReady();
+            });
+            const _ulbAnchorAnnounce = () => {
+                if (_anchorGranted) { clearInterval(_ulbAnchorRetryIv); return; }
+                try { window.parent.postMessage({ __ulbRcReady: '__ulb_rc__' }, '*'); } catch (_) {}
+            };
+            _ulbAnchorAnnounce();
+            const _ulbAnchorRetryIv = setInterval(_ulbAnchorAnnounce, 500);
+            setTimeout(() => clearInterval(_ulbAnchorRetryIv), 60000);
+            return;
         }
+
+        // ── bframe iframe: wait for grant, then run audio solver ──────────────
+        _rcPingServers();
+        let _granted = false;
+        window.addEventListener('message', function _ulbRcAuthMsg(e) {
+            if (_granted || !e.data || e.data.__ulbRcGrant !== '__ulb_rc__') return;
+            _granted = true;
+            clearInterval(_ulbRcRetryIv);
+            window.removeEventListener('message', _ulbRcAuthMsg);
+            _runRecaptchaFrameSolver();
+        });
+        const _ulbRcAnnounce = () => {
+            if (_granted) { clearInterval(_ulbRcRetryIv); return; }
+            try { window.parent.postMessage({ __ulbRcReady: '__ulb_rc__' }, '*'); } catch (_) {}
+        };
+        _ulbRcAnnounce();
+        const _ulbRcRetryIv = setInterval(_ulbRcAnnounce, 500);
+        setTimeout(() => clearInterval(_ulbRcRetryIv), 60000);
         return;
     }
 
@@ -2711,6 +3001,7 @@
         const secBypass = mkSection('Bypass Behaviour');
         addRow(secBypass, 'Ask before bypass', 'Show a confirmation card before running any bypass', mkToggle('askBeforeBypass'));
         addRow(secBypass, 'Auto-solve Turnstile', 'Automatically solve Cloudflare Turnstile captchas', mkToggle('autoTurnstile'));
+        addRow(secBypass, 'Auto-solve reCAPTCHA', 'Automatically solve Google reCAPTCHA v2 via audio bypass', mkToggle('autoRecaptcha'));
 
         const secNotif = mkSection('Notifications');
         addRow(secNotif, 'Position', 'Where toast notifications appear on screen',
@@ -2739,13 +3030,13 @@
         hostNote.textContent = 'One hostname or substring per line — these sites skip the "Bypass this page?" prompt entirely.';
         secHosts.append(hostNote, mkTextarea('autoBypassHosts', 'e.g. tpi.li\ngplinks.co'));
 
-        const secCf = mkSection('Cloudflare Allowed Referrers');
-        const cfNote = document.createElement('div');
-        cfNote.style.cssText = 'font-size:11px;color:#6060a0;margin-bottom:4px';
-        cfNote.textContent = 'Add new safelink domains here if CF auto-click stops working on a site. One entry per line.';
-        secCf.append(cfNote, mkTextarea('cfAllowedRefs', 'e.g. airflowscript.com\ndl.surf'));
+        const secFormHosts = mkSection('Shrtslug Hosts');
+        const formHostNote = document.createElement('div');
+        formHostNote.style.cssText = 'font-size:11px;color:#6060a0;margin-bottom:4px';
+        formHostNote.textContent = 'One hostname per line — sites using the form-based (api-endpoint/verify) bypasser (shrtslug.biz, jobnoid.net, etc.).';
+        secFormHosts.append(formHostNote, mkTextarea('formHosts', 'e.g. shrtslug.biz\njobnoid.net'));
 
-        [secBypass, secNotif, secSite, secHosts, secCf].forEach(s => body.appendChild(s));
+        [secBypass, secNotif, secSite, secHosts, secFormHosts].forEach(s => body.appendChild(s));
         panel.append(header, body, footer);
         overlay.appendChild(panel);
         _root.appendChild(overlay);
@@ -2821,12 +3112,12 @@
     // JS hoists function declarations within the IIFE, so every bypasser in §7
     // is already in scope here. Passing the reference directly (no string lookup,
     // no eval, no registry) works in every browser and every GM flavour.
-    function _run(siteLabel, fn, opts) {
+    function _run(siteLabel, fn, preRun) {
         if (typeof fn !== 'function') {
             console.warn('[ULB] Bypasser for "' + siteLabel + '" not found or not yet declared');
             return;
         }
-        _gateBypass(siteLabel, fn, opts && opts.preRun || null);
+        _gateBypass(siteLabel, fn, preRun || null);
     }
 
     // ── Config menu command ───────────────────────────────────────────────
@@ -2837,7 +3128,7 @@
         GM_registerMenuCommand('ULB Diagnostics', () => {
             const now = new Date();
             const cfgLines  = Object.entries(CONFIG)
-                .filter(([k]) => !['cfAllowedRefs', 'autoBypassHosts'].includes(k))
+                .filter(([k]) => !['autoBypassHosts'].includes(k))
                 .map(([k, v]) => `  ${k}: ${JSON.stringify(v)}`).join('\n');
             const hostLines = (CONFIG.autoBypassHosts || []).map(h => `  - ${h}`).join('\n');
             const diagLines = _diagEntries.length
@@ -2886,7 +3177,16 @@
         else if (host.includes('reshortfly.com'))             _run('reshortfly.com', runReshortflyBypasser);
         else if (host.includes('avnsgames.com'))              _run('avnsgames.com', runAvnsGamesInterstitial);
         else if (host.includes('lnbz.la'))                    _run('lnbz.la', runLnbzLaBypasser);
-        else if (host.includes('bloxscript.live'))            _run('bloxscript.live', runBloxscriptScamWarning);
+        else if (host.includes('en.mrproblogger.com'))         _run('en.mrproblogger.com', runMrprobloggerBypasser);
+        else if (host.includes('bloxscript.live') ||
+                 host.includes('scripgamex.live') ||
+                 host.includes('scriptblox.club') ||
+                 host.includes('scriptix.live'))              _run(host, runDiscordTokenScamWarning);
+        else if (host.includes('noctrunhub.xyz'))             _run('noctrunhub.xyz', runNoctrunHubBypasser);
+        else if (host.includes('captainmanjirokeys.vercel.app')) _run('captainmanjirokeys', runCaptainManjiroKeysBypasser);
+        else if (host.includes('londonstlol.github.io'))      _run('SakuraKeys', runSakuraKeysBypasser);
+        else if (host.includes('anonlink.io') && path.length > 1) _run('anonlink.io', runAnonLinkBypasser);
+        else if (host.includes('bloxhub.click'))              _run('bloxhub.click', runBloxHubBypasser);
         else if (host.includes('jankariweb'))                 _run(host, runJoberBypasser);
         else if (host.includes('apnahirework.com'))           _run('apnahirework.com', runApnahireworkBypasser);
         else if (host.includes('crimejasoos.in'))             _run('crimejasoos.in', runCrimejasoosBypasser);
@@ -2898,6 +3198,7 @@
                                                               _run(host, runCasLinksBypasser);
         else if (host.includes('gplinks.co'))                 _run('gplinks.co', runGpLinksBypasser);
         else if (host.includes('powergam.online'))            _run('powergam.online', runPowergamBypasser);
+        else if (host.includes('sanadegreecollege.in'))       _run('sanadegreecollege.in', runPowergamBypasser);
         else if (host.includes('4br.me'))                     _run('4br.me', run4BrMeBypasser);
         else if (host.includes('rojgarhindi.in'))             _run('rojgarhindi.in', runRojgarhindiBypasser);
         else if (host.includes('v0-phantomfluxkey.vercel.app')) _run('phantomfluxkey', runPhantomFluxKeyBypasser);
@@ -2908,7 +3209,7 @@
         else if (host.includes('short-jambo.com'))            _run('short-jambo.com', runShortJamboDotComBypasser);
         else if (/fastcars\d*\.com/.test(host) || host.includes('bigcarinsurance.com'))
                                                               _run(host, runFastcarsBypasser);
-        else if (host.includes('sub4unlock.co'))              _run('sub4unlock.co', runSub4UnlockBypasser);
+        else if (host === 'sub4unlock.co')                    _run('sub4unlock.co', runSub4UnlockBypasser);
         else if (host.includes('app.khaddavi.net'))           _run('app.khaddavi.net', runKhaddaviBypasser);
         else if (host.includes('sfl.gl'))                     _run('sfl.gl', runSflGlBypasser);
         else if (host.includes('ytsubme.com'))                _run('ytsubme.com', runYtSubMeBypasser);
@@ -2922,10 +3223,15 @@
                                                               _run(host, runButtonFinderBypasser);
         else if (host.includes('rekonise.com'))               _run('rekonise.com', runRekoniseBypasser);
         else if (host.includes('go.linkify.ru'))              _run('go.linkify.ru', runLinkifyRuBypasser);
-        else if (host.includes('arolinks.com') ||
-                 host.includes('theimmigrationworld.com') ||
-                 host.includes('srtak.com') ||
-                 host.includes('vplink.in'))                  _run(host, runArolinksBypasser);
+        else if (host.includes('arolinks.com') && path.length > 1)
+                                                              _run('arolinks.com', runArolinksEntryBypasser);
+        else if (host.includes('theimmigrationworld.com') ||
+                 host.includes('srtak.com'))                  _run(host, runArolinksBypasser);
+        else if (host.includes('startuplearners.com') ||
+                 host.includes('earndrive.in'))                _run(host.replace(/^www\./, ''), runGenericJoberBypasser);
+        else if (host.includes('sarkarijobcorner.com'))        _run('sarkarijobcorner.com', runSarkarijobcornerBypasser);
+        else if (host.includes('vplink.in') && path.length > 1)
+                                                              _run('vplink.in', runVplinkEntryBypasser);
         else if (host.includes('spdmteam.com'))               _run('spdmteam.com', runSpdmTeamBypasser);
         else if (host.includes('linkunlocker.com'))           _run('linkunlocker.com', runLinkUnlockerBypasser);
         else if (host.includes('mboost.me'))                  _run('mboost.me', runMboostBypasser);
@@ -2960,11 +3266,26 @@
         else if (host.includes('urbanstorm.uk'))            _run('urbanstorm.uk', runUrbanstormBypasser);
         else if (host.includes('rekonise.org') && path.startsWith('/rks/'))
                                                               _run('rekonise.org', runRekoniseOrgBypasser);
-        else if (host.includes('link4m.'))                    _run(host, runLink4MBypasser, { preRun: _installWarpSpoof });
+        else if (host.includes('link4m.'))                    _run(host, runLink4MBypasser, _installWarpSpoof);
         else if (host.includes('worldpopulation.live'))       _run('worldpopulation.live', runWorldPopulationBypasser);
+        else if (host.includes('jober.djtrackhub.in') ||
+                 host.includes('earnbox.in') ||
+                 host.includes('thewiar.org'))                _run(host.replace(/^www\./, ''), runGenericJoberBypasser);
+        else if (host.includes('go.just2earn.com'))           _run(host, runJust2EarnBypasser);
+        else if (host.includes('prizvan-luajava-mlbb.lovable.app'))
+                                                              _run('prizvan-luajava-mlbb', runPrizvanLuaBypasser);
+        else if (host.includes('luau.pro') && path.startsWith('/get-key'))
+                                                              _run('luau.pro', runLuauProBypasser);
+        else if (host.includes('test-hub-keysystem.online') && path === '/flow.html' && /[?&]id=/.test(location.search))
+                                                              _run('test-hub-keysystem.online', runTestHubKeyBypasser);
+        else if ((host.includes('sub4unlock.com') || host.includes('sub4unlock.pro')) && path.length > 1)
+                                                              _run(host, runSub4UnlockComBypasser);
+        else if (host.includes('shrinkme.click') && path.length > 1)
+                                                              _run('shrinkme.click', runShrinkmeBypasser);
+        else if (host.includes('themezon.net'))               _run('themezon.net', runThemezonBypasser);
         else if (TPI_HOSTS.some(h => host.includes(h)))       _run(host, runTpiLiBypasser);
         else if (FORM_HOSTS.some(h => host.includes(h)))      _run(host, runFormBypasser);
-        else                                                  _run(host, runSafelinkBypasser);
+        else                                                   _run(host, runSafelinkBypasser);
 
     } catch (routerErr) {
         console.error('[ULB] Uncaught router error:', routerErr);
@@ -3709,6 +4030,10 @@
         _runLinksGoBypasser(host, null);
     }
 
+    function runMrprobloggerBypasser() {
+        _runLinksGoBypasser('en.mrproblogger.com', null);
+    }
+
     // ── 4br.me ─────────────────────────────────────────────────────────────
     // Same encurta.net platform as lnbz.la (see above), but 4br.me uses a
     // hardcoded Turnstile sitekey instead of embedding it in app_vars.
@@ -3777,22 +4102,333 @@
         onReady(init);
     }
 
-    // ── bloxscript.live ────────────────────────────────────────────────────
 
-    function runBloxscriptScamWarning() {
+    // ── Discord-token scam sites ───────────────────────────────────────────
+    // bloxscript.live · scriptblox.club · scriptix.live · scripgamex.live
+    // All four sites steal your Discord token via an injected script that reads
+    // localStorage and ships the credential to an attacker-controlled server.
+    // One shared function handles every site — `host` is read at runtime so the
+    // warning card always shows the correct domain.
+
+    function runDiscordTokenScamWarning() {
         showScamWarning({
-            site: 'bloxscript.live',
-            reason: 'This site steals your Discord token.',
-            details: 'A Discord token is a permanent credential that bypasses 2FA, giving ' +
-                'attackers full access to your account, DMs, servers, and Nitro. ' +
-                'If you have already interacted with this site, change your Discord ' +
-                'password immediately to invalidate your token.',
-            actionUrl: 'https://discord.com/login',
+            site:        host,
+            reason:      'This site steals your Discord token.',
+            details:     'A Discord token is a permanent credential that bypasses 2FA, giving ' +
+                         'attackers full access to your account, DMs, servers, and Nitro. ' +
+                         'If you have already interacted with this site, change your Discord ' +
+                         'password immediately to invalidate your token.',
+            actionUrl:   'https://discord.com/login',
             actionLabel: '🔒 Change My Discord Password',
         });
     }
 
-    // ── jankariweb / newsuchnaonline / bigcarinsurance ─────────────────────
+    // ── noctrunhub.xyz/* ──────────────────────────────────────────────────
+    // NoctrunHub bypass is intentionally silent — the page is shown as
+    // "not found" with no alerts or prompts. Any key-prompt UX has been
+    // removed; if the site changes in the future update this handler.
+
+    function runNoctrunHubBypasser() {
+        const SITE = 'noctrunhub.xyz';
+
+        const init = () => {
+            // Suppress any alert/prompt/confirm calls the page fires
+            try {
+                _uw.alert   = () => {};
+                _uw.prompt  = () => null;
+                _uw.confirm = () => false;
+            } catch (_) {}
+
+            // Replace page content with a plain "not found" screen
+            try {
+                document.title = '404 Not Found';
+                if (document.body) {
+                    document.body.innerHTML =
+                        '<div style="font-family:sans-serif;text-align:center;padding:80px;color:#888;">' +
+                        '<h1 style="font-size:72px;margin:0">404</h1>' +
+                        '<p style="font-size:20px">Page Not Found</p>' +
+                        '</div>';
+                }
+            } catch (_) {}
+        };
+
+        onReady(init);
+    }
+
+    // ── captainmanjirokeys.vercel.app/* ───────────────────────────────────
+    // Generates an "AnimeFinals2025" key fully client-side using a browser
+    // fingerprint (language, screen size, timezone, etc.) hashed with a
+    // custom djb2-XOR function, then formatted as:
+    //   AF-<user_id>-<seg2>-<seg3>-<seg4>
+    // No network request is required; the key is deterministic per device
+    // per day and is displayed immediately via showKeyCard.
+
+    function runCaptainManjiroKeysBypasser() {
+        const SITE = 'captainmanjirokeys.vercel.app';
+        const t    = makeTimer();
+
+        const init = () => {
+            try {
+                const SALT = 'AnimeFinals2025XK9';
+
+                // djb2-XOR hash (matches the site's own implementation)
+                const h = s => {
+                    let x = 5381;
+                    for (let i = 0; i < s.length; i++)
+                        x = ((x << 5) + x ^ s.charCodeAt(i)) >>> 0;
+                    return x;
+                };
+
+                // Build a stable device fingerprint
+                const uid = 'U' + h([
+                    navigator.language || '',
+                    (navigator.languages || []).join(','),
+                    screen.width + 'x' + screen.height,
+                    screen.colorDepth,
+                    Intl.DateTimeFormat().resolvedOptions().timeZone || '',
+                    navigator.hardwareConcurrency || '',
+                    navigator.platform || '',
+                ].join('|')).toString(36).toUpperCase().slice(0, 5);
+
+                // Today's date as YYYYMMDD (UTC)
+                const d = new Date();
+                const dateStr = `${d.getUTCFullYear()}${String(d.getUTCMonth() + 1).padStart(2, '0')}${String(d.getUTCDate()).padStart(2, '0')}`;
+
+                // 5-char base-36 segment helper
+                const g = r => h(r).toString(36).toUpperCase().padStart(7, '0').slice(-5);
+
+                const base = `${SALT}|${dateStr}|${uid}`;
+                const key  = `AF-${uid}-${g(base + '2')}-${g(base + '3')}-${g(base)}`;
+
+                showKeyCard(key, SITE, t, 30000);
+            } catch (err) {
+                notify(`${SITE}: key generation failed — ${err.message}`, 'error', 8000, { site: SITE });
+            }
+        };
+
+        onReady(init);
+    }
+
+    // ── londonstlol.github.io/Keysaasasdasd/key_page.html ─────────────────
+    // SAKURA key system — generates a time-stamped key by:
+    //   1. Fetching the raw "Sakura keys" salt file from GitHub.
+    //   2. Stripping all whitespace and appending the current Unix timestamp
+    //      (seconds).
+    //   3. Rolling-hash (×31 mod 2^24) over every character of that string.
+    //   4. Formatting as SAKURA-<timestamp-hex-8>-<hash-hex-6>.
+    // The key is valid for the current second (effectively single-use).
+
+    function runSakuraKeysBypasser() {
+        const SITE      = 'SakuraKeys';
+        const SALT_URL  = 'https://raw.githubusercontent.com/londonstlol/Keys/refs/heads/main/Sakura%20keys';
+        const t         = makeTimer();
+        const nh        = notify(`${SITE} — fetching key salt…`, 'loading', 0, { site: SITE });
+        const handleError = makeErrHandler(SITE, nh, 10000);
+
+        const init = async () => {
+            try {
+                const r = await fetchWithTimeout(SALT_URL, {}, 10000);
+                if (!r.ok) throw new Error(`GitHub fetch failed (HTTP ${r.status})`);
+
+                const saltRaw = await r.text();
+
+                nh.update(`${SITE} — generating key…`, 'loading', { site: SITE });
+
+                const ts  = Math.floor(Date.now() / 1000);
+                const str = saltRaw.replace(/\s+/g, '') + ts;
+
+                // Rolling hash: h = (h * 31 + charCode) % 16777216
+                let hash = 0;
+                for (const c of str) hash = (hash * 31 + c.charCodeAt(0)) % 16777216;
+
+                const key = `SAKURA-${ts.toString(16).toUpperCase().padStart(8, '0')}-${hash.toString(16).toUpperCase().padStart(6, '0')}`;
+
+                nh.remove();
+                showKeyCard(key, SITE, t, 30000);
+            } catch (err) {
+                handleError('key generation failed', err);
+            }
+        };
+
+        onReady(init);
+    }
+
+    // ── anonlink.io/* (path required) ─────────────────────────────────────
+    // anonlink.io is a link-shortener platform that uses a CSRF-protected
+    // POST to /links/gosl/?alias=<slug> to unlock the destination URL.
+    //
+    // Flow:
+    //   1. Wait for both input[name="_csrfToken"] and input[name="ad_form_data"]
+    //      to be present in the DOM.
+    //   2. POST to /links/gosl/?alias=<path-without-leading-slash>.
+    //   3. Parse the plain-text response:
+    //        a. Try JSON.parse → use .url field.
+    //        b. Else regex-scan for first http(s) URL.
+    //   4. safeRedirect to the destination URL.
+    //
+    // The @match rule includes /* but the router enforces path.length > 1 so
+    // the homepage (/) is left untouched.
+
+    function runAnonLinkBypasser() {
+        const SITE = 'anonlink.io';
+        const t    = makeTimer();
+        const nh   = notify(`${SITE} — reading page…`, 'loading', 0, { site: SITE });
+        const handleError = makeErrHandler(SITE, nh, 10000);
+
+        const getFormData = () => {
+            const csrf = document.querySelector('input[name="_csrfToken"]');
+            const ad   = document.querySelector('input[name="ad_form_data"]');
+            return (csrf && ad) ? { csrf: csrf.value, ad: ad.value } : null;
+        };
+
+        const doFetch = async ({ csrf, ad }) => {
+            nh.update(`${SITE} — unlocking destination…`, 'loading', { site: SITE });
+            try {
+                const alias = location.pathname.slice(1);
+                const r = await fetchWithTimeout(
+                    `${location.origin}/links/gosl/?alias=${alias}`,
+                    {
+                        method:      'POST',
+                        credentials: 'include',
+                        headers: {
+                            'content-type':    'application/x-www-form-urlencoded; charset=UTF-8',
+                            'x-requested-with': 'XMLHttpRequest',
+                            'x-csrf-token':     csrf,
+                        },
+                        body: new URLSearchParams({ ad_form_data: ad }).toString(),
+                    },
+                    15000
+                );
+
+                if (!r.ok) throw _httpError(r, '/links/gosl/');
+
+                const text = await r.text();
+                let dest;
+                try {
+                    const parsed = JSON.parse(text);
+                    dest = parsed.url || null;
+                } catch (_) {
+                    dest = (text.match(/https?:\/\/[^\s"'<>]+/) || [])[0] || null;
+                }
+
+                if (!dest || !safeUrl(dest))
+                    throw new Error('No valid destination URL in server response');
+
+                safeRedirect(dest, nh, { t, siteLabel: SITE });
+            } catch (err) {
+                handleError('POST to /links/gosl/ failed', err);
+            }
+        };
+
+        const init = () => {
+            const data = getFormData();
+            if (data) { doFetch(data); return; }
+
+            nh.update(`${SITE} — waiting for page to load…`, 'loading', { site: SITE });
+            pollUntil(() => !!getFormData(), 150, 100)
+                .then(() => doFetch(getFormData()))
+                .catch(() => handleError('CSRF/ad_form_data inputs not found on page', null));
+        };
+
+        onReady(init);
+    }
+
+    // ── bloxhub.click/get-key.php ─────────────────────────────────────────
+    // BloxHub uses a multi-step free-key flow gated by a server-side session
+    // token (freeKeyToken). The page's JS exposes it as a variable assignment
+    // or as a raw 64-char hex string in the page source.
+    //
+    // Flow:
+    //   1. Extract freeKeyToken from page HTML (var assignment or 64-char hex).
+    //   2. Call goToStep2() and goToStep3() (site's own step functions) to
+    //      advance the UI through its required steps.
+    //   3. Show a 15-second countdown (matches the site's mandatory wait time).
+    //   4. POST /api/get-free-key.php with X-Free-Key-Token header.
+    //   5. Parse JSON response:
+    //        • success=true  → display key with showKeyCard.
+    //        • success=false → show error with the server's message.
+
+    function runBloxHubBypasser() {
+        const SITE = 'bloxhub.click';
+        const t    = makeTimer();
+        const nh   = notify(`${SITE} — reading session token…`, 'loading', 0, { site: SITE });
+        const handleError = makeErrHandler(SITE, nh, 10000);
+
+        const extractToken = () => {
+            const src = document.documentElement.innerHTML;
+            // Strategy A: variable assignment  freeKeyToken = "abc123..."
+            const m1 = src.match(/freeKeyToken\s*=\s*["']([a-f0-9]{32,})["']/i);
+            if (m1) return m1[1];
+            // Strategy B: bare 64-char hex string anywhere on the page
+            const m2 = src.match(/\b([a-f0-9]{64})\b/i);
+            return m2 ? m2[1] : null;
+        };
+
+        const run = async () => {
+            // Step 1: wait for the token to appear
+            let token = extractToken();
+            if (!token) {
+                nh.update(`${SITE} — waiting for token…`, 'loading', { site: SITE });
+                try {
+                    await pollUntil(() => !!extractToken(), 200, 100);
+                    token = extractToken();
+                } catch (_) {
+                    handleError('session token not found on page', null);
+                    return;
+                }
+            }
+
+            // Step 2: advance the site's step UI
+            nh.update(`${SITE} — advancing steps…`, 'loading', { site: SITE });
+            try { _uw.goToStep2 && _uw.goToStep2(); } catch (_) { /* non-fatal */ }
+            await new Promise(r => setTimeout(r, 500));
+            try { _uw.goToStep3 && _uw.goToStep3(); } catch (_) { /* non-fatal */ }
+
+            // Step 3: show mandatory 15-second countdown
+            await new Promise(resolve =>
+                showCountdown(15, resolve, `${SITE} — session maturing…`)
+            );
+
+            // Step 4: fetch the key
+            nh.update(`${SITE} — requesting key…`, 'loading', { site: SITE });
+            try {
+                const r = await fetchWithTimeout('/api/get-free-key.php', {
+                    credentials: 'same-origin',
+                    headers: { 'X-Free-Key-Token': token },
+                }, 20000);
+
+                if (!r.ok) throw _httpError(r, '/api/get-free-key.php');
+
+                let data;
+                try { data = await r.json(); }
+                catch (_) { throw new Error('Response was not valid JSON'); }
+
+                // Step 5: handle response
+                if (data && data.success === false) {
+                    handleError(
+                        data.message
+                            ? `server rejected session — ${data.message}`
+                            : 'server returned success:false with no message',
+                        null
+                    );
+                    return;
+                }
+
+                const key = data && (data.key || data.data || data.result);
+                if (!key) throw new Error('No key field in server response');
+
+                nh.remove();
+                showKeyCard(String(key), SITE, t, 30000);
+
+            } catch (err) {
+                handleError('key fetch failed', err);
+            }
+        };
+
+        onReady(run);
+    }
+
+
     // A family of Indian job-portal shortener sites (jankariweb.online,
     // newsuchnaonline.com, bigcarinsurance.com) that share the same
     // multi-step ad platform. Two anti-bot cookies are set upfront
@@ -3804,435 +4440,178 @@
     //      spoof the counter, wait for #cross-snp2 / #btn7 to become visible.
     //   3. Generic "Get Link" button (#getlink) → click it, wait for #btn7.
 
-    function runJoberBypasser() {
-        document.cookie = "adcadg=1; path=/; max-age=600";
-        document.cookie = "_uocat=value; path=/; max-age=86400";
+    // ── Jober intermediate-page bypass ─────────────────────────────────────────
+    // Jober-type pages (sarkarijobcorner, apnahirework, crimejasoos, factwiz, etc.)
+    // set one of three session cookies that identify which shortener to proceed to:
+    //
+    //   tp1  → go.caslinks.com/{v}      (instant — no wait)
+    //   me   → go.yorurl.com/{v}        (30 s server-side timer — set start_ cookie)
+    //   mew  → go.just2earn.com/{v}     (30 s server-side timer — set start_ cookie)
+    //
+    // vplink.in and arolinks.com save their entry URL before being redirected
+    // through a chain that lands here. When a saved relay URL is detected the
+    // relay path fires: wait 30 s (server-side timer), ensure we are still on
+    // sarkarijobcorner.com (redirect there if not), stamp a gt= cookie with the
+    // current href, then navigate back to the saved entry URL so the entry
+    // bypasser can run its end-link detection.
 
-        const SITE = host.replace(/^www\./, '');
-        const t = makeTimer();
-        const nh = notify(`${SITE} — detecting page…`, 'loading', 0, {
-            site: SITE
-        });
-        const handleError = makeErrHandler(SITE, nh, 7000);
-
-        // ── Helper: detect which step we're on (e.g. "1/3", "3/3") ──────────
-        const getStepInfo = () => {
-            const danger = document.querySelector('strong .text-danger, strong span.text-danger');
-            if(!danger) return null;
-            const m = danger.textContent.trim().match(/^(\d+)\/(\d+)$/);
-            if(!m) return null;
-            return {
-                current: parseInt(m[1], 10),
-                total: parseInt(m[2], 10)
-            };
-        };
-
-        // ── Helper: check for the "aro link" Get Link anchor ─────────────────
-        const getAroLink = () => {
-            const a = document.getElementById('link1s');
-            return (a && a.href) ? a.href : null;
-        };
-
-        // ── Helper: check for the ad/countdown page (googletag + startCountdownBtn) ─
-        const isAdCountdownPage = () =>
-            !!document.getElementById('startCountdownBtn') &&
-            !!document.getElementById('link1s-wait1');
-
-        // ── Main logic ────────────────────────────────────────────────────────
-        const run = () => {
-
-            // Priority 0: if there's a direct "Get Link" aro anchor, just redirect
-            const aroHref = getAroLink();
-            if(aroHref) {
-                console.log('[ULB/jober] Detected aro Get Link — redirecting:', aroHref);
-                nh.update(`${SITE} — link found, redirecting…`, 'loading', {
-                    site: SITE
-                });
-                safeRedirect(aroHref, nh, {
-                    t,
-                    siteLabel: SITE
-                });
-                return;
-            }
-
-            // Priority 1: ad/countdown page (googletag + startCountdownBtn)
-            if(isAdCountdownPage()) {
-                console.log('[ULB/jober] Detected ad countdown page — running timer bypass');
-                nh.update(`${SITE} — bypassing ad countdown…`, 'loading', {
-                    site: SITE
-                });
-                _uw.count = -1;
-                _uw.timer?.();
-                // After the timer, wait for either #tp-snp2, #cross-snp2, or #btn7 to become visible
-                const check = setInterval(() => {
-                    for (const id of ['tp-snp2', 'cross-snp2', 'btn7']) {
-                        const b = document.getElementById(id);
-                        if(b && b.offsetParent !== null) {
-                            clearInterval(check);
-                            nh.update(`${SITE} — clicking continue…`, 'loading', {
-                                site: SITE
-                            });
-                            b.click();
-                            return;
-                        }
-                    }
-                }, 500);
-                setTimeout(() => clearInterval(check), 60000);
-                return;
-            }
-
-            // Priority 2: step page detection
-            const step = getStepInfo();
-            if(step) {
-                // After timer runs, click whichever continue button appears
-                const waitAndClickContinue = () => {
-                    const check = setInterval(() => {
-                        for (const id of ['tp-snp2', 'cross-snp2', 'btn7']) {
-                            const b = document.getElementById(id);
-                            if(b && b.offsetParent !== null) {
-                                clearInterval(check);
-                                nh.update(`${SITE} — step ${step.current}/${step.total} — clicking continue…`, 'loading', {
-                                    site: SITE
-                                });
-                                b.click();
-                                return;
-                            }
-                        }
-                    }, 500);
-                    setTimeout(() => clearInterval(check), 60000);
-                };
-                if(step.current === step.total) {
-                    // Last step — wait 33s then run timer bypass
-                    console.log(`[ULB/jober] Step ${step.current}/${step.total} (last) — waiting 33s then bypassing`);
-                    nh.update(`${SITE} — step ${step.current}/${step.total} (last) — waiting 33s…`, 'loading', {
-                        site: SITE
-                    });
-                    setTimeout(() => {
-                        nh.update(`${SITE} — step ${step.current}/${step.total} — bypassing…`, 'loading', {
-                            site: SITE
-                        });
-                        _uw.count = -1;
-                        _uw.timer?.();
-                        waitAndClickContinue();
-                    }, 33000);
-                } else {
-                    // Any earlier step (e.g. 1/3, 2/3) — run timer bypass immediately
-                    console.log(`[ULB/jober] Step ${step.current}/${step.total} — running timer bypass immediately`);
-                    nh.update(`${SITE} — step ${step.current}/${step.total} — bypassing…`, 'loading', {
-                        site: SITE
-                    });
-                    _uw.count = -1;
-                    _uw.timer?.();
-                    waitAndClickContinue();
+    function _joberCookieBypass(nh, SITE) {
+        return new Promise((resolve, reject) => {
+            // Robust cookie parser — split-based, handles '=' in values and
+            // leading spaces after ';', consistent with getCookies() elsewhere.
+            const getCk = name => {
+                for (const c of document.cookie.split(';')) {
+                    const trimmed = c.trimStart();
+                    const i = trimmed.indexOf('=');
+                    if (i < 0) continue;
+                    try {
+                        if (decodeURIComponent(trimmed.slice(0, i)) === name)
+                            return decodeURIComponent(trimmed.slice(i + 1)) || null;
+                    } catch (_) {}
                 }
-                return;
-            }
-
-            // Fallback: original click-based advance
-            const hasNextBtn = typeof _uw.nextbtn === 'function';
-            const tryAdvance = () => {
-                if(hasNextBtn) {
-                    _uw.nextbtn();
-                    return true;
-                }
-                const btn = document.getElementById('cross-snp2');
-                if(btn && btn.offsetParent !== null) {
-                    btn.click();
-                    return true;
-                }
-                return false;
+                return null;
             };
 
-            const hasCountdown = !!document.getElementById('link1s-time');
-            const isStepPage = path !== '/';
-
-            if(isStepPage) {
-                nh.update(`${SITE} — step 2 — waiting for button…`, 'loading', {
-                    site: SITE
-                });
-                clickWhenReady('btn7', `${SITE} step 2`);
-            } else {
-                nh.update(`${SITE} — step 1 — clicking not-a-robot…`, 'loading', {
-                    site: SITE
-                });
-                clickWhenReady('notarobot', `${SITE} step 1`);
+            // ── Relay path: vplink / arolinks ─────────────────────────────────
+            // Phase A: pending redirect — we already waited 30 s on the original
+            // jober page and then redirected to sarkarijobcorner.com.  Just stamp
+            // the gt= cookie and resolve immediately (no second wait).
+            let pendingUrl = '';
+            try { pendingUrl = GM_getValue('ulb_relay_pending', ''); } catch (_) {}
+            if (pendingUrl) {
+                try { GM_setValue('ulb_relay_pending', ''); } catch (_) {}
+                document.cookie = 'gt=' + encodeURIComponent(location.href) + '; path=/';
+                resolve(pendingUrl);
+                return;
             }
 
-            if(hasCountdown) {
-                const check = setInterval(() => {
-                    for (const id of ['tp-snp2', 'cross-snp2']) {
-                        const b = document.getElementById(id);
-                        if(b && b.offsetParent !== null) {
-                            clearInterval(check);
-                            nh.update(`${SITE} — advancing…`, 'loading', {
-                                site: SITE
-                            });
-                            tryAdvance();
-                            return;
-                        }
-                    }
-                }, 500);
-                setTimeout(() => clearInterval(check), 30000);
-            } else {
+            // Phase B: first arrival on jober page — check both relay keys.
+            let relayUrl = '';
+            try {
+                relayUrl = GM_getValue('ulb_vplink_url', '');
+                if (!relayUrl) relayUrl = GM_getValue('ulb_aro_url', '');
+            } catch (_) {}
+
+            if (relayUrl) {
+                nh.update(`${SITE} — relay: waiting 30 s for server timer…`, 'loading', { site: SITE });
+                const restore = spoofVisibilityHidden();
                 setTimeout(() => {
-                    nh.update(`${SITE} — advancing…`, 'loading', {
-                        site: SITE
-                    });
-                    tryAdvance();
-                }, 500);
-            }
-        };
-
-        onReady(run);
-    }
-
-    // ── apnahirework.com ────────────────────────────────────────────────────
-    // Three variants can appear on this domain:
-    //   A) #tp-snp2 Continue button          → click directly
-    //   B) startCountdownBtn ad countdown    → bypass timer → #cross-snp2 or #btn7
-    //   C) step counter div#stick (1/N etc.) → bypass timer → wait for #btn7
-
-    function runApnahireworkBypasser() {
-        const SITE = 'apnahirework.com';
-        const t = makeTimer();
-        const nh = notify(`${SITE} — detecting page…`, 'loading', 0, {
-            site: SITE
-        });
-        const handleError = makeErrHandler(SITE, nh, 7000);
-
-        const run = () => {
-            // Variant A: #tp-snp2 "Continue" link button — direct click
-            const tpBtn = document.getElementById('tp-snp2');
-            if(tpBtn) {
-                nh.update(`${SITE} — clicking Continue…`, 'loading', {
-                    site: SITE
-                });
-                safeRedirect(tpBtn.href || tpBtn.getAttribute('href'), nh, {
-                    t,
-                    siteLabel: SITE
-                });
-                if(!tpBtn.href) tpBtn.click();
-                return;
-            }
-
-            // Variant B: startCountdownBtn ad-countdown page
-            if(document.getElementById('startCountdownBtn')) {
-                nh.update(`${SITE} — bypassing ad countdown…`, 'loading', {
-                    site: SITE
-                });
-                _uw.count = -1;
-                _uw.timer?.();
-                waitForContinueBtn('countdown', nh, SITE);
-                return;
-            }
-
-            // Variant C: step counter (div#stick / span.text-danger)
-            const stepDanger = document.querySelector('strong .text-danger, strong span.text-danger');
-            if(stepDanger) {
-                const m = stepDanger.textContent.trim().match(/^(\d+)\/(\d+)$/);
-                if(m) {
-                    const step = {
-                        current: parseInt(m[1], 10),
-                        total: parseInt(m[2], 10)
-                    };
-                    nh.update(`${SITE} — step ${step.current}/${step.total} — bypassing…`, 'loading', {
-                        site: SITE
-                    });
-                    _uw.count = -1;
-                    _uw.timer?.();
-                    waitForContinueBtn(`step ${step.current}/${step.total}`, nh, SITE);
-                    return;
-                }
-            }
-
-            handleError('unrecognised page layout', null);
-        };
-
-        onReady(run);
-    }
-
-    // ── crimejasoos.in ──────────────────────────────────────────────────────
-    // Same three variants as apnahirework (it is the same platform), but
-    // btn7 may carry a full URL (chart 1) or relative /readmore (chart 2).
-    // Clicking the element works either way.
-
-    function runCrimejasoosBypasser() {
-        const SITE = 'crimejasoos.in';
-        const STEP_WAIT_SEC = 35;
-        const t = makeTimer();
-        const nh = notify(`${SITE} — detecting page…`, 'loading', 0, {
-            site: SITE
-        });
-        const handleError = makeErrHandler(SITE, nh, 7000);
-
-        const run = () => {
-            // Variant A: #tp-snp2 "Continue" link button — direct
-            const tpBtn = document.getElementById('tp-snp2');
-            if(tpBtn) {
-                nh.update(`${SITE} — clicking Continue…`, 'loading', {
-                    site: SITE
-                });
-                if(tpBtn.href) safeRedirect(tpBtn.href, nh, {
-                    t,
-                    siteLabel: SITE
-                });
-                else tpBtn.click();
-                return;
-            }
-
-            // Variant B: startCountdownBtn ad-countdown page
-            if(document.getElementById('startCountdownBtn')) {
-                nh.update(`${SITE} — bypassing ad countdown…`, 'loading', {
-                    site: SITE
-                });
-                _uw.count = -1;
-                _uw.timer?.();
-                waitForContinueBtn('countdown', nh, SITE);
-                return;
-            }
-
-            // Variant C: step counter (div#stick / span.text-danger)
-            // Every step waits STEP_WAIT_SEC s with a visible countdown before bypassing.
-            const stepDanger = document.querySelector('strong .text-danger, strong span.text-danger');
-            if(stepDanger) {
-                const m = stepDanger.textContent.trim().match(/^(\d+)\/(\d+)$/);
-                if(m) {
-                    const step = {
-                        current: parseInt(m[1], 10),
-                        total: parseInt(m[2], 10)
-                    };
-                    const label = `step ${step.current}/${step.total}`;
-                    const isLast = step.current === step.total;
-                    const subtitle = `crimejasoos.in — ${label}${isLast ? ' (last)' : ''}`;
-                    nh.update(`${SITE} — ${label}${isLast ? ' (last)' : ''} — waiting ${STEP_WAIT_SEC}s…`, 'loading', {
-                        site: SITE
-                    });
-                    const restore = spoofVisibilityHidden();
-                    showCountdown(STEP_WAIT_SEC, () => {
-                        restore();
-                        nh.update(`${SITE} — ${label} — bypassing…`, 'loading', {
-                            site: SITE
-                        });
-                        _uw.count = -1;
-                        _uw.timer?.();
-                        waitForContinueBtn(label, nh, SITE);
-                    }, subtitle);
-                    return;
-                }
-            }
-
-            handleError('unrecognised page layout', null);
-        };
-
-        onReady(run);
-    }
-
-    // ── newsuchnaonline.com ─────────────────────────────────────────────────
-    // Two variants:
-    //   A) #notarobot button (enableBtn flow) — click it, then wait for #btn7
-    //   B) #getlink button  (getlink() flow)  — click it, then wait for #btn7
-    //      #btn7 carries href to jober.factwiz.online — click to navigate there
-
-    function runNewsuchnaonlineBypasser() {
-        const SITE = 'newsuchnaonline.com';
-        const t = makeTimer();
-        const nh = notify(`${SITE} — detecting page…`, 'loading', 0, {
-            site: SITE
-        });
-        const handleError = makeErrHandler(SITE, nh, 7000);
-
-        const run = () => {
-            // Variant B: #getlink button (dual-tap style)
-            const getlinkBtn = document.getElementById('getlink');
-            if(getlinkBtn) {
-                nh.update(`${SITE} — clicking Get Link…`, 'loading', {
-                    site: SITE
-                });
-                _uw.count = -1;
-                _uw.timer?.();
-                getlinkBtn.click();
-                waitForContinueBtn('get-link', nh, SITE, 30_000);
-                return;
-            }
-
-            // Variant A: #notarobot verify button
-            const notarobot = document.getElementById('notarobot');
-            if(notarobot) {
-                nh.update(`${SITE} — clicking verify…`, 'loading', {
-                    site: SITE
-                });
-                notarobot.click();
-                waitForContinueBtn('notarobot', nh, SITE, 30_000);
-                return;
-            }
-
-            handleError('unrecognised layout', null);
-        };
-
-        onReady(run);
-    }
-
-    // ── jober.factwiz.online ────────────────────────────────────────────────
-    // Intermediate landing page in the phantomfluxkey chain.
-    // The #ca anchor wraps a continue image and its href points to
-    // go.yorurl.com — extract and redirect immediately.
-
-    function runJoberFacwizBypasser() {
-        const SITE = 'jober.factwiz.online';
-        const t = makeTimer();
-        const nh = notify(`${SITE} — reading page delay…`, 'loading', 0, {
-            site: SITE
-        });
-        const handleError = makeErrHandler(SITE, nh, 7000);
-
-        const init = () => {
-            const allScriptText = [...document.scripts]
-                .map(s => s.textContent)
-                .join('');
-            const delayMatch = allScriptText.match(/setTimeout\([^,]+,\s*(\d+)\)/);
-            const delay = delayMatch ? +delayMatch[1] : 0;
-
-            nh.update(`${SITE} — waiting ${delay}ms for cookie…`, 'loading', {
-                site: SITE
-            });
-
-            const restore = spoofVisibilityHidden();
-
-            setTimeout(() => {
-                restore();
-                try {
-                    const cookie = document.cookie
-                        .split(';')
-                        .map(c => c.trim())
-                        .find(c => c.startsWith('tp='));
-
-                    const value = cookie ? cookie.split('=')[1] : '';
-
-                    if(!value) {
-                        handleError('#tp cookie not found after delay', null);
+                    restore();
+                    if (!location.hostname.includes('sarkarijobcorner.com')) {
+                        // Not on sarkarijobcorner — save relay URL to pending key
+                        // and redirect. Phase A fires on arrival before Phase B,
+                        // so main relay keys stay set for return-visit detection.
+                        try { GM_setValue('ulb_relay_pending', relayUrl); } catch (_) {}
+                        location.href = 'https://sarkarijobcorner.com/';
                         return;
                     }
+                    document.cookie = 'gt=' + encodeURIComponent(location.href) + '; path=/';
+                    resolve(relayUrl);
+                }, 30000);
+                return;
+            }
 
-                    const finalUrl = 'https://go.yorurl.com/' + value;
-                    safeRedirect(finalUrl, nh, {
-                        t,
-                        siteLabel: SITE
-                    });
-                } catch (err) {
-                    handleError('bypass failed', err);
+            // ── Cookie detection ───────────────────────────────────────────────
+            // Returns the destination URL after any required wait.
+            const handle = (name, v) => new Promise(res => {
+                if (name === 'tp1') {
+                    // Instant — no wait needed.
+                    res('https://go.caslinks.com/' + v);
+                } else if (name === 'me') {
+                    nh.update(`${SITE} — me cookie found, waiting 30 s…`, 'loading', { site: SITE });
+                    const restore = spoofVisibilityHidden();
+                    setTimeout(() => {
+                        restore();
+                        document.cookie = `start_${v}=${Math.floor(Date.now() / 1000) - 300};path=/`;
+                        res('https://go.yorurl.com/' + v);
+                    }, 30000);
+                } else if (name === 'mew') {
+                    nh.update(`${SITE} — mew cookie found, waiting 30 s…`, 'loading', { site: SITE });
+                    const restore = spoofVisibilityHidden();
+                    setTimeout(() => {
+                        restore();
+                        document.cookie = `start_${v}=${Math.floor(Date.now() / 1000) - 300};path=/`;
+                        res('https://go.just2earn.com/' + v);
+                    }, 30000);
                 }
-            }, delay);
-        };
-
-        // Wait for full page load so all inline scripts are present before scanning.
-        if(document.readyState === 'complete') {
-            init();
-        } else {
-            window.addEventListener('load', init, {
-                once: true
             });
-        }
+
+            const COOKIES = ['tp1', 'me', 'mew'];
+
+            // Instant check — resolve immediately if cookie already present.
+            for (const name of COOKIES) {
+                const v = getCk(name);
+                if (v) { handle(name, v).then(resolve); return; }
+            }
+
+            // Poll every 300 ms until a cookie appears or 35 s elapses.
+            nh.update(`${SITE} — waiting for session cookie…`, 'loading', { site: SITE });
+            const restore = spoofVisibilityHidden();
+            let done = false;
+
+            const poll = setInterval(() => {
+                for (const name of COOKIES) {
+                    const v = getCk(name);
+                    if (v) {
+                        clearInterval(poll);
+                        clearTimeout(deadline);
+                        done = true;
+                        restore();
+                        handle(name, v).then(resolve);
+                        return;
+                    }
+                }
+            }, 300);
+
+            const deadline = setTimeout(() => {
+                clearInterval(poll);
+                if (done) return;
+                restore();
+                reject(new Error('no jober session cookie (tp1/me/mew) found after 35 s'));
+            }, 35000);
+        });
     }
+
+    // ── Generic jober-page bypasser (shared by all jober-type hosts) ──────────
+    // Cookie-first: _joberCookieBypass detects the session type by polling and
+    // handles the redirect (including any required wait) internally.
+
+    function _runGenericJoberBypasser(SITE) {
+        const t  = makeTimer();
+        const nh = notify(`${SITE} — detecting…`, 'loading', 0, { site: SITE });
+        const handleError = makeErrHandler(SITE, nh, 7000);
+        onReady(() => {
+            _joberCookieBypass(nh, SITE)
+                .then(dest => safeRedirect(dest, nh, { t, siteLabel: SITE }))
+                .catch(err => handleError('cookie bypass failed', err));
+        });
+    }
+
+    // Public entry-point called from the router for bare jober hosts.
+    // Sets common jober consent cookies before running.
+    function runGenericJoberBypasser() {
+        document.cookie = 'adcadg=1; path=/; max-age=600';
+        document.cookie = '_uocat=value; path=/; max-age=86400';
+        _runGenericJoberBypasser(host.replace(/^www\./, ''));
+    }
+
+    function runJoberBypasser() { runGenericJoberBypasser(); }
+
+    // ── apnahirework.com ────────────────────────────────────────────────────
+    function runApnahireworkBypasser() { _runGenericJoberBypasser('apnahirework.com'); }
+
+    // ── crimejasoos.in ──────────────────────────────────────────────────────
+    function runCrimejasoosBypasser() { _runGenericJoberBypasser('crimejasoos.in'); }
+
+    // ── newsuchnaonline.com ─────────────────────────────────────────────────
+    function runNewsuchnaonlineBypasser() { _runGenericJoberBypasser('newsuchnaonline.com'); }
+
+    // ── jober.factwiz.online ────────────────────────────────────────────────
+    function runJoberFacwizBypasser() { _runGenericJoberBypasser('jober.factwiz.online'); }
+
+    // ── startuplearners.com ────────────────────────────────────────────────
+    function runStartuplearnersBypasser() { _runGenericJoberBypasser('startuplearners.com'); }
+
 
     // ── how2guidess.com ────────────────────────────────────────────────────
     // how2guidess.com hides the destination behind two sequential button
@@ -4338,14 +4717,9 @@
     }
 
     // ── link4sub.com ───────────────────────────────────────────────────────
-    // link4sub.com links redirect the browser to tapvietcode.com after the
-    // user completes a subscription step. The actual bypass logic lives in
-    // runTapVietCodeBypasser() — this stub just shows an informational toast
-    // so the user knows the script is active while the redirect loads.
-
-    function runLink4SubBypasser() {
-        // link4sub redirects to tapvietcode.com — tapvietcode bypasser handles it
-    }
+    // link4sub links redirect to tapvietcode.com — the tapvietcode bypasser
+    // handles it automatically once the redirect lands.
+    function runLink4SubBypasser() { /* redirect lands on tapvietcode — handled there */ }
 
     // ── tapvietcode.com ────────────────────────────────────────────────────
     // tapvietcode.com has two sub-domains with different page structures:
@@ -4538,7 +4912,7 @@
     //   4. Reads the finalURL from cookies after all steps complete and redirects.
 
     function runPowergamBypasser() {
-        const SITE = 'powergam.online';
+        const SITE = host;
         const REQUIRED = ['imps', 'lid', 'pages', 'pid', 'step_count', 'vid'];
         const STEP_TIMEOUT_MS = 12000; // per-step POST timeout
         const COOKIE_WAIT_MS = 30000; // give up waiting for cookies after 30 s
@@ -4655,7 +5029,7 @@
             notify(`${SITE} — ${pages} step${pages > 1 ? 's' : ''} detected, waiting ${delaySecs}s…`, 'info', 4000, {
                 site: SITE
             });
-            showCountdown(delaySecs, () => runSteps(cookies, pages, finalURL), `powergam — ${pages} page${pages > 1 ? 's' : ''}`);
+            showCountdown(delaySecs, () => runSteps(cookies, pages, finalURL), `${SITE} — ${pages} page${pages > 1 ? 's' : ''}`);
         }, 500);
 
         // Safety net: if the required cookies never appear, stop polling and notify.
@@ -5487,6 +5861,81 @@
     // Layout A: #link1s anchor is present → extract href and redirect to it
     // Layout B: form/captcha page → /links/go POST (encurta.net platform)
 
+    // ── vplink.in ── ENTRY ─────────────────────────────────────────────────────────────────────────────
+    // Flow:
+    //   1. vplink.in/SLUG  → save full entry URL to ulb_vplink_url, let page
+    //                        auto-redirect through chain to jober link
+    //   2. Jober page      → _joberCookieBypass detects saved URL → wait 30 s →
+    //                        ensure sarkarijobcorner.com → stamp gt= cookie →
+    //                        redirect back to vplink.in/SLUG
+    //   3. vplink.in/SLUG  → saved URL matches → clear it → run end-link detection
+
+    function runVplinkEntryBypasser() {
+        const SITE  = 'vplink.in';
+        const vpUrl = location.href;
+        const slug  = path.split('/').filter(Boolean)[0] || '';
+        if (!slug) { runArolinksBypasser(); return; }
+
+        // Normalize: strip trailing slash and fragment for comparison
+        const normalizeUrl = u => u.replace(/#.*$/, '').replace(/\/+$/, '');
+
+        let saved = '';
+        try { saved = GM_getValue('ulb_vplink_url', ''); } catch (_) {}
+
+        // Return visit: jober relay stamped gt= cookie and sent us back.
+        // Clear saved URL and run end-link platform detection.
+        if (saved && normalizeUrl(saved) === normalizeUrl(vpUrl)) {
+            try { GM_setValue('ulb_vplink_url', ''); } catch (_) {}
+            runArolinksBypasser();
+            return;
+        }
+
+        // First visit: save the entry URL and let vplink's redirect chain run.
+        try { GM_setValue('ulb_vplink_url', vpUrl); } catch (_) {}
+        notify(`${SITE} — URL saved, following redirect…`, 'loading', 5000, { site: SITE });
+    }
+
+
+    // ── sarkarijobcorner.com ─────────────────────────────────────────────────
+    // Standard jober-type page — cookie bypass handles all cases.
+    function runSarkarijobcornerBypasser() { _runGenericJoberBypasser('sarkarijobcorner.com'); }
+
+
+    // ── arolinks.com ── ENTRY ─────────────────────────────────────────────────────────────────────────
+    // Flow (mirrors vplink):
+    //   1. arolinks.com/SLUG → save full entry URL to ulb_aro_url, let arolinks
+    //                          redirect through chain to jober link
+    //   2. Jober page        → _joberCookieBypass detects saved URL → wait 30 s →
+    //                          ensure sarkarijobcorner.com → stamp gt= cookie →
+    //                          redirect back to arolinks.com/SLUG
+    //   3. arolinks.com/SLUG → saved URL matches → clear it → run end-link detection
+
+    function runArolinksEntryBypasser() {
+        const SITE   = 'arolinks.com';
+        const aroUrl = location.href;
+        const slug   = path.split('/').filter(Boolean)[0] || '';
+        if (!slug) { runArolinksBypasser(); return; }
+
+        // Normalize: strip trailing slash and fragment for comparison
+        const normalizeUrl = u => u.replace(/#.*$/, '').replace(/\/+$/, '');
+
+        let saved = '';
+        try { saved = GM_getValue('ulb_aro_url', ''); } catch (_) {}
+
+        // Return visit: jober relay stamped gt= cookie and sent us back.
+        // Clear saved URL and run end-link platform detection.
+        if (saved && normalizeUrl(saved) === normalizeUrl(aroUrl)) {
+            try { GM_setValue('ulb_aro_url', ''); } catch (_) {}
+            runArolinksBypasser();
+            return;
+        }
+
+        // First visit: save the entry URL and let arolinks redirect chain run.
+        try { GM_setValue('ulb_aro_url', aroUrl); } catch (_) {}
+        notify(`${SITE} — URL saved, following redirect…`, 'loading', 5000, { site: SITE });
+    }
+
+
     function runArolinksBypasser() {
         const SITE = location.hostname;
         const t = makeTimer();
@@ -5501,50 +5950,21 @@
             if(stepDanger) {
                 const m = stepDanger.textContent.trim().match(/^(\d+)\/(\d+)$/);
                 if(m) {
-                    const step = {
-                        current: parseInt(m[1], 10),
-                        total: parseInt(m[2], 10)
-                    };
-                    nh.update(`${SITE} — step ${step.current}/${step.total} — bypassing…`, 'loading', {
-                        site: SITE
-                    });
+                    const step = { current: parseInt(m[1], 10), total: parseInt(m[2], 10) };
+                    nh.update(`${SITE} — step ${step.current}/${step.total} — bypassing…`, 'loading', { site: SITE });
                     _uw.count = -1;
                     _uw.timer?.();
-                    const check = setInterval(() => {
-                        for (const id of ['tp-snp2', 'btn7', 'cross-snp2']) {
-                            const b = document.getElementById(id);
-                            if(b && b.offsetParent !== null) {
-                                clearInterval(check);
-                                nh.update(`${SITE} — clicking Continue…`, 'loading', { site: SITE });
-                                b.click();
-                                return;
-                            }
-                        }
-                    }, 500);
-                    setTimeout(() => clearInterval(check), 60000);
+                    waitForContinueBtn(`step ${step.current}/${step.total}`, nh, SITE);
                     return true;
                 }
             }
 
             // ── Jober-style startCountdownBtn ────────────────────────────────
             if(document.getElementById('startCountdownBtn')) {
-                nh.update(`${SITE} — bypassing ad countdown…`, 'loading', {
-                    site: SITE
-                });
+                nh.update(`${SITE} — bypassing ad countdown…`, 'loading', { site: SITE });
                 _uw.count = -1;
                 _uw.timer?.();
-                const check = setInterval(() => {
-                    for (const id of ['tp-snp2', 'cross-snp2', 'btn7']) {
-                        const b = document.getElementById(id);
-                        if(b && b.offsetParent !== null) {
-                            clearInterval(check);
-                            nh.update(`${SITE} — clicking Continue…`, 'loading', { site: SITE });
-                            b.click();
-                            return;
-                        }
-                    }
-                }, 500);
-                setTimeout(() => clearInterval(check), 60000);
+                waitForContinueBtn('countdown', nh, SITE);
                 return true;
             }
 
@@ -5560,6 +5980,7 @@
             }
 
             // Layout B: ad_form_data hidden input → POST to /links/go
+            // Run #gt-link check and form POST in parallel — whichever resolves first wins.
             const adEl = document.querySelector('[name="ad_form_data"]');
             if(adEl) {
                 nh.update(`${SITE} — reading countdown…`, 'loading', {
@@ -5568,40 +5989,68 @@
                 _lnbzWaitForAppVars(vars => {
                     const secs = Math.max(1, parseInt(vars?.counter_value, 10) || 15);
                     showCountdown(secs, async () => {
-                        try {
-                            const form = adEl.closest('form') || document.querySelector('form');
-                            let body;
-                            if(form) {
-                                const params = new URLSearchParams();
-                                form.querySelectorAll('input[type="hidden"]').forEach(inp => {
-                                    if(inp.name) params.append(inp.name, inp.value);
-                                });
-                                if(!params.has('_method')) params.set('_method', 'POST');
-                                body = params.toString();
-                            } else {
-                                body = '_method=POST&ad_form_data=' + encodeURIComponent(adEl.value);
-                            }
-                            const r = await fetchWithTimeout('/links/go', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-                                    'X-Requested-With': 'XMLHttpRequest',
-                                    'Accept': 'application/json, text/javascript, */*; q=0.01',
-                                },
-                                credentials: 'include',
-                                body,
-                            }, 15000);
-                            if(!r.ok) throw _httpError(r, '/links/go');
-                            const d = await r.json();
-                            const dest = d.url || d.data;
-                            if(!dest) throw new Error('No destination URL in response');
-                            safeRedirect(dest, nh, {
-                                t,
-                                siteLabel: SITE
-                            });
-                        } catch (err) {
-                            handleError('go-link POST failed', err);
+                        let settled = false;
+                        const settle = (dest, label) => {
+                            if (settled) return;
+                            settled = true;
+                            console.log(`[ULB/${SITE}] Layout B resolved via ${label}:`, dest);
+                            safeRedirect(dest, nh, { t, siteLabel: SITE });
+                        };
+
+                        // ── Arm A: #gt-link direct redirect ────────────────────
+                        const gtHref = document.querySelector('#gt-link')?.href;
+                        if (gtHref) {
+                            settle(gtHref, '#gt-link');
+                            return;
                         }
+
+                        // ── Arm B: POST to /links/go ────────────────────────────
+                        const formPost = (async () => {
+                            try {
+                                const form = adEl.closest('form') || document.querySelector('form');
+                                let body;
+                                if(form) {
+                                    const params = new URLSearchParams();
+                                    form.querySelectorAll('input[type="hidden"]').forEach(inp => {
+                                        if(inp.name) params.append(inp.name, inp.value);
+                                    });
+                                    if(!params.has('_method')) params.set('_method', 'POST');
+                                    body = params.toString();
+                                } else {
+                                    body = '_method=POST&ad_form_data=' + encodeURIComponent(adEl.value);
+                                }
+                                const r = await fetchWithTimeout('/links/go', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                                        'X-Requested-With': 'XMLHttpRequest',
+                                        'Accept': 'application/json, text/javascript, */*; q=0.01',
+                                    },
+                                    credentials: 'include',
+                                    body,
+                                }, 15000);
+                                if(!r.ok) throw _httpError(r, '/links/go');
+                                const d = await r.json();
+                                const dest = d.url || d.data;
+                                if(!dest) throw new Error('No destination URL in response');
+                                settle(dest, 'form POST');
+                            } catch (err) {
+                                if (!settled) handleError('go-link POST failed', err);
+                            }
+                        })();
+
+                        // Poll #gt-link in parallel with the POST — it may appear
+                        // after the countdown clears even if it wasn't there initially.
+                        const gtPoll = setInterval(() => {
+                            const href = document.querySelector('#gt-link')?.href;
+                            if (href) {
+                                clearInterval(gtPoll);
+                                settle(href, '#gt-link (late)');
+                            }
+                        }, 50);
+
+                        // Clean up poll once POST settles (either way)
+                        formPost.finally(() => clearInterval(gtPoll));
                     }, `${SITE} bypass`);
                 });
                 return true;
@@ -6027,62 +6476,134 @@
     }
 
     // ── lua-key-vault.vercel.app ───────────────────────────────────────────
-    // Flow: POST /api/generate-key → get requestId
-    //       GET  /api/validate-key?requestId=<id> → get remainingTime
-    //       sleep(remainingTime + 200ms)
-    //       GET  /api/validate-key?requestId=<id> → get key
-    // Key is surfaced via the shared showKeyCard() utility.
+    // Flow:
+    //   0. For each of 3 lootlabs tasks: GET the task URL and follow the full
+    //      redirect chain until it lands on the lua-key-vault callback URL.
+    //      GM_xmlhttpRequest is used (cross-origin, follows redirects natively).
+    //      Each task's final destination is the callback URL which registers
+    //      the task as complete server-side.
+    //
+    //      Tasks (fresh puid per task):
+    //        Task 1: lootdest.org/s?Taqb6wLn  → CB ?data=COZVvzp3...
+    //        Task 2: loot-link.com/s?sTuKgXb5  → CB ?data=FYa1Wds8...
+    //        Task 3: lootdest.org/s?M1rHfU1q   → CB ?data=ymWXckK8...
+    //
+    //   1. POST /api/generate-key   body: {"clickId":null}
+    //      ← 201  {success, requestId}
+    //
+    //   2. Wait exactly 10 seconds.
+    //
+    //   3. POST /api/validate-key   body: {"requestId":"<id>"}
+    //      ← 200  {success, status:"ready", key}
+    //
+    // Key is surfaced via showKeyCard().
 
     function runLuaKeyVaultBypasser() {
         const SITE = 'lua-key-vault';
-        const BASE = location.origin;
+        const BASE = 'https://lua-key-vault.vercel.app';
 
-        const t = makeTimer();
-        const nh = notify(`${SITE} — starting key generation…`, 'loading', 0);
+        const t  = makeTimer();
+        const nh = notify(`${SITE} — starting…`, 'loading', 0, { site: SITE });
         const handleError = makeErrHandler(SITE, nh, 9000);
+
+        /** puid format matches what the site generates client-side. */
+        const generatePuid = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
+
+        const TASKS = [
+            {
+                taskUrl: () => `https://lootdest.org/s?Taqb6wLn&puid=${generatePuid()}`,
+                cbUrl:   `${BASE}/?data=COZVvzp3lsKSi8QC2lkKAPokuRbKy2M2ilZ5ECMrX3IsvhAJieFD0p0Ft8G8/MM`,
+            },
+            {
+                taskUrl: () => `https://loot-link.com/s?sTuKgXb5&puid=${generatePuid()}`,
+                cbUrl:   `${BASE}/?data=FYa1Wds8l3PPdayjXZqSmKxHoA8qHZvF0zRbfR1JACKMAapuxOKwSXJKVLrU/MM`,
+            },
+            {
+                taskUrl: () => `https://lootdest.org/s?M1rHfU1q&puid=${generatePuid()}`,
+                cbUrl:   `${BASE}/?data=ymWXckK8UsT8ARgkC2OOLX6G2MjwKaEWeuzWKi9uWthkgAA1HEuzRhae1S31/MM`,
+            },
+        ];
+
+        /**
+         * Load a URL in a hidden iframe and wait until it navigates to a URL
+         * containing `expectedHost`, or until timeout.  Using an iframe means
+         * the browser makes a genuine request — full headers, cookies, JS — so
+         * the lootlabs server sees a real page visit rather than a bot fetch.
+         */
+        const visitInFrame = (url, expectedHost, timeoutMs = 30000) => new Promise(resolve => {
+            const fr = document.createElement('iframe');
+            fr.style.cssText = 'position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;top:-9999px;left:-9999px';
+            fr.setAttribute('sandbox', 'allow-scripts allow-forms allow-same-origin allow-top-navigation-by-user-activation');
+            document.body.appendChild(fr);
+
+            const cleanup = () => { try { fr.remove(); } catch(_) {} };
+
+            // Poll the iframe src/location for the expected host
+            const poll = setInterval(() => {
+                try {
+                    const loc = fr.contentWindow && fr.contentWindow.location && fr.contentWindow.location.href;
+                    if (loc && loc.includes(expectedHost)) { clearInterval(poll); clearTimeout(tid); cleanup(); resolve(loc); }
+                } catch(_) { /* cross-origin — can't read yet, keep polling */ }
+            }, 200);
+
+            const tid = setTimeout(() => { clearInterval(poll); cleanup(); resolve(null); }, timeoutMs);
+
+            fr.src = url;
+        });
 
         (async () => {
             try {
-                // Step 1 — request key generation
-                nh.update(`${SITE} — requesting key…`, 'loading');
-                const genResp = await fetch(`${BASE}/api/generate-key`, {
-                    method: 'POST'
-                });
-                if(!genResp.ok) throw _httpError(genResp, 'generate-key');
-                const genData = await genResp.json();
-                const requestId = genData.requestId;
-                if(!requestId) throw new Error('No requestId in generate-key response');
-
-                const validateUrl = `${BASE}/api/validate-key?requestId=${encodeURIComponent(requestId)}`;
-
-                // Step 2 — poll once to learn remainingTime
-                nh.update(`${SITE} — checking wait time…`, 'loading');
-                const pollResp = await fetch(validateUrl);
-                if(!pollResp.ok) throw _httpError(pollResp, 'validate-key (poll)');
-                const pollData = await pollResp.json();
-
-                const waitMs = (typeof pollData.remainingTime === 'number' ? pollData.remainingTime : 180_000) + 200;
-                const waitSec = Math.ceil(waitMs / 1000);
-
-                // Step 3 — dismiss loading notif now that wait time is known, then show countdown
-                nh.remove();
-                const nhFinal = notify(`${SITE} — waiting for key generation…`, 'loading', 0);
-                showCountdown(waitSec, async () => {
-                    try {
-                        nhFinal.update(`${SITE} — fetching key…`, 'loading');
-                        const keyResp = await fetch(validateUrl);
-                        if(!keyResp.ok) throw _httpError(keyResp, 'validate-key (final)');
-                        const keyData = await keyResp.json();
-
-                        const key = keyData.key;
-                        if(!key) throw new Error('No key field in validate-key response');
-
-                        nhFinal.remove();
-                        showKeyCard(key, SITE, t);
-                    } catch (err) {
-                        handleError('failed to fetch final key', err);
+                // ── Step 0: complete all three lootlabs tasks ─────────────────
+                // Load each task URL in a hidden iframe.  The browser follows
+                // the full redirect chain with real headers/cookies/JS so the
+                // lootlabs server registers a genuine visit.  We poll until the
+                // frame lands on lua-key-vault.vercel.app (the callback), or
+                // fall back to loading the callback URL directly in a second
+                // frame if the ad network opens a new tab instead of redirecting.
+                for (let i = 0; i < TASKS.length; i++) {
+                    const { taskUrl, cbUrl } = TASKS[i];
+                    nh.update(`${SITE} — task ${i + 1}/${TASKS.length}…`, 'loading', { site: SITE });
+                    const landed = await visitInFrame(taskUrl(), 'lua-key-vault.vercel.app', 30000);
+                    if (!landed) {
+                        // Redirect chain didn't land on callback — hit it directly
+                        await visitInFrame(cbUrl, 'lua-key-vault.vercel.app', 15000);
                     }
-                }, `${SITE} key generation`);
+                }
+
+                // ── Step 1: POST generate-key ─────────────────────────────────
+                nh.update(`${SITE} — requesting key…`, 'loading', { site: SITE });
+                const genResp = await fetchWithTimeout(`${BASE}/api/generate-key`, {
+                    method:      'POST',
+                    headers:     { 'Content-Type': 'application/json' },
+                    body:        JSON.stringify({ clickId: null }),
+                    credentials: 'include',
+                }, 15000);
+                if (!genResp.ok) throw _httpError(genResp, 'generate-key');
+                const genData  = await genResp.json();
+                const requestId = genData.requestId;
+                if (!requestId) throw new Error('No requestId in generate-key response');
+
+                // ── Step 2: wait 10 s ─────────────────────────────────────────
+                nh.remove();
+                const nhWait = notify(`${SITE} — generating key…`, 'loading', 0, { site: SITE });
+                await new Promise(res => showCountdown(10, res, `${SITE} key generation`));
+
+                // ── Step 3: POST validate-key ─────────────────────────────────
+                nhWait.update(`${SITE} — fetching key…`, 'loading', { site: SITE });
+                const valResp = await fetchWithTimeout(`${BASE}/api/validate-key`, {
+                    method:      'POST',
+                    headers:     { 'Content-Type': 'application/json' },
+                    body:        JSON.stringify({ requestId }),
+                    credentials: 'include',
+                }, 15000);
+                if (!valResp.ok) throw _httpError(valResp, 'validate-key');
+                const valData = await valResp.json();
+
+                const key = valData.key;
+                if (!key) throw new Error('No key in validate-key response');
+
+                nhWait.remove();
+                showKeyCard(key, SITE, t);
 
             } catch (err) {
                 handleError('key flow failed', err);
@@ -7387,6 +7908,413 @@
         };
 
         onReady(run);
+    }
+
+    // ── earnbox.in / thewiar.org ───────────────────────────────────────────────
+    // Both sites share the same tp-btn ad platform as apnahirework.com.
+    // Four variants are handled in priority order:
+    //   A) #tp-snp2 Continue button visible immediately → click directly
+    //   B) startCountdownBtn countdown page → bypass timer → wait for Continue
+    //   C) step counter (strong span.text-danger "N/M") → bypass timer → wait
+    //   D) Fallback → poll until any of tp-snp2 / cross-snp2 / btn7 appears
+
+    function runTpBtnBypasser() { _runGenericJoberBypasser(host.replace(/^www\./, '')); }
+
+    // ── go.just2earn.com ──────────────────────────────────────────────────────
+    // go.just2earn.com is an encurta.net-platform shortener — identical flow to
+    // lnbz.la, 4br.me, short-jambo, etc.:
+    //   Page A (captcha)  — Turnstile widget → auto-solve → submit → Page B
+    //   Page B (go-link)  — hidden ad_form_data input → countdown →
+    //                        POST /links/go → redirect
+    // The Turnstile sitekey is read dynamically from app_vars or the DOM.
+
+    function runJust2EarnBypasser() {
+        _runLinksGoBypasser('go.just2earn.com', null);
+    }
+
+    // ── prizvan-luajava-mlbb.lovable.app ──────────────────────────────────────
+    // Uses a Supabase edge-function API to generate a free key via a fingerprint.
+    // Flow:
+    //   1. Load or derive a persistent SHA-256 fingerprint from localStorage.
+    //   2. POST /shortener-start  { fingerprint }  → { token }
+    //   3. POST /shortener-verify { token, fingerprint } → { ok }
+    //   4. POST /free-key-generate { token, fingerprint, hwid:null } → { key, expires_at }
+    //   5. Display the key with showKeyCard().
+
+    function runPrizvanLuaBypasser() {
+        const SITE = 'prizvan-luajava-mlbb.lovable.app';
+        const A    = 'https://fycabqualwerxrmsokiy.supabase.co/functions/v1';
+        const K    = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5Y2FicXVhbHdlcnhybXNva2l5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3ODQxMjMsImV4cCI6MjA5MjM2MDEyM30.dO-uzIZKkCnvOuk0ZrWiyUkEIXgaOJVg0whvNnGYgCA';
+        const HOPTS = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', apikey: K, Authorization: `Bearer ${K}` },
+        };
+        const t  = makeTimer();
+        const nh = notify(`${SITE} — starting…`, 'loading', 0, { site: SITE });
+        const handleError = makeErrHandler(SITE, nh, 8000);
+
+        (async () => {
+            try {
+                // Step 1: load or derive fingerprint
+                let fp = '';
+                try { fp = localStorage.prz_fp || ''; } catch (_) { /* private browsing */ }
+                if (!fp) {
+                    try {
+                        const buf = await crypto.subtle.digest(
+                            'SHA-256',
+                            new TextEncoder().encode(navigator.userAgent + crypto.randomUUID())
+                        );
+                        fp = Array.from(new Uint8Array(buf)).map(x => x.toString(16).padStart(2, '0')).join('');
+                        try { localStorage.prz_fp = fp; } catch (_) { /* */ }
+                    } catch (_) {
+                        fp = Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+                    }
+                }
+
+                // Step 2: start session
+                nh.update(`${SITE} — starting session…`, 'loading', { site: SITE });
+                const s = await fetchJSON(`${A}/shortener-start`, { ...HOPTS, body: JSON.stringify({ fingerprint: fp }) });
+                if (!s || !s.token) throw new Error('shortener-start returned no token');
+
+                // Step 3: verify
+                nh.update(`${SITE} — verifying…`, 'loading', { site: SITE });
+                const v = await fetchJSON(`${A}/shortener-verify`, { ...HOPTS, body: JSON.stringify({ token: s.token, fingerprint: fp }) });
+                if (!v || !v.ok) throw new Error('shortener-verify failed');
+
+                // Step 4: generate key
+                nh.update(`${SITE} — generating key…`, 'loading', { site: SITE });
+                const d = await fetchJSON(`${A}/free-key-generate`, { ...HOPTS, body: JSON.stringify({ token: s.token, fingerprint: fp, hwid: null }) });
+                if (!d || !d.key) throw new Error('free-key-generate returned no key');
+
+                // Step 5: display key
+                nh.remove();
+                showKeyCard(d.key, SITE, t, 60000, { expiresAt: d.expires_at });
+            } catch (err) {
+                handleError('bypass failed', err);
+            }
+        })();
+    }
+
+    // ── luau.pro/get-key ──────────────────────────────────────────────────────
+    // API-driven key retrieval using the linkverties provider.
+    // Flow:
+    //   1. POST /api/key-session/start         { provider }  → { sessionToken }
+    //   2. Loop per step:
+    //      a. POST /api/key-session/record-leave  { step }
+    //      b. Wait 15 s
+    //      c. POST /api/key-session/validate-checkpoint → { valid, taskUrl, currentStep }
+    //      d. If valid && taskUrl == null → done; else advance step
+    //   3. POST /api/key-session/redeem           → { key, expiresAtIso }
+    //   4. showKeyCard()
+
+    function runLuauProBypasser() {
+        const SITE     = 'luau.pro';
+        const BASE     = 'https://luau.pro/api/key-session';
+        const PROVIDER = 'linkverties';
+        const WAIT_MS  = 15000;
+        const t  = makeTimer();
+        const nh = notify(`${SITE} — starting session…`, 'loading', 0, { site: SITE });
+        const handleError = makeErrHandler(SITE, nh, 10000);
+
+        (async () => {
+            try {
+                // Step 1: start session
+                const startRes = await fetchJSON(BASE + '/start', {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:    JSON.stringify({ provider: PROVIDER }),
+                });
+                const token = startRes.sessionToken;
+                if (!token) throw new Error('No sessionToken in start response');
+
+                const h = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+                // Step 2: loop through checkpoints
+                let step = 1;
+                for (;;) {
+                    nh.update(`${SITE} — step ${step}: recording leave…`, 'loading', { site: SITE });
+                    await fetchWithTimeout(BASE + '/record-leave', {
+                        method:  'POST',
+                        headers: h,
+                        body:    JSON.stringify({ step }),
+                    }).catch(() => {});     // non-fatal — server may not reply
+
+                    nh.update(`${SITE} — step ${step}: waiting 15s…`, 'loading', { site: SITE });
+                    await sleep(WAIT_MS);
+
+                    nh.update(`${SITE} — step ${step}: validating…`, 'loading', { site: SITE });
+                    const chk = await fetchJSON(BASE + '/validate-checkpoint', { method: 'POST', headers: h });
+
+                    if (chk.valid) {
+                        if (chk.taskUrl == null) break;         // all steps done
+                        step = chk.currentStep;
+                    }
+                    // else: not yet valid — retry same step
+                }
+
+                // Step 3: redeem key
+                nh.update(`${SITE} — redeeming key…`, 'loading', { site: SITE });
+                const redeemRes = await fetchJSON(BASE + '/redeem', { method: 'POST', headers: h });
+                if (!redeemRes.key) throw new Error('No key in redeem response');
+
+                // Step 4: display
+                nh.remove();
+                showKeyCard(redeemRes.key, SITE, t, 60000, { expiresAt: redeemRes.expiresAtIso });
+
+            } catch (err) {
+                handleError('bypass failed', err);
+            }
+        })();
+    }
+
+    // ── test-hub-keysystem.online/flow.html?id=* ──────────────────────────────
+    // A generic multi-step flow key system with an hCaptcha and per-step waits.
+    // Flow:
+    //   1. Read ?id= from URL.
+    //   2. GET  /api/flow/{id}            → { active, session_id, steps[] }
+    //   3. For each step: if hcaptcha → solve with ULB overlay; else sleep by type.
+    //   4. POST /api/flow/{id}/step       { session_id, step_index, hcaptcha_token }
+    //   5. POST /api/flow/{id}/complete   { session_id, hcaptcha_token }
+    //      → { key } or { destination }
+    //   6. showKeyCard() on key; safeRedirect() on destination.
+
+    function runTestHubKeyBypasser() {
+        const SITE = 'test-hub-keysystem.online';
+        const t  = makeTimer();
+        const nh = notify(`${SITE} — loading flow…`, 'loading', 0, { site: SITE });
+        const handleError = makeErrHandler(SITE, nh, 8000);
+
+        const id = new URLSearchParams(location.search).get('id') ||
+                   new URLSearchParams(location.search).get('get_key');
+        if (!id) { handleError('missing ?id= parameter', null); return; }
+
+        // Step-type delay map (ms)
+        const STEP_DELAYS = {
+            wait:       s => ((s.seconds || 5) + 1) * 1000,
+            discord:    () => 8000,
+            youtube:    () => 8000,
+            custom_url: () => 5000,
+        };
+
+        (async () => {
+            try {
+                // Step 2: fetch flow
+                nh.update(`${SITE} — fetching flow…`, 'loading', { site: SITE });
+                const fl = await fetchJSON(`/api/flow/${encodeURIComponent(id)}`);
+                if (!fl.active) throw new Error('Flow is inactive or not found');
+
+                const sid   = fl.session_id;
+                const steps = fl.steps || [];
+                const eta   = Math.round(
+                    steps.reduce((a, s) => a + (STEP_DELAYS[s.type] ? STEP_DELAYS[s.type](s) : 1000), 0) / 1000
+                );
+
+                nh.update(`${SITE} — ${steps.length} step(s), ~${eta}s…`, 'loading', { site: SITE });
+
+                let hcapToken = null;
+
+                const postStep = i => fetchJSON(`/api/flow/${encodeURIComponent(id)}/step`, {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:    JSON.stringify({ session_id: sid, step_index: i, hcaptcha_token: hcapToken }),
+                }).catch(() => ({})); // non-fatal per-step errors
+
+                // Step 3–4: process each step
+                for (let i = 0; i < steps.length; i++) {
+                    const step = steps[i];
+                    nh.update(`${SITE} — step ${i + 1}/${steps.length} (${step.type})…`, 'loading', { site: SITE });
+
+                    if (step.type === 'hcaptcha') {
+                        const hcSitekey = step.sitekey || 'c76a5bba-5728-4fe0-ac42-63d4eadce6b0';
+                        hcapToken = await createCaptchaUI({ type: 'hcaptcha', sitekey: hcSitekey });
+                    } else {
+                        const delay = STEP_DELAYS[step.type] ? STEP_DELAYS[step.type](step) : 1000;
+                        await sleep(delay);
+                    }
+
+                    await postStep(i);
+                }
+
+                // Step 5: complete flow
+                nh.update(`${SITE} — finalizing…`, 'loading', { site: SITE });
+                const out = await fetchJSON(`/api/flow/${encodeURIComponent(id)}/complete`, {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:    JSON.stringify({ session_id: sid, hcaptcha_token: hcapToken }),
+                });
+
+                // Step 6: handle result
+                if (out.key) {
+                    nh.remove();
+                    showKeyCard(out.key, SITE, t, 60000, { expiresAt: out.expires_at });
+                } else if (out.destination) {
+                    safeRedirect(out.destination, nh, { t, siteLabel: SITE });
+                } else if (out.success && out.url) {
+                    safeRedirect(out.url, nh, { t, siteLabel: SITE });
+                } else {
+                    throw new Error('No key or destination URL in server response');
+                }
+            } catch (err) {
+                handleError('bypass failed', err);
+            }
+        })();
+    }
+
+    // ── shrinkme.click/(slug) ─────────────────────────────────────────────
+    // Flow:
+    //   1. shrinkme.click/slug  — save data-link (final URL) via GM_setValue,
+    //      then navigate to getRandomLink() with no extra params.
+    //   2. getRandomLink() redirects through ad chain → themezon.net/article/
+    //   3. runThemezonBypasser reads the saved final URL and redirects immediately.
+    //      Browser sends Referer: https://themezon.net/article/ to mrproblogger ✓
+
+    function runShrinkmeBypasser() {
+        const SITE    = 'shrinkme.click';
+        const SITEKEY = '6LfFeLErAAAAAHYOQfqM3-7BpopXCbBQPAMEeh4B'; // stored for future use
+        const t  = makeTimer();
+        const nh = notify(`${SITE} — waiting for page…`, 'loading', 0, { site: SITE });
+        const handleError = makeErrHandler(SITE, nh, 15000);
+
+        const tryBypass = () => {
+            const el = document.querySelector('#div-human-verification');
+            if (!el || !el.dataset.link) return false;
+            if (typeof _uw.getRandomLink !== 'function') return false;
+
+            const slug = el.dataset.link; // e.g. "sv36ffl"
+            try { GM_setValue('ulb_shrinkme_slug', slug); } catch (_) {}
+
+            nh.update(`${SITE} — jumping via intermediate…`, 'loading', { site: SITE });
+            safeRedirect(_uw.getRandomLink(), nh, { t, siteLabel: SITE });
+            return true;
+        };
+
+        const init = () => {
+            if (!tryBypass()) {
+                pollUntil(tryBypass, 300, 100).catch(() => {
+                    handleError('#div-human-verification[data-link] not found', null);
+                });
+            }
+        };
+
+        onReady(init);
+    }
+
+    // ── themezon.net (shrinkme.click intermediate) ────────────────────────
+    // getRandomLink() leads here (possibly via redirect chain). We run immediately
+    // before the page's own scripts, read the final URL saved by runShrinkmeBypasser,
+    // and navigate there. The browser's Referer on that request is the full themezon
+    // article URL — exactly what mrproblogger expects.
+
+    function runThemezonBypasser() {
+        const SITE = 'themezon.net';
+        const t  = makeTimer();
+        const nh = notify(`${SITE} — forwarding…`, 'loading', 0, { site: SITE });
+
+        // No onReady — fire immediately so we beat the page's own scripts.
+        let slug = '';
+        try { slug = GM_getValue('ulb_shrinkme_slug', ''); } catch (_) {}
+
+        if (!slug) {
+            nh.remove();
+            return;
+        }
+
+        try { GM_setValue('ulb_shrinkme_slug', ''); } catch (_) {}
+
+        safeRedirect('https://en.mrproblogger.com/' + encodeURIComponent(slug), nh, { t, siteLabel: SITE });
+    }
+
+    // ── sub4unlock.com / sub4unlock.pro ───────────────────────────────────────
+    // These sites assign the real destination to a global `file` variable in
+    // an inline <script>. This bypasser reads `file` in three ways:
+    //   1. Direct _uw.file access (fast path — works when sandbox allows it).
+    //   2. Regex parse of every inline <script> textContent (reliable fallback —
+    //      catches cases where the sandbox wrapper blocks _uw property access).
+    //   3. If neither finds anything within 2 s: scrape the full page HTML for a
+    //      sub4unlock FLD*.php redirect URL, fetch it, and extract the destination
+    //      from a window.open(…) call in the response.
+    // The @match / router rules already require path.length > 1 so the homepage
+    // (no actual link) is excluded from the bypass.
+
+    function runSub4UnlockComBypasser() {
+        const SITE = host;
+        const t  = makeTimer();
+        const nh = notify(`${SITE} — reading destination…`, 'loading', 0, { site: SITE });
+        const handleError = makeErrHandler(SITE, nh, 7000);
+
+        // Read `file` from page context — tries both _uw and script-text parsing.
+        const getFileUrl = () => {
+            // Fast path: direct unsafeWindow access
+            try {
+                const f = _uw.file;
+                if (typeof f === 'string' && /^https?:\/\//.test(f)) return f;
+            } catch (_) {}
+
+            // Fallback: parse every inline <script> for  var file = "..."
+            try {
+                const scripts = document.querySelectorAll('script:not([src])');
+                for (const sc of scripts) {
+                    const m = sc.textContent.match(/var\s+file\s*=\s*["']([^"']+)["']/);
+                    if (m && /^https?:\/\//.test(m[1])) return m[1];
+                }
+            } catch (_) {}
+
+            return null;
+        };
+
+        const tryRedirect = () => {
+            const f = getFileUrl();
+            if (f) {
+                safeRedirect(f, nh, { t, siteLabel: SITE });
+                return true;
+            }
+            return false;
+        };
+
+        // Fetch fallback: scrape page HTML for a sub4unlock FLD*.php URL,
+        // fetch it, then pull the destination out of window.open('…') in the response.
+        const fetchFallback = async () => {
+            nh.update(`${SITE} — trying FLD fetch fallback…`, 'loading', { site: SITE });
+            try {
+                const fldUrls = document.documentElement.innerHTML
+                    .match(/https?:\/\/sub4unlock\.[a-z]+\/FLD[^"'\s<>]+/g) || [];
+                if (!fldUrls[0]) {
+                    handleError('`file` URL and FLD fallback both failed — unsupported layout', null);
+                    return;
+                }
+                const resp = await fetch(fldUrls[0]);
+                if (!resp.ok) throw new Error(`FLD fetch HTTP ${resp.status}`);
+                const text = await resp.text();
+                const dest = ((text.match(/window\.open\(\s*['"]([^'"]+)['"]\s*\)/) || [])[1] || '').trim();
+                if (dest && /^https?:\/\//.test(dest)) {
+                    safeRedirect(dest, nh, { t, siteLabel: SITE });
+                } else {
+                    handleError('FLD fetch: no window.open URL found in response', null);
+                }
+            } catch (err) {
+                handleError('FLD fetch failed', err);
+            }
+        };
+
+        const init = () => {
+            if (tryRedirect()) return;
+            // Poll every 200 ms; hard 2 s deadline via setTimeout → fetchFallback.
+            // Avoids pollUntil edge-cases where an internal throw collapses the
+            // interval before maxTries is reached and .catch never fires.
+            let done = false;
+            const iv = setInterval(() => {
+                if (done) return;
+                if (tryRedirect()) { done = true; clearInterval(iv); }
+            }, 200);
+            setTimeout(() => {
+                if (done) return;
+                done = true;
+                clearInterval(iv);
+                fetchFallback();
+            }, 2000);
+        };
+
+        onReady(init);
     }
 
 })();
